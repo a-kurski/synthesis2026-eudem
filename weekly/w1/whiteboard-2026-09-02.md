@@ -37,6 +37,7 @@
 - How to ensure output data quality? 
 - How to actually get the data — stream it? 
 - RA: what are the risks? And how do we want to present them? 
+- Compute: how much, and when? 
 
 # Research Questions: 
 
