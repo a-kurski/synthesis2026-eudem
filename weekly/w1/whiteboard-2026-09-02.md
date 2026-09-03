@@ -12,7 +12,7 @@
 | PC: Switzerland | Must | 
 | PC: France | Must |
 | PC: Luxembourg | Must | 
-| PC: Austria | Must | 
+| PC: Austria | Could | 
 | PC: Liechtenstein | Must | 
 | PC: Italy | Could | 
 | Rhine Bathymetry | Could? |
