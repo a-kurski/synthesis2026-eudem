@@ -30,6 +30,7 @@
 - Output format: tiled, COG, or something else?
 - **Do the clients want bathymetry?**
 - **Metadata: what, how? Global or perhaps also some per-pixel data?**
+- What prevents us from using CRS transformations for the pointclouds?
 - Any extra stuff the client wants other than required submission files? 
 - **Output: CRS, resolution?**
 - RDNAPTRANS for Dutch PC? And are there equivalent conversion tools for other CRS? 
