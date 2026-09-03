@@ -1,3 +1,6 @@
+#show heading.where(level:1): it => {pagebreak(weak: true)
+ it}
+
 #include "010-introduction.typ"
 #include "020-contributors.typ"
 #include "030-project-definition.typ"
