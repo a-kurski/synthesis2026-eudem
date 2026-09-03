@@ -28,12 +28,12 @@ Communication is key to the success of this project. To ensure communication is 
     [8.],[Lacking/inadequate communication within the team and/or with stakeholders.],[Critical],[Possible],[Schedule regular meetings and maintain open communication channels.],
     [9.],[Discovery of unexpected issues.],[Marginal],[Possible],[Regular meetings with team and stakeholders to assess impact and devise mitigation strategies if necessary.],
     [10.],[Temporary or permanent absence of team members.],[Critical],[Rare],[Set internal deadlines early to allow for adjustments in case of absence.],
-    [11.],[Data loss.],[Catastrophic],[Possible],[Implement regular backup procedures.],
+    [11.],[Data loss.],[Catastrophic],[Possible],[Implement regular backup procedures.]
   ),
   caption: "Risk Assessment Table."
 )
 #figure(
-  image("/assets/image.png", width: 70%),
+  image("assets/image.png", width: 70%),
   caption: "Risk Assessment Matrix."
 )
 
