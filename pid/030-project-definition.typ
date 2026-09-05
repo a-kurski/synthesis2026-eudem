@@ -15,8 +15,21 @@ As described in the introduction, the project focusses on the issues presented b
 Answering these subquestions will help to answer the main research question. The first two subquestions are more theoretical and will be answered in the report. The last two subquestions are more practical and will be answered in the pipeline.
 
 == Relevant courses from the MSc Geomatics program
+This project applies knowledge gained from several courses from the MSc Geomatics program. Having a basic overview of these courses will highlight the current knowledge possessed by the team. These are the following courses:
+
+- GEO1000 - Python for Geomatics;
+- GEO1001 - Sensing Technologies;
+- GEO1002 - GIS and Cartography;
+- GEO1004 - 3D modelling for the build environment;
+- GEO1015 - Digital Terrain Modelling.
+
+GEO1000 is relevant for programming the pipeline in either Python or C++. GEO1001 was the basis for understanding point cloud data collection and processing. GEO1002 is relevant for understanding the data and how to visualise it. GEO1004 is possibly relevant for working with 3D data and point cloud processing. GEO1015 is applicable as it forms the basis for 2D and 2.5D terrain modelling, shortcomings and processing of DEMs. 
+
+
 
 == Requirements 
+This chapter describes the requirements for this project. The requirements are divided into data requirements, country requirements, map requirements, technical content requirements, and report requirements. The requirements each have a priority assigned based on the MoSCoW method. This method divides requirements into four categories: Must have, Should have, Could have, and Won't have. Must have requirements are those which are mandatory. Should have requirements are more akin to nice-to-have features Could have requirements are those which have been discussed but are not mandatory. Won't have requirements are more related to project scope and refer to features which will not be part of the project. The requirements are listed in #ref(<Moscow_Prioritization>).
+
 #let moscow(value) = {
   let color = if value == "Must" {
     rgb("#b3ef88")
@@ -77,4 +90,4 @@ Answering these subquestions will help to answer the main research question. The
     [RP-04],[Report details the limitations of the workflow], moscow("Must")
 
   )
-)
+) <Moscow_Prioritization>
