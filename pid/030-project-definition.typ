@@ -3,17 +3,25 @@
 == Research and Subquestions
 The main research question of this project is:
 
-_How to create a harmonised cross-border DEM (of the Rhine catchment area) in an automated (and efficient) way?_
+_How to create a harmonised cross-border DEM of the Rhine catchment area in an automated (and efficient) way?_
 
 As described in the introduction, the project focusses on the issues presented by the cross-border data of the Rhine catchment area. This translates to the creation of an automated pipeline and the report describing the issues that come with attempting the creation of a harmonised DEM. The efficiency refers to creating a pipeline that accounts for the large data quantity and limited computational resources. These two aspects of the main question can be broken down into the following subquestions:
 
-- What are the limitions of an automated harmonisation pipeline? 
-- What are the unknowns/variables in the data we need to consider? 
+- What is the internationally recognised border of the Rhine catchment area?
+- What are the issues with cross-border data?
+- What are the INSPIRE requirements for DEMs?
 - What are the existing DEMs (local/global)? 
 - What, if any, are the existing workflows for processing point clouds from heterogeneous sources?
+ 
+- What are the unknowns/variables in the data we need to consider? 
 
-Answering these subquestions will help to answer the main research question. The first two subquestions are more theoretical and will be answered in the report. The last two subquestions are more practical and will be answered in the pipeline.
 
+- What are the limitations of an automated harmonisation pipeline? 
+- How can we test the accuracy of the harmonised DEM?
+
+Answering these subquestions will help to answer the main research question. The first five subquestions will be evaluated in the research phase of the project and relate mostly to existing works and available data. Answering these questions is important as input into the software development and data collection phase. The next research questios will be answered during the software development phase. This question regarding the unknowns will be solved organically by deciding which variables are and are not relevant for the pipeline. The final two questions relate to testing and limitations of the pipeline. These will be answered by verification of the requirements and validation with the client based on findings during testing. 
+
+#pagebreak()
 == Relevant courses from the MSc Geomatics program
 This project applies knowledge gained from several courses from the MSc Geomatics program. Having a basic overview of these courses will highlight the current knowledge possessed by the team. These are the following courses:
 
@@ -24,7 +32,6 @@ This project applies knowledge gained from several courses from the MSc Geomatic
 - GEO1015 - Digital Terrain Modelling.
 
 GEO1000 is relevant for programming the pipeline in either Python or C++. GEO1001 was the basis for understanding point cloud data collection and processing. GEO1002 is relevant for understanding the data and how to visualise it. GEO1004 is possibly relevant for working with 3D data and point cloud processing. GEO1015 is applicable as it forms the basis for 2D and 2.5D terrain modelling, shortcomings and processing of DEMs. 
-
 
 
 == Requirements 
