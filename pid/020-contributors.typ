@@ -35,7 +35,7 @@ The team consists of three TU Delft MSc Geomatics students. The project is condu
     The Netherlands \
     BSc Aeronautical Engineering, Inholland, The Netherlands
 
-    Interests:
+    Interests: Solving programming challenges and creating nice visuals.
   ],
 )
 
