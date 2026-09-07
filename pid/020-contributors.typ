@@ -19,7 +19,7 @@ This section provides an overview of the student members of the team; their role
     Turkey \
     BSc Electrical Engineering, TU Eindhoven, The Netherlands
 
-    Interests:
+    Interests: Point clouds, geospatial data visualization, digital terrain modelling
   ],
   [#rect(height: 5cm, width: 4cm)], [
     *Artemi Kurski* \
@@ -29,7 +29,7 @@ This section provides an overview of the student members of the team; their role
     Estonia \
     BSc Architecture, University of Bath, United Kingdom
 
-    Interests: computational modelling of terrains and the built environment
+    Interests: Computational modelling of terrains and the built environment
   ],
   [#rect(height: 5cm, width: 4cm)], [
     *Ruben Vons* \
