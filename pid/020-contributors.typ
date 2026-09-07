@@ -35,7 +35,7 @@
     The Netherlands \
     BSc Aeronautical Engineering, Inholland, The Netherlands
 
-    Interests:
+    Interests: Solving programming challenges and creating nice visuals.
   ],
 )
 
