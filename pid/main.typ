@@ -1,3 +1,5 @@
+#import "@preview/timeliney:0.4.0"
+
 #show heading.where(level:1): it => {pagebreak(weak: true)
  it}
 
@@ -6,7 +8,7 @@
 #include "030-project-definition.typ"
 #include "040-methodology.typ"
 #include "050-planning.typ"
+
+#bibliography("bib.bib", style: "ieee")
+
 #include "990-appendix.typ"
-
-#import "@preview/timeliney:0.4.0"
-

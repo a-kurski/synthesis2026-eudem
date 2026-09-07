@@ -2,7 +2,7 @@
 
 = Contributors
 
-This section provides an overview of the student members of the team; their roles; and the clients and supervisors.
+This section provides an overview of the student members of the team and their roles; as well as the clients and the supervision team.
 
 == Team Members
 
@@ -45,10 +45,14 @@ This section provides an overview of the student members of the team; their role
 
 == Roles
 
-== Client & Supervision Team
+#drafting.inline-note[TODO: Do we even want roles?]
 
-The clients of this project are Rijkswaterstaat and Deltares, represented by Daan van der Heide and Maarten Pronk respectively. Additionally, Gina Stavropoulou is representing 3D Geoinformation Group of TUDelft and serves as the liaison between the clients and the university #drafting.margin-note[TODO: Check]. The supervisors provide feedback on the team's work, help define scope and desired outcomes, and share their experience with existing approaches to the problem.
+== Supervision Team
 
-Rijkswaterstaat are a government agency for infrastructure and water management of the Netherlands. Originally created in 1798 for flood prevention, it now also oversees the construction and maintenance of national infrastructure. Some of the notable projects completed by the agency include the Afsluitdijk, constructed between 1920 and 1932, and the Delta Works, constructed between 1954 and 1997. Flooding still remains a key concern for Rijkswaterstaat.
+The supervision team for this project consists of Gina Stavropoulou, representing TU Delft's 3D Geoinformation Group, Maarten Pronk, representing Deltares, and Daan van der Heide, representing Rijkswaterstaat; Maarten Pronk and Daan van der Heide are also PhD candidates in the 3D Geoinformation Group. The supervisors provide feedback on the team's work, help define scope and desired outcomes, and share their experience with existing approaches to the problem.
 
-Deltares are an independent research institute specialising in water and subsurface research. Their key mission is 'Enabling Delta Life', which encompasses five key areas focusing on health, safety, and sustainability of life in river deltas. Creating a more accurate river model contributes to several of these areas — in particular, "Safer from flooding" and "Healthy water systems".
+== Clients
+
+Rijkswaterstaat are a government agency for infrastructure and water management of the Netherlands. Originally created in 1798 for flood prevention, it now also oversees the construction and maintenance of national infrastructure @rijkswaterstaat-About. Some of the notable projects completed by the agency include the Afsluitdijk, built in the interwar period, and the Delta Works, the construction of which finished in 1997. Flooding still remains a key priority for Rijkswaterstaat.
+
+Deltares are an independent research institute specialising in water and subsurface research @deltares-About. Their key mission is 'Enabling Delta Life', which encompasses five key areas focusing on health, safety, and sustainability of life in river deltas. Creating a more accurate river model contributes to several of these areas — in particular, "Safer from flooding" and "Healthy water systems".
