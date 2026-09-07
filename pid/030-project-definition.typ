@@ -35,7 +35,7 @@ GEO1000 is relevant for programming the pipeline in either Python or C++. GEO100
 
 
 == Requirements 
-This chapter describes the requirements for this project. The requirements are divided into data requirements, country requirements, map requirements, technical content requirements, and report requirements. The requirements each have a priority assigned based on the MoSCoW method. This method divides requirements into four categories: Must have, Should have, Could have, and Won't have. Must have requirements are those which are mandatory. Should have requirements are more akin to nice-to-have features Could have requirements are those which have been discussed but are not mandatory. Won't have requirements are more related to project scope and refer to features which will not be part of the project. The requirements are listed in #ref(<Moscow_Prioritization>).
+This chapter describes the requirements for this project. The requirements are divided into data requirements, country requirements, map requirements, technical content requirements, and report requirements. The requirements each have a priority assigned based on the MoSCoW method. This method divides requirements into four categories: Must have, Should have, Could have, and Will not have. Must have requirements are those which are mandatory. Should have requirements are more akin to nice-to-have features Could have requirements are those which have been discussed but are not mandatory. Will not have requirements are more related to project scope and refer to features which will not be part of the project. The requirements are listed in #ref(<Moscow_Prioritization>).
 
 #let moscow(value) = {
   let color = if value == "Must" {
@@ -44,7 +44,7 @@ This chapter describes the requirements for this project. The requirements are d
     rgb("#f0e876")
   } else if value == "Could" {
     rgb("#f1ac6f")
-  } else if value == "Won't have" {
+  } else if value == "Will not have" {
     rgb("#ed7e7e")
   } else {
     none
@@ -78,7 +78,7 @@ This chapter describes the requirements for this project. The requirements are d
     [CT-06],[Luxembourg is included], moscow("Must"),
     [CT-07],[Austria is included], moscow("Must"),
     [CT-08],[Liechtenstein is included (included in Swiss data)], moscow("Must"),
-    [CT-09],[Italy is included], moscow("Won't have"),
+    [CT-09],[Italy is included], moscow("Will not have have"),
     [],[],[],
     [MP-01],[DSM map], moscow("Must"),
     [MP-02],[DTM map], moscow("Must"),
