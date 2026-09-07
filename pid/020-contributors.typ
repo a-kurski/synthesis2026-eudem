@@ -1,5 +1,5 @@
 = Contributors
-
+The team consists of three TU Delft MSc Geomatics students. The project is conducted in cooperation with Daan van der Heide from Rijkswaterstaat, and Maarten Pronk from Deltares. Furthermore, Gina Stavropoulou is assisting from TU Delft. A short description of the students members and their roles within the project is given in this section.
 == Team members
 
 #grid(
