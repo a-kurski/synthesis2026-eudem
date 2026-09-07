@@ -262,6 +262,11 @@ Communication is key to the success of this project. To ensure communication is 
 
 In order to identify and mitigate risks, a risk analysis will be conducted. The method used is the risk matrix method. It is important to mention that this method is not infalible and that it is possible that risks are not identified or that the impact and likelihood are wrongly assessed. However, this method does allow for a more structured approach to risk analysis. #ref(<Risk_Assessment_Table>) shows the identified risks, their impact and likelihood, and what can be done to mitigate them. 
 
+#figure(
+  image("assets/image.png", width: 70%),
+  caption: "Risk Assessment Matrix."
+) <Risk_Assessment_Matrix>
+
 #let impact(value) = {
   let color = if value == "Minor" {
     rgb("b3ef88")
@@ -402,9 +407,6 @@ In order to identify and mitigate risks, a risk analysis will be conducted. The 
   caption: "Risk Assessment Table."
 ) <Risk_Assessment_Table>
 
-#figure(
-  image("assets/image.png", width: 70%),
-  caption: "Risk Assessment Matrix."
-) <Risk_Assessment_Matrix>
+
 
 https://en.wikipedia.org/wiki/Risk_matrix
