@@ -7,3 +7,6 @@
 #include "040-methodology.typ"
 #include "050-planning.typ"
 #include "990-appendix.typ"
+
+#import "@preview/timeliney:0.4.0"
+

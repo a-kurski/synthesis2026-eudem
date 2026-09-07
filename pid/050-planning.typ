@@ -1,3 +1,4 @@
+#import "@preview/timeliney:0.4.0"
 = Planning
 
 == Phases
@@ -56,6 +57,200 @@ The phase consists of the following tasks:
 - Final report creation.
 
 The final presentation will be prepared to show the final results and conclusions of the project. The final report will contain the results of the research phase and the software development in its final state. 
+
+#import "@preview/timeliney:0.4.0"
+
+#timeliney.timeline(
+  show-grid: true,
+  spacing: 6pt,
+  line-style: (stroke: 4pt),
+
+  {
+    import timeliney: *
+
+    // ─────────────────────────────────────────────
+    // HEADER
+    // ─────────────────────────────────────────────
+
+    headerline(
+      group(
+        ("1", 1),
+        ("2", 1),
+        ("3", 1),
+        ("4", 1),
+        ("5", 1),
+        ("6", 1),
+        ("7", 1),
+        ("8", 1),
+        ("9", 1),
+        ("10", 1),
+      ),
+    )
+
+    // ─────────────────────────────────────────────
+    // ORGANISATION
+    // ─────────────────────────────────────────────
+
+    taskgroup(title: [*Organisation*], {
+      task(
+        "Project Initiation Document (PID)",
+        (0, 2),
+        style: (stroke: 8pt + rgb("#b3ef88")),
+      )
+
+      task(
+        "Project planning and scheduling",
+        (0, 2),
+        style: (stroke: 8pt + rgb("#94c571")),
+      )
+
+      task(
+        "Meetings",
+        (0, 10),
+        style: (stroke: 8pt + rgb("#618249")),
+      )
+    })
+
+    milestone(
+      at: 2,
+      style: (stroke: (dash: "dashed")),
+      [PID deadline],
+    )
+
+    // ─────────────────────────────────────────────
+    // RESEARCH
+    // ─────────────────────────────────────────────
+
+    taskgroup(title: [*Research and Data Collection*], {
+      task(
+        "Literature study approach",
+        (1, 4),
+        style: (stroke: 8pt + rgb("#f0e876")),
+      )
+
+      task(
+        "Review CRS transformation",
+        (1, 4),
+        style: (stroke: 8pt + rgb("#d2cb67")),
+      )
+
+      task(
+        "Methodology refinement",
+        (1, 4),
+        style: (stroke: 8pt + rgb("#a9a453")),
+      )
+
+      task(
+        "Data collection",
+        (1, 4),
+        style: (stroke: 8pt + rgb("#878342")),
+      )
+    })
+
+    // ─────────────────────────────────────────────
+    // PROTOTYPE / PRODUCTION
+    // ─────────────────────────────────────────────
+
+    taskgroup(title: [*Pipeline Creation*], {
+      task(
+        "Make prototype",
+        (2, 5),
+        style: (stroke: 8pt + rgb("#f1ac6f")),
+      )
+
+      task(
+        "Test prototype parts",
+        (3, 5),
+        style: (stroke: 8pt + rgb("#cb905d")),
+      )
+
+      task(
+        "Make production",
+        (5, 8),
+        style: (stroke: 8pt + rgb("#b07d51")),
+      )
+
+      task(
+        "Test production parts",
+        (6, 7),
+        style: (stroke: 8pt + rgb("#946943")),
+      )
+
+      task(
+        "Test production fully",
+        (6, 8),
+        style: (stroke: 8pt + rgb("#5a4029")),
+      )
+
+      task(
+        "Documentation",
+        (3, 8),
+        style: (stroke: 8pt + rgb("#312316")),
+      )
+    })
+
+    milestone(
+      at: 5,
+      style: (stroke: (dash: "dashed")),
+      [Prototype completed],
+    )
+
+    // ─────────────────────────────────────────────
+    // MIDTERM
+    // ─────────────────────────────────────────────
+
+    taskgroup(title: [*Midterm*], {
+      task(
+        "Midterm report",
+        (1, 5),
+        style: (stroke: 8pt + rgb("#ed7e7e")),
+      )
+
+      task(
+        "Midterm presentation",
+        (1, 5),
+        style: (stroke: 8pt + rgb("#c06666")),
+      )
+    })
+
+    milestone(
+      at: 5,
+      style: (stroke: (dash: "dashed")),
+      [Midterm deliverables],
+    )
+    
+
+    // ─────────────────────────────────────────────
+    // FINAL
+    // ─────────────────────────────────────────────
+
+    taskgroup(title: [*Final*], {
+      task(
+        "Final report",
+        (5, 9),
+        style: (stroke: 8pt + rgb("#9f5555")),
+      )
+
+      task(
+        "Final presentation",
+        (5, 10),
+        style: (stroke: 8pt + rgb("#723c3c")),
+      )
+    })
+
+    milestone(
+      at: 9,
+      style: (stroke: (dash: "dashed")),
+      [Final report],
+    )
+
+    milestone(
+      at: 10,
+      style: (stroke: (dash: "dashed")),
+      [Final deliverables],
+    )
+  },
+)
 
 #pagebreak()
 == Communication
