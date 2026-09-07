@@ -1,6 +1,10 @@
+#import "@preview/drafting:0.2.2"
+
 = Contributors
-The team consists of three TU Delft MSc Geomatics students. The project is conducted in cooperation with Daan van der Heide from Rijkswaterstaat, and Maarten Pronk from Deltares. Furthermore, Gina Stavropoulou is assisting from TU Delft. A short description of the students members and their roles within the project is given in this section.
-== Team members
+
+This section provides an overview of the student members of the team; their roles; and the clients and supervisors.
+
+== Team Members
 
 #grid(
   columns: (5cm, 1fr),
@@ -41,4 +45,10 @@ The team consists of three TU Delft MSc Geomatics students. The project is condu
 
 == Roles
 
-== Client
+== Client & Supervision Team
+
+The clients of this project are Rijkswaterstaat and Deltares, represented by Daan van der Heide and Maarten Pronk respectively. Additionally, Gina Stavropoulou is representing 3D Geoinformation Group of TUDelft and serves as the liaison between the clients and the university #drafting.margin-note[TODO: Check]. The supervisors provide feedback on the team's work, help define scope and desired outcomes, and share their experience with existing approaches to the problem.
+
+Rijkswaterstaat are a government agency for infrastructure and water management of the Netherlands. Originally created in 1798 for flood prevention, it now also oversees the construction and maintenance of national infrastructure. Some of the notable projects completed by the agency include the Afsluitdijk, constructed between 1920 and 1932, and the Delta Works, constructed between 1954 and 1997. Flooding still remains a key concern for Rijkswaterstaat.
+
+Deltares are an independent research institute specialising in water and subsurface research. Their key mission is 'Enabling Delta Life', which encompasses five key areas focusing on health, safety, and sustainability of life in river deltas. Creating a more accurate river model contributes to several of these areas — in particular, "Safer from flooding" and "Healthy water systems".
