@@ -1,28 +1,29 @@
+#import "@preview/drafting:0.2.2"
+
 = Project Definition
 
 == Research and Subquestions
+
 The main research question of this project is:
 
-_How to create a harmonised cross-border DEM of the Rhine catchment area in an automated (and efficient) way?_
+_How to create a harmonised cross-border DEM of the Rhine catchment area in an automated way?_
 
 As described in the introduction, the project focusses on the issues presented by the cross-border data of the Rhine catchment area. This translates to the creation of an automated pipeline and the report describing the issues that come with attempting the creation of a harmonised DEM. The efficiency refers to creating a pipeline that accounts for the large data quantity and limited computational resources. These two aspects of the main question can be broken down into the following subquestions:
 
-- What is the internationally recognised border of the Rhine catchment area?
+- What is the Rhine catchment area?
+- What, if any, existing approaches are there to creating a harmonised DEM from heterogeneous sources?
+- What are the existing DEMs at different scales (regional, national, and global)?
 - What are the issues with cross-border data?
 - What are the INSPIRE requirements for DEMs?
-- What are the existing DEMs (local/global)? 
-- What, if any, are the existing workflows for processing point clouds from heterogeneous sources?
- 
-- What are the unknowns/variables in the data we need to consider? 
+- What are the limitations of an automated harmonisation pipeline?
+- How can we test the accuracy of the reconstructed cross-border DEM?
 
+Answering these subquestions will help to answer the main research question. The first five subquestions will be evaluated in the research phase of the project and relate mostly to existing works and available data. Answering these questions will inform data acquisition and subsequently, software development. The next research questions will be answered during the software development phase as they relate to testing and limitations of the pipeline. These questions will be answered by evaluating the procedures and the output, and discussing the findings with the client.
 
-- What are the limitations of an automated harmonisation pipeline? 
-- How can we test the accuracy of the harmonised DEM?
-
-Answering these subquestions will help to answer the main research question. The first five subquestions will be evaluated in the research phase of the project and relate mostly to existing works and available data. Answering these questions is important as input into the software development and data collection phase. The next research questios will be answered during the software development phase. This question regarding the unknowns will be solved organically by deciding which variables are and are not relevant for the pipeline. The final two questions relate to testing and limitations of the pipeline. These will be answered by verification of the requirements and validation with the client based on findings during testing. 
-
-#pagebreak()
 == Relevant courses from the MSc Geomatics program
+
+#drafting.inline-note[Do we care about this?]
+
 This project applies knowledge gained from several courses from the MSc Geomatics program. Having a basic overview of these courses will highlight the current knowledge possessed by the team. These are the following courses:
 
 - GEO1000 - Python for Geomatics;
@@ -31,11 +32,11 @@ This project applies knowledge gained from several courses from the MSc Geomatic
 - GEO1004 - 3D modelling for the build environment;
 - GEO1015 - Digital Terrain Modelling.
 
-GEO1000 is relevant for programming the pipeline in either Python or C++. GEO1001 was the basis for understanding point cloud data collection and processing. GEO1002 is relevant for understanding the data and how to visualise it. GEO1004 is possibly relevant for working with 3D data and point cloud processing. GEO1015 is applicable as it forms the basis for 2D and 2.5D terrain modelling, shortcomings and processing of DEMs. 
+GEO1000 is relevant for programming the pipeline in either Python or C++. GEO1001 was the basis for understanding point cloud data collection and processing. GEO1002 is relevant for understanding the data and how to visualise it. GEO1004 is possibly relevant for working with 3D data and point cloud processing. GEO1015 is applicable as it forms the basis for 2D and 2.5D terrain modelling, shortcomings and processing of DEMs.
 
 
-== Requirements 
-This chapter describes the requirements for this project. The requirements are divided into data requirements, country requirements, map requirements, technical content requirements, and report requirements. The requirements each have a priority assigned based on the MoSCoW method. This method divides requirements into four categories: Must have, Should have, Could have, and Will not have. Must have requirements are those which are mandatory. Should have requirements are more akin to nice-to-have features Could have requirements are those which have been discussed but are not mandatory. Will not have requirements are more related to project scope and refer to features which will not be part of the project. The requirements are listed in #ref(<Moscow_Prioritization>).
+== Requirements
+This chapter describes the requirements for this project. The requirements are divided into data requirements, country requirements, map requirements, technical content requirements, and report requirements. The requirements each have a priority assigned based on the MoSCoW method. This method divides requirements into four categories: Must have, Should have, Could have, and Will not have. Must have requirements are those which are mandatory. Should have requirements are more akin to nice-to-have features Could have requirements are those which have been discussed but are not mandatory. Will not have requirements are more related to project scope and refer to features which will not be part of the project. The requirements are listed in @Moscow_Prioritization.
 
 #let moscow(value) = {
   let color = if value == "Must" {
@@ -68,8 +69,8 @@ This chapter describes the requirements for this project. The requirements are d
     table.header([Req ID],[Description], [MoSCoW]),
     [DT-01],[Global EU DEM (as ground truth)], moscow("Must"),
     [DT-02],[Rhine Watershed Mask], moscow("Must"),
-    [DT-03],[Rhine Bathymetry], moscow("Could"),
-    [],[],[],
+    [DT-03],[Rhine Bathymetry], moscow("Will not have"),
+    table.hline(stroke: 2pt),
     [CT-01],[Netherlands is included], moscow("Must"),
     [CT-02],[Germany is included], moscow("Must"),
     [CT-03],[Belgium is included], moscow("Should"),
@@ -77,20 +78,20 @@ This chapter describes the requirements for this project. The requirements are d
     [CT-05],[France is included], moscow("Must"),
     [CT-06],[Luxembourg is included], moscow("Must"),
     [CT-07],[Austria is included], moscow("Must"),
-    [CT-08],[Liechtenstein is included (included in Swiss data)], moscow("Must"),
-    [CT-09],[Italy is included], moscow("Will not have have"),
-    [],[],[],
+    [CT-08],[Liechtenstein is included], moscow("Must"),
+    [CT-09],[Italy is included], moscow("Will not have"),
+    table.hline(stroke: 2pt),
     [MP-01],[DSM map], moscow("Must"),
     [MP-02],[DTM map], moscow("Must"),
     [MP-03],[Land-sea mask], moscow("Must"),
-    [MP-04],[Bathymetry mask], moscow("Could"),
+    [MP-04],[Bathymetry mask], moscow("Could"), //what is a bathymetry mask?
     [MP-05],[Nodata mask], moscow("Should"),
     [MP-06],[Point cloud density map], moscow("Should"),
-    [],[],[],
+    table.hline(stroke: 2pt),
     [TC-01],[Workflow is fully automated], moscow("Must"),
     [TC-02],[Workflow is efficient], moscow("Should"),
     [TC-03],[Workflow is reproducible], moscow("Must"),
-    [],[],[],
+    table.hline(stroke: 2pt),
     [RP-01],[Report on findings], moscow("Must"),
     [RP-02],[Report details the workflow], moscow("Must"),
     [RP-03],[Report details the issues with cross-border data], moscow("Must"),
