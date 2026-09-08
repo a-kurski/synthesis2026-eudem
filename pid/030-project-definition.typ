@@ -36,7 +36,7 @@ GEO1000 is relevant for programming the pipeline in either Python or C++. GEO100
 
 
 == Requirements
-This chapter describes the requirements for this project. The requirements are divided into data requirements, country requirements, map requirements, technical content requirements, and report requirements. The requirements each have a priority assigned based on the MoSCoW method. This method divides requirements into four categories: Must have, Should have, Could have, and Will not have. Must have requirements are those which are mandatory. Should have requirements are more akin to nice-to-have features Could have requirements are those which have been discussed but are not mandatory. Will not have requirements are more related to project scope and refer to features which will not be part of the project. The requirements are listed in @Moscow_Prioritization.
+This chapter describes the requirements for this project. The requirements are divided into data requirements, country requirements, map requirements, technical content requirements, and report requirements. The requirements each have a priority assigned based on the MoSCoW method. This method divides requirements into four categories: "Must have", "Should have", "Could have", and "Will not have". "Must have" requirements are mandatory; "Should have" requirements are not mandatory but nice-to-have or would add value to the project; "Could have" requirements are have been discussed but add limited value or require more work. "Will not have" features have been determined to be strictly outside of scope of the project due to high labour, data, or technical cost. Furthermore, the requirements are split into 5 categories: "DT" (for "data") describes the datasets that are going to be used as input; "CT"  (meaning "country") describes the expected spatial extent of the resulting map; "MP" (for "map") describes the contents of the output data; "TC" refers to the technical requirements of the workflow; and "RP" stands for "report". The full assessment is shown in @Moscow_Prioritization.
 
 #let moscow(value) = {
   let color = if value == "Must" {
@@ -67,7 +67,7 @@ This chapter describes the requirements for this project. The requirements are d
     stroke: (x: none),
     align: horizon,
     table.header([Req ID],[Description], [MoSCoW]),
-    [DT-01],[Global EU DEM (as ground truth)], moscow("Must"),
+    [DT-01],[Global/EU DEM], moscow("Must"),
     [DT-02],[Rhine Watershed Mask], moscow("Must"),
     [DT-03],[Rhine Bathymetry], moscow("Will not have"),
     table.hline(stroke: 2pt),
@@ -84,7 +84,7 @@ This chapter describes the requirements for this project. The requirements are d
     [MP-01],[DSM map], moscow("Must"),
     [MP-02],[DTM map], moscow("Must"),
     [MP-03],[Land-sea mask], moscow("Must"),
-    [MP-04],[Bathymetry mask], moscow("Could"), //what is a bathymetry mask?
+    [MP-04],[Bathymetry mask], moscow("Could"), //what is a bathymetry mask? is it just water/no water?
     [MP-05],[Nodata mask], moscow("Should"),
     [MP-06],[Point cloud density map], moscow("Should"),
     table.hline(stroke: 2pt),
@@ -96,6 +96,5 @@ This chapter describes the requirements for this project. The requirements are d
     [RP-02],[Report details the workflow], moscow("Must"),
     [RP-03],[Report details the issues with cross-border data], moscow("Must"),
     [RP-04],[Report details the limitations of the workflow], moscow("Must")
-
   )
 ) <Moscow_Prioritization>
