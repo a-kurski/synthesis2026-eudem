@@ -1,6 +1,6 @@
 #import "@preview/timeliney:0.4.0"
 
-#set heading(numbering: "1")
+#set heading(numbering: "1.1")
 #show heading.where(level:1): it => {pagebreak(weak: true)
  it}
 #show figure: set block(breakable: true)
