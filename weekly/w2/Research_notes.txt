@@ -1,0 +1,8 @@
+Notes 07-09-2026:
+
+Ruben: 
+
+s12518-016-0172-9 in the sources folder describes a gradient method for checking the cross-border DTM.
+While not very interesting this could be used for validation.
+It can be found on page 10. Discrepancies are described as being within national DTM tolerances.
+
