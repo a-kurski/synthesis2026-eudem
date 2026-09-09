@@ -23,6 +23,8 @@
 #show heading.where(level:1): it => {pagebreak(weak: true)
  it}
 #show figure: set block(breakable: true)
+#set par(justify: true)
+#set page(numbering: "1")
 
 #outline()
 

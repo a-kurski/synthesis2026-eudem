@@ -2,13 +2,20 @@
 
 = Project Definition <Project_definition>
 
-== Research Questions
+== Terrain Models
+
+#drafting.margin-note[CITE HUGO] Ledoux et al provide the following definition of a terrain model: "A terrain is a representation of the Earth’s surface. It gives us
+the elevation, which is the height above/below a certain reference point (a vertical datum)." In this project, the two representations of terrain are a digital elevation model (DEM) — here, it is understood to be a raster dataset (essentially a map) where the value of each pixel equals the height of the terrain at its centre — and a point cloud (PC) — a set of points in 3D, usually collected with an aerial laser scanner, where each point in the set corresponds to a point on a surface somewhere in the real world. DEM is further differentiated into a digital terrain model (DTM) which only shows the elevation of bare earth — without human-made structures or vegetation — and a digital surface model (DSM) which shows all objects on the surface, such as trees, buildings, and ground itself.
+
+For given use case, each terrain model — whether a DEM or a PC — is associated with a coordinate reference system (CRS). A CRS describes the units of measurement, origin point, and direction of the axes. Different countries use different reference systems, and conversion between them is needed before different terrain models can be integrated with one another.
+
+== Research Questions <questions>
 
 The main research question of this project is:
 
 _How to create a harmonised cross-border DEM of the Rhine catchment area in an automated way?_
 
-As described in the introduction, the project focusses on the issues presented by the cross-border data of the Rhine catchment area. This translates to the creation of an automated pipeline and the report describing the issues that come with attempting the creation of a harmonised DEM. The efficiency refers to creating a pipeline that accounts for the large data quantity and limited computational resources. These two aspects of the main question can be broken down into the following subquestions:
+As described in the introduction, the project focuses on the issues presented by the cross-border data of the Rhine catchment area. This translates to the creation of an automated pipeline and the report describing the issues that come with attempting the creation of a harmonised DEM. The aspects of the main question can be broken down into the following subquestions:
 
 - What is the Rhine catchment area?
 - What, if any, existing approaches are there to creating a harmonised DEM from heterogeneous sources?
@@ -16,85 +23,29 @@ As described in the introduction, the project focusses on the issues presented b
 - What are the issues with cross-border data?
 - What are the INSPIRE requirements for DEMs?
 - What are the limitations of an automated harmonisation pipeline?
-- How can we test the accuracy of the reconstructed cross-border DEM?
+- How can the accuracy of a reconstructed cross-border DEM be tested?
 
 Answering these subquestions will help to answer the main research question. The first five subquestions will be evaluated in the research phase of the project and relate mostly to existing works and available data. Answering these questions will inform data acquisition and subsequently, software development. The next research questions will be answered during the software development phase as they relate to testing and limitations of the pipeline. These questions will be answered by evaluating the procedures and the output, and discussing the findings with the client.
 
-== Relevant courses from the MSc Geomatics program
+// == Relevant courses from the MSc Geomatics program
 
-#drafting.inline-note[Do we care about this?]
+// #drafting.inline-note[Do we care about this?]
 
-This project applies knowledge gained from several courses from the MSc Geomatics program. Having a basic overview of these courses will highlight the current knowledge possessed by the team. These are the following courses:
+// This project applies knowledge gained from several courses from the MSc Geomatics program. Having a basic overview of these courses will highlight the current knowledge possessed by the team. These are the following courses:
 
-- GEO1000 - Python for Geomatics;
-- GEO1001 - Sensing Technologies;
-- GEO1002 - GIS and Cartography;
-- GEO1004 - 3D modelling for the build environment;
-- GEO1015 - Digital Terrain Modelling.
+// - GEO1000 - Python for Geomatics;
+// - GEO1001 - Sensing Technologies;
+// - GEO1002 - GIS and Cartography;
+// - GEO1004 - 3D modelling for the build environment;
+// - GEO1015 - Digital Terrain Modelling.
 
-GEO1000 is relevant for programming the pipeline in either Python or C++. GEO1001 was the basis for understanding point cloud data collection and processing. GEO1002 is relevant for understanding the data and how to visualise it. GEO1004 is possibly relevant for working with 3D data and point cloud processing. GEO1015 is applicable as it forms the basis for 2D and 2.5D terrain modelling, shortcomings and processing of DEMs.
+// GEO1000 is relevant for programming the pipeline in either Python or C++. GEO1001 was the basis for understanding point cloud data collection and processing. GEO1002 is relevant for understanding the data and how to visualise it. GEO1004 is possibly relevant for working with 3D data and point cloud processing. GEO1015 is applicable as it forms the basis for 2D and 2.5D terrain modelling, shortcomings and processing of DEMs.
 
+== Deliverables
 
-== Requirements
-This chapter describes the requirements for this project. The requirements are split into 5 categories: "DT" (for "data") describes the datasets that are going to be used as input; "CT"  (meaning "country") describes the expected spatial extent of the output dataset within the Rhine catchment area; "MP" (for "map") describes the contents of the output data; "TC" refers to the technical requirements of the workflow; and "RP" stands for "report". The requirements each have a priority assigned based on the MoSCoW method. This method divides requirements into four categories: "Must have", "Should have", "Could have", and "Will not have". "Must have" requirements are mandatory; "Should have" requirements are not mandatory but nice-to-have or would add value to the project; "Could have" requirements are have been discussed but add limited value or require more work. "Will not have" features have been determined to be strictly outside of scope of the project as impractical due to high labour, data, or technical cost. The full assessment is shown in @Moscow_Prioritization.
+By the end of project, the team expects to produce the following output:
+- *A working pipeline* for DEM harmonisation. This includes the code and documentation which supports its use.
+- *A DEM* of the Rhine catchment area.
+- *A report* justifying the decisions made and describing the process.
 
-#let moscow(value) = {
-  let color = if value == "Must" {
-    rgb("#b3ef88")
-  } else if value == "Should" {
-    rgb("#f0e876")
-  } else if value == "Could" {
-    rgb("#f1ac6f")
-  } else if value == "Will not have" {
-    rgb("#ed7e7e")
-  } else {
-    none
-  }
-
-  box(
-    fill: color,
-    inset: 4pt,
-    width: 100%,
-    align(center)[#value]
-  )
-}
-
-#figure(
-  caption: "MoSCoW prioritization of data requirements for the project",
-  table(
-    columns: (auto,auto, auto),
-    inset: 4pt,
-    stroke: (x: none),
-    align: horizon,
-    table.header([Req ID],[Description], [MoSCoW]),
-    [DT-01],[Global/EU DEM], moscow("Must"),
-    [DT-02],[Rhine Watershed Mask], moscow("Must"),
-    [DT-03],[Rhine Bathymetry], moscow("Will not have"),
-    table.hline(stroke: 2pt),
-    [CT-01],[Netherlands is included], moscow("Must"),
-    [CT-02],[Germany is included], moscow("Must"),
-    [CT-03],[Belgium is included], moscow("Should"),
-    [CT-04],[Switzerland is included], moscow("Must"),
-    [CT-05],[France is included], moscow("Must"),
-    [CT-06],[Luxembourg is included], moscow("Must"),
-    [CT-07],[Austria is included], moscow("Must"),
-    [CT-08],[Liechtenstein is included], moscow("Must"),
-    [CT-09],[Italy is included], moscow("Will not have"),
-    table.hline(stroke: 2pt),
-    [MP-01],[DSM map], moscow("Must"),
-    [MP-02],[DTM map], moscow("Must"),
-    [MP-03],[Land-sea mask], moscow("Must"),
-    [MP-04],[Bathymetry mask], moscow("Could"), //what is a bathymetry mask? is it just water/no water?
-    [MP-05],[Nodata mask], moscow("Should"),
-    [MP-06],[Point cloud density map], moscow("Should"),
-    table.hline(stroke: 2pt),
-    [TC-01],[Workflow is fully automated], moscow("Must"),
-    [TC-02],[Workflow is efficient], moscow("Should"),
-    [TC-03],[Workflow is reproducible], moscow("Must"),
-    table.hline(stroke: 2pt),
-    [RP-01],[Report on findings], moscow("Must"),
-    [RP-02],[Report details the workflow], moscow("Must"),
-    [RP-03],[Report details the issues with cross-border data], moscow("Must"),
-    [RP-04],[Report details the limitations of the workflow], moscow("Must")
-  )
-) <Moscow_Prioritization>
+More detailed requirements to these deliverables are found in @sec:reqs.
