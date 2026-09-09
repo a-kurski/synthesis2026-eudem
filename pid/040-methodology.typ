@@ -8,6 +8,7 @@ This chapter describes the expected approach to research and development that wi
 
 Based on the requirements outlined in @Moscow_Prioritization, it is anticipated that the technical pipeline will consist of the following steps:
 
+// + Literature Reivew
 + Data acquisition
 + Data preprocessing
 + Point cloud processing
@@ -17,9 +18,13 @@ Based on the requirements outlined in @Moscow_Prioritization, it is anticipated 
 
 Below is the detailed description of each of the steps above.
 
-=== Data Acquisition
+// === Literature Review
 
-Data acquisition chiefly refers to getting access to the necessary datasets — global, national, and where relevant, regional — and downloading them. For each country, the data should include at minimum a point cloud, a DEM (ideally, separate DSM and DTM); and if possible, also a topographic dataset describing bodies of water. Most of this data is covered under INSPIRE and therefore should be available from national geoportals.
+// Prior to starting implementation of the pipeline, a review of existing approaches to processing and harmonisation of raster and point cloud data is going to be conducted, with a particular emphasis on cross-border or more broadly heterogeneous data. This is essential to
+
+=== Data Discovery and Acquisition
+
+Data acquisition chiefly refers to getting access to the necessary datasets — global, national, and regional — and downloading them. For each country, the data should include at minimum a point cloud, a DEM (ideally, separate DSM and DTM); and if possible, also a topographic dataset describing bodies of water. Most of this data is covered under INSPIRE and therefore should be available from national geoportals. The full list of datasets is found in @appx-data-sources.
 
 === Data Preprocessing
 
@@ -37,7 +42,8 @@ While the majority of these operations are supported by `PDAL` and `rasterio`, w
 === Raster Processing
 
 This stage of the pipeline includes:
-- CRS conversion;
+- converting raster files to the same CRS;
+- if necessary, further aligning them using the same transformation as the respective point cloud;
 - raster resampling to align their resolution;
 - interpolating if a raster image has gaps (such as in the case of the Netherlands' DTM);
 - stitching the individual tiles into one file.
@@ -46,10 +52,10 @@ At the end of this stage, the raster DEM is complete.
 === Data Postprocessing
 
 To make the raster usable and for broader visualisation purposes, some further postprocessing may be required. In @Moscow_Prioritization, this is referred to under a blanket term of "auxiliary masks and rasters", which may include the following:
-- A land/sea mask;
-- A land/inland water mask;
-- A "NoData" mask (i.e. regions of NoData in the original raster file);
-- A point density map;
+- a land/sea mask;
+- a land/inland water mask;
+- a "NoData" mask (i.e. regions of NoData in the original raster file);
+- a point density map;
 - "Border" mask (i.e. regions where heterogeneous datasets had to be harmonised).
 
 === Documentation
@@ -63,6 +69,6 @@ We anticipate several aspects to quality assurance:
 - *Evaluating input data.* This includes examining the existing DEMs for resolution, coverage, interpolation approaches, and whether both DSM and DTM are provided; and PCs for density, coverage, and classification.
 - *Test runs to evaluate pipeline.* Using both synthetic and smaller samples of real-world data, evaluate the harmonisation of the point cloud and subsequently, the DEM.
 - *INSPIRE compliance.* The output should be compliant with the INSPIRE Data Specification on Elevation. This is to be ensured both at the development stage and by evaluating samples of the output.
-- *Comparison to existing DEMs*. The best candidate for this step is Copernicus DEM published by the European Space Agency. While we anticipate both spatial (mainly resolution — Copernicus DEM is freely available at 30m resolution while expected resolution of Rhine DEM is 5m or finer) and temporal (dates of acquisition) discrepancies, this should still provide some overview of the pipeline's performance across different areas of the catchment area.
+- *Comparison to existing DEMs.* The best candidate for this step is Copernicus DEM published by the European Space Agency. While we anticipate both spatial (mainly resolution — Copernicus DEM is freely available at 30m resolution while expected resolution of Rhine DEM is 5m or finer) and temporal (dates of acquisition) discrepancies, this should still provide some overview of the pipeline's performance across different areas of the catchment area.
 
 Furthermore, clients will provide their input on our progress so further quality assurance steps will be implemented if necessary.

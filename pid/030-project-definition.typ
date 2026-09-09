@@ -2,7 +2,7 @@
 
 = Project Definition
 
-== Research and Subquestions
+== Research Questions
 
 The main research question of this project is:
 
@@ -36,7 +36,7 @@ GEO1000 is relevant for programming the pipeline in either Python or C++. GEO100
 
 
 == Requirements
-This chapter describes the requirements for this project. The requirements are divided into data requirements, country requirements, map requirements, technical content requirements, and report requirements. The requirements each have a priority assigned based on the MoSCoW method. This method divides requirements into four categories: "Must have", "Should have", "Could have", and "Will not have". "Must have" requirements are mandatory; "Should have" requirements are not mandatory but nice-to-have or would add value to the project; "Could have" requirements are have been discussed but add limited value or require more work. "Will not have" features have been determined to be strictly outside of scope of the project due to high labour, data, or technical cost. Furthermore, the requirements are split into 5 categories: "DT" (for "data") describes the datasets that are going to be used as input; "CT"  (meaning "country") describes the expected spatial extent of the resulting map; "MP" (for "map") describes the contents of the output data; "TC" refers to the technical requirements of the workflow; and "RP" stands for "report". The full assessment is shown in @Moscow_Prioritization.
+This chapter describes the requirements for this project. The requirements are split into 5 categories: "DT" (for "data") describes the datasets that are going to be used as input; "CT"  (meaning "country") describes the expected spatial extent of the output dataset within the Rhine catchment area; "MP" (for "map") describes the contents of the output data; "TC" refers to the technical requirements of the workflow; and "RP" stands for "report". The requirements each have a priority assigned based on the MoSCoW method. This method divides requirements into four categories: "Must have", "Should have", "Could have", and "Will not have". "Must have" requirements are mandatory; "Should have" requirements are not mandatory but nice-to-have or would add value to the project; "Could have" requirements are have been discussed but add limited value or require more work. "Will not have" features have been determined to be strictly outside of scope of the project as impractical due to high labour, data, or technical cost. The full assessment is shown in @Moscow_Prioritization.
 
 #let moscow(value) = {
   let color = if value == "Must" {

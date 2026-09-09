@@ -1,7 +1,8 @@
 #import "@preview/timeliney:0.4.0"
 = Planning
 
-== Phases
+== Project Phases
+
 === Organisation phase
 
 The organisation phase is the first phase of the project. During this phase, the project will be defined and planned. This phase will be used to define the project scope, objectives, deliverables, and timeline. The project team will be formed and roles and responsibilities will be assigned. The project plan will be created and approved by the stakeholders. This phase will last approximately 2 weeks.
@@ -56,7 +57,7 @@ The phase consists of the following tasks:
 - Final presentation preparation;
 - Final report creation.
 
-The final presentation will be prepared to show the final results and conclusions of the project. The final report will contain the results of the research phase and the software development in its final state. 
+The final presentation will be prepared to show the final results and conclusions of the project. The final report will contain the results of the research phase and the software development in its final state.
 
 #import "@preview/timeliney:0.4.0"
 
@@ -218,7 +219,7 @@ The final presentation will be prepared to show the final results and conclusion
       style: (stroke: (dash: "dashed")),
       [Midterm deliverables],
     )
-    
+
 
     // ─────────────────────────────────────────────
     // FINAL
@@ -260,7 +261,7 @@ Communication is key to the success of this project. To ensure communication is 
 
 == Risk Analysis
 
-In order to identify and mitigate risks, a risk analysis will be conducted. The method used is the risk matrix method. It is important to mention that this method is not infalible and that it is possible that risks are not identified or that the impact and likelihood are wrongly assessed. However, this method does allow for a more structured approach to risk analysis. #ref(<Risk_Assessment_Table>) shows the identified risks, their impact and likelihood, and what can be done to mitigate them. 
+In order to identify and mitigate risks, a risk analysis will be conducted. The method used is the risk matrix method. It is important to mention that this method is not infalible and that it is possible that risks are not identified or that the impact and likelihood are wrongly assessed. However, this method does allow for a more structured approach to risk analysis. #ref(<Risk_Assessment_Table>) shows the identified risks, their impact and likelihood, and what can be done to mitigate them.
 
 #figure(
   image("assets/image.png", width: 70%),
@@ -385,15 +386,15 @@ In order to identify and mitigate risks, a risk analysis will be conducted. The 
 
 #figure(
   table(
-    columns: (50pt, auto, auto,auto,auto),
+    columns: (50pt, auto, auto, auto, auto),
     inset: 2pt,
     stroke: (x: none),
     align: horizon,
     table.header(
-      [*Risk ID*], [*Description*], [*Impact*],[*Likelyhood*],[*Mitigation*]
+      [*Risk ID*], [*Description*], [*Impact*],[*Likelihood*],[*Mitigation*]
     ),
     risk-id([1.],"Critical","Possible"),[Pipeline too computationally taxing or insufficient computational resources.],impact("Critical"),likelyhood("Possible"),[Test with small dataset and adjust spatial extent if necessary.],
-    risk-id([2.],"Marginal","Rare"),[Insufficient quality/availability of pointcloud data.],impact("Marginal"),likelyhood("Rare"),[Shift focus to regions with available high-quality data.],
+    risk-id([2.],"Marginal","Rare"),[Insufficient quality/availability of point cloud data.],impact("Marginal"),likelyhood("Rare"),[Shift focus to regions with available high-quality data.],
     risk-id([3.],"Critical","Unlikely"),[CRS transformations are inaccurate.],impact("Critical"),likelyhood("Unlikely"),[Test CRS alignment on select border regions],
     risk-id([4.],"Critical","Likely"),[Missing/conflicting data on border areas.],impact("Critical"),likelyhood("Likely"),[Check spatial overlap of datasets and prioritize one dataset.],
     risk-id([5.],"Catastrophic","Unlikely"),[Task is too ambitious given timeframe/team size.],impact("Catastrophic"),likelyhood("Unlikely"),[Check if internal deadlines are met and adjust scope if necessary.],
