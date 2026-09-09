@@ -26,7 +26,6 @@ The phase consists of the following tasks:
 
 It is likely that other projects have developed different approaches to the problem of creating a cross-border DEM. This will be the main focus of the literature study. Additionally, since each country has its data in a different CRS, it is important to learn how to transform the data into a common CRS. This will be done by reviewing CRS transformations and their accuracy. The methodology and approach described in this PID is based on an intial assumption of the problem and will be refined based on our findings. Lastly, data for both the ground truth and the point clouds will be collected and evaluated in preparation for the next phase.
 
-#pagebreak()
 === Software development and data collection phase
 
 The software development and data collection phase is the third phase of the project. During this phase, the software will be developed and tested. This includes both a pipeline prototype and a production version. It is expected that this phase will last approximately 4 weeks.
@@ -253,7 +252,6 @@ The final presentation will be prepared to show the final results and conclusion
   },
 )
 
-#pagebreak()
 == Communication
 
 Communication is key to the success of this project. To ensure communication is maintained, both within the team and with stakeholders, regular meetings will be held. The team will meet on a weekly basis to discuss progress, issues and questions. These meetings will be held on Fridays. There will be an additional opertunity to meet on Mondays if neccesary. For each meeting, key talking points will be shared in advance. Meeting minutes will be kept and distributed after each meeting. These meetings will be held online via Microsoft Teams. The team will also communicate internally outside of these meetings, either through Whatsapp or in person.
