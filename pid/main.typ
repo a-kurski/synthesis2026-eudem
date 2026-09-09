@@ -1,12 +1,12 @@
 #import "@preview/timeliney:0.4.0"
 
+// Cover page
 #set page(
-  paper: "a4",
   margin: 0pt,
 )
 
 #image(
-  "PID_cover.png",
+  "PID_Cover.png",
   width: 100%,
   height: 100%,
   fit: "cover",
@@ -14,17 +14,24 @@
 
 #pagebreak()
 
+// Main document
 #set page(
-  paper: "a4",
-  margin: (x: 25mm, y: 25mm),
+  margin: (
+    top: 2.5cm,
+    bottom: 2.5cm,
+    left: 2.5cm,
+    right: 3cm,
+  ),
 )
 
 #set heading(numbering: "1.1")
-#show heading.where(level:1): it => {pagebreak(weak: true)
- it}
+
+#show heading.where(level: 1): it => {
+  pagebreak(weak: true)
+  it
+}
+
 #show figure: set block(breakable: true)
-#set par(justify: true)
-#set page(numbering: "1")
 
 #outline()
 
