@@ -33,7 +33,7 @@
   [Germany, Hessen: PC], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/airborne-laserscanning], [paid only?],
   [Germany, Bayern: DTM], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=dgm1], [Map tiles — GeoTIFF, 1m resolution],
   [Germany, Bayern: DSM], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=dom20], [Map tiles — GeoTIFF, 0.2m resolution],
-  [Germany, Bayern: PC], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=laserdaten, [Map tiles — LAZ],
+  [Germany, Bayern: PC], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=laserdaten], [Map tiles — LAZ],
   [Liechtenstein: DTM, DSM, PC], [], [Included in Swiss datasets],
 )
 
