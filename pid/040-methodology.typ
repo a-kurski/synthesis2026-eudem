@@ -1,11 +1,10 @@
 #import "@preview/drafting:0.2.2"
 
 = Methodology
->>>>>>> dc2191f (feat: finish methodology, restructure)
 
 This chapter describes the requirements for input and output data, expected approach to answering the individual subquestions and software development that will be performed over the course of the project. In addition, methods for quality assurance are discussed.
 
-== Requirements
+== Requirements <sec:reqs>
 
 This section describes the requirements for this project. The requirements are split into 5 categories: "DT" (for "data") describes the datasets that are going to be used as input; "CT"  (meaning "country") describes the expected spatial extent of the output dataset within the Rhine catchment area; "MP" (for "map") describes the contents of the output data; "TC" refers to the technical requirements of the workflow; and "RP" stands for "report". The requirements each have a priority assigned based on the MoSCoW method. This method divides requirements into four categories: "Must have", "Should have", "Could have", and "Will not have". "Must have" requirements are mandatory; "Should have" requirements are not mandatory but nice-to-have or would add value to the project; "Could have" requirements are have been discussed but add limited value or require more work. "Will not have" features have been determined to be strictly outside of scope of the project as impractical due to high labour, data, or technical cost. The full assessment is shown in @Moscow_Prioritization.
 
@@ -155,7 +154,7 @@ Per the clients' request, the software is also going to be documented. The docum
 
 == Quality Assurance <qa>
 
-To ensure the quality of the output data,
+To ensure the quality of the output data, the following steps will be performed:
 
 - *Evaluating input data.* This includes examining the existing DEMs for resolution, coverage, interpolation approaches, and whether both DSM and DTM are provided; and PCs for density, coverage, and classification.
 - *Test runs to evaluate pipeline.* Using both synthetic and smaller samples of real-world data, evaluate the harmonisation of the point cloud and subsequently, the DEM.
