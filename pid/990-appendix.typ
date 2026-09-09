@@ -1,4 +1,40 @@
 #set heading(numbering: "A.1.1", supplement: [Appendix])
 #counter(heading).update(0)
 
-= Data Sources <appx-data-sources>
+= Data Source List <appx-data-sources>
+
+#table(
+  columns: (auto, auto, auto),
+  table.header([Dataset], [URL], [notes]),
+  [Netherlands: DTM], [see https://www.ahn.nl/dataroom], [Map tiles — COG, 0.5m resolution, not interpolated; also available at 5m resolution],
+  [Netherlands: DSM], [see https://www.ahn.nl/dataroom], [Map tiles — COG, 0.5m resolution, not interpolated; also available at 5m resolution],
+  [Netherlands: PC], [], [Map tiles — LAZ, 10–14 pt/cm#super[2]],
+  [Switzerland: DTM], [https://www.swisstopo.admin.ch/en/height-model-swissalti3d], [Map tiles — COG, 0.5m and 2m resolution, interpolated],
+  [Switzerland: DSM], [https://www.swisstopo.admin.ch/en/height-model-swisssurface3d-raster], [Map tiles — COG, 0.5m resolution only, interpolated],
+  [Switzerland: PC], [https://www.swisstopo.admin.ch/en/height-model-swisssurface3d], [Map tiles — LAZ or COPC, point density 15–40 pt/cm#super[2] (region-dependent)],
+  [Germany, Niedersachsen: DTM], [https://ni-lgln-opengeodata.hub.arcgis.com/pages/digitales-gel-ndemodell-dgm1], [Map tiles — COG, 1m resolution],
+  [Germany, Niedersachsen: DSM], [https://ni-lgln-opengeodata.hub.arcgis.com/pages/digitales-oberfl-chenmodell-dom1], [Map tiles — COG, 1m resolution],
+  [Germany, Niedersachsen: PC], [https://lgln-geodaten.niedersachsen.de/startseite/luftbilder_und_3d_produkte/3d_produkte/3d_messdaten/3d-messdaten-142870.html], [not freely available?],
+  [Germany, Nordrhein-Westfalen: DTM], [https://www.opengeodata.nrw.de/produkte/geobasis/hm/dgm1_tiff/dgm1_tiff/], [Map tiles — GeoTIFF, 1m resolution],
+  [Germany, Nordrhein-Westfalen: DSM], [https://www.opengeodata.nrw.de/produkte/geobasis/hm/dom1_tiff/dom1_tiff/], [Map tiles — GeoTIFF, 1m resolution],
+  [Germany, Nordrhein-Westfalen: PC], [https://www.opengeodata.nrw.de/produkte/geobasis/hm/3dm_l_las/3dm_l_las/], [LAZ],
+  [Germany, Rheinland-Pfalz: DTM], [https://geoshop.rlp.de/digitale_gelaendemodelle/digitale_gelaendemodelle_dgm.html], [Map tiles — GeoTIFF, 1m resolution],
+  [Germany, Rheinland-Pfalz: DSM], [https://geoshop.rlp.de/digitale_oberflaechenmodelle/digitales_oberflaechenmodell_domb.html], [Map tiles — GeoTIFF, 0.2m resolution],
+  [Germany, Rheinland-Pfalz: PC — surface], [https://geoshop.rlp.de/digitale_oberflaechenmodelle/laserpunkte_objekte_lpo.html], [LAZ],
+  [Germany, Rheinland-Pfalz: PC — terrain], [https://geoshop.rlp.de/digitale_gelaendemodelle/laserpunkte_gelaende_lpg.html], [LAZ],
+  [Germany, Saarland: DTM], [https://www.shop.lvgl.saarland.de/index.php?option=com_virtuemart&view=category&virtuemart_category_id=1060&Itemid=475], [GeoTIFF, 1m resolution],
+  [Germany, Saarland: DSM], [https://www.shop.lvgl.saarland.de/index.php?option=com_virtuemart&view=category&virtuemart_category_id=1066&Itemid=475], [GeoTIFF, 1m resolution],
+  [Germany, Saarland: PC], [https://www.shop.lvgl.saarland.de/index.php?option=com_virtuemart&view=category&virtuemart_category_id=1067&Itemid=475], [LAZ],
+  [Germany, Baden-Württemberg: DTM], [https://www.lgl-bw.de/Produkte/3D-Produkte/Digitale-Gelaendemodelle/], [Map tiles — GeoTIFF, 0.25m resolution],
+  [Germany, Baden-Württemberg: DSM], [https://www.lgl-bw.de/Produkte/3D-Produkte/Digitale-Oberflaechenmodelle/DOM1/], [Map tiles — GeoTIFF (1m resolution)],
+  [Germany, Baden-Württemberg: PC], [https://www.lgl-bw.de/Produkte/3D-Produkte/Laserscandaten/], [paid only?],
+  [Germany, Hessen: DTM], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/digitale-gelaendemodelle], [Map tiles — GeoTIFF (1m resolution)],
+  [Germany, Hessen: DSM], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/digitale-oberflaechenmodelle], [Map tiles — GeoTIFF (1m resolution)],
+  [Germany, Hessen: PC], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/airborne-laserscanning], [paid only?],
+  [Germany, Bayern: DTM], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=dgm1], [Map tiles — GeoTIFF, 1m resolution],
+  [Germany, Bayern: DSM], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=dom20], [Map tiles — GeoTIFF, 0.2m resolution],
+  [Germany, Bayern: PC], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=laserdaten, [Map tiles — LAZ],
+  [Liechtenstein: DTM, DSM, PC], [], [Included in Swiss datasets],
+)
+
+= Literature List <appx-literature>

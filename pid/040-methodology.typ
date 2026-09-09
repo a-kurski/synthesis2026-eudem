@@ -40,6 +40,10 @@ This section describes the requirements for this project. The requirements are s
     [DT-01],[Global/EU DEM], moscow("Must"),
     [DT-02],[Rhine Watershed Mask], moscow("Must"),
     [DT-03],[Rhine Bathymetry], moscow("Will not have"),
+    [DT-04], [National/regional PC], moscow("Must"),
+    [DT-05], [National/regional DTM], moscow("Must"),
+    [DT-06], [National/regional DSM], moscow("Should"),
+    [DT-07], [National/regional topographic map], moscow("Could"),
     table.hline(stroke: 2pt),
     [CT-01],[Netherlands is included], moscow("Must"),
     [CT-02],[Germany is included], moscow("Must"),
@@ -54,9 +58,8 @@ This section describes the requirements for this project. The requirements are s
     [MP-01],[DSM raster], moscow("Must"),
     [MP-02],[DTM raster], moscow("Should"),
     [MP-03],[Land-sea mask], moscow("Must"),
-    [MP-04],[Bathymetry mask], moscow("Could"), //what is a bathymetry mask? is it just water/no water?
+    [MP-04],[Auxiliary masks and maps], moscow("Should"), //what is a bathymetry mask? is it just water/no water?
     [MP-05],[Nodata mask], moscow("Should"),
-    [MP-06],[Point cloud density map], moscow("Should"),
     table.hline(stroke: 2pt),
     [TC-01],[Workflow is fully automated], moscow("Must"),
     [TC-02],[Workflow is efficient], moscow("Should"),
@@ -97,6 +100,7 @@ As described in @sec:theoretical-approach, literature review needs to be conduct
 - approaches to point cloud harmonisation — keywords will include combining "point cloud" with "harmonisation", "alignment", or "stitching".
 - Rhine catchment area;
 - cross-border data interoperability.
+The list of literature found thus far can be found in @appx-literature.
 
 == Pipeline Design
 
