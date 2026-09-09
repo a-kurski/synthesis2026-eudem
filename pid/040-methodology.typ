@@ -1,4 +1,4 @@
-= Methodology
+= Methodology <Methodology>
 
 This chapter describes the expected approach to research and development that will be performed over the course of the project. In addition, methods for quality assurance are discussed.
 

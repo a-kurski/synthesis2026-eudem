@@ -1,6 +1,6 @@
 #import "@preview/drafting:0.2.2"
 
-= Contributors
+= Contributors <Contributors>
 
 This section provides an overview of the student members of the team and their roles; as well as the clients and the supervision team.
 

@@ -1,5 +1,5 @@
 #import "@preview/timeliney:0.4.0"
-= Planning
+= Planning <Planning>
 
 == Project Phases
 
