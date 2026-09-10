@@ -6,7 +6,8 @@
 )
 
 #image(
-  "PID_Cover.png",
+  "PID_Cover_v2.pdf",
+  page: 1,
   width: 100%,
   height: 100%,
   fit: "cover",
@@ -41,6 +42,10 @@
 #include "040-methodology.typ"
 #include "050-planning.typ"
 
-#bibliography("references.bib", style: "apa", title: [References])
+#bibliography(
+  "references.bib",
+  style: "apa",
+  title: [References],
+)
 
 #include "990-appendix.typ"

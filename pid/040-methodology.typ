@@ -77,7 +77,7 @@ This section describes the requirements for this project. The requirements are s
 === Theoretical Approach <sec:theoretical-approach>
 
 The majority of the subquestions will be answered at least in part theoretically. These questions include:
-- *What is the Rhine catchment area?* \ To answer this question, the different definitions, descriptions, and spatial extents of the catchment area will be reviewed, and the spatial extent most suited to our project will be chosen in agreement with the supervisors. If no other suitable option is found, the supervisory team has agreed that a watershed vector from HydroSheds #drafting.margin-note()[TODO: citation needed] is acceptable for the purposes of the project.
+- *What is the Rhine catchment area?* \ To answer this question, the different definitions, descriptions, and spatial extents of the catchment area will be reviewed, and the spatial extent most suited to our project will be chosen in agreement with the supervisors. If no other suitable option is found, the supervisory team has agreed that a watershed vector from HydroSheds (see #cite(<Lehner2013>, form: "prose") is acceptable for the purposes of the project.
 - *What, if any, existing approaches are there to creating a harmonised DEM from heterogeneous sources?* \ Literature review will be conducted to answer this question. Existing approaches will be analysed for their advantages, shortcomings, ease of implementation, and if they have been applied to geospatial data such as 2.5D point clouds and raster DEMs.
 - *What are the issues with cross-border data?* \ Existing literature will be reviewed for known issues with interoperability between cross-border datasets.
 - *What are the INSPIRE requirements for DEMs?* \ INSPIRE specification for elevation models will be reviewed and relevant requirements will be noted to follow in the creation of the raster.
@@ -117,7 +117,7 @@ Below is the detailed description of each of the steps above.
 
 === Data Discovery and Acquisition <data-discovery>
 
-Data acquisition chiefly refers to getting access to the necessary datasets — global, national, and regional — and downloading them. For each country, the data should include at minimum a point cloud, a DEM (ideally, separate DSM and DTM); and if possible, also a topographic dataset containing bodies of water. Most of this data is covered under INSPIRE and therefore should be available from national geoportals. European Point Clouds #drafting.margin-note[TODO: citation needed] is also used for data discovery. The full list of datasets is found in @appx-data-sources.
+Data acquisition chiefly refers to getting access to the necessary datasets — global, national, and regional — and downloading them. For each country, the data should include at minimum a point cloud, a DEM (ideally, separate DSM and DTM); and if possible, also a topographic dataset containing bodies of water. Most of this data is covered under INSPIRE and therefore should be available from national geoportals. European Point Clouds (as described in #cite(<vanderheide2026pointcloud>, form: "prose") is also used for data discovery. The full list of datasets is found in @appx-data-sources.
 
 === Data Preprocessing
 
