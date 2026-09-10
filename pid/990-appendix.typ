@@ -5,7 +5,7 @@
 
 #table(
   columns: (auto, auto, auto),
-  table.header([Dataset], [URL], [notes]),
+  table.header([*Dataset*], [*URL*], [*Notes*]),
   [Netherlands: DTM], [see https://www.ahn.nl/dataroom], [Map tiles — COG, 0.5m resolution, not interpolated; also available at 5m resolution],
   [Netherlands: DSM], [see https://www.ahn.nl/dataroom], [Map tiles — COG, 0.5m resolution, not interpolated; also available at 5m resolution],
   [Netherlands: PC], [], [Map tiles — LAZ, 10–14 pt/cm#super[2]],
@@ -35,6 +35,12 @@
   [Germany, Bayern: DSM], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=dom20], [Map tiles — GeoTIFF, 0.2m resolution],
   [Germany, Bayern: PC], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=laserdaten], [Map tiles — LAZ],
   [Liechtenstein: DTM, DSM, PC], [], [Included in Swiss datasets],
+  [France: DTM], [https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_MNT-LIDAR-HD], [Map tiles — GeoTIFF, 0.5m resolution],
+  [France: DSM], [https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_MNS-LIDAR-HD], [Map tiles — GeoTIFF, 0.5m resolution],
+  [France: PC], [https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD?redirected_from=geoservices.ign.fr], [Map tiles — LAZ],
+  [Luxembourg: DTM],[https://data.public.lu/fr/datasets/lidar-2024-releve-3d-du-territoire-luxembourgeois/],[Map tiles — GeoTIFF, 0.5m resolution],
+  [Luxembourg: DSM],[https://data.public.lu/fr/datasets/lidar-2024-releve-3d-du-territoire-luxembourgeois/],[Map tiles — GeoTIFF, 0.5m resolution],
+  [Luxembourg: PC],[https://data.public.lu/fr/datasets/lidar-2024-releve-3d-du-territoire-luxembourgeois/],[Map tiles — LAZ]
 )
 
 = Literature List <appx-literature>
