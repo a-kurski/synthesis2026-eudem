@@ -43,4 +43,46 @@
   [Luxembourg: PC],[https://data.public.lu/fr/datasets/lidar-2024-releve-3d-du-territoire-luxembourgeois/],[Map tiles — LAZ]
 )
 
+#pagebreak()
 = Literature List <appx-literature>
+
+#linebreak()
+*Repetitive interpolation: A robust algorithm for DTM generation from Aerial Laser Scanner Data in forested terrain,
+Remote Sensing of Environment,*
+Andrej Kobler, Norbert Pfeifer, Peter Ogrinc, Ljupčo Todorovski, Krištof Oštir, Sašo Džeroski,
+Volume 108, Issue 1,
+2007,
+Pages 9-23,
+ISSN 0034-4257,
+https://doi.org/10.1016/j.rse.2006.10.013
+
+#linebreak()
+*LiDAR DTM: artifacts, and correction for river altitudes,*
+Jean-François Parrot, Carolina Ramírez Núñez,
+Investigaciones Geográficas, Boletín del Instituto de Geografía,
+Volume 2016, Issue 90,
+2016,
+Pages 28-39,
+ISSN 0188-4611,
+https://www.sciencedirect.com/science/article/pii/S0188461116300346
+
+#linebreak()
+*MERGING LOCAL DTMS: HELI-DEM PROJECT, PROBLEMS AND SOLUTIONS,*
+Laura CARCANO,
+Department of Civil and Environmental Engineering
+Ph.D. course in Environmental and Infrastructure Engineering,
+https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://www.politesi.polimi.it/bitstream/10589/89463/1/2014_03_PhD_Carcano.pdf&ved=2ahUKEwif34GJveaWAxX2zAIHHWw9MWAQFnoECCYQAQ&usg=AOvVaw2D3-oPLBzGNwDkCpo2nEX_
+
+#linebreak()
+*Cartographic data harmonisation for a cross-border project development.* Noardo, Francesca & LINGUA, Andrea & Aicardi, Irene & Vigna, Bartolomeo. 
+(2016). 
+Applied Geomatics. 
+8. 133-150. 10.1007/s12518-016-0172-9. 
+https://www.researchgate.net/publication/304064666_Cartographic_data_harmonisation_for_a_cross-border_project_development
+
+#linebreak()
+*TERRAIN MODELLING AND ANALYSIS USING LASER SCANNER DATA.*
+Elmqvist, M., Jungert, E., & Lantz, F. 
+(2001). 
+ International Archives of Photogrammetry and Remote Sensing, Volume XXXIV-3/W4 Annapolis, MD, 22-24 Oct. 2001 219. http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.150.5538
+https://www.isprs.org/proceedings/xxxiv/3-w4/pdf/elmqvist.pdf
