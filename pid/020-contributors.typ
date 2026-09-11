@@ -11,7 +11,7 @@ This section provides an overview of the student members of the team and their r
   rows: (6cm, 6cm, 6cm),
   gutter: 5pt,
   align: (alignment.horizon),
-  [#rect(height: 5cm, width: 4cm)], [
+  [#image("assets/arda.jpg", width: 4cm)], [
     *Arda Baysal*\
     a.baysal\@student.tudelft.nl
 
@@ -21,7 +21,7 @@ This section provides an overview of the student members of the team and their r
 
     Interests: Point clouds, geospatial data visualization, digital terrain modelling
   ],
-  [#rect(height: 5cm, width: 4cm)], [
+  [#image("assets/artemi.jpg", width: 4cm)], [
     *Artemi Kurski* \
     a.kurski\@student.tudelft.nl
 
@@ -31,7 +31,7 @@ This section provides an overview of the student members of the team and their r
 
     Interests: Computational modelling of terrains and the built environment
   ],
-  [#rect(height: 5cm, width: 4cm)], [
+  [#image("assets/ruben.jpg", width: 4cm)], [
     *Ruben Vons* \
     r.m.b.vons\@student.tudelft.nl
 
@@ -50,7 +50,7 @@ This section provides an overview of the student members of the team and their r
 - *Quality assurance lead:* Arda Baysal \ A quality assurance lead defines the checks to ensure the quality of the intermediate and final output.
 - *Report lead:* Arda Baysal \ A report lead is responsible for coordinating the text and the visuals in the written report and the presentation.
 - *Secretary:* Artemi Kurski \ A secretary supplies agenda and takes notes in the meetings.
-- *Communication lead:* role currently vacant \ A communication lead is responsible for talking to the client and the supervision team.
+- *Communication lead:* Ruben Vons \ A communication lead is responsible for talking to the client and the supervision team.
 
 == Supervision Team
 
