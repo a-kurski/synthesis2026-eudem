@@ -58,6 +58,7 @@ The phase consists of the following tasks:
 
 The final presentation will be prepared to show the final results and conclusions of the project. The final report will contain the results of the research phase and the software development in its final state.
 
+#pagebreak()
 #import "@preview/timeliney:0.4.0"
 
 #timeliney.timeline(
@@ -252,6 +253,7 @@ The final presentation will be prepared to show the final results and conclusion
   },
 )
 
+#pagebreak()
 == Communication
 
 Communication is key to the success of this project. To ensure communication is maintained, both within the team and with stakeholders, regular meetings will be held. The team will meet on a weekly basis to discuss progress, issues and questions. These meetings will be held on Fridays. There will be an additional opportunity to meet on Mondays if necessary. For each meeting, key talking points will be shared in advance. Meeting minutes will be kept and distributed after each meeting. These meetings will be held online via Microsoft Teams. The team will also communicate internally outside of these meetings, either through WhatsApp or in person.
@@ -266,6 +268,7 @@ In order to identify and mitigate risks, a risk analysis will be conducted @enwi
   caption: "Risk Assessment Matrix."
 ) <Risk_Assessment_Matrix>
 
+#pagebreak()
 #let impact(value) = {
   let color = if value == "Minor" {
     rgb("b3ef88")
