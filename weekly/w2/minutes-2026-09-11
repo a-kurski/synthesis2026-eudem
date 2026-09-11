@@ -1,0 +1,9 @@
+DvdH: we can likely get data for free if we tell Germany it's for research
+DvdH: the audience is the client (Rijkswaterstaat & Deltares), safe to assume above average background knowledge
+DvdH: does the adjustment at the border cause misalignemnt elsewhere? Add that to QA
+DvdH: what is the datum, so to say? e.g. NL -> Germany -> Switzerland or Switzerland -> Germany -> NL
+DvdH: rigid benchmarks to limit downstream errors — e.g.  ridge lines, see GeoDelta
+DvdH: water occurrence map from Join Research Centre (EU or GEE)
+DvdH: look at Mapterhorn, see what they're doing
+
+RV: plan for next week: do research, AK to read the INSPIRE spec
