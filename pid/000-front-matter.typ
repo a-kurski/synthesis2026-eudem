@@ -13,8 +13,8 @@ Project Initiation Document
 #grid(
   columns: (4cm, 4cm, 4cm),
   gutter: 3pt,
-  [Ruben Vons],[Artemi Kurski],[Arda Baysal],
-  [6285880],[6195784],[5484987],
+  [Arda Baysal],[Artemi Kurski],[Ruben Vons],
+  [5484987],[6195784],[6285880],
 )
 
 #v(2em)

@@ -43,6 +43,8 @@ This section provides an overview of the student members of the team and their r
   ],
 )
 
+#pagebreak()
+
 == Roles
 
 - *Project manager:* Ruben Vons \ A project manager oversees the work plan ensuring the deadlines are realistic and the team is on track to meet them. Project manager is also chairing the meetings.

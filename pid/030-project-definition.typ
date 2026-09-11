@@ -13,7 +13,7 @@ For given use case, each terrain model — whether a DEM or a PC — is associa
 
 The main research question of this project is:
 
-_How to create a harmonised cross-border DEM of the Rhine catchment area in an automated way?_
+_How to create a harmonised cross-border DEM of the Rhine catchment area in an automated manner?_
 
 As described in the introduction, the project focuses on the issues presented by the cross-border data of the Rhine catchment area. This translates to the creation of an automated pipeline and the report describing the issues that come with attempting the creation of a harmonised DEM. The aspects of the main question can be broken down into the following subquestions:
 
@@ -39,7 +39,9 @@ Answering these subquestions will help to answer the main research question. The
 // - GEO1004 - 3D modelling for the build environment;
 // - GEO1015 - Digital Terrain Modelling.
 
-// GEO1000 is relevant for programming the pipeline in either Python or C++. GEO1001 was the basis for understanding point cloud data collection and processing. GEO1002 is relevant for understanding the data and how to visualise it. GEO1004 is possibly relevant for working with 3D data and point cloud processing. GEO1015 is applicable as it forms the basis for 2D and 2.5D terrain modelling, shortcomings and processing of DEMs.
+// GEO1000 is relevant for programming the pipeline in either Python or C++. GEO1001 was the basis for understanding point cloud data collection and processing. GEO1002 is relevant for understanding the data and how to visualise it. GEO1004 is possibly relevant for working with 3D data and point cloud processing. GEO1015 is applicable as it forms the basis for 2D and 2.5D terrain modelling, shortcomings and processing of DEMs.//
+
+#pagebreak()
 
 == Deliverables
 
