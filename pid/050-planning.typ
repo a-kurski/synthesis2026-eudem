@@ -31,11 +31,11 @@ It is likely that other projects have developed different approaches to the prob
 The software development and data collection phase is the third phase of the project. During this phase, the software will be developed and tested. This includes both a pipeline prototype and a production version. It is expected that this phase will last approximately 4 weeks.
 
 The phase consists of the following tasks:
-- Development of a pipeline prototype;
-- Testing of the pipeline prototype on a data subset;
-- Development of a production version of the pipeline;
-- Testing of the production version of the pipeline on a data subset;
-- Testing of the production version of the pipeline on the full dataset;
+- Developing the prototype of prototype;
+- Testing of the prototype software on a data subset;
+- Development of a production version of the software;
+- Testing of the production version on a data subset;
+- Processing of the full dataset and quality assurance;
 - Software documentation and user manual creation.
 
 The pipeline prototype will be developed as a proof of concept and will be tested on a small data subset. For the production version, the pipeline will be developed to handle the full dataset. The production version will be tested on a small data subset and then on the full dataset. The software documentation and user manual will be created to ensure that the software can be used by others.
@@ -256,15 +256,14 @@ The final presentation will be prepared to show the final results and conclusion
 #pagebreak()
 == Communication
 
-Communication is key to the success of this project. To ensure communication is maintained, both within the team and with stakeholders, regular meetings will be held. The team will meet on a weekly basis to discuss progress, issues and questions. These meetings will be held on Fridays. There will be an additional opportunity to meet on Mondays if necessary. For each meeting, key talking points will be shared in advance. Meeting minutes will be kept and distributed after each meeting. These meetings will be held online via Microsoft Teams. The team will also communicate internally outside of these meetings, either through WhatsApp or in person.
-
+Communication is key to the success of this project. The team members will be meeting each other on weekdays for planning and to discuss progress and work together. The team will also maintain a WhatsApp group chat for out-of-hours communication where necessary. Meetings with the client/supervision team will be held weekly on Fridays, either in-person or on Microsoft Teams depending on participants' availability. When possible, meeting agenda and relevant files will be shared prior to the meeting; minutes will be taken and distributed after each meeting. There is also an opportunity to meet with the course coordination team on Mondays if necessary.
 
 == Risk Analysis
 
 In order to identify and mitigate risks, a risk analysis will be conducted @enwiki:1371953472. The method used is the risk matrix method. It is important to mention that this method is not infallible and that it is possible that risks are not identified or that the impact and likelihood are wrongly assessed. However, this method does allow for a more structured approach to risk analysis. #ref(<Risk_Assessment_Table>) shows the identified risks, their impact and likelihood, and what can be done to mitigate them.
 
 #figure(
-  image("assets/image.png", width: 70%),
+  image("assets/image.png", width: 60%),
   caption: "Risk Assessment Matrix."
 ) <Risk_Assessment_Matrix>
 

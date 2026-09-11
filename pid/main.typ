@@ -2,7 +2,9 @@
 
 // Cover page
 #set page(
+  paper: "a4",
   margin: 0pt,
+  numbering: none
 )
 
 #image(
@@ -36,11 +38,17 @@
 
 #include "000-front-matter.typ"
 
+#set par(justify: true)
+
+#counter(page).update(0)
+
 #pagebreak()
 
+#set page(
+  numbering: "1"
+)
+
 #outline()
-
-
 
 #include "010-introduction.typ"
 #include "020-contributors.typ"

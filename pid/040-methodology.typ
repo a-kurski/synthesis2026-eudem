@@ -6,7 +6,7 @@ This chapter describes the requirements for input and output data, the expected 
 
 == Requirements <sec:reqs>
 
-This section describes the requirements for this project. The requirements are split into 5 categories: "DT" (for "data") describes the datasets that are going to be used as input; "CT"  (meaning "country") describes the expected spatial extent of the output dataset within the Rhine catchment area; "MP" (for "map") describes the contents of the output data; "TC" refers to the technical requirements of the workflow; and "RP" stands for "report". The requirements each have a priority assigned based on the MoSCoW method. This method divides requirements into four categories: "Must have", "Should have", "Could have", and "Will not have". "Must have" requirements are mandatory; "Should have" requirements are not mandatory but nice-to-have or would add value to the project; "Could have" requirements have been discussed but add limited value or require more work. "Will not have" features have been determined to be strictly outside of the scope of the project as impractical due to high labour, data, or technical cost. The full assessment is shown in @Moscow_Prioritization.
+This section describes the requirements for this project. The requirements are split into 5 categories: "DT" (for "data") describes the datasets that are going to be used as input; "CT"  (meaning "country") describes the expected spatial extent of the output dataset within the Rhine catchment area; "MP" (for "map") describes the contents of the output data; "TC" refers to the technical requirements of the workflow; and "RP" stands for "report". The requirements each have a priority assigned based on the MoSCoW method @enwiki:1373589760. This method divides requirements into four categories: "Must have", "Should have", "Could have", and "Will not have". "Must have" requirements are mandatory; "Should have" requirements are not mandatory but nice-to-have or would add value to the project; "Could have" requirements have been discussed but add limited value or require more work. "Will not have" features have been determined to be strictly outside of the scope of the project as impractical due to high labour, lack of available data, or technical cost. The full assessment is shown in @Moscow_Prioritization.
 
 #let moscow(value) = {
   let color = if value == "Must" {
@@ -57,9 +57,7 @@ This section describes the requirements for this project. The requirements are s
     table.hline(stroke: 2pt),
     [MP-01],[DSM raster], moscow("Must"),
     [MP-02],[DTM raster], moscow("Should"),
-    [MP-03],[Land-sea mask], moscow("Must"),
     [MP-04],[Auxiliary masks and maps], moscow("Should"), //what is a bathymetry mask? is it just water/no water?
-    [MP-05],[Nodata mask], moscow("Should"),
     table.hline(stroke: 2pt),
     [TC-01],[Workflow is fully automated], moscow("Must"),
     [TC-02],[Workflow is efficient], moscow("Should"),
@@ -86,10 +84,10 @@ The majority of the subquestions will be answered at least in part theoretically
 
 === Practical Approach
 
-Where a question cannot be answered fully theoretically, practical approaches will be used. These questions include:
+When a question cannot be answered fully theoretically, practical approaches will be used. These questions include:
 
 - *What are the existing DEMs at different scales (regional, national, and global)?* \ As described in @data-discovery, the regional and national datasets will be findable from national geoportals. Further data discovery is needed for global and international (e.g. pan-European) elevation models; the supervisory team will be consulted as they have experience with them. The resolution, spatial extent and notable individual characteristics of the datasets will be documented.
-- *What are the issues with cross-border data?* \ As described in @qa, border regions will be sampled and reviewed; any issues found, if different from the issues found in the literature, will be documented.
+- *What are the issues with cross-border data?* \ As described in @qa, border regions will be sampled and reviewed; any issues found, if different from those described in the literature, will be documented.
 - *What are the limitations of an automated harmonisation pipeline?* \ The pipeline will be tested; known issues in the output raster and limitations of the pipeline will be documented.
 - *How can the accuracy of a reconstructed cross-border DEM be tested?* \ If it is found that the literature does not offer satisfactory testing methods, the team will discuss if there are better approaches suitable for the given use case. In this document, the suggested approaches include using synthetic data and cross-referencing with a global elevation dataset.
 
@@ -117,7 +115,7 @@ Below is the detailed description of each of the steps above.
 
 === Data Discovery and Acquisition <data-discovery>
 
-Data acquisition chiefly refers to getting access to the necessary datasets — global, national, and regional — and downloading them. For each country, the data should include at minimum a point cloud, a DEM (ideally, a separate DSM and DTM), and, if possible, also a topographic dataset containing bodies of water. Most of this data is covered under INSPIRE and therefore should be available from national geoportals. European Point Clouds (as described in #cite(<vanderheide2026pointcloud>, form: "prose")) is also used for data discovery. The full list of datasets is found in @appx-data-sources.
+Data acquisition chiefly refers to getting access to the necessary datasets — global, national, and regional — and downloading them. For each country, the data should include at minimum a point cloud, a DEM (ideally, a separate DSM and DTM), and, if possible, also a topographic dataset containing bodies of water. Most of this data is covered under INSPIRE and therefore should be available from national geoportals. European Point Clouds (as described in #cite(<vanderheide2026pointcloud>, form: "prose")) is also used for data discovery. The full list of datasets discovered thus far is found in @appx-data-sources.
 
 === Data Preprocessing
 
@@ -149,7 +147,7 @@ To make the raster usable and for broader visualisation purposes, some further p
 - a land/inland water mask;
 - a "NoData" mask;
 - a point density map;
-- a "Border" mask (i.e. regions where heterogeneous datasets had to be harmonised).
+- a "Border" mask (i.e. regions where heterogeneous datasets overlap and need to be harmonised).
 This data will be derived from the input datasets — i.e. point clouds, and raster and vector maps. Some of these — such as the NoData mask — will be integrated into the DEM and others — like a point density map or a border mask — will be separate.
 
 === Documentation
