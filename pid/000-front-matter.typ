@@ -29,7 +29,7 @@ Supervised by
 
 #v(4em)
 
-Delft University of Technology, \ Faculty of Architecture and The Built Environment, \ The Netherlands
+Delft University of Technology, \ Faculty of Architecture and the Built Environment, \ The Netherlands
 #v(4em)
 #datetime.today().display("[month repr:long] [day], [year]")
 

@@ -12,7 +12,7 @@ The phase consists of the following tasks:
 - Project planning and scheduling;
 - Meeting with stakeholders to discuss project scope, objectives, deliverables, and timeline.
 
-This report is the PID and includes most information aquired during this first phase. The project plan and schedule can be found at the end of this chapter in the form of a Gantt chart. The meeting minutes can be found on the project repository. While elements discussed in this first phase are not final, they will be used as a basis for the project plan and schedule.
+This report is the PID and includes most of the information acquired during this first phase. The project plan and schedule can be found at the end of this chapter in the form of a Gantt chart. The meeting minutes can be found in the project repository. While elements discussed in this first phase are not final, they will be used as a basis for the project plan and schedule.
 
 === Research phase
 
@@ -24,7 +24,7 @@ The phase consists of the following tasks:
 - Refinement of the methodology and approach based on the literature review;
 - Data collection and evaluation for fitness of use and quality.
 
-It is likely that other projects have developed different approaches to the problem of creating a cross-border DEM. This will be the main focus of the literature study. Additionally, since each country has its data in a different CRS, it is important to learn how to transform the data into a common CRS. This will be done by reviewing CRS transformations and their accuracy. The methodology and approach described in this PID is based on an intial assumption of the problem and will be refined based on our findings. Lastly, data for both the ground truth and the point clouds will be collected and evaluated in preparation for the next phase.
+It is likely that other projects have developed different approaches to the problem of creating a cross-border DEM. This will be the main focus of the literature study. Additionally, since each country has its data in a different CRS, it is important to learn how to transform the data into a common CRS. This will be done by reviewing CRS transformations and their accuracy. The methodology and approach described in this PID are based on an initial assumption of the problem and will be refined based on our findings. Lastly, data for both the ground truth and the point clouds will be collected and evaluated in preparation for the next phase.
 
 === Software development and data collection phase
 
@@ -34,20 +34,20 @@ The phase consists of the following tasks:
 - Development of a pipeline prototype;
 - Testing of the pipeline prototype on a data subset;
 - Development of a production version of the pipeline;
-- Testing of the production version of the pipeline a data subset;
+- Testing of the production version of the pipeline on a data subset;
 - Testing of the production version of the pipeline on the full dataset;
 - Software documentation and user manual creation.
 
-The pipeline prototype will be developed as a proof of concept and will be test on a small data subset. For the production version, the pipeline will be developed to handle the full dataset. The production version will be tested on a small data subset and then on the full dataset. The software documentation and user manual will be created to ensure that the software can be used by others.
+The pipeline prototype will be developed as a proof of concept and will be tested on a small data subset. For the production version, the pipeline will be developed to handle the full dataset. The production version will be tested on a small data subset and then on the full dataset. The software documentation and user manual will be created to ensure that the software can be used by others.
 
 === Midterm presentation phase
-The midterm presentation phase is the fourth phase, but will be executed in parallel with the software development and data collection phase. During this phase, the project will be presented to the stakeholders to show the progress made and to receive feedback. In addition, this opertunity may be used to adjust the project scope or objectives. There is no set duration for this phase.
+The midterm presentation phase is the fourth phase, but will be executed in parallel with the software development and data collection phase. During this phase, the project will be presented to the stakeholders to show the progress made and to receive feedback. In addition, this opportunity may be used to adjust the project scope or objectives. There is no set duration for this phase.
 
 The phase consists of the following tasks:
 - Midterm presentation preparation;
 - Midterm report creation.
 
-The midterm presentation will be prepared to show the progress made up until that point. The midterm report will be the progress of the final report and will contain the results of the research phase and the software development in its current state. Both the presentation and report will be presented to the stakeholders to receive feedback and to adjust the project scope and/or objectives if neccesary.
+The midterm presentation will be prepared to show the progress made up until that point. The midterm report will be the progress of the final report and will contain the results of the research phase and the software development in its current state. Both the presentation and report will be presented to the stakeholders to receive feedback and to adjust the project scope and/or objectives if necessary.
 
 === Final presentation phase
 The final presentation phase is the fifth and final phase of the project. During this phase, the project will be presented to the stakeholders to show the final results and the report. In addition, this will contain the final geomatics day presentation. There is no set duration for this phase.
@@ -254,12 +254,12 @@ The final presentation will be prepared to show the final results and conclusion
 
 == Communication
 
-Communication is key to the success of this project. To ensure communication is maintained, both within the team and with stakeholders, regular meetings will be held. The team will meet on a weekly basis to discuss progress, issues and questions. These meetings will be held on Fridays. There will be an additional opertunity to meet on Mondays if neccesary. For each meeting, key talking points will be shared in advance. Meeting minutes will be kept and distributed after each meeting. These meetings will be held online via Microsoft Teams. The team will also communicate internally outside of these meetings, either through Whatsapp or in person.
+Communication is key to the success of this project. To ensure communication is maintained, both within the team and with stakeholders, regular meetings will be held. The team will meet on a weekly basis to discuss progress, issues and questions. These meetings will be held on Fridays. There will be an additional opportunity to meet on Mondays if necessary. For each meeting, key talking points will be shared in advance. Meeting minutes will be kept and distributed after each meeting. These meetings will be held online via Microsoft Teams. The team will also communicate internally outside of these meetings, either through WhatsApp or in person.
 
 
 == Risk Analysis
 
-In order to identify and mitigate risks, a risk analysis will be conducted @enwiki:1371953472. The method used is the risk matrix method. It is important to mention that this method is not infalible and that it is possible that risks are not identified or that the impact and likelihood are wrongly assessed. However, this method does allow for a more structured approach to risk analysis. #ref(<Risk_Assessment_Table>) shows the identified risks, their impact and likelihood, and what can be done to mitigate them.
+In order to identify and mitigate risks, a risk analysis will be conducted @enwiki:1371953472. The method used is the risk matrix method. It is important to mention that this method is not infallible and that it is possible that risks are not identified or that the impact and likelihood are wrongly assessed. However, this method does allow for a more structured approach to risk analysis. #ref(<Risk_Assessment_Table>) shows the identified risks, their impact and likelihood, and what can be done to mitigate them.
 
 #figure(
   image("assets/image.png", width: 70%),
@@ -393,10 +393,10 @@ In order to identify and mitigate risks, a risk analysis will be conducted @enwi
     ),
     risk-id([1.],"Critical","Possible"),[Pipeline too computationally taxing or insufficient computational resources.],impact("Critical"),likelyhood("Possible"),[Test with small dataset and adjust spatial extent if necessary.],
     risk-id([2.],"Marginal","Rare"),[Insufficient quality/availability of point cloud data.],impact("Marginal"),likelyhood("Rare"),[Shift focus to regions with available high-quality data.],
-    risk-id([3.],"Critical","Unlikely"),[CRS transformations are inaccurate.],impact("Critical"),likelyhood("Unlikely"),[Test CRS alignment on select border regions],
-    risk-id([4.],"Critical","Likely"),[Missing/conflicting data on border areas.],impact("Critical"),likelyhood("Likely"),[Check spatial overlap of datasets and prioritize one dataset.],
+    risk-id([3.],"Critical","Unlikely"),[CRS transformations are inaccurate.],impact("Critical"),likelyhood("Unlikely"),[Test CRS alignment on select border regions.],
+    risk-id([4.],"Critical","Likely"),[Missing/conflicting data on border areas.],impact("Critical"),likelyhood("Likely"),[Check spatial overlap of datasets and prioritise one dataset.],
     risk-id([5.],"Catastrophic","Unlikely"),[Task is too ambitious given timeframe/team size.],impact("Catastrophic"),likelyhood("Unlikely"),[Check if internal deadlines are met and adjust scope if necessary.],
-    risk-id([6.],"Minor","Possible"),[Edge cases not properly assessed due to data quantity and variability.],impact("Minor"),likelyhood("Possible"),[Unideal but acceptable within scope of project.],
+    risk-id([6.],"Minor","Possible"),[Edge cases not properly assessed due to data quantity and variability.],impact("Minor"),likelyhood("Possible"),[Not ideal but acceptable within the scope of the project.],
     risk-id([7.],"Critical","Unlikely"),[Task is insufficiently constrained/defined.],impact("Critical"),likelyhood("Unlikely"),[Regular meetings with team and stakeholders to assess and adjust scope and requirements if necessary.],
     risk-id([8.],"Critical","Possible"),[Lacking/inadequate communication within the team and/or with stakeholders.],impact("Critical"),likelyhood("Possible"),[Schedule regular meetings and maintain open communication channels.],
     risk-id([9.],"Marginal","Possible"),[Discovery of unexpected issues.],impact("Marginal"),likelyhood("Possible"),[Regular meetings with team and stakeholders to assess impact and devise mitigation strategies if necessary.],
