@@ -138,7 +138,7 @@ This stage of the pipeline includes:
 - converting raster files to the same CRS;
 - if necessary, further aligning them using the same transformation as the respective point cloud;
 - raster resampling to align their resolution;
-- interpolating if a raster image has gaps (such as in the case of the Netherlands' DTM);
+- interpolating if a raster image has gaps (such as in the case of The Netherlands' DTM);
 - stitching the individual tiles into one file.
 At the end of this stage, the raster DEM is complete.
 
