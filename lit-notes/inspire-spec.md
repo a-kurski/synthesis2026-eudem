@@ -29,7 +29,6 @@ Annex A has an abstract test suite to test conformance
 
 - sec. 5.1 defines requirements for codes. Probably something to look into deeper
 - Identifier management (sec. 5.2.5) — do we even care about that or is it for nations publishing their datasets? 
--  
 
 ### 5.2.4 Consistency between spatial data sets
 Defines: 
@@ -79,3 +78,73 @@ INSPIRE only allows:
 - Use ETRS89 Lambert Azimuthal Equal Area, Lambert Conformal Conic or Transverse Mercator
 - Use EVRS
 - Use SI units where possible
+
+
+### 6.2.2. Grids
+- Grid data is located at the centre of the geographic grid (basically, centre of each pixel of TIFF)
+- Possible CRS: 
+  - in lat/long
+  - ETRS Lambert Conformal Conic
+  - ETRS Transerse Mercator
+- Recommended grid: 
+  - Grid_ETRS89-GRS80zn
+- "unavoidable transformation between the grids has an inherent loss of quality"
+- "planar representaiton of geodetic coordinates introduces unusual distortion"
+- real-time reprojection recommended for viewing
+
+## Data Quality
+- Completeness
+  - Comission: rate of excess items (e.g. duplicates)
+  - Omission: rate of missing items — esp. recommended for grids
+- Logical consistency
+  - Conceptual consistency: compliance with the rules of conceptual schema
+  - Domain consistency: value domain non-conformance
+  - Format consistency: conflict with the data structure
+  - Topological consistency — vector only
+- Positional accuracy
+  - Absolute or external accuracy: — vector only
+  - Positional accuracy: in a grid, RMSE of height — target GSD/3, where GSD is ground sample distance
+  - Gridded data position accuracy — target GSD/6
+
+## Metadata
+- metadata for publishing — do we even care? 
+- lineage? 
+
+### 8.2 Metadata elements for interoperability
+- CRS
+- temporal reference system
+- encoding — basically file format
+- character encoding (if not UTF-8)
+- spatial representation type
+- data quality
+
+### 8.3 Recommended metadata
+Consider: 
+- source
+
+## 9 Delivery
+Requirement for member states: update regularly, with a maximum 6mo delay
+
+Relevant services: 
+- view
+- download
+- transformation 
+
+Options for delivering coverage data
+- Multipart representation: 
+  - GML denoting extents of individual parts
+  - other (binary) formats for each part
+- Reference to an external file
+- Inline encoding
+
+### Encodings
+There is a requirement that encoding is ISO 19118-compliant and every encoding rule is made available
+Requirement: default encoding is XML and XML documents should validate against a schema
+
+## Data Capture
+Grid size: Grid spacing: \[3 x RMSE, 20 x RMSE] for flat terrain, \[3 x RMSE, 10 x RMSE] for flat terrain, 
+
+## 11 Portrayal
+do we are about portrayal?
+
+## A Abstract Test Suite
