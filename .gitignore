@@ -1,1 +1,11 @@
 pid/AGENTS.md
+
+# Generated DTM processing stages and local run artifacts
+/Prototype/SIFT_matching/data/reprojected/
+/Prototype/SIFT_matching/data/resampled/
+/Prototype/SIFT_matching/data/filled/
+/Prototype/SIFT_matching/data/hillshade/
+/Prototype/SIFT_matching/data/vertical_adjusted/
+/Prototype/SIFT_matching/data/legacy_common_grid/
+/Prototype/SIFT_matching/results/
+/Prototype/SIFT_matching/__pycache__/
