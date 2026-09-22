@@ -342,7 +342,7 @@ def ensure_resolution(file, target_resolution=2.0):
         format="GTiff",
         width=target_width,
         height=target_height,
-        resampleAlg="average",
+        resampleAlg="bilinear",
         outputType=gdal.GDT_Float32,
         creationOptions=["COMPRESS=LZW"],
     )
