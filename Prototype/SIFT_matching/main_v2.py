@@ -2,8 +2,12 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+import random as rd
+rd.seed(17)
 from osgeo import gdal
 from pyproj import CRS
+from pyproj.transformer import TransformerGroup
+from itertools import combinations
 
 crs = CRS.from_epsg(4326)
 
@@ -12,9 +16,56 @@ crs = CRS.from_epsg(4326)
 #===========================================
 
 BASE_DIR = Path(__file__).resolve().parent
-FILE1 = BASE_DIR / "data" / "AHN5_M_193000_417000.TIF"
-FILE2 = BASE_DIR / "data" / "dgm1_32_289_5736_1_nw_2024.tif"
+DATA_DIR = BASE_DIR / "data"
+INPUT_DIR = DATA_DIR / "input"
+REPROJECTED_DIR = DATA_DIR / "reprojected"
+RESAMPLED_DIR = DATA_DIR / "resampled"
+VERTICAL_DIR = DATA_DIR / "vertical_adjusted"
+FILLED_DIR = DATA_DIR / "filled"
+HILLSHADE_DIR = DATA_DIR / "hillshade"
+RESULTS_DIR = BASE_DIR / "results"
+
+FILE1 = INPUT_DIR / "AHN5_M_193000_417000.TIF"
+FILE2 = INPUT_DIR / "AHN5_M_192000_417000.TIF"
+FILE3 = INPUT_DIR / "dgm1_32_288_5737_1_nw_2024.tif"
+FILE4 = INPUT_DIR / "dgm1_32_288_5736_1_nw_2024.tif"
+FILE5 = INPUT_DIR / "dgm1_32_289_5736_1_nw_2024.tif"
+FILE6 = INPUT_DIR / "607_5270.tif"
+FILE7 = INPUT_DIR / "dgm_50cm_1628-71_2019.tif"
+FILE8 = INPUT_DIR / "607_5269.tif"
+FILE9 = INPUT_DIR / "dgm_50cm_1628-78_2019.tif"
 TARGET_CRS = "EPSG:25832"
+TARGET_VERTICAL_CRS = "EPSG:5621"  # EVRF2007 height
+MIN_OVERLAP_FRACTION = 0.10
+REUSE_EXISTING_OUTPUTS = True
+APPLY_GERMAN_VERTICAL_TRANSFORM = True
+APPLY_AUSTRIAN_HEIGHT_COMPENSATION = True
+GERMAN_INPUT_INDICES = {2, 3, 4, 5, 7}
+AUSTRIAN_INPUT_INDICES = {6, 8}
+
+COUNTRY_BY_EPSG = {
+    28992: "Netherlands",
+    25832: "Germany",
+    31254: "Austria",
+    2056: "Switzerland",
+}
+
+
+def stage_output(file, directory, suffix, *, extension=None):
+    """Return a generated output path inside its processing-stage directory."""
+    directory.mkdir(parents=True, exist_ok=True)
+    if extension is None:
+        extension = file.suffix
+    return directory / f"{file.stem}{suffix}{extension}"
+
+
+def reuse_existing_output(file, directory, suffix, *, extension=None):
+    """Return a previously generated output instead of regenerating it."""
+    output_path = stage_output(file, directory, suffix, extension=extension)
+    if REUSE_EXISTING_OUTPUTS and output_path.exists():
+        print(f"Reusing existing output: {output_path.name}")
+        return output_path
+    return None
 
 
 #===========================================
@@ -30,7 +81,10 @@ def reproject(file,crs):
 
     source_crs = CRS.from_wkt(source.GetProjection()).to_2d()
     target_crs = CRS.from_user_input(TARGET_CRS).to_2d()
-    output_path = file.with_name(f"{file.stem}_reprojected{file.suffix}")
+    output_path = stage_output(file, REPROJECTED_DIR, "_reprojected")
+    existing_path = reuse_existing_output(file, REPROJECTED_DIR, "_reprojected")
+    if existing_path is not None:
+        return existing_path
     if output_path.exists():
         output_path.unlink()
     aux_path = Path(f"{output_path}.aux.xml")
@@ -56,12 +110,152 @@ def reproject(file,crs):
     return output_path
 
 
+def transform_vertical_heights(file, source_vertical_epsg, suffix="_EVRF2007"):
+    """Convert a raster's source vertical CRS to EVRF2007 in place."""
+    output_path = stage_output(file, VERTICAL_DIR, suffix)
+    existing_path = reuse_existing_output(file, VERTICAL_DIR, suffix)
+    if existing_path is not None:
+        return existing_path
+    if output_path.exists():
+        output_path.unlink()
+
+    source = gdal.Open(str(file))
+    if source is None:
+        raise FileNotFoundError(f"Could not open raster: {file}")
+    source_array = source.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    nodata = source.GetRasterBand(1).GetNoDataValue()
+    transform = source.GetGeoTransform()
+    columns, rows = np.meshgrid(
+        np.arange(source.RasterXSize),
+        np.arange(source.RasterYSize),
+    )
+    x = transform[0] + (columns + 0.5) * transform[1]
+    y = transform[3] + (rows + 0.5) * transform[5]
+    valid = np.isfinite(source_array)
+    if nodata is not None:
+        valid &= ~np.isclose(source_array, nodata)
+
+    target_array = source_array.copy()
+    transformer_group = TransformerGroup(
+        CRS.from_user_input(f"{TARGET_CRS}+{source_vertical_epsg}"),
+        CRS.from_user_input(f"{TARGET_CRS}+{TARGET_VERTICAL_CRS.split(':')[-1]}"),
+        always_xy=True,
+    )
+    if not transformer_group.transformers:
+        raise RuntimeError(
+            f"No transformation available from vertical EPSG:{source_vertical_epsg} "
+            f"to {TARGET_VERTICAL_CRS}"
+        )
+    transformer = transformer_group.transformers[0]
+    if "ballpark" in transformer.description.lower():
+        print(
+            f"Warning: PROJ is using a ballpark vertical transformation for "
+            f"EPSG:{source_vertical_epsg} -> {TARGET_VERTICAL_CRS}; "
+            "install the required PROJ grid for an official correction."
+        )
+    _, _, transformed_heights = transformer.transform(
+        x[valid], y[valid], source_array[valid]
+    )
+    target_array[valid] = transformed_heights
+
+    result = gdal.Translate(str(output_path), source, format="GTiff")
+    source = None
+    if result is None:
+        raise RuntimeError(f"Could not create vertical-adjustment raster: {file}")
+    result = None
+    target = gdal.Open(str(output_path), gdal.GA_Update)
+    target.GetRasterBand(1).WriteArray(target_array)
+    target.FlushCache()
+    target = None
+    return output_path
+
+
+def apply_constant_height_offset(file, offset):
+    """Write a copy of a DTM with a constant vertical offset applied."""
+    output_path = stage_output(file, VERTICAL_DIR, "_austrian_compensated")
+    source = gdal.Open(str(file))
+    if source is None:
+        raise FileNotFoundError(f"Could not open raster: {file}")
+    array = source.GetRasterBand(1).ReadAsArray().astype(np.float32)
+    nodata = source.GetRasterBand(1).GetNoDataValue()
+    valid = np.isfinite(array)
+    if nodata is not None:
+        valid &= ~np.isclose(array, nodata)
+    array[valid] += offset
+
+    if output_path.exists():
+        output_path.unlink()
+    result = gdal.Translate(str(output_path), source, format="GTiff")
+    source = None
+    if result is None:
+        raise RuntimeError(f"Could not create compensated raster: {file}")
+    result = None
+    target = gdal.Open(str(output_path), gdal.GA_Update)
+    target.GetRasterBand(1).WriteArray(array)
+    target.FlushCache()
+    target = None
+    return output_path
+
+
+def crs_transformation_info(file):
+    """Describe the PROJ operation from a source raster CRS to TARGET_CRS."""
+    dataset = gdal.Open(str(file))
+    if dataset is None:
+        raise FileNotFoundError(f"Could not open raster: {file}")
+
+    source_crs = CRS.from_wkt(dataset.GetProjection()).to_2d()
+    target_crs = CRS.from_user_input(TARGET_CRS).to_2d()
+    source_epsg = source_crs.to_epsg()
+    target_epsg = target_crs.to_epsg()
+    group = TransformerGroup(source_crs, target_crs, always_xy=True)
+    selected = group.transformers[0] if group.transformers else None
+    best_unavailable = (
+        group.unavailable_operations[0]
+        if group.unavailable_operations
+        else None
+    )
+
+    return {
+        "file": file.name,
+        "country": COUNTRY_BY_EPSG.get(source_epsg, "Unknown"),
+        "source_epsg": source_epsg or "",
+        "source_crs": source_crs.name,
+        "target_epsg": target_epsg or "",
+        "target_crs": target_crs.name,
+        "selected_operation": selected.description if selected else "",
+        "selected_accuracy_m": selected.accuracy if selected else "",
+        "best_unavailable_operation": best_unavailable.name if best_unavailable else "",
+        "best_unavailable_grids": "; ".join(
+            grid.short_name
+            for grid in best_unavailable.grids
+        ) if best_unavailable else "",
+    }
+
+
+def save_crs_transformations(records, output_path):
+    """Save official CRS transformation metadata for every input raster."""
+    import csv
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if not records:
+        output_path.write_text("", encoding="utf-8")
+        return
+
+    with output_path.open("w", newline="", encoding="utf-8") as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=records[0].keys())
+        writer.writeheader()
+        writer.writerows(records)
+
+
 def fill_nodata(file):
     #gdal exceptions
     gdal.UseExceptions()
 
     #output path for filled file
-    filled_path = file.with_name(f"{file.stem.removesuffix('_reprojected')}_filled{file.suffix}")
+    filled_path = stage_output(file, FILLED_DIR, "_filled")
+    existing_path = reuse_existing_output(file, FILLED_DIR, "_filled")
+    if existing_path is not None:
+        return existing_path
     if filled_path.exists():
         filled_path.unlink()
     aux_path = Path(f"{filled_path}.aux.xml")
@@ -85,7 +279,10 @@ def fill_nodata(file):
 
 def hillshade(file):
     #file open 
-    hillshade_path = file.with_name(f"{file.stem.removesuffix('_filled')}_hillshade{file.suffix}")
+    hillshade_path = stage_output(file, HILLSHADE_DIR, "_hillshade")
+    existing_path = reuse_existing_output(file, HILLSHADE_DIR, "_hillshade")
+    if existing_path is not None:
+        return existing_path
     if hillshade_path.exists():
         hillshade_path.unlink()
     aux_path = Path(f"{hillshade_path}.aux.xml")
@@ -100,7 +297,7 @@ def hillshade(file):
     return hillshade_path
 
 
-def ensure_resolution(file, target_resolution=5.0):
+def ensure_resolution(file, target_resolution=2.0):
     """Resample the pixel grid without transforming the raster CRS or heights."""
     dataset = gdal.Open(str(file))
     if dataset is None:
@@ -118,7 +315,18 @@ def ensure_resolution(file, target_resolution=5.0):
         print(f"Keeping {file.name}: already {target_resolution:g} m resolution")
         return file
 
-    output_path = file.with_name(f"{file.stem}_{target_resolution:g}m{file.suffix}")
+    output_path = stage_output(
+        file,
+        RESAMPLED_DIR,
+        f"_{target_resolution:g}m",
+    )
+    existing_path = reuse_existing_output(
+        file,
+        RESAMPLED_DIR,
+        f"_{target_resolution:g}m",
+    )
+    if existing_path is not None:
+        return existing_path
     if output_path.exists():
         output_path.unlink()
     aux_path = Path(f"{output_path}.aux.xml")
@@ -147,99 +355,111 @@ def ensure_resolution(file, target_resolution=5.0):
     return output_path
 
 
-def align_to_common_grid(files, target_resolution=5.0):
-    """Put rasters on one shared grid while retaining their full union extent."""
-    datasets = [gdal.Open(str(file)) for file in files]
-    if any(dataset is None for dataset in datasets):
-        raise FileNotFoundError("Could not open all rasters for common-grid alignment.")
+def raster_extent(file):
+    """Return GDAL's projected extent as (xmin, xmax, ymin, ymax)."""
+    info = gdal.Info(str(file), format="json")
+    if not info or "geoTransform" not in info or "size" not in info:
+        raise FileNotFoundError(f"Could not read raster metadata: {file}")
 
-    extents = []
-    for dataset in datasets:
-        transform = dataset.GetGeoTransform()
-        width = dataset.RasterXSize
-        height = dataset.RasterYSize
-        x0 = transform[0]
-        x1 = x0 + width * transform[1]
-        y0 = transform[3]
-        y1 = y0 + height * transform[5]
-        extents.append((min(x0, x1), max(x0, x1), min(y0, y1), max(y0, y1)))
+    transform = info["geoTransform"]
+    width, height = info["size"]
 
-    x_min = np.floor(min(extent[0] for extent in extents) / target_resolution) * target_resolution
-    x_max = np.ceil(max(extent[1] for extent in extents) / target_resolution) * target_resolution
-    y_min = np.floor(min(extent[2] for extent in extents) / target_resolution) * target_resolution
-    y_max = np.ceil(max(extent[3] for extent in extents) / target_resolution) * target_resolution
-    bounds = (x_min, y_min, x_max, y_max)
+    x_min = transform[0]
+    x_max = transform[0] + width * transform[1]
+    y_max = transform[3]
+    y_min = transform[3] + height * transform[5]
+    return (
+        min(x_min, x_max),
+        max(x_min, x_max),
+        min(y_min, y_max),
+        max(y_min, y_max),
+    )
 
-    aligned_files = []
-    for file, dataset in zip(files, datasets):
-        output_path = file.with_name(f"{file.stem}_common_grid{file.suffix}")
-        if output_path.exists():
-            output_path.unlink()
-        aux_path = Path(f"{output_path}.aux.xml")
-        if aux_path.exists():
-            aux_path.unlink()
 
-        result = gdal.Warp(
-            str(output_path),
-            dataset,
-            format="GTiff",
-            outputBounds=bounds,
-            xRes=target_resolution,
-            yRes=target_resolution,
-            targetAlignedPixels=True,
-            srcSRS=TARGET_CRS,
-            dstSRS=TARGET_CRS,
-            resampleAlg="bilinear",
-            outputType=gdal.GDT_Float32,
-            srcNodata=-9999,
-            dstNodata=-9999,
-            creationOptions=["COMPRESS=LZW"],
-        )
-        dataset = None
-        if result is None:
-            raise RuntimeError(f"Could not align raster: {file}")
-        result = None
-        aligned_files.append(output_path)
+def rasters_overlap(file1, file2, minimum_fraction=MIN_OVERLAP_FRACTION):
+    """Return whether two rasters have enough projected overlap to match."""
+    xmin1, xmax1, ymin1, ymax1 = raster_extent(file1)
+    xmin2, xmax2, ymin2, ymax2 = raster_extent(file2)
 
-    print(f"Aligned {len(aligned_files)} rasters to one {target_resolution:g} m grid")
-    return aligned_files
+    overlap_width = min(xmax1, xmax2) - max(xmin1, xmin2)
+    overlap_height = min(ymax1, ymax2) - max(ymin1, ymin2)
+    if overlap_width <= 0 or overlap_height <= 0:
+        return False
+
+    area1 = (xmax1 - xmin1) * (ymax1 - ymin1)
+    area2 = (xmax2 - xmin2) * (ymax2 - ymin2)
+    overlap_area = overlap_width * overlap_height
+    return overlap_area / min(area1, area2) >= minimum_fraction
+
+
+def save_pair_statistics(statistics_by_pair, output_path):
+    """Save height-difference statistics for retained pairs."""
+    import csv
+
+    if not statistics_by_pair:
+        output_path.write_text("", encoding="utf-8")
+        return
+
+    fieldnames = ["image1", "image2"] + list(next(iter(statistics_by_pair.values())).keys())
+    with output_path.open("w", newline="", encoding="utf-8") as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+        for (image1_index, image2_index), statistics in statistics_by_pair.items():
+            row = {
+                "image1": image1_index + 1,
+                "image2": image2_index + 1,
+                **statistics,
+            }
+            writer.writerow(row)
+
+
+def save_pair_transforms(transforms_by_pair, output_path):
+    """Save retained SIFT image-registration affine matrices as CSV rows."""
+    import csv
+
+    fieldnames = [
+        "image1",
+        "image2",
+        "a11",
+        "a12",
+        "tx",
+        "a21",
+        "a22",
+        "ty",
+    ]
+    with output_path.open("w", newline="", encoding="utf-8") as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+        for (image1_index, image2_index), transform in transforms_by_pair.items():
+            writer.writerow({
+                "image1": image1_index + 1,
+                "image2": image2_index + 1,
+                "a11": float(transform[0, 0]),
+                "a12": float(transform[0, 1]),
+                "tx": float(transform[0, 2]),
+                "a21": float(transform[1, 0]),
+                "a22": float(transform[1, 1]),
+                "ty": float(transform[1, 2]),
+            })
 
 
 #===========================================
 #SIFT
 #===========================================
-def sift(file):
-    img = gdal.Open(file)
-    if img is None:
-            raise RuntimeError(f"Could not build hillshade for {img}")
-
-    #convert hillshade to matrix
-    hillshade = img.GetRasterBand(1).ReadAsArray().astype(np.float32)
-    hillshade = np.nan_to_num(hillshade, nan=0.0)
-
-    #get hillshade extremes
-    hill_min = float(np.min(hillshade))
-    hill_max = float(np.max(hillshade))
-
-    #normalizing
-    normalized = (hillshade - hill_min) / (hill_max - hill_min)
-    normalized = np.clip(normalized, 0.0, 1.0)
-    normalized = (normalized * 255).astype(np.uint8)
-
-    sift = cv2.SIFT_create(
-            nOctaveLayers=5,
-            contrastThreshold=0.005,
-            edgeThreshold=16,
-            sigma=1.6,
+def _sift_detector(**kwargs):
+    """Build the project's standard SIFT detector configuration."""
+    defaults = dict(
+        nOctaveLayers=5,
+        contrastThreshold=0.005,
+        edgeThreshold=16,
+        sigma=1.6,
     )
-    keypoints, descriptors = sift.detectAndCompute(normalized, None)
+    defaults.update(kwargs)
+    return cv2.SIFT_create(**defaults)
 
-    if keypoints is None or descriptors is None:
-        return [], None
-    return keypoints, descriptors
 
-def load_normalized_hillshade(file):
-    """Load and normalize a hillshade using the same steps as sift()."""
+def _normalized_hillshade_array(file):
+    """Open a hillshade and normalize it to uint8 for SIFT."""
     image = gdal.Open(str(file))
     if image is None:
         raise FileNotFoundError(f"Could not open hillshade: {file}")
@@ -256,27 +476,37 @@ def load_normalized_hillshade(file):
     return (normalized * 255).astype(np.uint8)
 
 
+def _compute_sift_features(image, *, keypoints=None, detector_kwargs=None):
+    """Compute keypoints and descriptors from a normalized hillshade array."""
+    detector = _sift_detector(**(detector_kwargs or {}))
+    if keypoints is None:
+        return detector.detectAndCompute(image, None)
+    return detector.compute(image, keypoints)
+
+
 def descriptors_from_keypoints(keypoints, hillshade_file):
     """Calculate SIFT descriptors for existing keypoints."""
-    image = load_normalized_hillshade(hillshade_file)
-    detector = cv2.SIFT_create(
-        nOctaveLayers=3,
-        contrastThreshold=0.04,
-        edgeThreshold=2,
-        sigma=1.6,
+    image = _normalized_hillshade_array(hillshade_file)
+    _, descriptors = _compute_sift_features(
+        image,
+        keypoints=keypoints,
+        detector_kwargs={
+            "nOctaveLayers": 3,
+            "contrastThreshold": 0.04,
+            "edgeThreshold": 2,
+        },
     )
-    _, descriptors = detector.compute(image, keypoints)
     return descriptors
 
 
 def match_descriptors(desc1, desc2, ratio=0.75):
     """Match descriptor arrays, or recover them when keypoints are supplied."""
     if isinstance(desc1, (list, tuple)) and isinstance(desc2, (list, tuple)):
-        hillshade1 = FILE1.with_name(
-            f"{FILE1.stem}_hillshade{FILE1.suffix}"
+        hillshade1 = HILLSHADE_DIR / (
+            f"{FILE1.stem}_reprojected_2m_filled_hillshade{FILE1.suffix}"
         )
-        hillshade2 = FILE2.with_name(
-            f"{FILE2.stem}_hillshade{FILE2.suffix}"
+        hillshade2 = HILLSHADE_DIR / (
+            f"{FILE2.stem}_reprojected_2m_filled_hillshade{FILE2.suffix}"
         )
         desc1 = descriptors_from_keypoints(desc1, hillshade1)
         desc2 = descriptors_from_keypoints(desc2, hillshade2)
@@ -309,13 +539,13 @@ def match_descriptors(desc1, desc2, ratio=0.75):
 
 
 def filter_geometric_matches(keypoints1, keypoints2, matches, threshold=4.0):
-    """Keep only matches that agree with one robust affine transformation."""
+    """Keep matches agreeing with one affine transform and return that transform."""
     if len(matches) < 3:
-        return []
+        return [], None
 
     points1 = np.float32([keypoints1[match.queryIdx].pt for match in matches])
     points2 = np.float32([keypoints2[match.trainIdx].pt for match in matches])
-    _, inlier_mask = cv2.estimateAffinePartial2D(
+    transform, inlier_mask = cv2.estimateAffinePartial2D(
         points1,
         points2,
         method=cv2.RANSAC,
@@ -325,14 +555,15 @@ def filter_geometric_matches(keypoints1, keypoints2, matches, threshold=4.0):
         refineIters=10,
     )
 
-    if inlier_mask is None:
-        return []
+    if transform is None or inlier_mask is None:
+        return [], None
 
-    return [
+    inliers = [
         match
         for match, is_inlier in zip(matches, inlier_mask.ravel())
         if is_inlier
     ]
+    return inliers, transform
 
 
 def pixel_to_map(transform, column, row):
@@ -406,6 +637,34 @@ def extract_match_heights(dem_file1, dem_file2, keypoints1, keypoints2, matches)
     return records
 
 
+def estimate_austrian_offset(pair_records):
+    """Estimate one shared median vertical offset for all Austrian rasters."""
+    offset_samples = []
+    for (image1_index, image2_index), records in pair_records.items():
+        differences = [
+            record["difference_height2_minus_height1"]
+            for record in records
+        ]
+        if image1_index in AUSTRIAN_INPUT_INDICES and image2_index not in AUSTRIAN_INPUT_INDICES:
+            offset_samples.extend(differences)
+        elif image2_index in AUSTRIAN_INPUT_INDICES and image1_index not in AUSTRIAN_INPUT_INDICES:
+            offset_samples.extend(-np.asarray(differences))
+
+    return float(np.median(offset_samples)) if offset_samples else 0.0
+
+
+def apply_height_offset(records, image1_index, image2_index, offset):
+    """Apply one shared Austrian offset and refresh height differences."""
+    offset1 = offset if image1_index in AUSTRIAN_INPUT_INDICES else 0.0
+    offset2 = offset if image2_index in AUSTRIAN_INPUT_INDICES else 0.0
+    for record in records:
+        record["height1"] += offset1
+        record["height2"] += offset2
+        difference = record["height2"] - record["height1"]
+        record["difference_height2_minus_height1"] = difference
+        record["absolute_difference"] = abs(difference)
+
+
 def summarize_height_differences(records):
     """Calculate descriptive statistics for matched DEM height differences."""
     differences = np.array(
@@ -466,8 +725,8 @@ def save_match_height_data(records, output_path):
 
 def draw_matches(file1, keypoints1, file2, keypoints2, matches):
     """Draw full hillshade images side by side without cropping them."""
-    image1 = load_normalized_hillshade(file1)
-    image2 = load_normalized_hillshade(file2)
+    image1 = _normalized_hillshade_array(file1)
+    image2 = _normalized_hillshade_array(file2)
 
     return cv2.drawMatches(
         image1,
@@ -483,24 +742,124 @@ def draw_matches(file1, keypoints1, file2, keypoints2, matches):
 def save_match_visualization(file1, keypoints1, file2, keypoints2, matches):
     """Save the full-image match visualization beside this script."""
     output = draw_matches(file1, keypoints1, file2, keypoints2, matches)
-    output_path = BASE_DIR / "sift_matches_v2.png"
+    output_path = RESULTS_DIR / "sift_matches_v2.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     cv2.imwrite(str(output_path), output)
     print(f"Saved match visualization to {output_path.name}")
+
+
+def draw_multi_matches(hillshades, keypoints, pair_matches):
+    """Draw each retained image pair in its own grid cell."""
+    images = [_normalized_hillshade_array(file) for file in hillshades]
+    cells = []
+    cell_width = 1200
+    cell_height = 620
+
+    for (image1_index, image2_index), matches in pair_matches.items():
+        pair_image = cv2.drawMatches(
+            images[image1_index],
+            keypoints[image1_index],
+            images[image2_index],
+            keypoints[image2_index],
+            rd.sample(matches,20),
+            None,
+            flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS,
+        )
+        available_width = cell_width - 20
+        available_height = cell_height - 60
+        scale = min(
+            available_width / pair_image.shape[1],
+            available_height / pair_image.shape[0],
+        )
+        resized = cv2.resize(
+            pair_image,
+            None,
+            fx=scale,
+            fy=scale,
+            interpolation=cv2.INTER_AREA,
+        )
+        cell = np.zeros((cell_height, cell_width, 3), dtype=np.uint8)
+        x_offset = (cell_width - resized.shape[1]) // 2
+        y_offset = 45 + (available_height - resized.shape[0]) // 2
+        cell[y_offset:y_offset + resized.shape[0], x_offset:x_offset + resized.shape[1]] = resized
+        cv2.putText(
+            cell,
+            f"Images {image1_index + 1} and {image2_index + 1}  |  {len(matches)} matches",
+            (15, 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.75,
+            (255, 255, 255),
+            2,
+            cv2.LINE_AA,
+        )
+        cells.append(cell)
+
+    if not cells:
+        return np.zeros((cell_height, cell_width, 3), dtype=np.uint8)
+
+    columns = 2
+    rows = int(np.ceil(len(cells) / columns))
+    canvas = np.zeros((rows * cell_height, columns * cell_width, 3), dtype=np.uint8)
+    for cell_index, cell in enumerate(cells):
+        row = cell_index // columns
+        column = cell_index % columns
+        y_start = row * cell_height
+        x_start = column * cell_width
+        canvas[y_start:y_start + cell_height, x_start:x_start + cell_width] = cell
+
+    return canvas
+
+
+def save_multi_match_visualization(hillshades, keypoints, pair_matches):
+    """Save one visualization containing all input images and pair matches."""
+    output = draw_multi_matches(hillshades, keypoints, pair_matches)
+    output_path = RESULTS_DIR / "sift_multi_matches.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    cv2.imwrite(str(output_path), output)
+    print(f"Saved multi-image visualization to {output_path.name}")
 
 
 
 if __name__ == "__main__":
     gdal.UseExceptions()
-    hillshades = []
-    dem_files = []
-    keypoints = []
-    descriptors = []
-    for input_file in (FILE1, FILE2):
+    #input_files = (FILE1, FILE2, FILE3, FILE4,FILE5)
+    #input_files = (FILE6,FILE7,FILE8,FILE9)
+    input_files = (FILE1, FILE2, FILE3, FILE4,FILE5, FILE6,FILE7,FILE8,FILE9)
+    crs_transformations = [crs_transformation_info(file) for file in input_files]
+    save_crs_transformations(
+        crs_transformations,
+        RESULTS_DIR / "crs_transformations.csv",
+    )
+    resolution_files = []
+    for input_index, input_file in enumerate(input_files):
         reprojected_file = reproject(input_file,TARGET_CRS)
         resolution_file = ensure_resolution(reprojected_file)
-        dem_files.append(resolution_file)
+        if APPLY_GERMAN_VERTICAL_TRANSFORM and input_index in GERMAN_INPUT_INDICES:
+            resolution_file = transform_vertical_heights(
+                resolution_file,
+                source_vertical_epsg=7837,
+            )
+        resolution_files.append(resolution_file)
 
-    dem_files = align_to_common_grid(dem_files)
+    overlap_pairs = set()
+    for image1_index, image2_index in combinations(range(len(resolution_files)), 2):
+        if rasters_overlap(
+            resolution_files[image1_index],
+            resolution_files[image2_index],
+        ):
+            overlap_pairs.add((image1_index, image2_index))
+        else:
+            print(
+                f"Skipping images {image1_index + 1}-{image2_index + 1}: "
+                "no projected overlap"
+            )
+
+    active_indices = sorted({index for pair in overlap_pairs for index in pair})
+    if len(active_indices) < 2:
+        raise RuntimeError("Fewer than two input rasters overlap; nothing to match.")
+
+    dem_files = [resolution_files[index] for index in active_indices]
+
     hillshades = []
     keypoints = []
     descriptors = []
@@ -508,42 +867,109 @@ if __name__ == "__main__":
     for resolution_file in dem_files:
         filled_path = fill_nodata(resolution_file)
         hillshade_path = hillshade(filled_path)
-        sift_out,desc_out = sift(hillshade_path)
+        normalized = _normalized_hillshade_array(hillshade_path)
+        sift_out, desc_out = _compute_sift_features(normalized)
         aligned_dem_files.append(filled_path)
         hillshades.append(hillshade_path)
         keypoints.append(sift_out)
         descriptors.append(desc_out)
 
-    matches = match_descriptors(descriptors[0], descriptors[1])
-    print(f"Descriptor matches: {len(matches)}")
+    # Match every unique pair and keep the pair indices for later visualization.
+    pair_matches = {}
+    pair_statistics = {}
+    pair_transforms = {}
+    pair_records = {}
+    for image1_index, image2_index in combinations(range(len(descriptors)), 2):
+        original_pair = (
+            active_indices[image1_index],
+            active_indices[image2_index],
+        )
+        if original_pair not in overlap_pairs:
+            continue
 
-    matches = filter_geometric_matches(
-        keypoints[0],
-        keypoints[1],
-        matches,
-    )
-    print(f"Geometrically consistent matches: {len(matches)}")
+        display_pair = (original_pair[0] + 1, original_pair[1] + 1)
 
-    height_records = extract_match_heights(
-        aligned_dem_files[0],
-        aligned_dem_files[1],
-        keypoints[0],
-        keypoints[1],
-        matches,
-    )
-    statistics = summarize_height_differences(height_records)
-    save_match_height_data(
-        height_records,
-        BASE_DIR / "matched_heights.csv",
-    )
-    print(f"Height records: {len(height_records)}")
-    for name, value in statistics.items():
-        print(f"{name}: {value}")
+        matches = match_descriptors(
+            descriptors[image1_index],
+            descriptors[image2_index],
+        )
+        print(
+            f"Images {display_pair[0]}-{display_pair[1]} "
+            f"descriptor matches: {len(matches)}"
+        )
 
-    save_match_visualization(
-        hillshades[0],
-        keypoints[0],
-        hillshades[1],
-        keypoints[1],
-        matches,
+        matches, transform = filter_geometric_matches(
+            keypoints[image1_index],
+            keypoints[image2_index],
+            matches,
+        )
+        print(
+            f"Images {display_pair[0]}-{display_pair[1]} "
+            f"geometric matches: {len(matches)}"
+        )
+
+        if len(matches) < 10:
+            print(
+                f"Skipping images {display_pair[0]}-{display_pair[1]}: "
+                "fewer than 10 geometric matches"
+            )
+            continue
+
+        pair_matches[(image1_index, image2_index)] = matches
+        pair_transforms[original_pair] = transform
+
+        height_records = extract_match_heights(
+            aligned_dem_files[image1_index],
+            aligned_dem_files[image2_index],
+            keypoints[image1_index],
+            keypoints[image2_index],
+            matches,
+        )
+        pair_records[original_pair] = height_records
+
+    austrian_offset = 0.0
+    if APPLY_AUSTRIAN_HEIGHT_COMPENSATION:
+        austrian_offset = estimate_austrian_offset(pair_records)
+        print(f"Applying shared Austrian height compensation: {austrian_offset:.4f} m")
+        for image_index in AUSTRIAN_INPUT_INDICES:
+            apply_constant_height_offset(
+                resolution_files[image_index],
+                austrian_offset,
+            )
+
+    for original_pair, height_records in pair_records.items():
+        image1_index, image2_index = original_pair
+        if APPLY_AUSTRIAN_HEIGHT_COMPENSATION:
+            apply_height_offset(
+                height_records,
+                image1_index,
+                image2_index,
+                austrian_offset,
+            )
+
+        display_pair = (image1_index + 1, image2_index + 1)
+        statistics = summarize_height_differences(height_records)
+        pair_statistics[original_pair] = statistics
+        print(
+            f"Images {display_pair[0]}-{display_pair[1]} mean height difference: "
+            f"{statistics.get('mean_difference', 0.0):.4f} m"
+        )
+        print(
+            f"Images {display_pair[0]}-{display_pair[1]} height std: "
+            f"{statistics.get('std_difference', 0.0):.4f} m"
+        )
+        save_match_height_data(
+            height_records,
+            RESULTS_DIR / f"matched_heights_{display_pair[0]}_{display_pair[1]}.csv",
+        )
+
+    save_pair_statistics(
+        pair_statistics,
+        RESULTS_DIR / "pair_height_statistics.csv",
     )
+    save_pair_transforms(
+        pair_transforms,
+        RESULTS_DIR / "pair_transforms.csv",
+    )
+
+    save_multi_match_visualization(hillshades, keypoints, pair_matches)
