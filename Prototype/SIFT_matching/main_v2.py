@@ -39,7 +39,9 @@ TARGET_VERTICAL_CRS = "EPSG:5621"  # EVRF2007 height
 MIN_OVERLAP_FRACTION = 0.10
 REUSE_EXISTING_OUTPUTS = True
 APPLY_GERMAN_VERTICAL_TRANSFORM = True
+APPLY_DUTCH_VERTICAL_TRANSFORM = True
 APPLY_AUSTRIAN_HEIGHT_COMPENSATION = True
+AHN_INPUT_INDICES = {0, 1}
 GERMAN_INPUT_INDICES = {2, 3, 4, 5, 7}
 AUSTRIAN_INPUT_INDICES = {6, 8}
 
@@ -834,6 +836,11 @@ if __name__ == "__main__":
     for input_index, input_file in enumerate(input_files):
         reprojected_file = reproject(input_file,TARGET_CRS)
         resolution_file = ensure_resolution(reprojected_file)
+        if APPLY_DUTCH_VERTICAL_TRANSFORM and input_index in AHN_INPUT_INDICES:
+            resolution_file = transform_vertical_heights(
+                resolution_file,
+                source_vertical_epsg=5709,
+            )
         if APPLY_GERMAN_VERTICAL_TRANSFORM and input_index in GERMAN_INPUT_INDICES:
             resolution_file = transform_vertical_heights(
                 resolution_file,
