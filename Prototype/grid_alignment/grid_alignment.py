@@ -1,5 +1,5 @@
 target_crs = "EPSG:3035"  # e.g. ETRS89-extended / LAEA Europe — good for pan-European work
-target_res = 10.0  # meters, pick based on your coarsest usable DTM resolution
+target_res = 5.0  # meters, pick based on your coarsest usable DTM resolution
 from osgeo import gdal
 from pathlib import Path
 
