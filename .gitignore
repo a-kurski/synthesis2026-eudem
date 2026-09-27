@@ -1,1 +1,4 @@
 pid/AGENTS.md
+/local/
+.gitignore
+*.laz
