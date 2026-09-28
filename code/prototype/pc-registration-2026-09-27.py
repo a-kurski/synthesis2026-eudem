@@ -174,13 +174,31 @@ def register_pair(file_a, file_b, voxel=1.0, max_corr=2.0, backend=None):
     return T, result.fitness, result.inlier_rmse, center_b, pure_translation
 
 
-def register_all(intersections_csv, out_csv, backend=None):
-    """Run register_pair for every candidate pair; write one row per pair to a csv:
-    full 4x4 transform (flattened), fit stats, bbox centre used, and the
-    centre-based pure translation. A pair whose point loading crashes or times
-    out is logged and skipped rather than aborting the whole run."""
+def _register_pair_job(file_a, file_b, backend):
+    """Top-level (picklable) wrapper for ProcessPoolExecutor: run one pair,
+    turn a crash/timeout into a return value instead of letting it kill the
+    pool worker."""
+    try:
+        T, fitness, rmse, center_b, translation = register_pair(file_a, file_b, backend=backend)
+        return file_a, file_b, True, (T, fitness, rmse, center_b, translation), None
+    except (RuntimeError, TimeoutError, ValueError) as e:
+        return file_a, file_b, False, None, str(e)
+
+
+def register_all(intersections_csv, out_csv, backend=None, jobs=1):
+    """Run register_pair for every candidate pair (in parallel across `jobs`
+    worker processes, or sequentially if jobs<=1); write one row per pair to
+    a csv: full 4x4 transform (flattened), fit stats, bbox centre used, and
+    the centre-based pure translation. A pair whose point loading crashes or
+    times out is logged and skipped rather than aborting the whole run.
+    ponytail: each worker still isolates its own point loading in a further
+    nested subprocess (see load_points_common_crs) - that's fine, pool
+    workers aren't daemonic, but it does mean up to ~2x `jobs` short-lived
+    processes can be alive briefly, not just `jobs`."""
     import pandas as pd
+    rows = list(pd.read_csv(intersections_csv, encoding="utf-8").itertuples())
     failures = []
+    done = 0
     with open(out_csv, "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(
@@ -189,16 +207,28 @@ def register_all(intersections_csv, out_csv, backend=None):
             + ["center_x", "center_y", "center_z"]
             + ["translation_x", "translation_y", "translation_z"]
         )
-        for row in pd.read_csv(intersections_csv, encoding="utf-8").itertuples():
-            try:
-                T, fitness, rmse, center_b, translation = register_pair(
-                    row.file_a, row.file_b, backend=backend
-                )
-            except (RuntimeError, TimeoutError, ValueError) as e:
-                print(f"  SKIPPED {row.file_a} / {row.file_b}: {e}", flush=True)
-                failures.append((row.file_a, row.file_b, str(e)))
-                continue
-            w.writerow([row.file_a, row.file_b, fitness, rmse, *T.flatten(), *center_b, *translation])
+
+        def handle(file_a, file_b, ok, result, error):
+            nonlocal done
+            done += 1
+            if ok:
+                T, fitness, rmse, center_b, translation = result
+                w.writerow([file_a, file_b, fitness, rmse, *T.flatten(), *center_b, *translation])
+            else:
+                print(f"  SKIPPED {file_a} / {file_b}: {error}", flush=True)
+                failures.append((file_a, file_b, error))
+            print(f"  [{done}/{len(rows)}] {file_a} / {file_b}", flush=True)
+
+        if jobs <= 1:
+            for row in rows:
+                handle(*_register_pair_job(row.file_a, row.file_b, backend))
+        else:
+            from concurrent.futures import ProcessPoolExecutor, as_completed
+            with ProcessPoolExecutor(max_workers=jobs) as ex:
+                futures = [ex.submit(_register_pair_job, row.file_a, row.file_b, backend) for row in rows]
+                for fut in as_completed(futures):
+                    handle(*fut.result())
+
     if failures:
         fail_csv = Path(out_csv).with_name(Path(out_csv).stem + "_failures.csv")
         with open(fail_csv, "w", newline="", encoding="utf-8") as f:
@@ -211,12 +241,17 @@ def register_all(intersections_csv, out_csv, backend=None):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("dir_a"); ap.add_argument("country_a")
-    ap.add_argument("dir_b"); ap.add_argument("country_b")
+    ap.add_argument("--dir-a", required=True, help="Directory of country A's laz/copc.laz files")
+    ap.add_argument("--country-a", required=True, help="Label for country A, e.g. de-nrw")
+    ap.add_argument("--dir-b", required=True, help="Directory of country B's laz/copc.laz files")
+    ap.add_argument("--country-b", required=True, help="Label for country B, e.g. nl")
     ap.add_argument("--outdir", default=".")
     ap.add_argument("--laz-backend", choices=sorted(LAZ_BACKENDS), default="auto",
                      help="LAZ decoder to use for reading points (default: let laspy choose). "
                           "Try 'laszip' if 'lazrs' aborts on a specific file.")
+    ap.add_argument("--jobs", "-j", type=int, default=1,
+                     help="Number of pairs to register in parallel (default: 1, sequential). "
+                          "Each job also briefly spawns its own point-loading subprocess.")
     args = ap.parse_args()
 
     out = Path(args.outdir)
@@ -229,7 +264,7 @@ def main():
     intersections_csv = out / "intersections.csv"
     find_intersections(extents_csv, intersections_csv)
 
-    register_all(intersections_csv, out / "transforms.csv", backend=LAZ_BACKENDS[args.laz_backend])
+    register_all(intersections_csv, out / "transforms.csv", backend=LAZ_BACKENDS[args.laz_backend], jobs=args.jobs)
 
 
 if __name__ == "__main__":
