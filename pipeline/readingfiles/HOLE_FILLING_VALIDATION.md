@@ -11,8 +11,8 @@ the unfilled prepared baseline are retained.
 
 ## Offline cached-data pilot
 
-[Detailed report and output paths](data/pilots/hole_filling/20260926T221031Z/pilot_report.json)
-and [compact generated report](data/pilots/hole_filling/20260926T221031Z/PILOT_REPORT.md).
+[Detailed report and output paths](../data/pilots/hole_filling/20260926T221031Z/pilot_report.json)
+and [compact generated report](../data/pilots/hole_filling/20260926T221031Z/PILOT_REPORT.md).
 
 Three validated cached 1 km AHN tiles intersecting the configured
 `netherlands.gpkg` polygon were deliberately selected for varied whole-tile

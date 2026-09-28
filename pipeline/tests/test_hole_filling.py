@@ -85,6 +85,12 @@ class HoleFillingTests(unittest.TestCase):
         before = prepare([raw], self.geometry, reference, self.root / 'disabled', self.config)
         self.enable(2)
         after = prepare([raw], self.geometry, reference, self.root / 'enabled', self.config)
+        self.assertEqual(Path(after['prepared_raster']), self.root / 'enabled/ahn_stitched/ahn_unfilled.tif')
+        self.assertFalse((self.root / 'enabled/processed_tiles/unfilled').exists())
+        self.assertFalse((self.root / 'enabled/ahn_stitched/ahn_unfilled.vrt').exists())
+        self.assertEqual(Path(after['fill_fraction']), self.root / 'enabled/ahn_stitched/ahn_fill_fraction.tif')
+        self.assertFalse((self.root / 'enabled/processed_tiles/fill_fraction').exists())
+        self.assertFalse((self.root / 'enabled/ahn_stitched/ahn_fill_fraction.vrt').exists())
         with gdal.Open(before['prepared_raster']) as a, gdal.Open(after['prepared_raster']) as b:
             np.testing.assert_array_equal(a.ReadAsArray(), b.ReadAsArray())
         with gdal.Open(after['prepared_filled_raster']) as height, gdal.Open(after['fill_fraction']) as fractions:

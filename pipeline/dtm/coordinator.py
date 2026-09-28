@@ -1,13 +1,13 @@
 """Coordinate country preparation. Country modules own their data/transform rules."""
 import argparse
-from datetime import datetime, timezone
+from datetime import datetime
 import json
 import logging
 import math
 from pathlib import Path
 import platform
 import sys
-import uuid
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import numpy as np
 from osgeo import gdal
@@ -55,14 +55,36 @@ def load_config(path):
     return config
 
 
+def create_log_directory(config, now=None):
+    """Reserve a readable Amsterdam run name, including same-second/DST repeats."""
+    try:
+        local_time = (now or datetime.now().astimezone()).astimezone(ZoneInfo('Europe/Amsterdam'))
+    except ZoneInfoNotFoundError as exc:
+        raise RuntimeError('Europe/Amsterdam timezone data missing; install the tzdata dependency.') from exc
+    base = local_time.strftime('%Y-%m-%d_%H-%M-%S')
+    logs = Path(config['logs_dir']) / config['country']
+    outputs = Path(config['output_root']) / config['country']
+    logs.mkdir(parents=True, exist_ok=True)
+    index = 1
+    while True:
+        name = base if index == 1 else f'{base}_{index:02d}'
+        directory = logs / name
+        if not (outputs / name).exists():
+            try:
+                directory.mkdir()
+                return directory
+            except FileExistsError:
+                pass
+        index += 1
+
+
 def execute(config, mode='run'):
     """Plan/prepare one country and return its result. No comparison is performed."""
     if mode not in ('run', 'plan', 'probe', 'yes'):
         raise ValueError(f'Unknown execution mode: {mode}')
     country = COUNTRIES[config['country']]
-    run_id = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ') + '_' + uuid.uuid4().hex[:8]
-    log_dir = Path(config['logs_dir']) / config['country'] / run_id
-    log_dir.mkdir(parents=True)
+    log_dir = create_log_directory(config)
+    run_id = log_dir.name
     # Use a scoped handler: library callers retain their logging configuration.
     logger = logging.getLogger('dtm')
     old_level = logger.level

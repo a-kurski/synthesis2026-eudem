@@ -4,7 +4,7 @@
 Rhine-catchment comparison. The Netherlands implementation is functional; the
 country registry provides a small extension point for later implementations.
 The original AHN–NRW comparison is preserved in `version_1/`; run its entry point
-from that folder. See [the archive guide](version_1/ARCHIVE.md).
+from that folder. See [the archive guide](../version_1/ARCHIVE.md).
 
 ## Organisation
 
@@ -111,6 +111,10 @@ averaging. Heights remain in NAP: there is no vertical datum harmonisation.
 
 ## Outputs
 
+New run IDs use `YYYY-MM-DD_HH-MM-SS` in Europe/Amsterdam time (including daylight
+saving time), for example `2026-09-27_20-49-10`. Logs and outputs share this name.
+Existing names are preserved; collisions receive `_02`, `_03`, etc.
+
 ```text
 version_1/data/ahn_tiles/           reusable raw TIFFs and JSON receipts
 data/prepared/netherlands/<run_id>/
@@ -118,8 +122,6 @@ data/prepared/netherlands/<run_id>/
   target_grid.vrt                   portable geometry-only reference
   raw_ahn_tiles/                    newly downloaded raw TIFFs and JSON receipts
   processed_tiles/                  finished target-grid tiles and tiles.json
-    unfilled/                      unfilled baseline tiles when filling is on
-    fill_fraction/                 interpolation contribution tiles
     _work/                         native mosaics, warps, masks and fill reports
   ahn_stitched/
     ahn.tif                        FINAL: selected surface, filled by default
@@ -202,7 +204,11 @@ can therefore be empty for a fully cached run. `--fresh-download`
 with reuse enabled automatically find these new raw folders under the same
 output root. Filling and cache reuse are independent.
 
-Filling adds these products to each run:
+Filling adds these products to each run. The unfilled baseline is written
+directly as `ahn_stitched/ahn_unfilled.tif`, without individual unfilled tiles
+or an unfilled VRT. The final fill-fraction raster is
+written directly as one full-grid TIFF under `ahn_stitched`; individual
+fill-fraction tiles and a fill-fraction VRT are not created.
 
 | Product | Meaning |
 |---|---|

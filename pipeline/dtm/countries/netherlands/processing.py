@@ -58,7 +58,8 @@ def prepare(tiles, geometry, reference, run_dir, config):
     warped = aligned / 'ahn_aligned_to_target.tif'
     align(merged, reference, warped, config)
 
-    prepared = output / 'ahn_prepared.tif'
+    # Keep the unfilled baseline as one full-grid raster, without separate tiles.
+    prepared = stitched / 'ahn_unfilled.tif' if settings(config)['enabled'] else output / 'ahn_prepared.tif'
     mask_path = output / 'aoi_mask.tif'
     with gdal.Open(str(warped)) as src:
         with aoi_mask(geometry, src, mask_path) as mask:
@@ -78,7 +79,9 @@ def prepare(tiles, geometry, reference, run_dir, config):
         filled_count = mask_output(filled_warp, mask_path, filled_prepared, config, report['note'])['valid_cell_count']
         fraction_warp = aligned / 'ahn_fill_fraction_aligned.tif'
         align(report['native_fill_fraction'], reference, fraction_warp, config)
-        fraction = output / 'ahn_fill_fraction.tif'
+        # The fraction raster already spans the entire target grid; save it
+        # directly instead of splitting it into tiles and stitching it again.
+        fraction = stitched / 'ahn_fill_fraction.tif'
         fraction_stats = mask_output(fraction_warp, mask_path, fraction, config, report['note'], units='1')
         for path in (filled_prepared, fraction):
             verify_alignment(path, reference, config['alignment_tolerance_m'])
@@ -100,11 +103,9 @@ def prepare(tiles, geometry, reference, run_dir, config):
     result.update(comparison_ready_raster=published['stitched'], processed_tiles=published,
                   raw_ahn_tiles=str(run_dir / 'raw_ahn_tiles'), ahn_stitched=str(stitched))
     if result['hole_filling_enabled']:
-        baseline = publish_tiles(prepared, processed / 'unfilled', stitched / 'ahn_unfilled.tif', config)
-        fractions = publish_tiles(result['fill_fraction'], processed / 'fill_fraction', stitched / 'ahn_fill_fraction.tif', config)
-        result.update(prepared_raster=baseline['stitched'], prepared_filled_raster=published['stitched'],
-                      fill_fraction=fractions['stitched'])
-        report.update(prepared_filled=published['stitched'], fill_fraction=fractions['stitched'],
+        result.update(prepared_raster=str(prepared), prepared_filled_raster=published['stitched'],
+                      fill_fraction=str(fraction))
+        report.update(prepared_filled=published['stitched'], fill_fraction=str(fraction),
                       processed_tiles=published)
         write_json(report['report_path'], report)
     else:

@@ -1,5 +1,6 @@
 """Small, offline integration checks for country preparation and grid contracts."""
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 import tempfile
 import unittest
@@ -9,7 +10,7 @@ import numpy as np
 from osgeo import gdal, ogr
 
 from dtm.acquire import params, sha256, write_json
-from dtm.coordinator import execute, load_config
+from dtm.coordinator import create_log_directory, execute, load_config
 from dtm.countries.netherlands.acquisition import download
 from dtm.countries.netherlands.processing import prepare
 from dtm.geo import bounds, project, rectangle, srs, verify_alignment
@@ -53,6 +54,17 @@ class PreparationTests(unittest.TestCase):
 
     def tearDown(self):
         self.temp.cleanup()
+
+    def test_readable_run_names_use_amsterdam_time_and_avoid_collisions(self):
+        summer = datetime(2026, 9, 27, 18, 49, 10, tzinfo=timezone.utc)
+        first = create_log_directory(self.config, summer)
+        self.assertEqual(first.name, '2026-09-27_20-49-10')
+        self.assertEqual(create_log_directory(self.config, summer).name, first.name + '_02')
+        winter = datetime(2026, 1, 1, 12, 0, tzinfo=timezone.utc)
+        self.assertEqual(create_log_directory(self.config, winter).name, '2026-01-01_13-00-00')
+        existing_output = Path(self.config['output_root']) / 'netherlands' / (first.name + '_03')
+        existing_output.mkdir(parents=True)
+        self.assertEqual(create_log_directory(self.config, summer).name, first.name + '_04')
 
     def test_aoi_grid_covers_polygon_and_has_integer_metre_edges(self):
         info = plan_grid(self.geometry, {})
