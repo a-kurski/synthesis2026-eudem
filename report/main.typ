@@ -27,10 +27,6 @@
   ),
 )
 
-
-
-
-
 #include "000-front-matter.typ"
 
 #counter(page).update(0)
@@ -39,7 +35,9 @@
   numbering: "1"
 )
 
+#pagebreak()
 #include "010-Abstract.typ"
+#pagebreak()
 #include "020-Summary.typ"
 
 #set heading(numbering: "1.1")
