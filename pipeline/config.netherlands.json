@@ -1,0 +1,30 @@
+{
+  "country": "netherlands",
+  "aoi": "netherlands_catchment.gpkg",
+  "layer": null,
+  "qgis_root": "C:/Program Files/QGIS 3.40.11",
+  "cache_root": "data",
+  "output_root": "data/prepared",
+  "logs_dir": "logs/preparation",
+  "reuse_cache": true,
+  "processed_tile_size_pixels": 1000,
+  "hole_filling": {
+    "enabled": true,
+    "method": "gdal_idw",
+    "selection": "all_aoi_nodata",
+    "max_distance_m": 20,
+    "smoothing_iterations": 0
+  },
+  "target": {
+    "epsg": 25832,
+    "reference_raster": null
+  },
+  "source": {
+    "url": "https://service.pdok.nl/rws/ahn/wcs/v1_0",
+    "coverage": "dtm_05m",
+    "epsg": 28992,
+    "resolution": 0.5,
+    "chunk_size_m": 1000,
+    "vertical_datum": "NAP"
+  }
+}

@@ -1,0 +1,4 @@
+# Use QGIS/OSGeo4W Python: its matching osgeo/GDAL bindings are already installed.
+# Never pip install gdal. These are the only other runtime dependencies.
+numpy>=1.24
+requests>=2.31
