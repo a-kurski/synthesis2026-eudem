@@ -1,3 +1,5 @@
+#import "template-short.typ"
+
 // Cover page
 #set page(
   paper: "a4",
@@ -15,12 +17,51 @@
 
 #pagebreak()
 
+// Main document
+#set page(
+  margin: (
+    top: 2.5cm,
+    bottom: 2.5cm,
+    left: 2.5cm,
+    right: 3cm,
+  ),
+)
+
+
+
+
+
 #include "000-front-matter.typ"
+
+#counter(page).update(0)
+
+#set page(
+  numbering: "1"
+)
+
 #include "010-Abstract.typ"
 #include "020-Summary.typ"
+
+#set heading(numbering: "1.1")
+
+#show heading.where(level: 1): it => {
+  pagebreak(weak: true)
+  it
+}
+
+#show figure: set block(breakable: true)
+
+#set par(justify: true)
+
 #include "030-Introduction.typ"
 #include "040-Existing_solutions.typ"
-#include  "050-Cross-border-data.typ"
+#include "050-Cross-border-data.typ"
 #include "060-Harmonization-pipeline.typ"
 #include "070-Conclusion.typ"
 #include "080-Recommendations.typ"
+
+#bibliography(
+  "references.bib",
+  style: "apa",
+  title: [References],
+)
