@@ -41,4 +41,4 @@ It is also clarified that the coverage describes the elevation values at the cen
 
 === Coordinate Reference Systems
 
-Generally, INSPIRE demands that the coordinate reference system (CRS) used for datasets of continental Europe is based on ETRS89, with a matching datum. These include unmodified ETRS89, based on GRS80 ellipsoid, which uses geodetic coordinates;
+Generally, INSPIRE demands that the coordinate reference system (CRS) used for datasets of continental Europe is based on ETRS89, with a matching datum. These include unmodified ETRS89, based on GRS80 ellipsoid, which uses geodetic coordinates; and different metric CRSs, usually ETRS89-LAEA (Lambert Azimuthal Equal Area) or ETRS89-LCC (Lambert Conformal Conic).
