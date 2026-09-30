@@ -2,4 +2,4 @@ pid/AGENTS.md
 /local/
 *.laz
 main.pdf
-report/pdf
+report/*.pdf
