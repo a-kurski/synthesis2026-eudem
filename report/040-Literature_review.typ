@@ -68,4 +68,18 @@ Positional accuracy is defined differently for vector and TIN data and for gridd
 For a grid, only the planimetric accuracy is considered. The root mean square error --- here, defined as the radius of a circle around the point, such that the true value of a point lies within that circle with a given probability --- is the chosen evaluation metric. The target for the maximum RMSE is $"GSD"/6$, where GSD is the ground sample distance, essentially the resolution of the grid.
 
 In the "Data Capture" section, the resolution is further related to the vertical accuracy of the dataset.
-For flat terrain, the resolution should be between $3 cross "RMSE"$ and $20 cross "RMSE"$, while for mountainous terrain it should be between $3 cross "RMSE"$ and $10 cross "RMSE"$.
+For flat terrain, the resolution should be between $3 "cross" "RMSE"$ and $20 "cross" "RMSE"$, while for mountainous terrain it should be between $3 "cross" "RMSE"$ and $10 "cross" "RMSE"$.
+
+== Cross-border DEM
+
+Whereas most reports focus on semantic data harmonization of cross-border areas, few look at the DTM data. While little more than an educated guess, it is likely due to existing datasets. The European data portal lists two official DTM datasets #ref(<europaDigitalElevation>). These are both based on Copernicus data and have a 30 and 90 meter cell resolution respectively (at the equator). The Copernicus DEM is listed as having a vertical RMSE of $1.68 m$ for the 90 meter dataset #ref(<CopernicusDEM-RP-001_ValidationReport>), and a RMSE of $2.9 m$ for the 30 meter dataset #ref(<europaDigitalElevation>). Meanwhile, most national datasets fall between 0.5 and 2 meter resolution for cells. It is therefore likely, that for most applications on a small scale, the national datasets suffice. While for large scale, cross-border projects, the European DTM dataset suffices.
+
+Nevertheless, one report details a method of cross-border harmonization. The report details harmonization of the coordinate reference system, orthrophoto, semantic information, and the digital terrain model #ref(<Noardo2016>). For this report only the CRS transformation and DTM harmonisation are relevant. They describe the process of transforming the datasets. However, for the pipeline this process will be automated using GDAL. However, it does highlight the INSPIRE, as the recommended quasi-geoid named European Vertical Reference
+Frame (EVRF) for the vertical reference. Therefore, EVRF should be considered as the vertical reference.
+
+In an effort to harmonize the DTM, the report describes a gradient approach. In this approach the point proximity of the border is evaluated to determine the weight of the pixel value from either DTM. The following formula is used:
+
+#align(center,
+$H_A = "DTM"_"France A" * D/500 + "DTM"_"Italy A" * (500-D)/500$)
+
+Where $H_A$ is the final assigned height, while $D$ represents the distance from the border. While this method does smooth the transition, it does also likely diverge from reality, even if the discrepancy is minimized.
