@@ -145,6 +145,6 @@ Requirement: default encoding is XML and XML documents should validate against a
 Grid size: Grid spacing: \[3 x RMSE, 20 x RMSE] for flat terrain, \[3 x RMSE, 10 x RMSE] for flat terrain, 
 
 ## 11 Portrayal
-do we are about portrayal?
+do we care about portrayal?
 
 ## A Abstract Test Suite
