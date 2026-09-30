@@ -2,6 +2,8 @@
 
 This chapter will go over the reviewed literature. It discusses both the existing approaches for harmonizing cross-border data, INSPIRE specification on elevation, and point cloud processing methods.
 
+
+
 == INSPIRE Specification on Elevation
 
 In the European Union, the INSPIRE Directive  @eu_inspire_directive_2007 governs the "sharing, access, and use" of spatial data, specifically within the context of environmental policy.
@@ -82,4 +84,6 @@ In an effort to harmonize the DTM, the report describes a gradient approach. In 
 #align(center,
 $H_A = "DTM"_"France A" * D/500 + "DTM"_"Italy A" * (500-D)/500$)
 
-Where $H_A$ is the final assigned height, while $D$ represents the distance from the border. While this method does smooth the transition, it does also likely diverge from reality, even if the discrepancy is minimized.
+Where $H_A$ is the final assigned height, while $D$ represents the distance from the border. While this method does smooth the transition, it does also likely diverge from reality, even if the discrepancy is minimized. While this method has been considered, further diluting the sampling of reality stands perpendicular to the goal of creating a map which visualizes reality. Therefore, this method will not be used for this project.
+
+== Ground Filtering
