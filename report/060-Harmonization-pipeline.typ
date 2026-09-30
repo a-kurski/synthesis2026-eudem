@@ -18,10 +18,15 @@ In the pipeline, the point clouds are used as an additional step to assess the a
     + append $bold(t)_(i j) "to" scr(T)$
 ]
 
-Due to computational limitations, the comparison is done between tiles rather than between full national datasets. The downside of this approach is that the registration is likely to be less accurate overall as it relies on relatively fewer points; the upside is that it may be more informative in regards to small-scale changes at the border.
+Due to computational limitations, the comparison is done between tiles rather than between full national datasets.
+The downside of this approach is that the registration is likely to be less accurate overall as it relies on relatively fewer points; the upside is that it may be more informative in regards to small-scale changes at the border.
 
-Another decision made to reduce computational costs is to use the extent of a point cloud as provided in the header when finding pairs of intersections instead of a convex, concave, or an #sym.alpha\-hull. This may result in false positives among intersection pairs and thus an incorrect assessment of the accuracy. In these cases, cross-referencing with a raster is advised #highlight(fill: none, stroke: red)[but currently not implemented].
+Another decision made to reduce computational costs is to use the extent of a point cloud as provided in the header when finding pairs of intersections instead of a convex, concave, or an #sym.alpha\-hull.
+This may result in false positives among intersection pairs and thus an incorrect assessment of the accuracy.
+In these cases, cross-referencing with a raster is advised #highlight(fill: none, stroke: red)[but currently not implemented].
 
-The registration is performed using iterative close point (ICP) algorithm of the `open3D` python library --- equivalent functionality exists in PDAL #highlight(fill: none, stroke: red)[(which we might switch to for the final processing)]. Notably, the registration produces a full affine transform $A = mat(R, bold(t))$ --- as the point clouds can be far from the origin, even a small rotational component has a large influence on the transformation and needs to be compensated with a large translation vector. To evaluate the accuracy, pure translation is needed. It is obtained by applying the full affine transform $A$ to a point from the dataset $bold(p)$ and subtracting the transformed coordinates from coordinates of the initial point.
+The registration is performed using iterative close point (ICP) algorithm of the `open3D` python library --- equivalent functionality exists in PDAL #highlight(fill: none, stroke: red)[(which we might switch to for the final processing)].
+Notably, the registration produces a full affine transform $A = mat(R, bold(t))$ --- as the point clouds can be far from the origin, even a small rotational component has a large influence on the transformation and needs to be compensated with a large translation vector.
+To evaluate the accuracy, pure translation is needed. It is obtained by applying the full affine transform $A$ to a point from the dataset $bold(p)$ and subtracting the transformed coordinates from coordinates of the initial point.
 
-#drafting.inline-note()[]
+#drafting.inline-note()[The intention eventually is that for areas where both the national DEMs and the PCs disagree significantly, we also re-extract a DTM from scratch using the most recent point cloud; we've not done that yet]
