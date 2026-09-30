@@ -8,7 +8,7 @@
 )
 
 #image(
-  "PID_Cover_v2.pdf",
+  "MidtermCover.pdf",
   page: 1,
   width: 100%,
   height: 100%,
