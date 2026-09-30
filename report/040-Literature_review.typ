@@ -70,7 +70,8 @@ Positional accuracy is defined differently for vector and TIN data and for gridd
 For a grid, only the planimetric accuracy is considered. The root mean square error --- here, defined as the radius of a circle around the point, such that the true value of a point lies within that circle with a given probability --- is the chosen evaluation metric. The target for the maximum RMSE is $"GSD"/6$, where GSD is the ground sample distance, essentially the resolution of the grid.
 
 In the "Data Capture" section, the resolution is further related to the vertical accuracy of the dataset.
-For flat terrain, the resolution should be between $3 "cross" "RMSE"$ and $20 "cross" "RMSE"$, while for mountainous terrain it should be between $3 "cross" "RMSE"$ and $10 "cross" "RMSE"$.
+<<<<<<< HEAD
+For flat terrain, the resolution should be between $3 times "RMSE"$ and $20 times "RMSE"$, while for mountainous terrain it should be between $3 times "RMSE"$ and $10 times "RMSE"$.
 
 === Cross-border DEM
 
