@@ -72,7 +72,7 @@ For a grid, only the planimetric accuracy is considered. The root mean square er
 In the "Data Capture" section, the resolution is further related to the vertical accuracy of the dataset.
 For flat terrain, the resolution should be between $3 "cross" "RMSE"$ and $20 "cross" "RMSE"$, while for mountainous terrain it should be between $3 "cross" "RMSE"$ and $10 "cross" "RMSE"$.
 
-== Cross-border DEM
+=== Cross-border DEM
 
 Whereas most reports focus on semantic data harmonization of cross-border areas, few look at the DTM data. While little more than an educated guess, it is likely due to existing datasets. The European data portal lists two official DTM datasets #ref(<europaDigitalElevation>). These are both based on Copernicus data and have a 30 and 90 meter cell resolution respectively (at the equator). The Copernicus DEM is listed as having a vertical RMSE of $1.68 m$ for the 90 meter dataset #ref(<CopernicusDEM-RP-001_ValidationReport>), and a RMSE of $2.9 m$ for the 30 meter dataset #ref(<europaDigitalElevation>). Meanwhile, most national datasets fall between 0.5 and 2 meter resolution for cells. It is therefore likely, that for most applications on a small scale, the national datasets suffice. While for large scale, cross-border projects, the European DTM dataset suffices.
 
@@ -86,4 +86,9 @@ $H_A = "DTM"_"France A" * D/500 + "DTM"_"Italy A" * (500-D)/500$)
 
 Where $H_A$ is the final assigned height, while $D$ represents the distance from the border. While this method does smooth the transition, it does also likely diverge from reality, even if the discrepancy is minimized. While this method has been considered, further diluting the sampling of reality stands perpendicular to the goal of creating a map which visualizes reality. Therefore, this method will not be used for this project.
 
-== Ground Filtering
+=== Ground Filtering
+In order to create a new DTM from pointclouds, a method called ground filtering is used. Several different methods exist for this process. However, in the interest of limiting the scope of the project an existing implementation in PDAL will be used. However, other methods were evaluated to compare their performance against the Progressive Morphological Filter used by PDAL.
+
+In @Silva2018GroundFiltering, it is noted that PMF differs from Multi-scale  Curvature  Classification (MCC), Progressive  Triangulated  Irregular  Network (PTIN), and Weighted Linear Least Squares (WLS) by excessively eliminating ground points to generate a DTM from. This causes it to underestimate the DTM elevations, with a particular focus on open-canopy forested areas. The paper theorizes this is likely caused by the fact PMF assumes a constant slope. While this is a serious drawback, it is one that needs to be used in the interest of the scope and time limit of this project.
+
+However, the documentation of PDAL also states it is possible to alternatively use SMRF. This method is a further developed version of the PMF. However, @PINGEL201321 states that SMRF uses a slope dependent elevation, making it more reliable, and possibly solving the issue with PMF. Therefore, PDAL using SMRF ground filtering should allow for a reliable way to generate DTMs from pointclouds. Further research into the implementation of other methods will not be discussed or implemented within this report.
