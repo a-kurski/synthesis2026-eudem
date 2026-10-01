@@ -167,3 +167,6 @@ Notably, the registration produces a full affine transform $A = mat(R, bold(t))$
 To evaluate the accuracy, pure translation is needed. It is obtained by applying the full affine transform $A$ to a point from the dataset $bold(p)$ and subtracting the transformed coordinates from coordinates of the initial point.
 
 #drafting.inline-note()[The intention eventually is that for areas where both the national DEMs and the PCs disagree significantly, we also re-extract a DTM from scratch using the most recent point cloud; we've not done that yet]
+
+
+#drafting.inline-note()[The final version of this chapter will contain more quality ensurance/checking. The pipeline currently is not fully automated and this will be changed for the final version. ]

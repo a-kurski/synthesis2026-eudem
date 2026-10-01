@@ -20,3 +20,5 @@ There are several outliers --- pairs where a point cloud is translated several h
   image("assets/pcs-aligned.png", width: 60%),
   caption: [Default alignment of a Dutch (red) and German (blue) point cloud]
 )
+
+#drafting.inline-note()[The chapter is not done yet since we do not have the final results of the pipeline or a way to evaluate the quality. The chapter will also contain more results regarding the downloading and processing of the raster and point cloud data. This means there will be more images, tables and other visuals to illustrate both the results and the quality of those results.]

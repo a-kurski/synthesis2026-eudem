@@ -94,7 +94,7 @@ In @Silva2018GroundFiltering, it is noted that PMF differs from Multi-scale  Cur
 
 However, the documentation of PDAL also states it is possible to alternatively use SMRF. This method is a further developed version of the PMF. However, #cite(<PINGEL201321>, form: "prose") states that SMRF uses a slope-dependent elevation, making it more reliable, and possibly solving the issue with PMF. Therefore, PDAL using SMRF ground filtering should allow for a reliable way to generate DTMs from point clouds. Further research into the implementation of other methods will not be discussed or implemented within this report.
 
-=== River altitudes
+=== River modelling
 
 Upon observing the Dutch DTM, it was noted that buildings and rivers are marked as voids. This is because unlike countries such as France and Germany, the Netherlands does not fill nodata values. A possible solution to this problem would be to approximate the river altitudes as described in #cite(<PARROT201628>, form:"prose"). The paper suggests that the river altitudes can be approximated by using the average of the surrounding terrain. However, this method is not without its drawbacks. It may not accurately reflect the true river altitudes, especially in areas with significant elevation changes. Since deviations from reality and river segments in other countries will not match, this method will not be used in this project. Instead, the voids will be filled using a bilinear interpolation method, as described in 
 
