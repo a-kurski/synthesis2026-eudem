@@ -24,7 +24,7 @@ The specification considers two possible "shapes" of the terrain #cite(<inspire2
 - a digital surface model (DSM), which represents the Earth's surface with all static natural and artificial features (e.g. this includes trees and buildings, but not cars).
 "Digital elevation model" (DEM) is used as an umbrella term which encompasses both a DTM and a DSM.
 
-Within the scope of the specification, the surface is considered 2.5-dimensional --- for each $x,y$ position, only one elevation value is possible --- and can be represented with gridded coverage, vector data (contour lines and spot elevations), or a triangulated irregular network (TIN).
+Within the scope of the specification, the surface is considered 2.5-dimensional --- for each $x,y$ position, only one elevation value is possible --- and can be represented with gridded coverage (raster data), vector data (contour lines and spot elevations), or a triangulated irregular network (TIN).
 For land-elevation, *grid coverage is required*, and vector representation is recommended #cite(<inspire2024elevation>, supplement: [pp. 44--45]).
 For bathymetry, either grid coverage or vector representation are required.
 
