@@ -1,4 +1,4 @@
-= Literature Review
+= Literature Review <chap:theory>
 
 This chapter will go over the reviewed literature. It discusses both the existing approaches for harmonizing cross-border data, INSPIRE specification on elevation, and point cloud processing methods.
 
@@ -74,9 +74,9 @@ For flat terrain, the resolution should be between $3 times "RMSE"$ and $20 time
 
 === Cross-border DEM
 
-Whereas most reports focus on semantic data harmonization of cross-border areas, few look at the DTM data. While little more than an educated guess, it is likely due to existing datasets. The European data portal lists two official DTM datasets #ref(<europaDigitalElevation>). These are both based on Copernicus data and have a 30 and 90 meter cell resolution respectively (at the equator). The Copernicus DEM is listed as having a vertical RMSE of $1.68 m$ for the 90 meter dataset #ref(<CopernicusDEM-RP-001_ValidationReport>), and a RMSE of $2.9 m$ for the 30 meter dataset #ref(<europaDigitalElevation>). Meanwhile, most national datasets fall between 0.5 and 2 meter resolution for cells. It is therefore likely, that for most applications on a small scale, the national datasets suffice. While for large scale, cross-border projects, the European DTM dataset suffices.
+Whereas most reports focus on semantic data harmonization of cross-border areas, few look at the DTM data. While little more than an educated guess, it is likely due to existing datasets. The European data portal lists two official DTM datasets @europaDigitalElevation. These are both based on Copernicus data and have a 30 and 90 meter cell resolution respectively (at the equator). The Copernicus DEM is listed as having a vertical RMSE of $1.68 m$ for the 90 meter dataset @CopernicusDEM-RP-001_ValidationReport, and a RMSE of $2.9 m$ for the 30 meter dataset @europaDigitalElevation. Meanwhile, most national datasets fall between 0.5 and 2 meter resolution for cells. It is therefore likely, that for most applications on a small scale, the national datasets suffice. While for large scale, cross-border projects, the European DTM dataset suffices.
 
-Nevertheless, one report details a method of cross-border harmonization. The report details harmonization of the coordinate reference system, orthrophoto, semantic information, and the digital terrain model #ref(<Noardo2016>). For this report only the CRS transformation and DTM harmonisation are relevant. They describe the process of transforming the datasets. However, for the pipeline this process will be automated using GDAL. However, it does highlight the INSPIRE, as the recommended quasi-geoid named European Vertical Reference
+Nevertheless, one report details a method of cross-border harmonization. The report details harmonization of the coordinate reference system, orthrophoto, semantic information, and the digital terrain model @Noardo2016. For this report only the CRS transformation and DTM harmonisation are relevant. They describe the process of transforming the datasets. However, for the pipeline this process will be automated using GDAL. However, it does highlight the INSPIRE, as the recommended quasi-geoid named European Vertical Reference
 Frame (EVRF) for the vertical reference. Therefore, EVRF should be considered as the vertical reference.
 
 In an effort to harmonize the DTM, the report describes a gradient approach. In this approach the point proximity of the border is evaluated to determine the weight of the pixel value from either DTM. The following formula is used:
@@ -92,7 +92,7 @@ In order to create a new DTM from point clouds, a method called ground filtering
 
 In @Silva2018GroundFiltering, it is noted that PMF differs from Multi-scale  Curvature  Classification (MCC), Progressive  Triangulated  Irregular  Network (PTIN), and Weighted Linear Least Squares (WLS) by excessively eliminating ground points to generate a DTM from. This causes it to underestimate the DTM elevations, particularly in open-canopy forested areas. Silva and Klauberg theorise this is likely caused by the fact PMF assumes a constant slope. While this is a serious drawback, it is one that needs to be used in the interest of the scope and time limit of this project.
 
-However, the documentation of PDAL also states it is possible to alternatively use SMRF. This method is a further developed version of the PMF. However, @PINGEL201321 states that SMRF uses a slope-dependent elevation, making it more reliable, and possibly solving the issue with PMF. Therefore, PDAL using SMRF ground filtering should allow for a reliable way to generate DTMs from point clouds. Further research into the implementation of other methods will not be discussed or implemented within this report.
+However, the documentation of PDAL also states it is possible to alternatively use SMRF. This method is a further developed version of the PMF. However, #cite(<PINGEL201321>, form: "prose") states that SMRF uses a slope-dependent elevation, making it more reliable, and possibly solving the issue with PMF. Therefore, PDAL using SMRF ground filtering should allow for a reliable way to generate DTMs from point clouds. Further research into the implementation of other methods will not be discussed or implemented within this report.
 
 === River altitudes
 

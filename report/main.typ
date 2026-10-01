@@ -35,10 +35,15 @@
   numbering: "1"
 )
 
-#pagebreak()
-#include "010-Abstract.typ"
-#pagebreak()
-#include "020-Summary.typ"
+#show heading.where(level: 1): it => {
+  pagebreak(weak: true)
+  it
+}
+
+#include "010-abstract.typ"
+#include "015-acknowledgements.typ"
+
+#outline(title: "Contents")
 
 #set heading(numbering: "1.1")
 
@@ -51,12 +56,12 @@
 
 #set par(justify: true)
 
-#include "030-Introduction.typ"
-#include "040-Literature_review.typ"
-#include "050-Cross-border-data.typ"
-#include "060-Harmonization-pipeline.typ"
-#include "070-Conclusion.typ"
-#include "080-Recommendations.typ"
+#include "020-introduction.typ"
+#include "030-problem-definition.typ"
+#include "040-theory-context.typ"
+#include "050-methodology.typ"
+#include "060-results.typ"
+#include "070-discussion.typ"
 
 #bibliography(
   "references.bib",
