@@ -69,3 +69,5 @@
   style: "apa",
   title: [References],
 )
+
+#include "990-appendix.typ"

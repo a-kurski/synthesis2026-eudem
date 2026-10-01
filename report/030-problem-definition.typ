@@ -15,7 +15,7 @@ The main research question of this project is:
 
 _How to create a harmonised cross-border DEM of the Rhine catchment area in an automated manner?_
 
-As described in the introduction, the project focuses on the issues presented by the cross-border data of the Rhine catchment area. This translates to the creation of an automated pipeline and a report describing the issues that come with attempting the creation of a harmonised DEM. The aspects of the main question can be broken down into the following subquestions:
+As described in the introduction, the project focuses on the issues presented by the cross-border data of the Rhine catchment area. This translates to the creation of an automated pipeline and this report describing the challenges that come with attempting the creation of a harmonised DEM. The aspects of the main question can be broken down into the following subquestions:
 
 - What is the Rhine catchment area?
 - What, if any, existing approaches are there to creating a harmonised DEM from heterogeneous sources?
@@ -25,7 +25,7 @@ As described in the introduction, the project focuses on the issues presented by
 - What are the limitations of an automated harmonisation pipeline?
 - How can the accuracy of a reconstructed cross-border DEM be tested?
 
-Answering these subquestions will help to answer the main research question. The first five subquestions will be evaluated in the research phase of the project and relate mostly to existing works and available data. Answering these questions will inform data acquisition and subsequent software development. The next research questions will be answered during the software development phase as they relate to testing and limitations of the pipeline by evaluating the procedures and the output, and discussing the findings with the client.
+Answering these subquestions will help to answer the main research question. The first five subquestions are evaluated in the research phase of the project and relate mostly to existing works and available data. Answering these questions informs data acquisition and subsequent software development. The next research questions are be answered during the software development phase as they relate to testing and limitations of the pipeline by evaluating the procedures and the output, and discussing the findings with the client.
 
 // == Relevant courses from the MSc Geomatics program
 
@@ -48,7 +48,7 @@ Answering these subquestions will help to answer the main research question. The
 By the end of the project, the team expects to produce the following output:
 - *A working pipeline* for DEM harmonisation. This includes the code and documentation which supports its use.
 - *A DEM* of the Rhine catchment area.
-- *A report* justifying the decisions made and describing the process.
+- *This report* justifying the decisions made and describing the process.
 
 More detailed requirements for these deliverables are found in ....
 
