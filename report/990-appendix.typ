@@ -1,17 +1,3 @@
-#set page(
-  paper: "a4",
-  margin: (
-    top: 2.5cm,
-    bottom: 2.5cm,
-    left: 2.5cm,
-    right: 3cm,
-  ),
-)
-
-
-
-= Appendix <appendix>
-
 #counter(heading).update((0, 0))
 #show heading.where(level: 2): it => {
   let n = counter(heading).get().last()
@@ -19,6 +5,9 @@
   let label = if n <= letters.len() { letters.at(n - 1) } else { str(n) }
   [#label. #it.body]
 }
+
+
+= Appendix <appendix>
 
 == MOSCOW
 #let moscow(value) = {
