@@ -52,4 +52,4 @@ By the end of the project, the team expects to produce the following output:
 
 More detailed requirements for these deliverables are found in ....
 
---> Add appendix ref
+#drafting.inline-note()[Add appendix ref]
