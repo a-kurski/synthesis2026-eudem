@@ -102,7 +102,7 @@ Different extents of the Rhine catchment area were considered. One most commonly
 #figure(
   grid(
     columns: (auto, auto),
-    [#image("assets/8278083_iawr-rheinkarte-2500x3452.jpg")], [#image("assets/960px-Flusssystemkarte_Rhein_04.jpg")]
+    [#image("assets/8278083_iawr-rheinkarte-2500x3452.jpg", width: 70%)], [#image("assets/960px-Flusssystemkarte_Rhein_04.jpg", width: 70%)]
   ),
   caption: [Maps of the Rhine catchment area from ICPR (left, from #cite(<iawr_home>, form: "prose")) and Wikimedia (right, from #cite(<wiki:rhine>, form: "prose"))]
 )<fig:rhine-defs>
@@ -110,7 +110,7 @@ Different extents of the Rhine catchment area were considered. One most commonly
 For this project, the Rhine river definition comes from HydroBASINS @Lehner2013, derived from a global elevation model. The Meuse and Ijssel are excluded from the main catchment area of the Rhine in this case; their exclusion has been discussed with the client and was deemed appropriate as the automated pipeline supports expanding the geographic extent of the dataset. @fig:rhine-catchment-regions shows the map of the area used in the project, coloured by elevation data provider.
 
 #figure(
-  image("assets/Catchment_map.png", width: 60%),
+  image("assets/Catchment_map.png", width: 70%),
   caption: [Rhine cathchment regions and countries]
 )<fig:rhine-catchment-regions>
 
