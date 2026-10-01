@@ -14,4 +14,9 @@ Point cloud harmonisation has been tested on approximately 20km stretch of the G
 - the lowest absolute translation is 0 m both horizontally and vertically for one of the intersections.
 - the median absolute translation is 0.1825 m horizontally  0.0691 m vertically.
 
-There are several outliers --- pairs where a point cloud is translated several hundred meters horizontally --- which are likely the cases where the footprints the actual data is non-intersecting but the bounding boxes are. Filtering for such outliers is necessary.
+There are several outliers --- pairs where a point cloud is translated several hundred meters horizontally --- which are likely the cases where the footprints the actual data is non-intersecting but the bounding boxes are. Filtering for such outliers is necessary and #highlight(fill: none, stroke: red)[will be implemented]. A visual analysis of one of the intersecting tiles shows that even without the transformation applied, the two point clouds are closely aligned, further confirming that large translations are likely erroneous.
+
+#figure(
+  image("assets/pcs-aligned.png", width: 60%),
+  caption: [Default alignment of a Dutch (red) and German (blue) point cloud]
+)
