@@ -1,7 +1,56 @@
 #import "@preview/lovelace:0.3.0": *
 #import "@preview/drafting:0.2.2"
+#import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 
 = Harmonisation Pipeline <chap:method>
+
+This chapter describes the current state of the harmonisation pipeline, providing a general overview and specifics of the approach to processing gridded (raster) elevation data and point clouds.
+
+== Pipeline Overview
+
+The aim of the project is to create a fully automated pipeline, which at this stage has not yet been achieved. Instead, separate pipelines for processing raster and point cloud data have been developed, which will be integrated after the midterm.
+
+The raster processing is the main part of the pipeline --- re-extracting a DTM from scratch is computationally expensive and is deemed unnecessary, and it is assumed #drafting.margin-note[but should be tested!] that the national DTMs are sufficiently accurate. Point cloud processing is secondary and predominantly serves as an additional layer of evaluation and quality assurance.
+
+// Boxed "start/end" nodes vs. plain process steps
+#let boxed(pos, label, ..args) = node(
+  pos, label, stroke: 1pt, inset: 6pt, corner-radius: 2pt, ..args,
+)
+
+#figure(
+  diagram(
+    spacing: (2.2em, 1.5em),
+    edge-stroke: 1pt,
+    node-inset: 6pt,
+
+    // ── DEM branch ──────────────────────────────
+    boxed((0, 0), [DEM]),
+    boxed((0, 1), [Reproject]),
+    boxed((0, 2), [Resample]),
+    boxed((0, 3), [Interpolate]),
+    boxed((0, 4), [Stitch]),
+
+    edge((0, 0), (0, 1), "-|>"),
+    edge((0, 1), (0, 2), "-|>"),
+    edge((0, 2), (0, 3), "-|>"),
+    edge((0, 3), (0, 4), "-|>"),
+
+    // Side branch: DEM -> compare
+    boxed((1.4, 1), [Compare in overlaps]),
+    edge((0, 0), (1.4, 0), (1.4, 1), "-|>"),
+
+    // ── Point cloud branch ──────────────────────
+    boxed((3.2, 0), [PC]),
+    boxed((3.2, 1), [Register]),
+    boxed((3.2, 2), [Analyse registration \ Affine transform]),
+    boxed((3.2, 3.4), [Re-extract DEM \ if necessary]),
+
+    edge((3.2, 0), (3.2, 1), "-|>"),
+    edge((3.2, 1), (3.2, 2), "-|>"),
+    edge((3.2, 2), (3.2, 3.4), "-|>"),
+  )
+)
+
 
 == Harmonisation with Point Clouds
 
