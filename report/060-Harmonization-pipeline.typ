@@ -1,7 +1,7 @@
 #import "@preview/lovelace:0.3.0": *
 #import "@preview/drafting:0.2.2"
 
-= Harmonisation Pipeline <Harmonization_pipeline>
+= Harmonisation Pipeline <Harmonisation_pipeline>
 
 == Harmonisation with Point Clouds
 
