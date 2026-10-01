@@ -44,6 +44,7 @@
 #include "015-acknowledgements.typ"
 
 #outline(title: "Contents")
+#outline(title: "Figures", target: figure.where(kind: image))
 
 #set heading(numbering: "1.1")
 
