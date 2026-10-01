@@ -5,7 +5,7 @@
 
 == Harmonisation with Point Clouds
 
-In the pipeline, the point clouds are used as an additional step to assess the agreement between the two different national datasets. Converting the point clouds to the same CRS and subsequently performing registration allows to obtain better estimates of planimetric and vertical accuracy. The pseudocode describing the general principles is presented below; more elaborate description follows.
+In the pipeline, the point clouds are used as an additional step to assess the agreement between two different national datasets. Converting the point clouds to the same CRS and subsequently performing registration allows to obtain better estimates of planimetric and vertical accuracy. The pseudocode describing the general principles is presented below; more elaborate description follows.
 
 #pseudocode-list(booktabs: true, booktabs-stroke: 1pt, line-number-supplement: "line", title: [#smallcaps[*Point Cloud Registration*]])[
   + *Input:* a set of point clouds of country A $scr(a) in scr(A)$; a set of point clouds of country B $scr(b) in scr(B)$ \ *Output:* a set of translation vectors $scr(T)$ obtained from registering $scr(a) in scr(A)$ against $scr(b) in scr(B)$
