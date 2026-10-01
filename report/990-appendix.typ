@@ -10,7 +10,7 @@
 
 
 
-= Appendix <appendix>
+= Appendix <chap:appendix>
 
 #counter(heading).update((0, 0))
 #show heading.where(level: 2): it => {

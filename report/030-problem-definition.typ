@@ -1,6 +1,6 @@
 #import "@preview/drafting:0.2.2"
 
-= Problem Definition <Project_definition>
+= Problem Definition <chap:Project_definition>
 
 == Terrain Models
 
