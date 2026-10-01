@@ -6,7 +6,19 @@ At current stage, only some intermediate results are available.
 
 Raster data for certain regions --- currently, the Netherlands and Germany's Nordrhein-Westfalen --- has been successfully downloaded within a given mask. The data has been processed as described in @chap:method; the resulting raster can be seen below.
 
-#drafting.inline-note()[TODO: add figure]
+#figure(
+  image("assets/dtm_border_zoomedout.png", width: 80%),
+  caption: [Visualization of Dutch and German DTMs of the Border Region.]
+)<fig:dtm_border>
+
+Fig @fig:dtm_border shows the DTMs from the two sources, the AHN and the NRW. The Dutch region can be recognized by the presence of white holes and a non-interpolated river. Although hole filling was done for the AHN, large holes still remain and the river bed remains unfilled. This is due to the finite distance used in the inverse distance-weighing interpolation.
+
+#figure(
+  image("assets/dtm_border.png", width: 80%),
+  caption: [Zoomed-in Visualization of DTMs.]
+)<fig:dtm_zoomin>
+
+Fig @fig:dtm_zoomin depicts a closer look at the border region. The background is also left blank to see the unfilled areas clearly. Further implementations will have all holes interpolated so that the elevation product is unified.
 
 Point cloud harmonisation has been tested on approximately 20km stretch of the German-Dutch border. Analysing the translation of the resulting 63 intersection shows the following:
 - the root median square translation is 277.3 m horizontally and 1.2233 m vertically;
