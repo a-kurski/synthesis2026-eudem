@@ -35,9 +35,15 @@
   numbering: "1"
 )
 
-#pagebreak()
+#show heading.where(level: 1): it => {
+  pagebreak(weak: true)
+  it
+}
+
 #include "010-abstract.typ"
 #include "015-acknowledgements.typ"
+
+#outline(title: "Contents")
 
 #set heading(numbering: "1.1")
 

@@ -1,4 +1,4 @@
-= Literature Review
+= Literature Review <chap:theory>
 
 This chapter will go over the reviewed literature. It discusses both the existing approaches for harmonizing cross-border data, INSPIRE specification on elevation, and point cloud processing methods.
 
