@@ -1,3 +1,4 @@
+#import "@preview/drafting:0.2.2"
 = Literature Review <chap:theory>
 
 This chapter will go over the reviewed literature. It discusses both the existing approaches for harmonizing cross-border data, INSPIRE specification on elevation, and point cloud processing methods.
@@ -98,7 +99,8 @@ However, the documentation of PDAL also states it is possible to alternatively u
 
 Upon observing the Dutch DTM, it was noted that buildings and rivers are marked as voids. This is because unlike countries such as France and Germany, the Netherlands does not fill nodata values. A possible solution to this problem would be to approximate the river altitudes as described in #cite(<PARROT201628>, form:"prose"). The paper suggests that the river altitudes can be approximated by using the average of the surrounding terrain. However, this method is not without its drawbacks. It may not accurately reflect the true river altitudes, especially in areas with significant elevation changes. Since deviations from reality and river segments in other countries will not match, this method will not be used in this project. Instead, the voids will be filled using a bilinear interpolation method, as described in
 
---> add reference to chapter
+#drafting.inline-note()[
+add reference to chapter]
 
 #figure(
   image("assets/Catchment_map.png", width: 60%),
