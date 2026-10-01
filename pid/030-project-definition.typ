@@ -27,22 +27,6 @@ As described in the introduction, the project focuses on the issues presented by
 
 Answering these subquestions will help to answer the main research question. The first five subquestions will be evaluated in the research phase of the project and relate mostly to existing works and available data. Answering these questions will inform data acquisition and subsequent software development. The next research questions will be answered during the software development phase as they relate to testing and limitations of the pipeline by evaluating the procedures and the output, and discussing the findings with the client.
 
-// == Relevant courses from the MSc Geomatics program
-
-// #drafting.inline-note[Do we care about this?]
-
-// This project applies knowledge gained from several courses from the MSc Geomatics program. Having a basic overview of these courses will highlight the current knowledge possessed by the team. These are the following courses:
-
-// - GEO1000 - Python for Geomatics;
-// - GEO1001 - Sensing Technologies;
-// - GEO1002 - GIS and Cartography;
-// - GEO1004 - 3D modelling for the built environment;
-// - GEO1015 - Digital Terrain Modelling.
-
-// GEO1000 is relevant for programming the pipeline in either Python or C++. GEO1001 was the basis for understanding point cloud data collection and processing. GEO1002 is relevant for understanding the data and how to visualise it. GEO1004 is possibly relevant for working with 3D data and point cloud processing. GEO1015 is applicable as it forms the basis for 2D and 2.5D terrain modelling, shortcomings and processing of DEMs.//
-
-// #pagebreak()
-
 == Deliverables
 
 By the end of the project, the team expects to produce the following output:

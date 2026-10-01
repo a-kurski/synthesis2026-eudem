@@ -57,6 +57,7 @@
 #set par(justify: true)
 
 #include "020-introduction.typ"
+#include "025-contributors.typ"
 #include "030-problem-definition.typ"
 #include "040-theory-context.typ"
 #include "050-methodology.typ"
@@ -68,3 +69,5 @@
   style: "apa",
   title: [References],
 )
+
+#include "990-appendix.typ"
