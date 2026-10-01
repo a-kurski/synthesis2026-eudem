@@ -73,7 +73,7 @@ For a grid, only the planimetric accuracy is considered. The root mean square er
 In the "Data Capture" section, the resolution is further related to the vertical accuracy of the dataset.
 For flat terrain, the resolution should be between $3 times "RMSE"$ and $20 times "RMSE"$, while for mountainous terrain it should be between $3 times "RMSE"$ and $10 times "RMSE"$.
 
-=== Cross-border DEM
+== Cross-border DEM
 
 Whereas most reports focus on semantic data harmonization of cross-border areas, few look at the DTM data. While little more than an educated guess, it is likely due to existing datasets. The European data portal lists two official DTM datasets @europaDigitalElevation. These are both based on Copernicus data and have a 30 and 90 meter cell resolution respectively (at the equator). The Copernicus DEM is listed as having a vertical RMSE of $1.68 m$ for the 90 meter dataset @CopernicusDEM-RP-001_ValidationReport, and a RMSE of $2.9 m$ for the 30 meter dataset @europaDigitalElevation. Meanwhile, most national datasets fall between 0.5 and 2 meter resolution for cells. It is therefore likely, that for most applications on a small scale, the national datasets suffice. While for large scale, cross-border projects, the European DTM dataset suffices.
 
@@ -87,22 +87,37 @@ $H_A = "DTM"_"France A" * D/500 + "DTM"_"Italy A" * (500-D)/500$)
 
 Where $H_A$ is the final assigned height, while $D$ represents the distance from the border. While this method does smooth the transition, it does also likely diverge from reality, even if the discrepancy is minimized. While this method has been considered, further diluting the sampling of reality stands perpendicular to the goal of creating a map which visualizes reality. Therefore, this method will not be used for this project.
 
-=== Ground Filtering
+== Ground Filtering
 
 In order to create a new DTM from point clouds, a method called ground filtering is used. Several different methods exist for this process. However, in the interest of limiting the scope of the project an existing implementation in PDAL will be used. However, other methods were evaluated to compare their performance against the Progressive Morphological Filter (PMF) used by PDAL.
 
 In @Silva2018GroundFiltering, it is noted that PMF differs from Multi-scale  Curvature  Classification (MCC), Progressive  Triangulated  Irregular  Network (PTIN), and Weighted Linear Least Squares (WLS) by excessively eliminating ground points to generate a DTM from. This causes it to underestimate the DTM elevations, particularly in open-canopy forested areas. Silva and Klauberg theorise this is likely caused by the fact PMF assumes a constant slope. While this is a serious drawback, it is one that needs to be used in the interest of the scope and time limit of this project.
 
-However, the documentation of PDAL also states it is possible to alternatively use SMRF. This method is a further developed version of the PMF. However, #cite(<PINGEL201321>, form: "prose") states that SMRF uses a slope-dependent elevation, making it more reliable, and possibly solving the issue with PMF. Therefore, PDAL using SMRF ground filtering should allow for a reliable way to generate DTMs from point clouds. Further research into the implementation of other methods will not be discussed or implemented within this report.
+However, the documentation of PDAL also states it is possible to alternatively use SMRF. This method is a further developed version of the PMF. However, #cite(<PINGEL201321>, form: "prose") states that SMRF uses a slope-dependent elevation, making it more reliable, and possibly solving the issue with PMF. Therefore, PDAL using SMRF ground filtering should allow for a reliable way to generate DTMs from point clouds. Further research into the implementation of other methods will not be discussed or implemented within this project.
 
-=== River modelling
+== Rhine Catchment Area
 
-Upon observing the Dutch DTM, it was noted that buildings and rivers are marked as voids. This is because unlike countries such as France and Germany, the Netherlands does not fill nodata values. A possible solution to this problem would be to approximate the river altitudes as described in #cite(<PARROT201628>, form:"prose"). The paper suggests that the river altitudes can be approximated by using the average of the surrounding terrain. However, this method is not without its drawbacks. It may not accurately reflect the true river altitudes, especially in areas with significant elevation changes. Since deviations from reality and river segments in other countries will not match, this method will not be used in this project. Instead, the voids will be filled using a bilinear interpolation method, as described in
+Different extents of the Rhine catchment area were considered. One most commonly agreed upon comes from International Association of Waterworks in the Rhine Basin @iawr_rhine and International Commission for the Protection of the Rhine @ICPR2013. It excludes the upstream Meuse but includes the rest of the delta, e.g. Ijssel and Waal. Another possible definition can be found on Wikimedia (see @fig:rhine-defs), and it includes the Meuse.
 
-#drafting.inline-note()[
-add reference to chapter]
+#figure(
+  grid(
+    columns: (auto, auto),
+    [#image("assets/8278083_iawr-rheinkarte-2500x3452.jpg")], [#image("assets/960px-Flusssystemkarte_Rhein_04.jpg")]
+  ),
+  caption: [Maps of the Rhine catchment area from ICPR (left, from #cite(<iawr_home>, form: "prose")) and Wikimedia (right, from #cite(<wiki:rhine>, form: "prose"))]
+)<fig:rhine-defs>
+
+For this project, the Rhine river definition comes from HydroBASINS @Lehner2013, derived from a global elevation model. The Meuse and Ijssel are excluded from the main catchment area of the Rhine in this case; their exclusion has been discussed with the client and was deemed appropriate as the automated pipeline supports expanding the geographic extent of the dataset. @fig:rhine-catchment-regions shows the map of the area used in the project, coloured by elevation data provider.
 
 #figure(
   image("assets/Catchment_map.png", width: 60%),
-  caption: [Rhine Cathchment Regions and Countries]
-)
+  caption: [Rhine cathchment regions and countries]
+)<fig:rhine-catchment-regions>
+
+
+
+== River Elevation Data
+
+Upon observing the Dutch DTM, it was noted that buildings and rivers are marked as voids. This is because unlike countries such as France and Germany, the Netherlands does not fill nodata values. A possible solution to this problem would be to approximate the river altitudes as described in #cite(<PARROT201628>, form:"prose"). The paper suggests that the river altitudes can be approximated by using the average of the surrounding terrain. However, this method is not without its drawbacks. It may not accurately reflect the true river altitudes, especially in areas with significant elevation changes. Since deviations from reality and river segments in other countries will not match, this method will not be used in this project. Instead, the voids will be filled using a bilinear interpolation method, as described in
+
+--> add reference to chapter
