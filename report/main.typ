@@ -45,7 +45,7 @@
 
 #outline(title: "Contents")
 #outline(title: "Figures", target: figure.where(kind: image))
-
+#outline(title: "Tables", target: figure.where(kind: table))
 #set heading(numbering: "1.1")
 
 #show heading.where(level: 1): it => {
