@@ -87,6 +87,8 @@ $H_A = "DTM"_"France A" * D/500 + "DTM"_"Italy A" * (500-D)/500$)
 
 Where $H_A$ is the final assigned height, while $D$ represents the distance from the border. While this method does smooth the transition, it does also likely diverge from reality, even if the discrepancy is minimized. While this method has been considered, further diluting the sampling of reality stands perpendicular to the goal of creating a map which visualizes reality. Therefore, this method will not be used for this project.
 
+
+add reference to #cite(<carcano2013merging>, form: "prose")
 == Ground Filtering
 
 In order to create a new DTM from point clouds, a method called ground filtering is used. Several different methods exist for this process. However, in the interest of limiting the scope of the project an existing implementation in PDAL will be used. However, other methods were evaluated to compare their performance against the Progressive Morphological Filter (PMF) used by PDAL.
