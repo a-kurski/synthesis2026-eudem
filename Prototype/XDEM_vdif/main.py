@@ -1,6 +1,9 @@
 import os
 import xdem
+import numpy as np
+import matplotlib.pyplot as plt
 import geoutils as gu
+import pandas as pd
 
 #change to json files
 # Source vertical CRS (fill these in later)
@@ -51,3 +54,57 @@ def transform_dem_to_target_vcrs(dem, country_name, source_vcrs, target_vcrs):
 def save_dem(dem, country_name):
     dem.save(f"{country_name}_vcrs.tif")
 
+
+def analyze_dem(dem_1, dem_2):
+    """
+    Coregister two DEMs and compute difference statistics.
+    """
+
+    # Coregistration
+    coreg = (
+        xdem.coreg.NuthKaab()
+        + xdem.coreg.Deramp(poly_order=2)
+    )
+
+    coreg.fit(dem_1, dem_2)
+    dem_2_aligned = coreg.apply(dem_2)
+
+    # Elevation differences
+    dh = dem_1 - dem_2_aligned
+
+    # Convert to NumPy array and remove nodata
+    dh_array = dh.data.filled(np.nan)
+    valid = np.isfinite(dh_array)
+
+    values = dh_array[valid]
+
+    # Statistics
+    mean = np.mean(values)
+    median = np.median(values)
+    std = np.std(values)
+    rmse = np.sqrt(np.mean(values**2))
+    mae = np.mean(np.abs(values))
+
+    pd.DataFrame({
+        "reference_dem": [dem_1.name],
+        "comparison_dem": [dem_2.name],
+        "mean": [mean],
+        "median": [median],
+        "std": [std],
+        "rmse": [rmse],
+        "mae": [mae]
+        }).to_csv("dem_difference_statistics.csv", index=False)
+
+    # Save difference raster
+    dh.save("dh.tif")
+    
+    return {
+        "coreg": coreg,
+        "aligned_dem": dem_2_aligned,
+        "dh": dh,
+        "mean": mean,
+        "median": median,
+        "std": std,
+        "rmse": rmse,
+        "mae": mae,
+    }
