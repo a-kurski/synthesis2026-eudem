@@ -31,7 +31,7 @@ target_vcrs = {
     "France": "EPSG:5129",
     "Luxembourg": "EPSG:5129",
     "Netherlands": "EPSG:5129",
-    "Switzerland": "5129",
+    "Switzerland": "EPSG:5129",
 }
 
 def load_file(file_path):
