@@ -1,0 +1,6 @@
+Warning 1: DeprecationWarning: 'Memory' driver is deprecated since GDAL 3.11. Use 'MEM' onwards. Further messages of this type will be suppressed.
+...
+----------------------------------------------------------------------
+Ran 3 tests in 1.445s
+
+OK

@@ -1,48 +1,34 @@
-"""AHN-specific processing: clean, mosaic, warp once, clean/mask, verify."""
-import numpy as np
+"""AHN processing: clean, mosaic, warp once, fill target gaps, mask, verify."""
+import math
 from osgeo import gdal
 
-from ...geo import grid, valid_values, verify_alignment, windows
-from ...process import align, aoi_mask, clean, create_raster, mosaic
+from ...paths import raw_directory
+from ...progress import track
+
+from ...geo import grid, verify_alignment
+from ...process import align, aoi_mask, clean, mosaic
 from ...acquire import write_json
 from .hole_filling import fill_holes, settings
-from .stitching import publish_tiles
+from ...publication import mask_output, publish_tiles
+from ...target_grid import write_reference
+from ...process import OPTIONS
+
+
+def crop_target(source, destination, reference, padding):
+    """Copy target pixels without resampling, removing the donor margin."""
+    info = grid(reference)
+    with gdal.Translate(str(destination), str(source), format='GTiff',
+                        srcWin=[padding, padding, info['cols'], info['rows']],
+                        creationOptions=OPTIONS):
+        pass
 
 VERTICAL_NOTE = 'AHN heights remain in NAP. Horizontal transformation only; no vertical datum harmonisation.'
 
 
-def mask_output(warped, mask_path, prepared, config, note=VERTICAL_NOTE, units='m'):
-    """Final clean/mask pass shared by heights and dimensionless fill fractions."""
-    temp = prepared.with_suffix('.part.tif')
-    count = influenced = 0
-    total = maximum = 0.0
-    with gdal.Open(str(warped)) as src, gdal.Open(str(mask_path)) as mask:
-        with create_raster(temp, src, config['nodata'], note) as dst:
-            dst.GetRasterBand(1).SetUnitType(units)
-            dst.SetMetadataItem('PREPARATION', 'Average-resampled to target grid; valid cells inside pixel-centre AOI mask')
-            for window in windows(src, config['block_size']):
-                values, valid = valid_values(src.GetRasterBand(1), window)
-                valid &= mask.GetRasterBand(1).ReadAsArray(*window) != 0
-                count += int(valid.sum())
-                dst.GetRasterBand(1).WriteArray(np.where(valid, values, config['nodata']).astype('float32'), window[0], window[1])
-                if units == '1' and valid.any():
-                    selected = values[valid]
-                    if np.any((selected < 0) | (selected > 1)):
-                        raise RuntimeError('Fill fraction outside [0, 1].')
-                    influenced += int((selected > 0).sum())
-                    total += float(selected.astype('float64').sum())
-                    maximum = max(maximum, float(selected.max()))
-    temp.replace(prepared)
-    return {'valid_cell_count': count, 'cells_with_fill_contribution': influenced,
-            'mean_fill_fraction_over_valid_cells': total / count if count else None,
-            'max_fill_fraction': maximum if count else None}
-
-
 def prepare(tiles, geometry, reference, run_dir, config):
-    (run_dir / 'raw_ahn_tiles').mkdir(parents=True, exist_ok=True)
-    processed = run_dir / 'processed_tiles'
+    processed = run_dir / 'processed'
     work = processed / '_work'
-    stitched = run_dir / 'ahn_stitched'
+    stitched = run_dir / 'stitched'
     stitched.mkdir(parents=True, exist_ok=True)
     mosaics, aligned, output = [work / name for name in ('mosaics', 'aligned', 'output')]
     for directory in (mosaics, aligned, output):
@@ -50,13 +36,29 @@ def prepare(tiles, geometry, reference, run_dir, config):
     cleaned_dir = mosaics / 'ahn_clean_tiles'
     cleaned_dir.mkdir()
     cleaned = []
-    for source in tiles:
+    for source in track(tiles, 'AHN cleaning'):
         destination = cleaned_dir / source.name
         clean(source, destination, config, vertical_note=VERTICAL_NOTE)
         cleaned.append(destination)
     merged = mosaic('ahn', cleaned, mosaics, config)
+    fill = settings(config)
+    padding = 0
+    warp_reference = reference
+    if fill['enabled']:
+        info = grid(reference)
+        step = info['transform'][1]
+        padding = math.ceil(fill['max_distance_m'] / step) + 1
+        transform = list(info['transform'])
+        transform[0] -= padding * step
+        transform[3] += padding * step
+        context = {**info, 'transform': transform,
+                   'cols': info['cols'] + 2 * padding, 'rows': info['rows'] + 2 * padding}
+        warp_reference = write_reference(context, aligned / 'target_with_context.vrt')
+    context_warp = aligned / 'ahn_resampled_with_context.tif'
+    align(merged, warp_reference, context_warp, config)
     warped = aligned / 'ahn_aligned_to_target.tif'
-    align(merged, reference, warped, config)
+    crop_target(context_warp, warped, reference, padding)
+    report = fill_holes(context_warp, geometry, work / 'hole_filling', config) if fill['enabled'] else None
 
     # Keep the unfilled baseline as one full-grid raster, without separate tiles.
     prepared = stitched / 'ahn_unfilled.tif' if settings(config)['enabled'] else output / 'ahn_prepared.tif'
@@ -64,7 +66,7 @@ def prepare(tiles, geometry, reference, run_dir, config):
     with gdal.Open(str(warped)) as src:
         with aoi_mask(geometry, src, mask_path) as mask:
             pass
-    count = mask_output(warped, mask_path, prepared, config)['valid_cell_count']
+    count = mask_output(warped, mask_path, prepared, config, VERTICAL_NOTE)['valid_cell_count']
     verify_alignment(prepared, reference, config['alignment_tolerance_m'])
     result = {'prepared_raster': str(prepared), 'comparison_ready_raster': str(prepared), 'aoi_mask': str(mask_path),
             'native_mosaic': str(merged), 'aligned_raster': str(warped),
@@ -72,13 +74,12 @@ def prepare(tiles, geometry, reference, run_dir, config):
             'hole_filling_enabled': settings(config)['enabled'],
             'vertical_datum': 'NAP', 'vertical_datum_note': VERTICAL_NOTE}
     if settings(config)['enabled']:
-        report = fill_holes(merged, geometry, work / 'hole_filling', config)
         filled_warp = aligned / 'ahn_filled_aligned_to_target.tif'
-        align(report['filled_native'], reference, filled_warp, config)
+        crop_target(report['filled_raster'], filled_warp, reference, padding)
         filled_prepared = output / 'ahn_prepared_filled.tif'
         filled_count = mask_output(filled_warp, mask_path, filled_prepared, config, report['note'])['valid_cell_count']
         fraction_warp = aligned / 'ahn_fill_fraction_aligned.tif'
-        align(report['native_fill_fraction'], reference, fraction_warp, config)
+        crop_target(report['fill_fraction_raster'], fraction_warp, reference, padding)
         # The fraction raster already spans the entire target grid; save it
         # directly instead of splitting it into tiles and stitching it again.
         fraction = stitched / 'ahn_fill_fraction.tif'
@@ -87,7 +88,7 @@ def prepare(tiles, geometry, reference, run_dir, config):
             verify_alignment(path, reference, config['alignment_tolerance_m'])
         if fraction_stats['valid_cell_count'] != filled_count:
             raise RuntimeError('Fill fraction and filled elevation validity counts differ.')
-        report.update(target_valid_unfilled=count, target_valid_filled=filled_count,
+        report.update(stage='after_resampling', target_valid_unfilled=count, target_valid_filled=filled_count,
                       target_new_valid_cells=filled_count - count, target_fill_fraction=fraction_stats,
                       prepared_filled=str(filled_prepared), fill_fraction=str(fraction))
         write_json(report['report_path'], report)
@@ -101,7 +102,7 @@ def prepare(tiles, geometry, reference, run_dir, config):
     selected = result['comparison_ready_raster']
     published = publish_tiles(selected, processed, stitched / 'ahn.tif', config)
     result.update(comparison_ready_raster=published['stitched'], processed_tiles=published,
-                  raw_ahn_tiles=str(run_dir / 'raw_ahn_tiles'), ahn_stitched=str(stitched))
+                  raw_ahn_tiles=str(raw_directory(config)), ahn_stitched=str(stitched))
     if result['hole_filling_enabled']:
         result.update(prepared_raster=str(prepared), prepared_filled_raster=published['stitched'],
                       fill_fraction=str(fraction))

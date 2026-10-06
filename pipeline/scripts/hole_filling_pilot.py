@@ -1,7 +1,9 @@
 """Offline cached-AHN pilot: real gaps, hidden known patches, full preparation.
 
 Run from the workspace: python scripts/hole_filling_pilot.py config.netherlands.json
-Uses three validated cached tiles; never calls the download services.
+Historical native-grid interpolation experiment using three cached tiles.
+The integrated preparation check uses the current post-resampling pipeline.
+Never calls the download services.
 """
 from pathlib import Path
 import sys
@@ -20,6 +22,7 @@ def main():
     from osgeo import gdal
 
     from dtm.acquire import cached, sha256, write_json
+    from dtm.paths import raw_directory, receipt_path, scoped_root
     from dtm.coordinator import load_config
     from dtm.countries.netherlands.hole_filling import fill_holes
     from dtm.countries.netherlands.processing import prepare, VERTICAL_NOTE
@@ -36,11 +39,11 @@ def main():
     native_geometry = project(geometry, srs(28992))
     candidates = []
     print('Selecting pilot tiles from the local cache (no acquisition planning or network).', flush=True)
-    for receipt_path in sorted((Path(config['cache_root']) / 'ahn_tiles').glob('*.json')):
-        path = receipt_path.with_suffix('.tif')
-        if not path.exists():
+    for path in sorted(raw_directory(config).glob('*.tif')):
+        receipt = receipt_path(path, config)
+        if not receipt.exists():
             continue
-        record = json.loads(receipt_path.read_text(encoding='utf-8'))
+        record = json.loads(receipt.read_text(encoding='utf-8'))
         coverage = record['valid_cells'] / (record['grid']['cols'] * record['grid']['rows'])
         if .2 < coverage < .995 and record['source'] == config['source']:
             # Native chunk plans use integer metre edges. Preserve the request's
@@ -56,7 +59,7 @@ def main():
         item = min(candidates, key=lambda item: abs(item[0] - desired))
         selected.append(item)
         candidates.remove(item)
-    output = (args.output or Path('data/pilots/hole_filling') / datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')).resolve()
+    output = (args.output or scoped_root(config, 'logs_dir') / 'pilots/hole_filling' / datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')).resolve()
     output.mkdir(parents=True, exist_ok=False)
     write_json(output / 'config.json', config)
     started = time.perf_counter()
@@ -64,7 +67,7 @@ def main():
     all_errors = {distance: [] for distance in (5, 10, 20)}
     withheld_total = 0
     for index, (coverage, tile, raw) in enumerate(selected, 1):
-        if not cached(raw, config['source'], tile):
+        if not cached(raw, config['source'], tile, config):
             raise RuntimeError(f'Cache validation failed: {raw}')
         before = sha256(raw)
         tile_dir = output / f'tile_{index}_{tile["id"]}'
@@ -120,7 +123,7 @@ def main():
         for distance in (5, 10, 20):
             trial = {**config, 'hole_filling': {'enabled': True, 'max_distance_m': distance}}
             report = fill_holes(holdout, inner, tile_dir / f'holdout_{distance}m', trial)
-            with gdal.Open(report['filled_native']) as ds:
+            with gdal.Open(report['filled_raster']) as ds:
                 for row, col, side in patches:
                     prediction = ds.GetRasterBand(1).ReadAsArray(col, row, side, side)
                     valid = prediction != -9999
@@ -138,8 +141,7 @@ def main():
             raise RuntimeError('Original cached tile changed during pilot.')
         checksums.append({'tile': str(raw), 'before': before, 'after': after})
         if index == 1:
-            # Complete country preparation on a real cached tile, including both
-            # 1 m height branches and the target-grid interpolation fraction.
+            # Complete current preparation: resample, fill, and publish target pixels.
             reference = write_reference(plan_grid(pilot_aoi, {}), tile_dir / 'target.vrt')
             result = prepare([raw], pilot_aoi, reference, tile_dir / 'integrated',
                              {**config, 'hole_filling': {'enabled': True, 'max_distance_m': 10}})

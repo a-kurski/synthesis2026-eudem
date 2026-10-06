@@ -11,6 +11,7 @@ from osgeo import gdal, ogr
 
 from .acquire import write_json
 from .geo import grid, project, srs, valid_values, verify_alignment, windows
+from .progress import gdal_progress
 
 LOG = logging.getLogger('dtm')
 OPTIONS = ['TILED=YES', 'COMPRESS=DEFLATE', 'PREDICTOR=3', 'BIGTIFF=YES']
@@ -79,20 +80,31 @@ def mosaic(name, tiles, directory, config):
     listing = directory / f'{name}_tiles.txt'
     listing.write_text(''.join(str(Path(p).resolve()) + '\n' for p in tiles), encoding='utf-8')
     vrt = directory / f'{name}.vrt'
-    command(['gdalbuildvrt', '-strict', '-overwrite', '-resolution', 'highest', '-vrtnodata', str(config['nodata']), '-input_file_list', listing, vrt])
+    with gdal_progress(name.upper() + ' building mosaic') as callback:
+        with gdal.BuildVRT(str(vrt), [str(Path(p).resolve()) for p in tiles],
+                           options=gdal.BuildVRTOptions(resolution='highest', strict=True,
+                                                       VRTNodata=config['nodata'], callback=callback)):
+            pass
     merged = directory / f'{name}_merged.tif'
-    command(['gdal_translate', '-of', 'GTiff', '-ot', 'Float32', *co_args(), vrt, merged])
+    with gdal_progress(name.upper() + ' writing mosaic') as callback:
+        with gdal.Translate(str(merged), str(vrt), format='GTiff', outputType=gdal.GDT_Float32,
+                            creationOptions=OPTIONS, callback=callback):
+            pass
     LOG.info('%s merged grid: %s', name, json.dumps(grid(merged)))
     return merged
 
 
-def align(ahn, nrw, output, config):
+def align(ahn, nrw, output, config, *, source_epsg=28992, label='AHN'):
     reference = grid(nrw)
-    command(['gdalwarp', '-overwrite', '-s_srs', 'EPSG:28992', '-t_srs', 'EPSG:25832',
+    options = ['-overwrite', '-s_srs', f'EPSG:{source_epsg}', '-t_srs', 'EPSG:25832',
              '-novshift', '-et', '0', '-te', *map(str, reference['extent']),
              '-ts', str(reference['cols']), str(reference['rows']), '-r', 'average',
              '-srcnodata', str(config['nodata']), '-dstnodata', str(config['nodata']),
-             '-ot', 'Float32', '-of', 'GTiff', '-wm', '256', *co_args(), ahn, output])
+             '-ot', 'Float32', '-of', 'GTiff', '-wm', '256', *co_args()]
+    LOG.info('GDAL Warp options=%s source=%s output=%s', options, ahn, output)
+    with gdal_progress(label + ' aligning/resampling ' + Path(output).name) as callback:
+        with gdal.Warp(str(output), str(ahn), options=gdal.WarpOptions(options=options, callback=callback)):
+            pass
     verify_alignment(output, nrw, config['alignment_tolerance_m'])
     LOG.info('Alignment verified: %s', json.dumps(grid(output)))
 

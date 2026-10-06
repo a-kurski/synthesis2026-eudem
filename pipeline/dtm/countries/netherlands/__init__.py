@@ -2,6 +2,7 @@
 import math
 
 from ...geo import plan_source, project, srs
+from ...target_grid import resolution
 from .hole_filling import settings
 from .acquisition import download, probe
 from .processing import prepare, VERTICAL_NOTE
@@ -29,14 +30,21 @@ def validate_config(config):
 
 def plan(geometry, config):
     fill = settings(config)
-    if not fill['enabled']:
-        return plan_source(geometry, config['source'])
-    # Fetch context for donors but retain the original polygon for the target
-    # grid and final AOI. Raw chunk signatures remain unchanged.
-    buffer_m = fill['max_distance_m'] + config['source']['resolution']
-    native = project(geometry, srs(28992))
+    # A cell whose centre is inside the AOI may extend outside it. Acquire
+    # its full footprint, then add target-grid interpolation context. Neither
+    # buffer changes the output grid, fill candidate polygon or final mask.
+    resampling_buffer = resolution(config.get('target', {})) / math.sqrt(2)
+    # A donor centre may lie up to the search radius beyond a candidate centre.
+    # Include the candidate-centre offset and the donor's full pixel footprint.
+    fill_context = fill['max_distance_m'] + resampling_buffer if fill['enabled'] else 0
+    target_context = project(geometry, srs(25832)).Buffer(resampling_buffer + fill_context)
+    target_context.AssignSpatialReference(srs(25832))
+    buffer_m = config['source']['resolution']
+    native = project(target_context, srs(28992))
     context = native.Buffer(buffer_m)
     context.AssignSpatialReference(srs(28992))
     result = plan_source(context, config['source'])
     result['context_buffer_m'] = buffer_m
+    result['resampling_context_m'] = resampling_buffer
+    result['fill_context_m'] = fill_context
     return result

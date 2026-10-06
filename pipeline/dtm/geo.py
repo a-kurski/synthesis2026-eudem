@@ -2,6 +2,7 @@
 import hashlib
 import json
 import math
+import logging
 from pathlib import Path
 
 import numpy as np
@@ -97,7 +98,7 @@ def verify_alignment(a, b, tolerance=1e-8):
     a, b = grid(a), grid(b)
     ca, cb = osr.SpatialReference(wkt=a['crs']), osr.SpatialReference(wkt=b['crs'])
     if not ca.IsSame(cb):
-        raise ValueError('Alignment failed: AHN and NRW CRS differ.')
+        raise ValueError('Alignment failed: raster CRS differ.')
     for key in ('cols', 'rows'):
         if a[key] != b[key]:
             raise ValueError(f'Alignment failed: {key} differs ({a[key]} vs {b[key]}).')
@@ -122,6 +123,29 @@ def valid_values(band, window):
     return values, valid
 
 
+def is_official_rlp(source):
+    return (source.get('type') == 'metalink'
+            and source.get('metalink_url') ==
+            'https://geobasis-rlp.de/data/dgm1/current/meta4/dgm1_tif_07.meta4'
+            and source.get('epsg') == 25832 and source.get('vertical_epsg') == 7837
+            and source.get('resolution') == 1)
+
+
+def rlp_nominal_bounds(info):
+    """Return the kilometre footprint, retaining the actual raster geotransform."""
+    shape = (info['cols'], info['rows'])
+    box = np.asarray(info['extent'], dtype=float)
+    if shape == (1001, 1001):
+        box = box + [.5, .5, -.5, -.5]
+    elif shape != (1000, 1000):
+        raise ValueError('RLP DGM1 requires 1000 x 1000 or 1001 x 1001 native pixels.')
+    if (not np.allclose([info['transform'][1], info['transform'][5]], [1, -1], rtol=0, atol=1e-8)
+            or not np.allclose(box / 1000, np.round(box / 1000), rtol=0, atol=1e-10)
+            or not np.allclose(box[2:] - box[:2], [1000, 1000], rtol=0, atol=1e-7)):
+        raise ValueError(f'Unexpected RLP kilometre lattice: {info}')
+    return box.tolist()
+
+
 def validate_tile(path, source, tile):
     # Explicit close even on validation errors, so Windows can remove a failed
     # partial download while the exception traceback is still alive.
@@ -130,14 +154,51 @@ def validate_tile(path, source, tile):
             raise ValueError(f'Expected a one-band elevation raster: {path}')
         if ds.GetRasterBand(1).DataType not in (gdal.GDT_Float32, gdal.GDT_Float64):
             raise ValueError(f'Expected floating-point elevations: {path}')
-        if not ds.GetSpatialRef() or not ds.GetSpatialRef().IsSame(srs(source['epsg'])):
+        crs = ds.GetSpatialRef()
+        if source.get('vertical_epsg'):
+            expected = str(source['vertical_epsg'])
+            actual = crs.GetAuthorityCode('VERT_CS') if crs else None
+
+            # RLP declares the height datum at dataset level.
+            # Some official TIFFs contain only the horizontal CRS.
+            rlp_horizontal_only = (
+                crs is not None
+                and crs.IsProjected()
+                and not crs.IsCompound()
+                and crs.GetAttrValue('VERT_CS') is None
+                and is_official_rlp(source)
+                and expected == '7837'
+            )
+
+            if actual != expected:
+                if not rlp_horizontal_only:
+                    raise ValueError(f'Wrong or missing source vertical CRS: {path}')
+                logging.getLogger('dtm').warning(
+                    'No embedded vertical CRS in %s; using the official '
+                    'RLP DGM1 dataset declaration: DHHN2016, EPSG:7837.',
+                    path,
+                )
+
+            crs = crs.Clone()
+            crs.StripVertical()
+        if not crs or not crs.IsSame(srs(source['epsg'])):
             raise ValueError(f'Wrong source CRS: {path}')
         info = grid(path)
         nominal = source['resolution']
+        comparison_extent = info['extent']
+        if is_official_rlp(source):
+            comparison_extent = rlp_nominal_bounds(info)
+        if source.get('type') == 'metalink':
+            allowed_nodata = (-9999,)
+            if is_official_rlp(source) and info['cols'] == 1001:
+                allowed_nodata = (-9999, -10000000000.0)
+            if (info['dtype'] != 'Float32' or info['nodata'] not in allowed_nodata
+                    or not np.allclose([info['transform'][1], -info['transform'][5]], nominal, rtol=0, atol=1e-8)):
+                raise ValueError(f'Unexpected native DGM1 metadata: {info}')
         if not np.allclose([info['transform'][1], -info['transform'][5]], nominal, rtol=0.01, atol=1e-8):
             raise ValueError(f'Unexpected source resolution: {info}')
         # Reject shifted/short responses: they would leave seams between chunks.
-        a, b = info['extent'], tile['bounds']
+        a, b = comparison_extent, tile['bounds']
         if not np.allclose(a, b, rtol=0, atol=1e-7):
             raise ValueError(f'Returned extent differs from requested tile: {a} vs {b}')
         valid_count = 0

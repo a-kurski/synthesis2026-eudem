@@ -10,9 +10,9 @@ def main():
     from osgeo import gdal
     from dtm.geo import windows, verify_alignment, read_aoi, project, srs
     root = Path(__file__).resolve().parents[1]
-    r = json.loads((root / 'data/prepared/netherlands/latest_run.json').read_text())
+    r = json.loads((root / 'logs/preparation/netherlands/latest_run.json').read_text())
     run = Path(r['ahn_stitched']).parent
-    out = run / 'analysis'
+    out = Path(r['processed_tiles']['directory']) / 'analysis'
     out.mkdir(exist_ok=True)
     logdir = Path(r['log_directory'])
     cfg = json.loads((logdir / 'config.json').read_text())
@@ -61,12 +61,15 @@ def main():
             a['netherlands_aoi_cells']+=int(inside.sum())
             a['netherlands_valid_after']+=int((inside&valid).sum())
             a['outside_netherlands_valid_after']+=int((~inside&valid).sum())
-    # Verify original native elevations remain exact after interpolation.
-    a['native_original_changes']=0
-    with gdal.Open(r['native_mosaic']) as orig, gdal.Open(r['hole_filling']['filled_native']) as filled:
+    # Audit the actual interpolation grid, including historical native runs.
+    filling = r['hole_filling']
+    change_key = 'target_original_changes' if filling.get('stage') == 'after_resampling' else 'native_original_changes'
+    a[change_key]=0
+    filled_path = filling.get('filled_raster') or filling['filled_native']
+    with gdal.Open(filling['source']) as orig, gdal.Open(filled_path) as filled:
         for w in windows(orig,1024):
             b,f=orig.ReadAsArray(*w),filled.ReadAsArray(*w)
-            a['native_original_changes']+=int(((b!=-9999)&(b!=f)).sum())
+            a[change_key]+=int(((b!=-9999)&(b!=f)).sum())
     (out/'audit.json').write_text(json.dumps(a,indent=2))
     print(json.dumps(a,indent=2),flush=True)
     import matplotlib

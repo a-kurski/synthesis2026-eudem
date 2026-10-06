@@ -1,5 +1,6 @@
-"""WCS acquisition with atomic, validated, checksummed source-tile caching."""
+"""WCS/direct TIFF acquisition with atomic, validated source-tile caching."""
 import hashlib
+from concurrent.futures import CancelledError
 import json
 import logging
 from pathlib import Path
@@ -9,6 +10,7 @@ import xml.etree.ElementTree as ET
 import requests
 
 from .geo import validate_tile
+from .paths import receipt_path, download_part
 
 LOG = logging.getLogger('dtm')
 
@@ -29,6 +31,8 @@ def write_json(path, value):
 
 
 def params(source, tile):
+    if source.get('type') == 'metalink':
+        return {key: tile[key] for key in ('url', 'size', 'sha256')}
     x0, y0, x1, y1 = tile['bounds']
     # Both deployed MapServer services use these subset limits as raster edges.
     # Verified with tiny live requests: centre-inset limits lose a pixel and
@@ -48,13 +52,16 @@ def exception_text(content):
     return '; '.join(f"{node.get('exceptionCode', node.get('code', ''))}: {' '.join(node.itertext()).strip()}" for node in exceptions) or 'Unexpected XML response'
 
 
-def cached(path, source, tile):
-    sidecar = path.with_suffix('.json')
+def cached(path, source, tile, config=None):
+    sidecar = receipt_path(path, config)
     if not path.exists() or not sidecar.exists():
         return False
     try:
         record = json.loads(sidecar.read_text(encoding='utf-8'))
-        if record['request'] != params(source, tile) or record['source'] != source or record['sha256'] != sha256(path):
+        digest = sha256(path)
+        if record['request'] != params(source, tile) or record['source'] != source or record['sha256'] != digest:
+            return False
+        if source.get('type') == 'metalink' and (digest != tile['sha256'] or path.stat().st_size != tile['size']):
             return False
         validate_tile(path, source, tile)
         return True
@@ -62,20 +69,26 @@ def cached(path, source, tile):
         return False
 
 
-def download_tile(session, source, tile, directory, config):
+def download_tile(session, source, tile, directory, config, *, request_gate=None, stop_event=None):
     path = directory / f"{tile['id']}.tif"
-    if cached(path, source, tile):
+    if config.get('reuse_cache', True) and cached(path, source, tile, config):
         LOG.info('Reusing validated source tile %s', path)
         return path
     # An unindexed valid tile can be recovered only with a matching acquisition
     # receipt; an arbitrary same-named TIFF must never be silently reused.
     request = params(source, tile)
-    prepared = requests.Request('GET', source['url'], params=request).prepare()
-    part = path.with_suffix('.tif.part')
+    direct = source.get('type') == 'metalink'
+    url, query = (tile['url'], None) if direct else (source['url'], request)
+    prepared = requests.Request('GET', url, params=query).prepare()
+    part = download_part(path, config)
     for attempt in range(1, config['download_attempts'] + 1):
+        if stop_event is not None and stop_event.is_set():
+            raise CancelledError('Download acquisition stopped.')
         try:
+            if request_gate is not None:
+                request_gate.wait(stop_event)
             LOG.info('HTTP GET attempt=%s %s', attempt, prepared.url)
-            with session.get(source['url'], params=request, stream=True, timeout=(30, config['timeout_seconds'])) as response:
+            with session.get(url, params=query, stream=True, timeout=(30, config['timeout_seconds'])) as response:
                 response.raise_for_status()
                 with part.open('wb') as stream:
                     for chunk in response.iter_content(1024 * 1024):
@@ -85,15 +98,21 @@ def download_tile(session, source, tile, directory, config):
                 if head.lstrip().startswith(b'<'):
                     # Never treat arbitrary server/XML failures as missing terrain.
                     raise ValueError(f'WCS service exception: {exception_text(head)}')
+                digest = sha256(part)
+                if direct and (part.stat().st_size != tile['size'] or digest != tile['sha256']):
+                    raise ValueError('Downloaded TIFF does not match Metalink size/SHA-256.')
                 info = validate_tile(part, source, tile)
                 record = {'source': source, 'request': request, 'url': response.url,
                           'downloaded_utc': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
                           'headers': {k: v for k, v in response.headers.items() if k.lower() in ('last-modified', 'etag', 'content-type')},
-                          'sha256': sha256(part), **info}
+                          'sha256': digest, **info}
             part.replace(path)
-            write_json(path.with_suffix('.json'), record)
+            receipt = receipt_path(path, config)
+            receipt.parent.mkdir(parents=True, exist_ok=True)
+            write_json(receipt, record)
             LOG.info('Downloaded %s: %s', path, json.dumps(info))
-            time.sleep(config['request_pause_seconds'])
+            if request_gate is None:
+                time.sleep(config['request_pause_seconds'])
             return path
         except (requests.RequestException, RuntimeError, ValueError, OSError) as exc:
             LOG.warning('Tile %s attempt %d failed: %s', tile['id'], attempt, exc)
@@ -101,7 +120,11 @@ def download_tile(session, source, tile, directory, config):
                 part.unlink()
             if attempt == config['download_attempts']:
                 raise RuntimeError(f'Failed to acquire {tile["id"]}: {exc}. Completed tiles are preserved.') from exc
-            time.sleep(min(2 ** attempt, 30))
+            delay = min(2 ** attempt, 30)
+            if stop_event is None:
+                time.sleep(delay)
+            elif stop_event.wait(delay):
+                raise CancelledError('Download acquisition stopped.') from exc
 
 
 def metadata(session, source, directory, name, config):

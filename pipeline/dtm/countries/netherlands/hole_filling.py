@@ -1,4 +1,4 @@
-"""Optional native-grid AHN interpolation, with fixed donors and provenance.
+"""Optional AHN interpolation on a metric grid, with fixed donors and provenance.
 
 FillNodata works on a disk-backed copy of the cleaned mosaic. Only estimates
 inside the original AOI are accepted; original valid elevations never change.
@@ -12,11 +12,13 @@ import numpy as np
 from osgeo import gdal
 
 from ...acquire import write_json
-from ...geo import grid, valid_values, verify_alignment, windows
+from ...geo import grid, valid_values, verify_alignment
 from ...process import aoi_mask, create_raster, OPTIONS
+from ...progress import blocks, gdal_progress
 
 DEFAULTS = {'enabled': True, 'method': 'gdal_idw', 'selection': 'all_aoi_nodata',
-            'max_distance_m': 20.0, 'smoothing_iterations': 0}
+            'max_distance_m': 100.0, 'smoothing_iterations': 0,
+            'nearest_fallback': True}
 NOTE = 'AHN heights remain NAP. Filled cells are terrain estimates, including over water; no vertical datum transformation.'
 
 
@@ -30,6 +32,8 @@ def settings(config):
     result = {**DEFAULTS, **supplied}
     if type(result['enabled']) is not bool:
         raise ValueError('hole_filling.enabled must be true or false.')
+    if type(result['nearest_fallback']) is not bool:
+        raise ValueError('hole_filling.nearest_fallback must be true or false.')
     if result['method'] != 'gdal_idw' or result['selection'] != 'all_aoi_nodata':
         raise ValueError('Supported filling: method=gdal_idw, selection=all_aoi_nodata.')
     distance = result['max_distance_m']
@@ -48,40 +52,89 @@ def byte_raster(path, reference):
     return ds
 
 
-def fill_holes(source, geometry, directory, config):
-    """Return paths/report for a NEW filled native raster; source stays read-only.
+def fill_remaining(src, candidate, donors, aoi, fill_mask, fractions, directory, config):
+    """Fill residual AOI gaps using GDAL nearest and original donors only.
 
-    All candidates are evaluated against the original donor mask in a single
-    GDAL call. Output merging/statistics are blockwise. The temporary GDAL files
+    A raster-diagonal search reaches every available donor. Disk-backed GDAL
+    work files and blockwise merging avoid loading the full raster into RAM.
+    This global search can be expensive for very large rasters.
+    """
+    path = directory / 'nearest_fallback.part.tif'
+    count = 0
+    previous_tmp = gdal.GetThreadLocalConfigOption('CPL_TMPDIR')
+    gdal.SetThreadLocalConfigOption('CPL_TMPDIR', str(directory.resolve()))
+    try:
+        with gdal.GetDriverByName('GTiff').CreateCopy(str(path), src, options=OPTIONS) as nearest:
+            with gdal_progress('AHN nearest fallback') as callback:
+                error = gdal.FillNodata(
+                    nearest.GetRasterBand(1), donors.GetRasterBand(1),
+                    math.ceil(math.hypot(src.RasterXSize, src.RasterYSize)), 0,
+                    options=['INTERPOLATION=NEAREST', 'TEMP_FILE_DRIVER=GTiff'], callback=callback)
+            if error != gdal.CE_None:
+                raise RuntimeError('GDAL nearest fallback failed.')
+            for window in blocks(src, config['block_size'], 'AHN merging nearest fallback'):
+                values, valid = valid_values(candidate.GetRasterBand(1), window)
+                inside = aoi.GetRasterBand(1).ReadAsArray(*window) != 0
+                wanted = inside & ~valid
+                if not wanted.any():
+                    continue
+                estimates, estimate_valid = valid_values(nearest.GetRasterBand(1), window)
+                if np.any(wanted & ~estimate_valid):
+                    raise RuntimeError('Nearest fallback left AOI holes despite available donors.')
+                values[wanted] = estimates[wanted]
+                candidate.GetRasterBand(1).WriteArray(values, window[0], window[1])
+                methods = fill_mask.GetRasterBand(1).ReadAsArray(*window)
+                methods[wanted] = 2
+                fill_mask.GetRasterBand(1).WriteArray(methods, window[0], window[1])
+                shares = fractions.GetRasterBand(1).ReadAsArray(*window)
+                shares[wanted] = 1
+                fractions.GetRasterBand(1).WriteArray(shares, window[0], window[1])
+                count += int(wanted.sum())
+    finally:
+        gdal.SetThreadLocalConfigOption('CPL_TMPDIR', previous_tmp)
+        path.unlink(missing_ok=True)
+    return count
+
+
+def fill_holes(source, geometry, directory, config):
+    """Return paths/report for a NEW filled raster; source stays read-only.
+
+    Both interpolation passes use the original donor mask, never filled cells.
+    Output merging/statistics are blockwise. The temporary GDAL files
     live beside the derivatives, not in an uncontrolled system temp directory.
     """
     options = settings(config)
+    if options['nearest_fallback'] and int(gdal.VersionInfo('VERSION_NUM')) < 3090000:
+        raise RuntimeError('Nearest fallback requires GDAL >= 3.9.')
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
     started = time.perf_counter()
     info = grid(source)
     pixel_size = info['transform'][1]
-    if not math.isclose(pixel_size, .5, abs_tol=1e-8, rel_tol=0) or not math.isclose(info['transform'][5], -.5, abs_tol=1e-8, rel_tol=0):
-        raise ValueError('Hole filling requires the native 0.5 m AHN grid.')
+    if pixel_size <= 0 or not math.isclose(info['transform'][5], -pixel_size, abs_tol=1e-8, rel_tol=0) or any(info['transform'][i] != 0 for i in (2, 4)):
+        raise ValueError('Hole filling requires a north-up grid with square pixels.')
     from ...geo import srs
     with gdal.Open(str(source)) as check:
-        if not check.GetSpatialRef().IsSame(srs(28992)):
-            raise ValueError('Hole filling requires EPSG:28992.')
+        epsg = next((code for code in (25832, 28992) if check.GetSpatialRef().IsSame(srs(code))), None)
+        if epsg is None:
+            raise ValueError('Hole filling requires EPSG:25832 or EPSG:28992.')
     search_pixels = options['max_distance_m'] / pixel_size
-    filled = directory / 'ahn_filled_native.tif'
-    temporary = directory / 'ahn_filled_native.part.tif'
+    filled = directory / 'ahn_filled.tif'
+    temporary = directory / 'ahn_filled.part.tif'
     donor_path = directory / 'original_valid_mask.tif'
-    aoi_path = directory / 'aoi_mask_native.tif'
-    fill_mask_path = directory / 'ahn_fill_mask_native.tif'
-    fraction_path = directory / 'ahn_fill_fraction_native.tif'
+    aoi_path = directory / 'aoi_mask.tif'
+    fill_mask_path = directory / 'ahn_fill_mask.tif'
+    fraction_path = directory / 'ahn_fill_fraction.tif'
     original_count = candidate_count = filled_count = aoi_count = 0
+    donor_count = nearest_count = 0
     with gdal.Open(str(source)) as src:
-        with aoi_mask(geometry, src, aoi_path, epsg=28992) as aoi:
+        with aoi_mask(geometry, src, aoi_path, epsg=epsg) as aoi:
             with byte_raster(donor_path, src) as donors:
                 with gdal.GetDriverByName('GTiff').CreateCopy(str(temporary), src, options=OPTIONS) as candidate:
                     candidate.GetRasterBand(1).SetNoDataValue(config['nodata'])
-                    for window in windows(src, config['block_size']):
+                    for window in blocks(src, config['block_size'], 'AHN preparing fill mask'):
                         values, valid = valid_values(src.GetRasterBand(1), window)
+                        donor_count += int(valid.sum())
                         donors.GetRasterBand(1).WriteArray(valid.astype('uint8'), window[0], window[1])
                         candidate.GetRasterBand(1).WriteArray(np.where(valid, values, config['nodata']).astype('float32'), window[0], window[1])
                     donors.FlushCache()
@@ -89,17 +142,20 @@ def fill_holes(source, geometry, directory, config):
                     previous_tmp = gdal.GetThreadLocalConfigOption('CPL_TMPDIR')
                     gdal.SetThreadLocalConfigOption('CPL_TMPDIR', str(directory.resolve()))
                     try:
-                        error = gdal.FillNodata(candidate.GetRasterBand(1), donors.GetRasterBand(1),
-                                                search_pixels, 0, options=['INTERPOLATION=INV_DIST', 'TEMP_FILE_DRIVER=GTiff'])
+                        with gdal_progress('AHN hole filling') as callback:
+                            error = gdal.FillNodata(candidate.GetRasterBand(1), donors.GetRasterBand(1),
+                                                    search_pixels, 0, options=['INTERPOLATION=INV_DIST', 'TEMP_FILE_DRIVER=GTiff'],
+                                                    callback=callback)
                         if error != gdal.CE_None:
                             raise RuntimeError('GDAL hole interpolation failed.')
                     finally:
                         gdal.SetThreadLocalConfigOption('CPL_TMPDIR', previous_tmp)
                     with byte_raster(fill_mask_path, src) as fill_mask:
+                        fill_mask.SetMetadataItem('DESCRIPTION', '0=not filled, 1=IDW fill, 2=nearest fallback; original AOI holes only')
                         with create_raster(fraction_path, src, config['nodata'], NOTE) as fractions:
                             fractions.GetRasterBand(1).SetUnitType('1')
-                            fractions.SetMetadataItem('DESCRIPTION', '0=original valid, 1=accepted fill, NoData=remaining invalid; average warp gives filled share of valid contribution')
-                            for window in windows(src, config['block_size']):
+                            fractions.SetMetadataItem('DESCRIPTION', '0=valid before filling, 1=accepted fill, NoData=remaining invalid; values refer to the filling grid')
+                            for window in blocks(src, config['block_size'], 'AHN merging filled terrain'):
                                 values, valid = valid_values(src.GetRasterBand(1), window)
                                 inside = aoi.GetRasterBand(1).ReadAsArray(*window) != 0
                                 estimates, estimate_valid = valid_values(candidate.GetRasterBand(1), window)
@@ -117,8 +173,12 @@ def fill_holes(source, geometry, directory, config):
                                 candidate_count += int(wanted.sum())
                                 filled_count += int(accepted.sum())
                                 aoi_count += int(inside.sum())
+                            if options['nearest_fallback'] and donor_count and filled_count < candidate_count:
+                                nearest_count = fill_remaining(src, candidate, donors, aoi, fill_mask,
+                                                               fractions, directory, config)
+                                filled_count += nearest_count
                     candidate.SetMetadataItem('VERTICAL_DATUM_NOTE', NOTE)
-                    candidate.SetMetadataItem('HOLE_FILLING', f'GDAL inverse distance; {options["max_distance_m"]} m; no smoothing; original AHN donors only')
+                    candidate.SetMetadataItem('HOLE_FILLING', f'GDAL inverse distance; {options["max_distance_m"]} m; nearest fallback={options["nearest_fallback"]}; no smoothing; original valid input-grid donors only')
     temporary.replace(filled)
     verify_alignment(source, filled, config['alignment_tolerance_m'])
     pixel_area = abs(info['transform'][1] * info['transform'][5])
@@ -126,6 +186,9 @@ def fill_holes(source, geometry, directory, config):
               'source': str(source), 'source_grid': info, 'max_search_pixels': search_pixels,
               'aoi_cell_count': aoi_count, 'original_valid_cell_count': original_count,
               'candidate_cell_count': candidate_count, 'filled_cell_count': filled_count,
+              'idw_filled_cell_count': filled_count - nearest_count,
+              'nearest_filled_cell_count': nearest_count, 'available_donor_cell_count': donor_count,
+              'complete_aoi_coverage': filled_count == candidate_count,
               'remaining_nodata_cell_count': candidate_count - filled_count,
               'valid_cell_count_after': original_count + filled_count,
               'candidate_area_m2': candidate_count * pixel_area,
@@ -134,8 +197,8 @@ def fill_holes(source, geometry, directory, config):
               'percent_candidates_filled': 100 * filled_count / candidate_count if candidate_count else 0.0,
               'elapsed_seconds': time.perf_counter() - started,
               'vertical_datum': 'NAP', 'note': NOTE,
-              'filled_native': str(filled), 'native_fill_mask': str(fill_mask_path),
-              'native_fill_fraction': str(fraction_path)}
+              'filled_raster': str(filled), 'fill_mask': str(fill_mask_path),
+              'fill_fraction_raster': str(fraction_path)}
     report_path = directory / 'hole_filling_report.json'
     report['report_path'] = str(report_path)
     write_json(report_path, report)

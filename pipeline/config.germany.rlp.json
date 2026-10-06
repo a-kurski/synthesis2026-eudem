@@ -1,0 +1,31 @@
+{
+  "country": "germany",
+  "region": "rlp",
+  "aoi": "country_masks/Germany_RheinlandPfalz.gpkg",
+  "layer": null,
+  "qgis_root": "C:/Program Files/QGIS 3.40.11",
+  "cache_root": "data",
+  "output_root": "data",
+  "logs_dir": "logs/preparation",
+  "reuse_cache": true,
+  "download_workers": 4,
+  "processed_tile_size_pixels": 1000,
+  "hole_filling": {
+    "enabled": false
+  },
+  "target": {
+    "epsg": 25832,
+    "resolution": 5,
+    "reference_raster": null
+  },
+  "source": {
+    "type": "metalink",
+    "metalink_url": "https://geobasis-rlp.de/data/dgm1/current/meta4/dgm1_tif_07.meta4",
+    "epsg": 25832,
+    "vertical_epsg": 7837,
+    "resolution": 1,
+    "chunk_size_m": 1000,
+    "vertical_datum": "DHHN2016/NHN"
+  },
+  "old_runs_root": "data/old_runs"
+}

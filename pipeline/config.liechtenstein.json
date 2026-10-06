@@ -1,0 +1,23 @@
+{
+  "country": "liechtenstein",
+  "aoi": "country_masks/Liechtenstein.gpkg",
+  "layer": null,
+  "qgis_root": "C:/Program Files/QGIS 3.40.11",
+  "cache_root": "data",
+  "output_root": "data",
+  "old_runs_root": "data/old_runs",
+  "logs_dir": "logs/preparation",
+  "reuse_cache": true,
+  "download_workers": 2,
+  "processed_tile_size_pixels": 1000,
+  "hole_filling": {"enabled": false},
+  "target": {"epsg": 25832, "resolution": 5, "reference_raster": null},
+  "source": {
+    "type": "stac",
+    "url": "https://data.geo.admin.ch/api/stac/v1/collections/ch.swisstopo.swissalti3d/items",
+    "epsg": 2056,
+    "resolution": 2,
+    "vertical_datum": "LN02",
+    "page_limit": 100
+  }
+}
