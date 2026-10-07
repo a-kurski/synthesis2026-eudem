@@ -85,6 +85,12 @@ def analyze_dem(dem_1, dem_2):
     rmse = np.sqrt(np.mean(values**2))
     mae = np.mean(np.abs(values))
 
+    # INSPIRE target
+    INSPIRE_target = 5/6
+
+    # [0-100] = good, [100-...] = bad
+    INSPIRE_perc = (rmse - INSPIRE_target)/INSPIRE_target * 100
+
     pd.DataFrame({
         "reference_dem": [dem_1.name],
         "comparison_dem": [dem_2.name],
@@ -92,11 +98,12 @@ def analyze_dem(dem_1, dem_2):
         "median": [median],
         "std": [std],
         "rmse": [rmse],
-        "mae": [mae]
+        "mae": [mae],
+        "INSPIRE_target%": [INSPIRE_perc]
         }).to_csv("dem_difference_statistics.csv", index=False)
 
     # Save difference raster
-    dh.save("dh.tif")
+    dh.save(f"dh_{dem_1.name}_{dem_2.name}.tif")
     
     return {
         "coreg": coreg,
@@ -108,3 +115,57 @@ def analyze_dem(dem_1, dem_2):
         "rmse": rmse,
         "mae": mae,
     }
+
+#mean offset map for visualization
+def std_analysis(dh):
+    dh_array = dh.data.filled(np.nan)
+    valid = np.isfinite(dh_array)
+    values = dh_array[valid]
+    mean = np.mean(values)
+
+    dh_std = dh - mean
+
+    dh_std.save(f"dh_std_{dh.name}.tif")
+
+#histogram
+def histogram_analysis(dh):
+    values = dh.data.filled(np.nan)
+    values = values[np.isfinite(values)]
+
+    plt.figure(figsize=(8,5))
+    plt.hist(values, bins=100)
+    plt.xlabel("Elevation difference (m)")
+    plt.ylabel("Count")
+    plt.title("DEM Difference Histogram")
+    plt.savefig(f"histogram_{dh.name}.png")
+    plt.close()
+
+#cumulative distribution
+def cdf_analysis(dh):
+    values = dh.data.filled(np.nan)
+    values = np.sort(values[np.isfinite(values)])
+
+    cdf = np.arange(len(values)) / len(values)
+
+    plt.figure(figsize=(8,5))
+    plt.plot(values, cdf)
+    plt.xlabel("Elevation difference (m)")
+    plt.ylabel("Cumulative probability")
+    plt.title("DEM Difference CDF")
+    plt.grid()
+    plt.savefig(f"cdf_{dh.name}.png")
+    plt.close()
+
+#aspect difference
+def aspect_difference_analysis(dem_1, dem_2):
+    asp1 = dem_1.aspect()
+    asp2 = dem_2.aspect()
+
+    asp_diff = asp1 - asp2
+
+    asp_diff.save(
+        f"aspect_difference_{dem_1.name}_{dem_2.name}.tif"
+    )
+
+    asp_diff.plot(cmap="RdBu")
+
