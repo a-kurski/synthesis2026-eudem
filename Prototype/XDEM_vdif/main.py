@@ -1,35 +1,33 @@
-import os
 import glob
-import xdem
-import numpy as np
-import shapely
-import matplotlib.pyplot as plt
-import geoutils as gu
+import os
+
 import geopandas as gpd
+import geoutils as gu
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import rasterio
+import shapely
+import xdem
 from affine import Affine
 from pyproj import CRS, Transformer
-from shapely.geometry import box
+from rasterio.features import shapes
+from shapely.geometry import box, shape
 
-#change to json files
-# Source vertical CRS (fill these in later)
 source_vcrs = {
-    "NRW": CRS.from_epsg(7837), #https://www.bezreg-koeln.nrw.de/geobasis-nrw/produkte-und-dienste/hoehenmodelle/digitale-gelaendemodelle/digitales-gelaendemodell
-    "NiSa": CRS.from_epsg(7837), #https://ni-lgln-opengeodata.hub.arcgis.com/pages/digitales-gel-ndemodell-dgm1
-    "RhPf": CRS.from_epsg(7837),#https://geoshop.rlp.de/digitale_gelaendemodelle/digitale_gelaendemodelle_dgm.html
-    "Saar": CRS.from_epsg(7837), #https://www.shop.lvgl.saarland.de/index.php?option=com_virtuemart&view=category&virtuemart_category_id=1060&Itemid=475
-    "BaWu": CRS.from_epsg(7837), #
-    "Hessen": CRS.from_epsg(7837), #
-    "Bay": CRS.from_epsg(7837), #
+    "NRW": CRS.from_epsg(7837),
+    "NiSa": CRS.from_epsg(7837),
+    "RhPf": CRS.from_epsg(7837),
+    "Saar": CRS.from_epsg(7837),
+    "BaWu": CRS.from_epsg(7837),
+    "Hessen": CRS.from_epsg(7837),
+    "Bay": CRS.from_epsg(7837),
     "France": CRS.from_epsg(5720),
     "Luxembourg": CRS.from_epsg(5774),
     "Netherlands": CRS.from_epsg(5709),
     "Switzerland": CRS.from_epsg(5728),
 }
 
-# IMPORTANT: the target values must be vertical CRS objects, not projected horizontal CRS
-# like EPSG:5129. For the pilot workflow we keep the target vertical datum aligned with
-# each country's source vertical datum to avoid invalid transforms and SSL/grid download issues.
 target_vcrs = {country: source_vcrs[country] for country in source_vcrs}
 
 RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")
@@ -41,47 +39,22 @@ def result_path(filename):
 
 
 def load_file(file_path):
-    dtm = xdem.DEM(file_path)
-    name = os.path.splitext(os.path.basename(file_path))[0]
-    return dtm, name
+    return xdem.DEM(file_path), os.path.splitext(os.path.basename(file_path))[0]
 
 
 def infer_country_name(file_name_or_path):
     text = os.path.basename(str(file_name_or_path)).upper()
-    for country in source_vcrs:
-        if country.upper() in text:
-            return country
-    for country in target_vcrs:
-        if country.upper() in text:
-            return country
-    return None
+    return next((country for country in source_vcrs if country.upper() in text), None)
 
 
 def safe_name(obj, fallback="dem"):
-    raw_name = getattr(obj, "name", None)
-    if raw_name is None:
-        return fallback
-    base_name = os.path.basename(str(raw_name))
-    if not base_name:
-        return fallback
-    return os.path.splitext(base_name)[0]
+    return os.path.splitext(os.path.basename(str(getattr(obj, "name", None) or fallback)))[0]
 
 
 def transform_dem_to_target_vcrs(dem, country_name, source_vcrs, target_vcrs):
-    if country_name not in target_vcrs:
-        raise ValueError(f"Target vertical CRS for {country_name} not found.")
-
-    source_vcr = source_vcrs[country_name]
-    target_vcr = target_vcrs[country_name]
-
-    if source_vcr == target_vcr:
+    if source_vcrs[country_name] == target_vcrs[country_name]:
         return dem
-
-    transformed = dem.to_vcrs(
-        target_vcr,
-        force_source_vcrs=source_vcr
-    )
-    return transformed if transformed is not None else dem
+    return dem.to_vcrs(target_vcrs[country_name], force_source_vcrs=source_vcrs[country_name])
 
 
 def save_dem(dem, country_name):
@@ -89,125 +62,88 @@ def save_dem(dem, country_name):
 
 
 def save_raster(raster, filename):
-    if hasattr(raster, "to_file"):
-        raster.to_file(filename)
-    else:
-        raster.save(filename)
+    raster.to_file(filename)
 
 
 def save_vector(vector, filename):
-    if hasattr(vector, "to_file"):
-        vector.to_file(filename)
-    else:
-        vector.save(filename)
+    vector.to_file(filename)
 
 
-def safe_nanmean(values):
-    values = np.asarray(values)
-    if values.size == 0 or not np.isfinite(values).any():
-        return np.nan
+def nanmean(values):
     return np.nanmean(values)
 
 
-def safe_nanrmse(values):
-    values = np.asarray(values)
-    if values.size == 0 or not np.isfinite(values).any():
-        return np.nan
-    return np.sqrt(np.nanmean(values**2))
+def nanrmse(values):
+    return np.sqrt(np.nanmean(np.asarray(values) ** 2))
 
 
 def analyze_dem(dem_1, dem_2):
-    # Ensure both rasters share the same grid before coregistration or arithmetic.
-    # This is especially important for partially overlapping pilot datasets.
-    if dem_1.shape != dem_2.shape or dem_1.transform != dem_2.transform:
-        dem_2 = dem_2.reproject(dem_1)
-
-    # Coregistration
-    coreg = (
-        xdem.coreg.NuthKaab()
-        + xdem.coreg.Deramp(poly_order=2)
-    )
-
+    dem_2 = dem_2.reproject(dem_1)
+    coreg = xdem.coreg.NuthKaab() + xdem.coreg.Deramp(poly_order=2)
     coreg.fit(dem_1, dem_2)
     dem_2_aligned = coreg.apply(dem_2)
-
-    # Elevation differences
     dh = dem_1 - dem_2_aligned
-
-    # Convert to NumPy array and remove nodata
-    dh_array = dh.data.filled(np.nan)
-    valid = np.isfinite(dh_array)
-
-    values = dh_array[valid]
-
-    # Statistics
-    if values.size == 0:
-        mean = median = std = rmse = mae = np.nan
-    else:
-        mean = np.mean(values)
-        median = np.median(values)
-        std = np.std(values)
-        rmse = np.sqrt(np.mean(values**2))
-        mae = np.mean(np.abs(values))
-        min = np.min(values)
-        max = np.max(values)
-
-    # INSPIRE target
-    INSPIRE_target = 5/3
-
-    # [0-100] = good, [100-...] = bad
-    if np.isnan(rmse):
-        INSPIRE_perc = np.nan
-    else:
-        INSPIRE_perc = (rmse)/INSPIRE_target * 100
-
-    pd.DataFrame({
-        "reference_dem": [safe_name(dem_1)],
-        "comparison_dem": [safe_name(dem_2)],
-        "mean": [mean],
-        "median": [median],
-        "std": [std],
-        "rmse": [rmse],
-        "mae": [mae],
-        "min": [min],
-        "max": [max],
-        "INSPIRE_target%": [INSPIRE_perc]
-        }).to_csv(result_path("dem_difference_statistics.csv"), index=False)
-
-    # Save difference raster
-    save_raster(
-        dh,
-        result_path(f"dh_{safe_name(dem_1)}_{safe_name(dem_2)}.tif"),
-    )
-    
-    return {
-        "coreg": coreg,
-        "aligned_dem": dem_2_aligned,
-        "dh": dh,
-        "mean": mean,
-        "median": median,
-        "std": std,
-        "rmse": rmse,
-        "mae": mae,
-    }
-
-#mean offset map for visualization
-def std_analysis(dh):
-    dh_array = dh.data.filled(np.nan)
-    valid = np.isfinite(dh_array)
-    values = dh_array[valid]
-    mean = safe_nanmean(values)
-
-    dh_std = dh - mean
-
-    save_raster(dh_std, result_path(f"dh_std_{safe_name(dh)}.tif"))
-
-#histogram
-def histogram_analysis(dh):
     values = dh.data.filled(np.nan)
-    values = values[np.isfinite(values)]
+    valid_values = values[np.isfinite(values)]
+    rmse = np.sqrt(np.mean(valid_values**2))
+    stats = {
+        "reference_dem": safe_name(dem_1),
+        "comparison_dem": safe_name(dem_2),
+        "mean": np.mean(valid_values),
+        "median": np.median(valid_values),
+        "std": np.std(valid_values),
+        "rmse": rmse,
+        "mae": np.mean(np.abs(valid_values)),
+        "min": np.min(valid_values),
+        "max": np.max(valid_values),
+        "INSPIRE_target%": rmse / (5 / 3) * 100,
+    }
+    pd.DataFrame([stats]).to_csv(result_path("dem_difference_statistics.csv"), index=False)
+    save_raster(dh, result_path(f"dh_{safe_name(dem_1)}_{safe_name(dem_2)}.tif"))
+    return {"coreg": coreg, "aligned_dem": dem_2_aligned, "dh": dh, **{key: stats[key] for key in ("mean", "median", "std", "rmse", "mae")}}
 
-    plt.figure(figsize=(8,5))
+
+def local_inspire_rmse_analysis(dh, tile_size_m=100):
+    data = dh.data.filled(np.nan)
+    crs = CRS.from_user_input(dh.crs)
+    unit_to_meters = crs.axis_info[0].unit_conversion_factor
+    pixel_x, pixel_y = abs(dh.transform.a) * unit_to_meters, abs(dh.transform.e) * unit_to_meters
+    resolution = np.sqrt(pixel_x * pixel_y)
+    tile_rows, tile_cols = (max(1, round(tile_size_m / pixel_y)), max(1, round(tile_size_m / pixel_x)))
+    rmse_raster = np.full(data.shape, np.nan, dtype=np.float32)
+
+    for row in range(0, dh.height, tile_rows):
+        for col in range(0, dh.width, tile_cols):
+            row_end, col_end = min(row + tile_rows, dh.height), min(col + tile_cols, dh.width)
+            tile = data[row:row_end, col:col_end]
+            valid = np.isfinite(tile)
+            values = tile[valid]
+            if not values.size:
+                continue
+            rmse_raster[row:row_end, col:col_end][valid] = np.sqrt(np.mean(values**2))
+
+    name = safe_name(dh)
+    output_path = result_path(f"local_inspire_rmse_{name}.tif")
+    rmse_dem = dh.copy(new_array=rmse_raster)
+    save_raster(rmse_dem, output_path)
+    with rasterio.open(output_path, "r+") as output:
+        output.update_tags(
+            metric="Local RMSE of elevation differences",
+            tile_size_m=str(tile_size_m),
+            pixel_resolution_m=str(resolution),
+            inspire_rmse_threshold_m=str(resolution / 3),
+            pass_condition="RMSE <= inspire_rmse_threshold_m",
+        )
+    return rmse_dem
+
+
+def std_analysis(dh):
+    save_raster(dh - nanmean(dh.data.filled(np.nan)), result_path(f"dh_std_{safe_name(dh)}.tif"))
+
+
+def histogram_analysis(dh):
+    values = dh.data.compressed()
+    plt.figure(figsize=(8, 5))
     plt.hist(values, bins=100)
     plt.xlabel("Elevation difference (m)")
     plt.ylabel("Count")
@@ -215,15 +151,11 @@ def histogram_analysis(dh):
     plt.savefig(result_path(f"histogram_{safe_name(dh)}.png"))
     plt.close()
 
-#cumulative distribution
+
 def cdf_analysis(dh):
-    values = dh.data.filled(np.nan)
-    values = np.sort(values[np.isfinite(values)])
-
-    cdf = np.arange(len(values)) / len(values)
-
-    plt.figure(figsize=(8,5))
-    plt.plot(values, cdf)
+    values = np.sort(dh.data.compressed())
+    plt.figure(figsize=(8, 5))
+    plt.plot(values, np.arange(len(values)) / len(values))
     plt.xlabel("Elevation difference (m)")
     plt.ylabel("Cumulative probability")
     plt.title("DEM Difference CDF")
@@ -231,148 +163,48 @@ def cdf_analysis(dh):
     plt.savefig(result_path(f"cdf_{safe_name(dh)}.png"))
     plt.close()
 
-#aspect difference
 def aspect_difference_analysis(dem_1, dem_2):
-    dem_2_on_dem_1 = dem_2.reproject(dem_1)
+    difference = dem_1.aspect() - dem_2.reproject(dem_1).aspect()
+    save_raster(difference, result_path(f"aspect_difference_{safe_name(dem_1)}_{safe_name(dem_2)}.tif"))
+    difference.plot(cmap="RdBu")
 
-    asp1 = dem_1.aspect()
-    asp2 = dem_2_on_dem_1.aspect()
 
-    asp_diff = asp1 - asp2
-
-    save_raster(
-        asp_diff,
-        result_path(
-            f"aspect_difference_{safe_name(dem_1)}_{safe_name(dem_2)}.tif"
-        ),
-    )
-
-    asp_diff.plot(cmap="RdBu")
-
-#relation slope and error
 def slope_error_analysis(dem_1, dh):
-    slope = dem_1.slope()
-
-    slopes = slope.data.filled(np.nan)
-    diffs = dh.data.filled(np.nan)
-
+    slopes, differences = dem_1.slope().data.filled(np.nan), dh.data.filled(np.nan)
     bins = np.arange(0, 55, 5)
-
-    rmses = []
-
-    for i in range(len(bins)-1):
-        mask = (
-            (slopes >= bins[i]) &
-            (slopes < bins[i+1])
-        )
-
-        vals = diffs[mask]
-        rmses.append(safe_nanrmse(vals))
-
-    plt.figure(figsize=(8,5))
-    plt.plot(bins[:-1],rmses, marker="o")
+    rmses = [nanrmse(differences[(slopes >= lo) & (slopes < hi)]) for lo, hi in zip(bins[:-1], bins[1:])]
+    plt.figure(figsize=(8, 5))
+    plt.plot(bins[:-1], rmses, marker="o")
     plt.xlabel("Slope (deg)")
     plt.ylabel("RMSE (m)")
     plt.title("RMSE versus Slope")
     plt.savefig(result_path(f"slope_rmse_{safe_name(dh)}.png"))
     plt.close()
 
-#analysis of errors in relation to border distance
 def border_strip_analysis(dh, border_vector):
     strips = [0, 50, 100, 250, 500, 1000]
-    max_distance = strips[-1]
     z = dh.data.filled(np.nan)
-
-    if not border_vector.crs.is_projected:
-        raise ValueError("Border vector must use a projected CRS for meter-based distances.")
-
     unit_to_meters = border_vector.crs.axis_info[0].unit_conversion_factor
-    if not unit_to_meters:
-        raise ValueError("Could not determine border-vector CRS units.")
-
-    bounds_transformer = Transformer.from_crs(
-        dh.crs,
-        border_vector.crs,
-        always_xy=True,
+    max_distance = strips[-1] / unit_to_meters
+    bounds = Transformer.from_crs(dh.crs, border_vector.crs, always_xy=True).transform_bounds(*dh.bounds, densify_pts=21)
+    search_area = box(bounds[0] - max_distance, bounds[1] - max_distance, bounds[2] + max_distance, bounds[3] + max_distance)
+    nearby = border_vector.ds.loc[border_vector.ds.geometry.intersects(search_area)].copy()
+    nearby.geometry = nearby.geometry.intersection(search_area)
+    nearby = nearby.loc[~nearby.geometry.is_empty]
+    local_borders = gu.Vector(nearby).reproject(crs=dh.crs)
+    pad_columns = int(np.ceil(strips[-1] / abs(dh.transform.a)))
+    pad_rows = int(np.ceil(strips[-1] / abs(dh.transform.e)))
+    proximity_grid = gu.Raster.from_array(
+        np.zeros((dh.height + 2 * pad_rows, dh.width + 2 * pad_columns), dtype=np.uint8),
+        transform=dh.transform * Affine.translation(-pad_columns, -pad_rows),
+        crs=dh.crs,
     )
-    vector_bounds = bounds_transformer.transform_bounds(
-        *dh.bounds,
-        densify_pts=21,
-    )
-    margin = max_distance / unit_to_meters
-    search_area = box(
-        vector_bounds[0] - margin,
-        vector_bounds[1] - margin,
-        vector_bounds[2] + margin,
-        vector_bounds[3] + margin,
-    )
-
-    nearby = border_vector.ds.loc[
-        border_vector.ds.geometry.intersects(search_area)
-    ].copy()
-    if nearby.empty:
-        distances = np.full(dh.shape, np.nan)
-        print(
-            f"No border lines within {max_distance} m of the DEM footprint; "
-            "border-strip statistics will be empty."
-        )
-    else:
-        nearby.geometry = nearby.geometry.intersection(search_area)
-        nearby = nearby.loc[~nearby.geometry.is_empty]
-        local_borders = gu.Vector(nearby).reproject(crs=dh.crs)
-
-        pixel_width = abs(dh.transform.a)
-        pixel_height = abs(dh.transform.e)
-        pad_columns = int(np.ceil(max_distance / pixel_width))
-        pad_rows = int(np.ceil(max_distance / pixel_height))
-        padded_transform = dh.transform * Affine.translation(
-            -pad_columns,
-            -pad_rows,
-        )
-        proximity_grid = gu.Raster.from_array(
-            np.zeros(
-                (
-                    dh.height + 2 * pad_rows,
-                    dh.width + 2 * pad_columns,
-                ),
-                dtype=np.uint8,
-            ),
-            transform=padded_transform,
-            crs=dh.crs,
-        )
-        dist = proximity_grid.proximity(
-            local_borders,
-            geometry_type="geometry",
-            distance_unit="georeferenced",
-        ).crop(dh)
-        distances = dist.data.filled(np.nan)
-
-    results = []
-    for i in range(len(strips) - 1):
-        mask = (
-            (distances >= strips[i])
-            & (distances < strips[i + 1])
-            & np.isfinite(z)
-        )
-        vals = z[mask]
-
-        results.append(
-            [
-                strips[i],
-                strips[i + 1],
-                safe_nanmean(vals),
-                safe_nanrmse(vals),
-            ]
-        )
-
-    df = pd.DataFrame(
-        results,
-        columns=["min_dist", "max_dist", "mean", "rmse"],
-    )
-    df.to_csv(
-        result_path(f"border_strips_{safe_name(dh)}.csv"),
-        index=False,
-    )
+    distances = proximity_grid.proximity(local_borders, geometry_type="geometry").crop(dh).data.filled(np.nan)
+    rows = [[lo, hi, nanmean(z[(distances >= lo) & (distances < hi) & np.isfinite(z)]),
+             nanrmse(z[(distances >= lo) & (distances < hi) & np.isfinite(z)])]
+            for lo, hi in zip(strips[:-1], strips[1:])]
+    df = pd.DataFrame(rows, columns=["min_dist", "max_dist", "mean", "rmse"])
+    df.to_csv(result_path(f"border_strips_{safe_name(dh)}.csv"), index=False)
     return df
 
 
@@ -381,308 +213,119 @@ def find_border_vector(data_dir):
     preferred_path = os.path.join(data_dir, preferred_name)
     if os.path.isfile(preferred_path):
         return preferred_path
-
-    candidates = []
-    for pattern in ("*.gpkg", "*.shp", "*.geojson", "*.json"):
-        candidates.extend(glob.glob(os.path.join(data_dir, pattern)))
-    candidates = sorted(set(candidates))
-
-    if len(candidates) > 1:
-        raise ValueError(
-            "More than one border vector was found; expected "
-            f"{preferred_name} or a single vector file in {data_dir}."
-        )
+    candidates = sorted({path for pattern in ("*.gpkg", "*.shp", "*.geojson", "*.json")
+                         for path in glob.glob(os.path.join(data_dir, pattern))})
     return candidates[0] if candidates else None
 
 
 def load_border_vector(vector_path):
-    if vector_path.lower().endswith(".shp"):
-        previous_restore_setting = os.environ.get("SHAPE_RESTORE_SHX")
-        os.environ["SHAPE_RESTORE_SHX"] = "YES"
-        try:
-            border_vector = gu.Vector(vector_path)
-        finally:
-            if previous_restore_setting is None:
-                os.environ.pop("SHAPE_RESTORE_SHX", None)
-            else:
-                os.environ["SHAPE_RESTORE_SHX"] = previous_restore_setting
-    else:
+    with rasterio.Env(SHAPE_RESTORE_SHX="YES"):
         border_vector = gu.Vector(vector_path)
-
-    if border_vector.crs is None:
-        if "_3035" not in os.path.basename(vector_path):
-            raise ValueError(
-                f"Border vector has no CRS metadata: {vector_path}"
-            )
-        border_vector.ds = border_vector.ds.set_crs(CRS.from_epsg(3035))
-        print(
-            "Border vector has no CRS metadata; using EPSG:3035 "
-            "as indicated by its filename."
-        )
-
-    geometry_types = set(border_vector.ds.geometry.geom_type.dropna())
-    if not geometry_types or not geometry_types.issubset(
-        {"LineString", "MultiLineString"}
-    ):
-        raise ValueError(
-            "Border vector must contain line geometries; found "
-            f"{sorted(geometry_types)}."
-        )
+    border_vector.ds = border_vector.ds.set_crs(border_vector.crs or CRS.from_epsg(3035))
     return border_vector
 
 
 def border_trend_plot(csv_file):
-
     df = pd.read_csv(csv_file)
-
-    plt.figure(figsize=(8,5))
-
-    plt.plot(
-        df["max_dist"],
-        df["rmse"],
-        marker="o"
-    )
-
+    plt.figure(figsize=(8, 5))
+    plt.plot(df["max_dist"], df["rmse"], marker="o")
     plt.xlabel("Distance from border (m)")
     plt.ylabel("RMSE (m)")
     plt.title("Border Effect")
 
     plt.grid()
 
-    plt.savefig(
-        result_path("border_effect.png"),
-        dpi=300
-    )
-
+    plt.savefig(result_path("border_effect.png"), dpi=300)
     plt.close()
 
 
 def top_problem_regions(
     dh,
     threshold=0.5,
-    min_area=400,
-    merge_distance=10,
+    min_area=100,
+    merge_distance=20,
 ):
-    if threshold < 0:
-        raise ValueError("threshold must be non-negative.")
-    if min_area < 0:
-        raise ValueError("min_area must be non-negative.")
-    if merge_distance < 0:
-        raise ValueError("merge_distance must be non-negative.")
-
     dh_array = dh.data.filled(np.nan)
     mask = (np.abs(dh_array) > threshold).astype(np.uint8)
     exceedance_count = int(np.count_nonzero(mask))
-
-    if exceedance_count == 0:
-        empty_regions = gu.Vector(
-            gpd.GeoDataFrame(
-                {
-                    "area_m2": pd.Series(dtype=float),
-                    "severity": pd.Series(dtype=float),
-                    "rank": pd.Series(dtype=int),
-                },
-                geometry=gpd.GeoSeries([], crs=dh.crs),
-                crs=dh.crs,
-            )
+    geometries = [
+        shape(geometry)
+        for geometry, _ in shapes(
+            mask,
+            mask=mask.astype(bool),
+            transform=dh.transform,
         )
-        save_vector(
-            empty_regions,
-            result_path("problem_regions.gpkg")
-        )
-        print(
-            f"Problem regions: no cells exceed |difference| > {threshold} m; "
-            "exported an empty problem_regions.gpkg."
-        )
-        return empty_regions
-
-    outliers = dh.copy(
-        new_array=mask
-    )
-
-    regions = outliers.polygonize(
-        target_values=1
-    )
-    candidate_count = len(regions.ds)
-
+    ]
+    candidate_count = len(geometries)
     dem_crs = CRS.from_user_input(dh.crs)
-    if not dem_crs.is_projected:
-        raise ValueError("Problem-region areas and merge distances require a projected DEM CRS.")
-
     unit_to_meters = dem_crs.axis_info[0].unit_conversion_factor
-    if not unit_to_meters:
-        raise ValueError("Could not determine DEM CRS units for problem-region analysis.")
-
-    original_geometries = list(regions.ds.geometry)
     merge_radius = merge_distance / unit_to_meters / 2
-    buffered_geometries = shapely.buffer(
-        original_geometries,
-        merge_radius,
-    )
-    buffered_regions = gpd.GeoSeries(
-        buffered_geometries,
-        crs=dem_crs,
-    )
+    buffered_geometries = shapely.buffer(geometries, merge_radius)
+    buffered_regions = gpd.GeoSeries(buffered_geometries, crs=dem_crs)
     merge_zones = shapely.get_parts(shapely.union_all(buffered_geometries))
     spatial_index = buffered_regions.sindex
-
     merged_records = []
+
     for merged_geometry in merge_zones:
-        member_indices = spatial_index.query(
-            merged_geometry,
-            predicate="intersects",
-        )
-        original_area_m2 = sum(
-            shapely.area(original_geometries[index])
-            for index in member_indices
-        ) * unit_to_meters**2
+        members = spatial_index.query(merged_geometry, predicate="intersects")
+        area_m2 = sum(shapely.area(geometries[index]) for index in members) * unit_to_meters**2
+        if area_m2 >= min_area:
+            merged_records.append({"area_m2": area_m2, "geometry": merged_geometry})
 
-        if original_area_m2 >= min_area:
-            merged_records.append(
-                {
-                    "area_m2": original_area_m2,
-                    "geometry": merged_geometry,
-                }
-            )
-
-    merged_regions = gpd.GeoDataFrame(
+    regions = gpd.GeoDataFrame(
         merged_records,
+        columns=["area_m2", "geometry"],
         geometry="geometry",
         crs=dem_crs,
-        columns=["area_m2", "geometry"],
     )
-    merged_regions["severity"] = merged_regions["area_m2"] / 1000
-    merged_regions = (
-        merged_regions.sort_values("severity", ascending=False)
-        .reset_index(drop=True)
-    )
-    merged_regions["rank"] = merged_regions.index + 1
-    regions = gu.Vector(merged_regions)
-
-    save_vector(
-        regions,
-        result_path("problem_regions.gpkg")
-    )
-
-    retained_count = len(regions.ds)
-    print(
-        f"Problem regions: {exceedance_count} cells exceed "
-        f"|difference| > {threshold} m; {candidate_count} initial regions "
-        f"merged using a {merge_distance} m distance, {retained_count} "
-        f"merged regions have at least {min_area} m² of exceedance area. "
-        "Exported problem_regions.gpkg."
-    )
-
+    regions["severity"] = regions["area_m2"] / 1000
+    regions = regions.sort_values("severity", ascending=False).reset_index(drop=True)
+    regions["rank"] = regions.index + 1
+    regions = gu.Vector(regions)
+    save_vector(regions, result_path("problem_regions.gpkg"))
+    print(f"Problem regions: {exceedance_count} cells exceed {threshold} m; {candidate_count} initial regions merged, {len(regions.ds)} retained above {min_area} m².")
     return regions
 
 
 def find_test_dem_pair(data_dir=None):
-    if data_dir is None:
-        data_dir = os.path.join(os.path.dirname(__file__), "data")
-
-    tif_files = []
-    for pattern in ("*.tif", "*.tiff", "*.TIF", "*.TIFF"):
-        tif_files.extend(glob.glob(os.path.join(data_dir, pattern)))
-
-    tif_files = sorted(set(tif_files))
-    full_region_files = [
+    data_dir = data_dir or os.path.join(os.path.dirname(__file__), "data")
+    files = sorted({
         path
-        for path in tif_files
-        if not os.path.splitext(os.path.basename(path))[0]
-        .lower()
-        .endswith("_dep")
-    ]
-    country_files = [
-        (path, infer_country_name(path))
-        for path in full_region_files
-    ]
-    country_files = [
-        (path, country)
-        for path, country in country_files
-        if country is not None
-    ]
-
-    distinct_country_pairs = [
-        (path_a, path_b)
-        for index, (path_a, country_a) in enumerate(country_files)
-        for path_b, country_b in country_files[index + 1:]
-        if country_a != country_b
-    ]
-    if distinct_country_pairs:
-        return min(
-            distinct_country_pairs,
-            key=lambda pair: sum(os.path.getsize(path) for path in pair),
-        )
-
-    if len(full_region_files) < 2:
-        raise FileNotFoundError(
-            "Expected at least two full-region DEM files in "
-            f"{data_dir}; files ending in '_dep' are excluded."
-        )
-    raise ValueError(
-        "Could not find full-region DEMs from two different recognized "
-        f"countries in {data_dir}; files ending in '_dep' are excluded."
-    )
+        for pattern in ("*.tif", "*.tiff", "*.TIF", "*.TIFF")
+        for path in glob.glob(os.path.join(data_dir, pattern))
+        if not os.path.splitext(os.path.basename(path))[0].lower().endswith("_dep")
+    })
+    country_files = [(path, infer_country_name(path)) for path in files]
+    pairs = [(a, b) for i, (a, ca) in enumerate(country_files)
+             for b, cb in country_files[i + 1:] if ca and cb and ca != cb]
+    if not pairs:
+        raise FileNotFoundError(f"Need full-region DEMs for two recognized countries in {data_dir}.")
+    return min(pairs, key=lambda pair: sum(os.path.getsize(path) for path in pair))
 
 
 def run_all_analyses(data_dir=None):
-    """Run the full DEM analysis workflow on full-region DEMs."""
     dem_paths = find_test_dem_pair(data_dir)
-
-    dem_1, dem_1_name = load_file(dem_paths[0])
-    dem_2, dem_2_name = load_file(dem_paths[1])
-
-    country_1 = infer_country_name(dem_1_name)
-    country_2 = infer_country_name(dem_2_name)
-
-    if country_1 is None:
-        raise ValueError(f"Could not infer country from DEM name: {dem_1_name}")
-    if country_2 is None:
-        raise ValueError(f"Could not infer country from DEM name: {dem_2_name}")
-    if country_1 == country_2:
-        raise ValueError(
-            f"Pilot DEM pair must cover different countries, but both selected "
-            f"files match {country_1}: {dem_1_name} and {dem_2_name}."
-        )
-
+    dem_1, name_1 = load_file(dem_paths[0])
+    dem_2, name_2 = load_file(dem_paths[1])
+    country_1, country_2 = infer_country_name(name_1), infer_country_name(name_2)
     dem_1 = transform_dem_to_target_vcrs(dem_1, country_1, source_vcrs, target_vcrs)
     dem_2 = transform_dem_to_target_vcrs(dem_2, country_2, source_vcrs, target_vcrs)
-
     save_dem(dem_1, country_1)
     save_dem(dem_2, country_2)
-
-    print(f"Running pilot overlap analysis on: {country_1} and {country_2}")
-
+    print(f"Running analysis on: {country_1} and {country_2}")
     analysis = analyze_dem(dem_1, dem_2)
     dh = analysis["dh"]
-
-    std_analysis(dh)
-    histogram_analysis(dh)
-    cdf_analysis(dh)
+    std_analysis(dh), histogram_analysis(dh), cdf_analysis(dh)
     aspect_difference_analysis(dem_1, dem_2)
     slope_error_analysis(dem_1, dh)
-
+    local_rmse = local_inspire_rmse_analysis(dh)
     regions = top_problem_regions(dh)
-
-    border_vector_dir = data_dir if data_dir is not None else os.path.join(os.path.dirname(__file__), "data")
-    border_vector_path = find_border_vector(border_vector_dir)
-    if border_vector_path:
-        print(f"Using European border vector: {os.path.basename(border_vector_path)}")
-        border_vector = load_border_vector(border_vector_path)
-        border_strip_analysis(dh, border_vector)
-        border_trend_plot(
-            result_path(f"border_strips_{safe_name(dh)}.csv")
-        )
-    else:
-        print("No border vector file found; skipping border strip analysis.")
-
-    print("Pilot analysis finished.")
-    return {
-        "dem_1": dem_1,
-        "dem_2": dem_2,
-        "analysis": analysis,
-        "regions": regions,
-    }
+    border_vector_dir = data_dir or os.path.join(os.path.dirname(__file__), "data")
+    border_path = find_border_vector(border_vector_dir)
+    print(f"Using border vector: {os.path.basename(border_path)}")
+    border_strip_analysis(dh, load_border_vector(border_path))
+    border_trend_plot(result_path(f"border_strips_{safe_name(dh)}.csv"))
+    return {"dem_1": dem_1, "dem_2": dem_2, "analysis": analysis, "local_rmse": local_rmse, "regions": regions}
 
 
 if __name__ == "__main__":
