@@ -2,6 +2,7 @@ import os
 import glob
 import xdem
 import numpy as np
+import shapely
 import matplotlib.pyplot as plt
 import geoutils as gu
 import geopandas as gpd
@@ -458,9 +459,16 @@ def border_trend_plot(csv_file):
 
 def top_problem_regions(
     dh,
-    threshold=2,
-    min_area=400
+    threshold=0.5,
+    min_area=400,
+    merge_distance=10,
 ):
+    if threshold < 0:
+        raise ValueError("threshold must be non-negative.")
+    if min_area < 0:
+        raise ValueError("min_area must be non-negative.")
+    if merge_distance < 0:
+        raise ValueError("merge_distance must be non-negative.")
 
     dh_array = dh.data.filled(np.nan)
     mask = (np.abs(dh_array) > threshold).astype(np.uint8)
@@ -497,29 +505,59 @@ def top_problem_regions(
     )
     candidate_count = len(regions.ds)
 
-    regions.ds["area_m2"] = (
-        regions.ds.geometry.area
+    dem_crs = CRS.from_user_input(dh.crs)
+    if not dem_crs.is_projected:
+        raise ValueError("Problem-region areas and merge distances require a projected DEM CRS.")
+
+    unit_to_meters = dem_crs.axis_info[0].unit_conversion_factor
+    if not unit_to_meters:
+        raise ValueError("Could not determine DEM CRS units for problem-region analysis.")
+
+    original_geometries = list(regions.ds.geometry)
+    merge_radius = merge_distance / unit_to_meters / 2
+    buffered_geometries = shapely.buffer(
+        original_geometries,
+        merge_radius,
     )
-
-    regions.ds = regions.ds[
-        regions.ds["area_m2"] > min_area
-    ]
-
-    regions.ds["severity"] = (
-        regions.ds["area_m2"] / 1000
+    buffered_regions = gpd.GeoSeries(
+        buffered_geometries,
+        crs=dem_crs,
     )
+    merge_zones = shapely.get_parts(shapely.union_all(buffered_geometries))
+    spatial_index = buffered_regions.sindex
 
-    regions.ds = (
-        regions.ds.sort_values(
-            "severity",
-            ascending=False
+    merged_records = []
+    for merged_geometry in merge_zones:
+        member_indices = spatial_index.query(
+            merged_geometry,
+            predicate="intersects",
         )
+        original_area_m2 = sum(
+            shapely.area(original_geometries[index])
+            for index in member_indices
+        ) * unit_to_meters**2
+
+        if original_area_m2 >= min_area:
+            merged_records.append(
+                {
+                    "area_m2": original_area_m2,
+                    "geometry": merged_geometry,
+                }
+            )
+
+    merged_regions = gpd.GeoDataFrame(
+        merged_records,
+        geometry="geometry",
+        crs=dem_crs,
+        columns=["area_m2", "geometry"],
+    )
+    merged_regions["severity"] = merged_regions["area_m2"] / 1000
+    merged_regions = (
+        merged_regions.sort_values("severity", ascending=False)
         .reset_index(drop=True)
     )
-
-    regions.ds["rank"] = (
-        regions.ds.index + 1
-    )
+    merged_regions["rank"] = merged_regions.index + 1
+    regions = gu.Vector(merged_regions)
 
     save_vector(
         regions,
@@ -529,8 +567,9 @@ def top_problem_regions(
     retained_count = len(regions.ds)
     print(
         f"Problem regions: {exceedance_count} cells exceed "
-        f"|difference| > {threshold} m; {candidate_count} connected "
-        f"regions found, {retained_count} larger than {min_area} m². "
+        f"|difference| > {threshold} m; {candidate_count} initial regions "
+        f"merged using a {merge_distance} m distance, {retained_count} "
+        f"merged regions have at least {min_area} m² of exceedance area. "
         "Exported problem_regions.gpkg."
     )
 
