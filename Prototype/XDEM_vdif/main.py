@@ -225,7 +225,7 @@ def histogram_analysis(dh):
     plt = load_pyplot()
     values = dh.data.compressed()
     plt.figure(figsize=(8, 5))
-    plt.hist(values, bins=100)
+    plt.hist(values, bins=1000)
     plt.xlabel("Elevation difference (m)")
     plt.ylabel("Count")
     plt.title("DEM Difference Histogram")
