@@ -5,7 +5,7 @@ This chapter will go over the reviewed literature. It discusses both the existin
 
 
 
-== INSPIRE Specification on Elevation
+== INSPIRE Specification on Elevation <sec:inspire>
 
 In the European Union, the INSPIRE Directive  @eu_inspire_directive_2007 governs the "sharing, access, and use" of spatial data, specifically within the context of environmental policy.
 INSPIRE defines 34 spatial data themes; elevation data is one of those.
@@ -13,7 +13,7 @@ Below is a summary of the data specification on elevation @inspire2024elevation,
 The specification contains necessary contextual information, requirements (as either general implementing rules or elevation-specific technical guidance), and recommendations.
 Certain implementation-specific details, such as the XML schema or data structures and formats, are excluded from the summary below, while the conceptual details are retained.
 
-=== INSPIRE View on Elevation
+=== INSPIRE View on Elevation <sec:inspire-elevation>
 
 Within the scope of the specification, the elevation property --- either depth or height --- is understood the three-dimensional shape of the Earth's surface #cite(<inspire2024elevation>, supplement: [pp. 40--43]).
 Generally, land-elevation and bathymetry are considered separately; for land-elevation, the elevation property is called height and its positive direction is "upwards", and for bathymetry, it is depth with positive direction pointing downward.
@@ -29,7 +29,7 @@ Within the scope of the specification, the surface is considered 2.5-dimensional
 For land-elevation, *grid coverage is required*, and vector representation is recommended #cite(<inspire2024elevation>, supplement: [pp. 44--45]).
 For bathymetry, either grid coverage or vector representation are required.
 
-=== Gridded Coverage
+=== Gridded Coverage <sec:inspire-grid>
 
 Following both INSPIRE specification's requirements and the clients' request, only the gridded coverage is considered within the scope of the project at hand.
 The specification requires that the grid is a two-dimensional regular quadrilateral grid and is geo-rectified, i.e. can be transformed to/from a grid of a CRS via an affine transform #cite(<inspire2024elevation>, supplement: [p. 52]).
@@ -43,7 +43,7 @@ While the illsutrations (e.g. on pp. 52 and 53) show that the tiles may be overl
 
 It is also clarified that the coverage describes the elevation values at the centres of the geographic grid; and the geographic grid cells are the squares rendered when a GeoTIFF is displayed.
 
-=== Coordinate Reference Systems
+=== Coordinate Reference Systems <sec:inspire-crs>
 
 Generally, INSPIRE demands that the coordinate reference system (CRS) used for datasets of continental Europe is based on ETRS89, with a matching datum.
 These include unmodified ETRS89, based on GRS80 ellipsoid, which uses geodetic coordinates; and different metric CRSs, usually ETRS89 Lambert Azimuthal Equal Area (ETRS89-LAEA) or ETRS89 Lambert Conformal Conic (ETRS89-LCC).
@@ -54,7 +54,7 @@ It instead recommends the use of a zoned geographic grid based on the geodetic c
 Under such a grid, the longitudinal resolution of the grid is different for different zones. Below 50°, the grid is "square": the latitude and longitude are in 1:1 ratio; between 50° and 70°, the ratio is 1:2; and it further increases in the higher latitudes.
 Annex D is informative only, i.e. it is not expressly required to follow the guidance set out in it.
 
-=== Data Quality
+=== Data Quality <sec:inspire-quality>
 
 The specification defines several criteria to evaluate the data quality against.
 These are split into three categories: completeness, logical consistency, and positional accuracy.
@@ -73,7 +73,7 @@ For a grid, only the planimetric accuracy is considered. The root mean square er
 In the "Data Capture" section, the resolution is further related to the vertical accuracy of the dataset.
 For flat terrain, the resolution should be between $3 times "RMSE"$ and $20 times "RMSE"$, while for mountainous terrain it should be between $3 times "RMSE"$ and $10 times "RMSE"$.
 
-== Cross-border DEM
+== Cross-border DEM <sec:inspire-cross-border>
 
 Whereas most reports focus on semantic data harmonization of cross-border areas, few look at the DTM data. While little more than an educated guess, it is likely due to existing datasets. The European data portal lists two official DTM datasets @europaDigitalElevation. These are both based on Copernicus data and have a 30 and 90 meter cell resolution respectively (at the equator). The Copernicus DEM is listed as having a vertical RMSE of $1.68 m$ for the 90 meter dataset @CopernicusDEM-RP-001_ValidationReport, and a RMSE of $2.9 m$ for the 30 meter dataset @europaDigitalElevation. Meanwhile, most national datasets fall between 0.5 and 2 meter resolution for cells. It is therefore likely, that for most applications on a small scale, the national datasets suffice. While for large scale, cross-border projects, the European DTM dataset suffices.
 
@@ -89,7 +89,8 @@ Where $H_A$ is the final assigned height, while $D$ represents the distance from
 
 
 add reference to #cite(<carcano2013merging>, form: "prose")
-== Ground Filtering
+
+== Ground Filtering <sec:ground-filter>
 
 In order to create a new DTM from point clouds, a method called ground filtering is used. Several different methods exist for this process. However, in the interest of limiting the scope of the project an existing implementation in PDAL will be used. However, other methods were evaluated to compare their performance against the Progressive Morphological Filter (PMF) used by PDAL.
 
@@ -97,7 +98,7 @@ In @Silva2018GroundFiltering, it is noted that PMF differs from Multi-scale  Cur
 
 However, the documentation of PDAL also states it is possible to alternatively use SMRF. This method is a further developed version of the PMF. However, #cite(<PINGEL201321>, form: "prose") states that SMRF uses a slope-dependent elevation, making it more reliable, and possibly solving the issue with PMF. Therefore, PDAL using SMRF ground filtering should allow for a reliable way to generate DTMs from point clouds. Further research into the implementation of other methods will not be discussed or implemented within this project.
 
-== Rhine Catchment Area
+== Rhine Catchment Area <sec:rhine>
 
 Different extents of the Rhine catchment area were considered. One most commonly agreed upon comes from International Association of Waterworks in the Rhine Basin @iawr_rhine and International Commission for the Protection of the Rhine @ICPR2013. It excludes the upstream Meuse but includes the rest of the delta, e.g. Ijssel and Waal. Another possible definition can be found on Wikimedia (see @fig:rhine-defs), and it includes the Meuse.
 
@@ -118,7 +119,7 @@ For this project, the Rhine river definition comes from HydroBASINS @Lehner2013,
 
 
 
-== River Elevation Data
+== River Elevation Data <sec:river-elevation>
 
 Upon observing the Dutch DTM, it was noted that buildings and rivers are marked as voids. This is because unlike countries such as France and Germany, the Netherlands does not fill nodata values. A possible solution to this problem would be to approximate the river altitudes as described in #cite(<PARROT201628>, form:"prose"). The paper suggests that the river altitudes can be approximated by using the average of the surrounding terrain. However, this method is not without its drawbacks. It may not accurately reflect the true river altitudes, especially in areas with significant elevation changes. Since deviations from reality and river segments in other countries will not match, this method will not be used in this project. Instead, the voids will be filled using a bilinear interpolation method, as described in
 
