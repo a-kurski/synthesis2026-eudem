@@ -1,9 +1,17 @@
 #import "@preview/drafting:0.2.2"
-= Literature Review <chap:theory>
+= Theory and Context <chap:theory>
 
 This chapter will go over the reviewed literature. It discusses both the existing approaches for harmonizing cross-border data, INSPIRE specification on elevation, and point cloud processing methods.
 
+== Global Elevation Models <sec:gdem>
 
+A global DEM (GDEM) covers most of the land surface of the Earth. Currently, there are two main approaches to
+
+=== Space-borne Radar/Lidar-Derived Elevation Models <sec:spaceborne-gdem>
+
+=== Composite Global Elevation Models <sec:mapterhorn>
+
+The alternative to a conventional GDEM
 
 == INSPIRE Specification on Elevation <sec:inspire>
 

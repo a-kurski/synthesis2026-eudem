@@ -1,14 +1,13 @@
-= Appendix <chap:appendix>
+#import "@preview/timeliney:0.4.0"
 
-#counter(heading).update((0, 0))
-#show heading.where(level: 2): it => {
-  let n = counter(heading).get().last()
-  let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-  let label = if n <= letters.len() { letters.at(n - 1) } else { str(n) }
-  [#label. #it.body]
-}
+#set heading(numbering: "A.1.1", supplement: [Appendix])
+#counter(heading).update(0)
 
-== MOSCOW
+#include "991-contributors.typ"
+
+= Project Planning
+
+== Prioritisation
 #let moscow(value) = {
   let color = if value == "Must" {
     rgb("#b3ef88")
@@ -71,8 +70,8 @@
   )
 ) <Moscow_Prioritization>
 
-== Gantt chart
-#import "@preview/timeliney:0.4.0"
+== Timeline
+
 
 #timeliney.timeline(
   show-grid: true,
@@ -416,7 +415,7 @@
 ) <Risk_Assessment_Table>
 
 
-== Data Source List <appx-data-sources>
+= Data Source List <appx-data-sources>
 
 #table(
   columns: (auto, auto, auto),
