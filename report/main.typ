@@ -28,7 +28,7 @@
 )
 
 #include "000-front-matter.typ"
-
+#include "005-abbreviations.typ"
 #counter(page).update(0)
 
 #set page(
