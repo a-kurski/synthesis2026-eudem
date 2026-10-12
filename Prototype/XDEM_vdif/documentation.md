@@ -74,8 +74,12 @@ Plots distance from border effect on RMSE.
 ### top_problem_regions()
 Analyses height differences greater than threshold. Based on that it creates buffered polygons which get merged based on merge_distance. If the combined area is smaller than min_area it gets discarded. The polygons get assigned an area, rank, severity (area/1000) and geometry. The output is a vector file.
 
-### find_test_dem_pair()
-Identifies the DEMs to test in the match.
+### find_dem_files()
+Finds every full-region DEM in the data folder, excluding derived `_dep` rasters.
+
+### dem_files_overlap()
+Checks raster metadata to determine whether two DEM extents overlap, transforming
+bounds when their CRSs differ without loading the full raster data.
 
 ### river_mask_creation()
 Creates a raw local-variance score raster and a class raster from a single DEM. The raw `{dem}_score.tif` remains available for inspection. Set `SHOW_ALL_RIVER_FEATURES` near the top of `main.py` to `True` to include every polygonized low-variance component in the GeoPackage and raster; unclassified components are labeled `unclassified` and use value 3 in the raster. It defaults to `False`, outputting only classified river/lake features. In either mode, raster value 1 marks river candidates (including large rivers), value 2 marks lakes, and value 0 is background. This is a terrain-based classification, not a validated hydrography product or a blended DTM.
@@ -83,9 +87,12 @@ Creates a raw local-variance score raster and a class raster from a single DEM. 
 Set `RUN_SIGMA_SWEEP` to `True` to run the classifier with integer Gaussian sigma values from 1 through `SIGMA_SWEEP_MAX` (10 by default), stopping early when an iteration returns no classified water candidates. Polygon outputs from the successful iterations are unioned: overlaps are merged, while non-overlapping features remain separate. Each merged feature gets one `class`, taken from its latest contributing sigma, and records that sigma as `class_sigma`; `sigma_values` lists all contributing iterations. The combined result is saved as `{region}_river_mask.gpkg` and rasterized to the class raster. The raw score raster remains the sigma-1 variance when sweep mode is on. When sweep mode is off, `GAUSSIAN_SIGMA` controls the single run.
 
 ### river_polygons()
-Polygonizes low-variance cells overlapping valid DEM elevations, then writes classified river/lake features to `{region}_river_mask.gpkg`; optionally writes unclassified components too when `show_all_features=True`. Each region's output is saved separately to avoid overwriting another region's polygons. The class field distinguishes `large river`, `river`, `lake`, and `unclassified`, with mutually exclusive candidate flags. River candidates use a 1,000 m² minimum area, 250 m maximum width, 0.035 maximum variance standard deviation, and 0.15 maximum compactness; large rivers retain their separate minimum-area and shape rules. Lake candidates can be larger than the river minimum-area threshold and use 0.026 maximum variance standard deviation, 800 m maximum width, and 0.15 minimum compactness.
+Polygonizes low-variance cells overlapping valid DEM elevations, then writes classified river/lake features to `{region}_river_mask.gpkg`; optionally writes unclassified components too when `show_all_features=True`. Each region's output is saved separately to avoid overwriting another region's polygons. The class field distinguishes `large river`, `river`, `lake`, and `unclassified`, with mutually exclusive candidate flags. River candidates use a 1,000 m² minimum area, 500 m maximum width, 0.04 maximum variance standard deviation, and 0.38 maximum compactness. Large rivers use a 1,000,000 m² minimum area, 500 m maximum width, 0.025 maximum variance standard deviation, and 0.1 maximum compactness. Lakes use a 30,000 m² minimum area, 800 m maximum width, 0.026 maximum variance standard deviation, and 0.15 minimum compactness.
 
-For components that pass the initial terrain-shape rules, the function calculates mean elevation in an exterior ring `buffer_cells` pixels wide (40 by default; 200 m for a 5 m DEM) and stores it as `buffer_mean_elevation`; `buffer_height_difference` is the buffer mean minus the component mean. Candidates must have a buffer height difference of at least `min_buffer_height_difference` (0.5 m by default). Set this parameter to `None` to record the metrics without filtering, or change it to tune the minimum local relief. Buffer cells with NoData elevations are ignored. Components failing the initial rules have NaN buffer metrics. Progress is printed during component metrics and buffer evaluation.
+Component and buffer metrics use worker threads and display single-line progress bars in terminal output. Buffer elevations are calculated only for components that pass the initial shape rules, using an exterior ring `buffer_cells` pixels wide (20 by default; 100 m for a 5 m DEM). Buffer cells with NoData elevations are ignored. Lakes must have a buffer height difference of at least `min_buffer_height_difference` (1.2 m by default); river candidates use `min_buffer_height_river` (1 m by default). Set either parameter to `None` to record the metrics without filtering for that class. Components failing the initial rules have NaN buffer metrics.
 
 ### run_all_analyses()
-Runs all analysis steps and prints the combined elapsed time when the analysis loop completes.
+Creates a river mask for every DEM in the data folder. It then checks every DEM
+combination and runs the pairwise DEM comparison only when their extents overlap.
+Non-overlapping pairs are skipped for comparison, but their DEMs still receive
+river-mask analysis. The total elapsed time is printed when processing completes.

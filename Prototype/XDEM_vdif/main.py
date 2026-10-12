@@ -1,5 +1,6 @@
 import glob
 import os
+import sys
 import time
 from typing import Optional
 
@@ -31,6 +32,26 @@ SHOW_ALL_RIVER_FEATURES = False
 RUN_SIGMA_SWEEP = True
 SIGMA_SWEEP_MAX = 7
 GAUSSIAN_SIGMA = 1
+
+
+def update_progress(label, completed, total):
+    if total == 0:
+        return
+    update_interval = max(1, total // 100)
+    if completed != total and completed % update_interval:
+        return
+
+    width = 24
+    filled = width * completed // total
+    bar = "#" * filled + "-" * (width - filled)
+    percentage = 100 * completed // total
+    sys.stdout.write(
+        f"\r{label:<18} [{bar}] {completed:>7}/{total:<7} "
+        f"{percentage:3d}%"
+    )
+    if completed == total:
+        sys.stdout.write("\n")
+    sys.stdout.flush()
 
 
 def load_xdem():
@@ -93,12 +114,16 @@ def transform_dem_to_target_vcrs(dem, country_name, source_vcrs, target_vcrs):
     return dem.to_vcrs(target_vcrs[country_name], force_source_vcrs=source_vcrs[country_name])
 
 
-def save_dem(dem, country_name):
-    save_raster(dem, result_path(f"{country_name}_vcrs.tif"))
+def save_dem(dem, filename):
+    save_raster(dem, filename)
 
 
 def load_or_transform_dem(dem_path, country_name):
-    transformed_path = result_path(f"{country_name}_vcrs.tif")
+    if country_name is None:
+        return load_file(dem_path)[0]
+
+    file_name = os.path.splitext(os.path.basename(dem_path))[0]
+    transformed_path = result_path(f"{file_name}_vcrs.tif")
     if os.path.isfile(transformed_path):
         # print(f"Using existing transformed DEM: {transformed_path}", flush=True)
         return load_xdem().DEM(transformed_path)
@@ -106,7 +131,7 @@ def load_or_transform_dem(dem_path, country_name):
     # print(f"Transforming DEM: {os.path.basename(dem_path)}", flush=True)
     dem, _ = load_file(dem_path)
     dem = transform_dem_to_target_vcrs(dem, country_name, source_vcrs, target_vcrs)
-    save_dem(dem, country_name)
+    save_dem(dem, transformed_path)
     return dem
 
 
@@ -187,7 +212,7 @@ def analyze_dem(dem_1, dem_2):
     }
     pd.DataFrame([stats]).to_csv(result_path("dem_difference_statistics.csv"), index=False)
     save_raster(dh, result_path(f"dh_{safe_name(dem_1)}_{safe_name(dem_2)}.tif"))
-    return {"sig_dem":sig_dem,"coreg": coreg, "aligned_dem": dem_2_aligned, "dh": dh, **{key: stats[key] for key in ("mean", "median", "std", "rmse", "mae")}}
+    return {"sig_dem":sig_dem,"coreg": coreg, "aligned_dem": dem_2_aligned, "dh": dh, **stats}
 
 
 def local_inspire_rmse_analysis(dh, tile_size_m=50):
@@ -379,7 +404,7 @@ def top_problem_regions(
     return regions
 
 
-def find_test_dem_pair(data_dir=None):
+def find_dem_files(data_dir=None):
     data_dir = data_dir or os.path.join(os.path.dirname(__file__), "data")
     files = sorted({
         path
@@ -387,12 +412,24 @@ def find_test_dem_pair(data_dir=None):
         for path in glob.glob(os.path.join(data_dir, pattern))
         if not os.path.splitext(os.path.basename(path))[0].lower().endswith("_dep")
     })
-    country_files = [(path, infer_country_name(path)) for path in files]
-    pairs = [(a, b) for i, (a, ca) in enumerate(country_files)
-             for b, cb in country_files[i + 1:] if ca and cb and ca != cb]
-    if not pairs:
-        raise FileNotFoundError(f"Need full-region DEMs for two recognized countries in {data_dir}.")
-    return min(pairs, key=lambda pair: sum(os.path.getsize(path) for path in pair))
+    if not files:
+        raise FileNotFoundError(f"No DEM files found in {data_dir}.")
+    return files
+
+
+def dem_files_overlap(path_1, path_2):
+    with rasterio.open(path_1) as dem_1, rasterio.open(path_2) as dem_2:
+        bounds_1 = dem_1.bounds
+        bounds_2 = dem_2.bounds
+        if CRS.from_user_input(dem_1.crs) != CRS.from_user_input(dem_2.crs):
+            bounds_2 = Transformer.from_crs(
+                dem_2.crs, dem_1.crs, always_xy=True
+            ).transform_bounds(*bounds_2, densify_pts=21)
+
+    return (
+        max(bounds_1[0], bounds_2[0]) < min(bounds_1[2], bounds_2[2])
+        and max(bounds_1[1], bounds_2[1]) < min(bounds_1[3], bounds_2[3])
+    )
 
 def river_mask_creation(dem, show_all_features=SHOW_ALL_RIVER_FEATURES):
     print("importing gaussian filter")
@@ -570,9 +607,7 @@ def river_polygons(
     variance,
     dem,
     variance_threshold=0.13,
-    std_threshold=0.035,
     min_area=1000,
-    max_width_m=250,
     river_max_compactness=0.38,
     river_std_threshold=0.04,
     river_max_width=500,
@@ -610,12 +645,10 @@ def river_polygons(
     ).polygonize(target_values=1)
     polygons.ds["area_m2"] = polygons.ds.geometry.area
 
-    import math
     from concurrent.futures import ThreadPoolExecutor
-    from concurrent.futures import as_completed
     from scipy.ndimage import distance_transform_edt
     from rasterio.features import geometry_mask
-    from rasterio.windows import Window, from_bounds, transform as window_transform
+    from rasterio.windows import from_bounds
 
     dem_crs = CRS.from_user_input(dem.crs)
     if dem_crs.is_geographic:
@@ -636,27 +669,27 @@ def river_polygons(
         flush=True,
     )
 
+    def geometry_window(geom):
+        bounds = from_bounds(*geom.bounds, transform=dem.transform)
+        col_start = max(0, int(np.floor(bounds.col_off)))
+        row_start = max(0, int(np.floor(bounds.row_off)))
+        col_stop = min(raster_width, int(np.ceil(bounds.col_off + bounds.width)))
+        row_stop = min(raster_height, int(np.ceil(bounds.row_off + bounds.height)))
+        rows = slice(row_start, row_stop)
+        cols = slice(col_start, col_stop)
+        transform = dem.transform * Affine.translation(col_start, row_start)
+        return rows, cols, transform
+
     def calculate_polygon_metrics(geom):
-        bounds_window = from_bounds(*geom.bounds, transform=dem.transform)
-        col_start = max(0, math.floor(bounds_window.col_off))
-        row_start = max(0, math.floor(bounds_window.row_off))
-        col_stop = min(raster_width, math.ceil(bounds_window.col_off + bounds_window.width))
-        row_stop = min(raster_height, math.ceil(bounds_window.row_off + bounds_window.height))
-        window = Window(
-            col_start,
-            row_start,
-            col_stop - col_start,
-            row_stop - row_start,
-        )
-        shape = (int(window.height), int(window.width))
+        rows, cols, transform = geometry_window(geom)
+        local_elevations = elevations[rows, cols]
         polygon_mask = geometry_mask(
             [geom],
-            out_shape=shape,
-            transform=window_transform(window, dem.transform),
+            out_shape=local_elevations.shape,
+            transform=transform,
             invert=True,
         )
-        local_elevations = elevations[row_start:row_stop, col_start:col_stop]
-        local_variance = variance_values[row_start:row_stop, col_start:col_stop]
+        local_variance = variance_values[rows, cols]
         inside_elevations = local_elevations[polygon_mask]
         inside_variance = local_variance[polygon_mask]
         valid_inside_elevations = inside_elevations[np.isfinite(inside_elevations)]
@@ -677,24 +710,14 @@ def river_polygons(
         )
         return variance_std, mean_elevation, polygon_width, compactness
 
-    if geometries:
-        max_workers = max(8, (os.cpu_count() or 1) // 4)
-        metrics = [None] * len(geometries)
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {
-                executor.submit(calculate_polygon_metrics, geom): index
-                for index, geom in enumerate(geometries)
-            }
-            for completed, future in enumerate(as_completed(futures), start=1):
-                metrics[futures[future]] = future.result()
-                if completed % 250 == 0 or completed == len(geometries):
-                    print(
-                        f"Calculated terrain metrics for {completed}/"
-                        f"{len(geometries)} components...",
-                        flush=True,
-                    )
-    else:
+    max_workers = max(1, min(16, os.cpu_count() or 1, len(geometries)))
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
         metrics = []
+        for completed, metric in enumerate(
+            executor.map(calculate_polygon_metrics, geometries), start=1
+        ):
+            metrics.append(metric)
+            update_progress("Polygon metrics", completed, len(geometries))
 
     polygons.ds["elev_std"] = [metric[0] for metric in metrics]
     polygons.ds["mean_elevation"] = [metric[1] for metric in metrics]
@@ -737,32 +760,20 @@ def river_polygons(
     def calculate_buffer_metrics(index):
         geom = geometries[index]
         buffered_geom = geom.buffer(buffer_distance)
-        bounds_window = from_bounds(*buffered_geom.bounds, transform=dem.transform)
-        col_start = max(0, math.floor(bounds_window.col_off))
-        row_start = max(0, math.floor(bounds_window.row_off))
-        col_stop = min(raster_width, math.ceil(bounds_window.col_off + bounds_window.width))
-        row_stop = min(raster_height, math.ceil(bounds_window.row_off + bounds_window.height))
-        window = Window(
-            col_start,
-            row_start,
-            col_stop - col_start,
-            row_stop - row_start,
-        )
-        shape = (int(window.height), int(window.width))
-        transform = window_transform(window, dem.transform)
+        rows, cols, transform = geometry_window(buffered_geom)
+        local_elevations = elevations[rows, cols]
         polygon_mask = geometry_mask(
             [geom],
-            out_shape=shape,
+            out_shape=local_elevations.shape,
             transform=transform,
             invert=True,
         )
         buffer_mask = geometry_mask(
             [buffered_geom],
-            out_shape=shape,
+            out_shape=local_elevations.shape,
             transform=transform,
             invert=True,
         ) & ~polygon_mask
-        local_elevations = elevations[row_start:row_stop, col_start:col_stop]
         inside = local_elevations[polygon_mask]
         surrounding = local_elevations[buffer_mask]
         inside = inside[np.isfinite(inside)]
@@ -782,20 +793,14 @@ def river_polygons(
             flush=True,
         )
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {
-                executor.submit(calculate_buffer_metrics, index): index
-                for index in candidate_indices
-            }
-            for completed, future in enumerate(as_completed(futures), start=1):
-                index, buffer_mean, height_difference = future.result()
+            for completed, (index, buffer_mean, height_difference) in enumerate(
+                executor.map(calculate_buffer_metrics, candidate_indices), start=1
+            ):
                 buffer_mean_elevations[index] = buffer_mean
                 buffer_height_differences[index] = height_difference
-                if completed % 100 == 0 or completed == candidate_indices.size:
-                    print(
-                        f"Calculated buffer elevations for {completed}/"
-                        f"{candidate_indices.size} candidates...",
-                        flush=True,
-                    )
+                update_progress(
+                    "Buffer metrics", completed, candidate_indices.size
+                )
         polygons.ds["buffer_mean_elevation"] = buffer_mean_elevations
         polygons.ds["buffer_height_difference"] = buffer_height_differences
         print("Finished calculating candidate buffer elevations.", flush=True)
@@ -818,7 +823,6 @@ def river_polygons(
         | (large_river_candidate & river_buffer_ok)
         | (river_candidate & river_buffer_ok)
     )
-
 
     lake_candidate &= buffer_filter
     large_river_candidate &= buffer_filter
@@ -862,40 +866,54 @@ def river_polygons(
 def run_all_analyses(data_dir=None):
     analysis_start = time.perf_counter()
     print("Loading files...", flush=True)
-    dem_paths = find_test_dem_pair(data_dir)
-    country_1, country_2 = infer_country_name(dem_paths[0]), infer_country_name(dem_paths[1])
-    dem_1 = load_or_transform_dem(dem_paths[0], country_1)
-    print(dem_1.name)
-    dem_2 = load_or_transform_dem(dem_paths[1], country_2)
-    print(dem_2.name)
-    print("Loaded DEMs in target VCRS", flush=True)
+    dem_paths = find_dem_files(data_dir)
 
-    print(f"Running analysis on: {country_1} and {country_2}", flush=True)
-    analysis = analyze_dem(dem_1, dem_2)
-    dh = analysis["dh"]
-    print("Generating difference raster plots...", flush=True)
-    std_analysis(dh), histogram_analysis(dh), cdf_analysis(dh)
-    print("Calculating aspect and slope analyses...", flush=True)
-    aspect_difference_analysis(dem_1, dem_2)
-    slope_error_analysis(dem_1, dh)
-    print("Calculating local RMSE...", flush=True)
-    local_rmse = local_inspire_rmse_analysis(dh)
-    print("Identifying problem regions...", flush=True)
-    regions = top_problem_regions(dh)
-    border_vector_dir = data_dir or os.path.join(os.path.dirname(__file__), "data")
-    border_path = find_border_vector(border_vector_dir)
-    if border_path is None:
-        raise FileNotFoundError(
-            f"No border vector found in {border_vector_dir}; expected a .gpkg, .shp, .geojson, or .json file."
-        )
-    print(f"Using border vector: {os.path.basename(border_path)}", flush=True)
-    print("Calculating border-distance analysis...", flush=True)
-    border_strip_analysis(dh, load_border_vector(border_path))
-    border_trend_plot(result_path(f"border_strips_{safe_name(dh)}.csv"))
+    for dem_path in dem_paths:
+        country = infer_country_name(dem_path)
+        dem = load_or_transform_dem(dem_path, country)
+        print(f"Creating river mask for {os.path.basename(dem_path)}...", flush=True)
+        river_mask_creation(dem, show_all_features=SHOW_ALL_RIVER_FEATURES)
+        print()
 
+    statistics = []
+    pair_count = len(dem_paths) * (len(dem_paths) - 1) // 2
+    last_dem_pair = (None, None)
+    print(f"Checking {pair_count} DEM combinations for overlap...", flush=True)
+    for first_index, first_path in enumerate(dem_paths):
+        for second_path in dem_paths[first_index + 1:]:
+            pair_name = f"{os.path.basename(first_path)} and {os.path.basename(second_path)}"
 
-    river_mask_creation(dem_1, show_all_features=SHOW_ALL_RIVER_FEATURES)
-    river_mask_creation(dem_2, show_all_features=SHOW_ALL_RIVER_FEATURES)
+            if not dem_files_overlap(first_path, second_path):
+                print(f"Skipping comparison for non-overlapping DEMs: {pair_name}", flush=True)
+                continue
+
+            print(f"Running comparison for overlapping DEMs: {pair_name}", flush=True)
+            dem_1 = load_or_transform_dem(first_path, infer_country_name(first_path))
+            dem_2 = load_or_transform_dem(second_path, infer_country_name(second_path))
+            last_dem_pair = (dem_1, dem_2)
+            analysis = analyze_dem(dem_1, dem_2)
+            statistics.append(
+                {
+                    "reference_dem": safe_name(dem_1),
+                    "comparison_dem": safe_name(dem_2),
+                    **{
+                        key: analysis[key]
+                        for key in (
+                            "mean", "median", "std", "rmse", "mae",
+                            "min", "max", "INSPIRE_target%",
+                        )
+                    },
+                }
+            )
+
+    statistics_columns = [
+        "reference_dem", "comparison_dem", "mean", "median", "std",
+        "rmse", "mae", "min", "max", "INSPIRE_target%",
+    ]
+    pd.DataFrame(statistics, columns=statistics_columns).to_csv(
+        result_path("dem_difference_statistics.csv"), index=False
+    )
+
     elapsed_seconds = time.perf_counter() - analysis_start
     hours, remainder = divmod(int(elapsed_seconds), 3600)
     minutes, seconds = divmod(remainder, 60)
@@ -904,7 +922,12 @@ def run_all_analyses(data_dir=None):
         f"({elapsed_seconds:.1f} seconds).",
         flush=True,
     )
-    return {"dem_1": dem_1, "dem_2": dem_2}
+    return {
+        "dem_paths": dem_paths,
+        "statistics": statistics,
+        "dem_1": last_dem_pair[0],
+        "dem_2": last_dem_pair[1],
+    }
 
 
 if __name__ == "__main__":

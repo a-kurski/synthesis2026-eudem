@@ -1,0 +1,12 @@
+affine
+geopandas
+geoutils
+matplotlib
+numpy
+pandas
+pyproj
+rasterio
+scipy
+scikit-gstat
+shapely
+xdem
