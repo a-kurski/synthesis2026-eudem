@@ -1,13 +1,16 @@
 #import "@preview/drafting:0.2.2"
 
-= Problem Definition <chap:Project_definition>
+= Project Definition <chap:Project_definition>
 
 == Terrain Models
 
-#cite(<terrain_book>, form: "prose") provide the following definition of a terrain model: "A terrain is a representation of the Earth’s surface. It gives us
-the elevation, which is the height above/below a certain reference point (a vertical datum)." In this project, the two representations of terrain are a digital elevation model (DEM), here understood to be a raster dataset (essentially a map) where the value of each pixel equals the height of the terrain at its centre, and a point cloud (PC), a set of points in 3D, usually collected with an aerial laser scanner, where each point in the set corresponds to a point on a surface somewhere in the real world. DEMs are further differentiated into digital terrain models (DTMs), which only show the elevation of bare earth without human-made structures or vegetation, and digital surface models (DSMs), which show all objects on the surface, such as trees, buildings, and the ground itself.
+#cite(<terrain_book>, form: "prose") provide the following definition of a terrain model: "A terrain is a representation of the Earth’s surface. It gives us the elevation, which is the height above/below a certain reference point (a vertical datum)." In this project, the two representations of terrain are a digital elevation model (DEM), here understood to be a raster dataset (essentially a map) where the value of each pixel equals the height of the terrain at its centre, and a point cloud (PC), a set of points in 3D collected with an aerial laser scanner where each point in the set corresponds to a point on a surface somewhere in the real world. DEMs are further differentiated into digital terrain models (DTMs), which only show the elevation of bare earth without human-made structures or vegetation, and digital surface models (DSMs), which show all objects on the surface, such as trees, buildings, and the ground itself.
 
 For a given use case, each terrain model, whether a DEM or a PC, is associated with a coordinate reference system (CRS). A CRS describes the units of measurement, horizontal and vertical datums, and direction of the axes. Different countries use different reference systems, and conversion between them is needed before different terrain models can be integrated with one another.
+
+== The Need for the European DEM
+
+Currently, there are
 
 == Research Questions <questions>
 

@@ -2,7 +2,7 @@
 #import "@preview/drafting:0.2.2"
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
 
-= Harmonisation Pipeline <chap:method>
+= Methodology <chap:method>
 
 This chapter describes the current state of the harmonisation pipeline, providing a general overview and specifics of the approach to processing gridded (raster) elevation data and point clouds.
 
