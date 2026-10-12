@@ -52,4 +52,4 @@
   ("XML", "Extensible Markup Language"),
 )
 
-#abbr.config(style: it => text(it), space-char: sym.arrow.l.r)
+#abbr.config(style: it => text(it))
