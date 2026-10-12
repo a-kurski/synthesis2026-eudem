@@ -5,9 +5,13 @@ This chapter will go over the reviewed literature. It discusses both the existin
 
 == Global Elevation Models <sec:gdem>
 
-A global DEM (GDEM) covers most of the land surface of the Earth. Currently, there are two main approaches to
+A global DEM (GDEM) covers most of the land surface of the Earth. Currently, there are two main approaches to creating a GDEM: a conventional approach relies on satellite data, and more recently, there have been efforts to derive a GDEM from national and regional datasets. Below is a brief overview of both approaches.
 
-=== Space-borne Radar/Lidar-Derived Elevation Models <sec:spaceborne-gdem>
+=== Satellite Data-Derived Elevation Models <sec:spaceborne-gdem>
+
+Most GDEMs are constructed using data from space-borne interferometric synthetic-aperture radar (InSAR) or optical sensors. An overview of the most common existing GDEMs has been provided by #cite(<terrain_book>, form: "prose", supplement: "Table 3.2"). The majority of satellite GDEMs are obtained using InSAR; only two of those presented are derived from optical data. The common GSD is 30m or 90m; a few, like WorldDEM or ALOS are also available at finer resolutions. The majority of the GDEMs are DSMs; some products offer a "_pseudo_-DTM" where some ground filtering has been performed.
+
+
 
 === Composite Global Elevation Models <sec:mapterhorn>
 
