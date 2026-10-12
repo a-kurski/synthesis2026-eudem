@@ -4,3 +4,8 @@ pid/AGENTS.md
 Prototype/XDEM_vdif/data/Netherlands.tif
 main.pdf
 report/*.pdf
+*.tiff
+*.tif
+*.TIF
+*.TIFF
+*.gpkg
