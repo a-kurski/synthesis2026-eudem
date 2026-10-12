@@ -166,6 +166,20 @@ def analyze_dem(dem_1, dem_2):
     dem_library = load_xdem()
     # print("Reprojecting comparison DEM...", flush=True)
     dem_2 = dem_2.reproject(dem_1)
+    valid_overlap = (
+        ~np.ma.getmaskarray(dem_1.data)
+        & ~np.ma.getmaskarray(dem_2.data)
+        & np.isfinite(dem_1.data.data)
+        & np.isfinite(dem_2.data.data)
+    )
+    if not valid_overlap.any():
+        print(
+            f"Skipping comparison for {safe_name(dem_1)} and "
+            f"{safe_name(dem_2)}: no shared valid elevation pixels.",
+            flush=True,
+        )
+        return None
+
     coreg = dem_library.coreg.NuthKaab() + dem_library.coreg.Deramp(poly_order=2)
 
     # print("Estimating DEM uncertainty...", flush=True)
@@ -890,8 +904,10 @@ def run_all_analyses(data_dir=None):
             print(f"Running comparison for overlapping DEMs: {pair_name}", flush=True)
             dem_1 = load_or_transform_dem(first_path, infer_country_name(first_path))
             dem_2 = load_or_transform_dem(second_path, infer_country_name(second_path))
-            last_dem_pair = (dem_1, dem_2)
             analysis = analyze_dem(dem_1, dem_2)
+            if analysis is None:
+                continue
+            last_dem_pair = (dem_1, dem_2)
             statistics.append(
                 {
                     "reference_dem": safe_name(dem_1),
