@@ -1,1 +1,2 @@
 reference_dem,comparison_dem,mean,median,std,rmse,mae,min,max,INSPIRE_target%
+NRW,dem,0.0010457522,-0.015282631,0.6294755,0.62947637,0.13501015,-13.636728,55.46148,37.768585
