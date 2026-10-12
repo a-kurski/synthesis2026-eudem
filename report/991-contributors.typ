@@ -17,7 +17,7 @@ This section provides an overview of the student members of the team and their r
 
     Background: \
     Turkey \
-    BSc Electrical Engineering, TU Eindhoven, The Netherlands
+    @BSc in Electrical Engineering, Eindhoven University of Technology, The Netherlands
 
     Interests: Point clouds, geospatial data visualisation, digital terrain modelling
   ],
@@ -27,7 +27,7 @@ This section provides an overview of the student members of the team and their r
 
     Background: \
     Estonia \
-    BSc Architecture, University of Bath, United Kingdom
+    @BSc in Architecture, University of Bath, United Kingdom
 
     Interests: Computational modelling of terrains and the built environment
   ],
@@ -37,7 +37,7 @@ This section provides an overview of the student members of the team and their r
 
     Background: \
     The Netherlands \
-    BSc Aeronautical Engineering, Inholland, The Netherlands
+    @BSc in Aeronautical Engineering, Inholland University of Applied Sciences, The Netherlands
 
     Interests: Solving programming challenges and creating nice visuals.
   ],
@@ -48,7 +48,7 @@ This section provides an overview of the student members of the team and their r
 
 == Supervision Team
 
-The supervision team for this project consists of Gina Stavropoulou, representing TU Delft's 3D Geoinformation Group, Maarten Pronk, representing Deltares, and Daan van der Heide, representing Rijkswaterstaat; Maarten Pronk and Daan van der Heide are also PhD candidates in the 3D Geoinformation Group. The supervisors provide feedback on the team's work, help define the scope and desired outcomes, and share their experience with existing approaches to the challenge.
+The supervision team for this project consists of Gina Stavropoulou, representing Delft University of Technology's 3D Geoinformation Group, Maarten Pronk, representing Deltares, and Daan van der Heide, representing Rijkswaterstaat; Maarten Pronk and Daan van der Heide are also working toward their @PhD degrees in the 3D Geoinformation Group. The supervisors provide feedback on the team's work, help define the scope and desired outcomes, and share their experience with existing approaches to the challenge.
 
 == Clients
 

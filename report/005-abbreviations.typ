@@ -1,27 +1,55 @@
 #import "@preview/abbr:0.3.1"
 
-#show: abbr.show-rule
-
 #abbr.list()
 #abbr.make(
-  ("PDE", "Partial Differential Equation"),
-  ("BC", "Boundary Condition"),
-  ("DOF", "Degree of Freedom", "Degrees of Freedom"),
-  ("TGV", "High speed train"),
+  ("AHN", "Actueel Hoogtebestand Nederland"),
+  ("ALOS", "Advanced Land Observing Satellite"),
+  ("AOI", "Area of Interest", "Areas of Interest"),
+  ("BSc", "Bachelor of Science"),
+  ("COG", "Cloud-Optimized GeoTIFF"),
+  ("COPC", "Cloud-Optimized Point Cloud"),
+  ("CRS", "Coordinate Reference System", "Coordinate Reference Systems"),
+  ("DEM", "Digital Elevation Model", "Digital Elevation Models"),
+  ("DHHN2016", "German Main Height Network 2016"),
+  ("DSM", "Digital Surface Model", "Digital Surface Models"),
+  ("DTM", "Digital Terrain Model", "Digital Terrain Models"),
+  ("EPSG", "EPSG Geodetic Parameter Dataset"),
+  ("ETRS89", "European Terrestrial Reference System 1989"),
+  ("ETRS89-GRS80", "ETRS89 using the Geodetic Reference System 1980 ellipsoid"),
+  ("ETRS89-GRS80zn", "ETRS89 zoned geographic grid based on the GRS80 ellipsoid"),
+  ("ETRS89-LAEA", "ETRS89 Lambert Azimuthal Equal Area"),
+  ("ETRS89-LCC", "ETRS89 Lambert Conformal Conic"),
+  ("EU", "European Union"),
+  ("EVRF", "European Vertical Reference Frame"),
+  ("EVRS", "European Vertical Reference System"),
+  ("GDAL", "Geospatial Data Abstraction Library"),
+  ("GDEM", "Global Digital Elevation Model", "Global Digital Elevation Models"),
+  ("GRS80", "Geodetic Reference System 1980"),
+  ("GSD", "Ground Sample Distance"),
+  ("ICP", "Iterative Closest Point"),
+  ("ICPR", "International Commission for the Protection of the Rhine"),
+  ("InSAR", "Interferometric Synthetic-Aperture Radar"),
+  ("INSPIRE", "Infrastructure for Spatial Information in the European Community"),
+  ("LAEA", "Lambert Azimuthal Equal Area"),
+  ("LAZ", "LASzip-compressed point-cloud format"),
+  ("LCC", "Lambert Conformal Conic"),
+  ("MCC", "Multiscale Curvature Classification"),
+  ("MoSCoW", "Must, Should, Could, Won't"),
+  ("NAP", "Normaal Amsterdams Peil"),
+  ("NHN", "Normalhöhennull"),
+  ("NRW", "North Rhine-Westphalia"),
+  ("PC", "Point Cloud", "Point Clouds"),
+  ("PDAL", "Point Data Abstraction Library"),
+  ("PhD", "Doctor of Philosophy"),
+  ("PID", "Project Initiation Document"),
+  ("PMF", "Progressive Morphological Filter"),
+  ("PTIN", "Progressive Triangulated Irregular Network"),
+  ("RMSE", "Root Mean Square Error"),
+  ("SMRF", "Simple Morphological Filter"),
+  ("TIN", "Triangulated Irregular Network", "Triangulated Irregular Networks"),
+  ("UTM", "Universal Transverse Mercator"),
+  ("WLS", "Weighted Linear Least Squares"),
+  ("XML", "Extensible Markup Language"),
 )
 
-
-= Constrained Equations
-
-@BC:pla constrain the @DOF:pla of the @PDE:pla they act on.
-
 #abbr.config(style: it => text(it), space-char: sym.arrow.l.r)
-
-@BC:pla constrain the @DOF:pla of the @PDE:pla they act on.
-
-#abbr.add("MOL", "Method of Lines")
-The @MOL is a procedure to solve @PDE:pla in time.
-
-= A note about trains
-
-The @TGV has a commercial speed of up to 320 km/h.

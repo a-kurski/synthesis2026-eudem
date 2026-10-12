@@ -8,7 +8,7 @@ This chapter discusses the results of the data scraping, the pipeline, analysis 
 
 
 == Data scraping
-The data scraping is not considered a part of the processing pipeline. However, due to it's relevance to the challenges of creating a DEM of the Rhine catchment area. Therefore, it has been included in this chapter. Currently, all data labled as a must in @Moscow_Prioritization is implemented within the scraping software. 
+The data scraping is not considered a part of the processing pipeline. However, due to its relevance to the challenges of creating a @DEM of the Rhine catchment area, it has been included in this chapter. Currently, all data labeled as a must in @Moscow_Prioritization is implemented within the scraping software.
 
 #drafting.inline-note("TODO: arda write about this section here")
 
@@ -18,7 +18,7 @@ harmonizing nodata -> reprojection -> regridding -> resampling -> interpolation 
 
 
 ...
-The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated nodata cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still neccesary.
+The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated @DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated nodata cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still necessary.
 
 For this process nearest inverse distance weighing is used. This does not catch all nodata values. In case it does not, nearest neighbor interpolation is used to supplement to fill the remaining holes. However, due to the range set for nearest neighbor, not all nodata cells are interpolated. Increasing the radius would likely solve this issue, but would also significantly increase processing time. Therefore, the interpolation limitations of the Netherlands have had to be excepted as a shortcoming of the pipeline, caused by the available data.
 

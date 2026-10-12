@@ -4,9 +4,9 @@
 
 == Terrain Models
 
-#cite(<terrain_book>, form: "prose") provide the following definition of a terrain model: "A terrain is a representation of the Earth’s surface. It gives us the elevation, which is the height above/below a certain reference point (a vertical datum)." In this project, the two representations of terrain are a digital elevation model (DEM), here understood to be a raster dataset (essentially a map) where the value of each pixel equals the height of the terrain at its centre, and a point cloud (PC), a set of points in 3D collected with an aerial laser scanner where each point in the set corresponds to a point on a surface somewhere in the real world. DEMs are further differentiated into digital terrain models (DTMs), which only show the elevation of bare earth without human-made structures or vegetation, and digital surface models (DSMs), which show all objects on the surface, such as trees, buildings, and the ground itself.
+#cite(<terrain_book>, form: "prose") provide the following definition of a terrain model: "A terrain is a representation of the Earth’s surface. It gives us the elevation, which is the height above/below a certain reference point (a vertical datum)." In this project, the two representations of terrain are @DEM, here understood to be a raster dataset (essentially a map) where the value of each pixel equals the height of the terrain at its centre, and @PC, a set of points in 3D collected with an aerial laser scanner where each point in the set corresponds to a point on a surface somewhere in the real world. @DEM:pla are further differentiated into @DTM:pla, which only show the elevation of bare earth without human-made structures or vegetation, and @DSM:pla, which show all objects on the surface, such as trees, buildings, and the ground itself.
 
-For a given use case, each terrain model, whether a DEM or a PC, is associated with a coordinate reference system (CRS). A CRS describes the units of measurement, horizontal and vertical datums, and direction of the axes. Different countries use different reference systems, and conversion between them is needed before different terrain models can be integrated with one another.
+For a given use case, each terrain model, whether a @DEM or a @PC, is associated with a @CRS. A @CRS describes the units of measurement, horizontal and vertical datums, and direction of the axes. Different countries use different reference systems, and conversion between them is needed before different terrain models can be integrated with one another.
 
 == The Need for the European DEM
 
@@ -16,17 +16,17 @@ Currently, there are
 
 The main research question of this project is:
 
-_How to create a harmonised cross-border DEM of the Rhine catchment area in an automated manner?_
+_How to create a harmonised cross-border @DEM of the Rhine catchment area in an automated manner?_
 
-As described in the introduction, the project focuses on the issues presented by the cross-border data of the Rhine catchment area. This translates to the creation of an automated pipeline and this report describing the challenges that come with attempting the creation of a harmonised DEM. The aspects of the main question can be broken down into the following subquestions:
+As described in the introduction, the project focuses on the issues presented by the cross-border data of the Rhine catchment area. This translates to the creation of an automated pipeline and this report describing the challenges that come with attempting the creation of a harmonised @DEM. The aspects of the main question can be broken down into the following subquestions:
 
 - What is the Rhine catchment area?
-- What, if any, existing approaches are there to creating a harmonised DEM from heterogeneous sources?
-- What are the existing DEMs at different scales (regional, national, and global)?
+- What, if any, existing approaches are there to creating a harmonised @DEM from heterogeneous sources?
+- What are the existing @DEM:pla at different scales (regional, national, and global)?
 - What are the issues with cross-border data?
-- What are the INSPIRE requirements for DEMs?
+- What are the @INSPIRE requirements for @DEM:pla?
 - What are the limitations of an automated harmonisation pipeline?
-- How can the accuracy of a reconstructed cross-border DEM be tested?
+- How can the accuracy of a reconstructed cross-border @DEM be tested?
 
 Answering these subquestions will help to answer the main research question. The first five subquestions are evaluated in the research phase of the project and relate mostly to existing works and available data. Answering these questions informs data acquisition and subsequent software development. The next research questions are be answered during the software development phase as they relate to testing and limitations of the pipeline by evaluating the procedures and the output, and discussing the findings with the client.
 
@@ -49,8 +49,8 @@ Answering these subquestions will help to answer the main research question. The
 == Deliverables
 
 By the end of the project, the team expects to produce the following output:
-- *A working pipeline* for DEM harmonisation. This includes the code and documentation which supports its use.
-- *A DEM* of the Rhine catchment area.
+- *A working pipeline* for @DEM harmonisation. This includes the code and documentation which supports its use.
+- *A @DEM* of the Rhine catchment area.
 - *This report* justifying the decisions made and describing the process.
 
 More detailed requirements for these deliverables are found in ....

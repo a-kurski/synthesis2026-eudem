@@ -29,6 +29,8 @@
 
 #include "000-front-matter.typ"
 #include "005-abbreviations.typ"
+#import "@preview/abbr:0.3.1"
+#show: abbr.show-rule
 #counter(page).update(0)
 
 #set page(
