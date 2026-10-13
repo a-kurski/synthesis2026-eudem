@@ -1,5 +1,8 @@
 #import "template-short.typ"
 
+#import "@preview/abbr:0.3.1"
+#show: abbr.show-rule
+
 // Cover page
 #set page(
   paper: "a4",
@@ -28,9 +31,6 @@
 )
 
 #include "000-front-matter.typ"
-#include "005-abbreviations.typ"
-#import "@preview/abbr:0.3.1"
-#show: abbr.show-rule
 #counter(page).update(0)
 
 #abbr.config(space-char: sym.space)
@@ -50,6 +50,7 @@
 #outline(title: "Contents")
 #outline(title: "Figures", target: figure.where(kind: image))
 #outline(title: "Tables", target: figure.where(kind: table))
+#include "005-abbreviations.typ"
 #set heading(numbering: "1.1")
 
 #show heading.where(level: 1): it => {

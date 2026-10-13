@@ -1,4 +1,5 @@
 #import "@preview/drafting:0.2.2"
+
 = Theory and Context <chap:theory>
 
 This chapter will go over the reviewed literature. It discusses both the existing approaches for harmonizing cross-border data, the @INSPIRE specification on elevation, and point cloud processing methods.
@@ -9,17 +10,28 @@ A @GDEM covers most of the land surface of the Earth. Currently, there are two m
 
 === Satellite Data-Derived Elevation Models <sec:spaceborne-gdem>
 
-Most @GDEM:pla are constructed using data from space-borne @InSAR or optical sensors. An overview of the most common existing @GDEM:pla has been provided by #cite(<terrain_book>, form: "prose", supplement: "Table 3.2"). The majority of satellite @GDEM:pla are obtained using @InSAR; only two of those presented are derived from optical data. The common @GSD is 30m or 90m; a few, like WorldDEM or @ALOS are also available at finer resolutions. The majority of the @GDEM:pla are @DSM:pla; some products offer a "_pseudo_-@DTM" where some ground filtering has been performed.
+Most @GDEM:pla are constructed using data from space-borne @InSAR or optical sensors.
+An overview of the most common existing @GDEM:pla has been provided by #cite(<terrain_book>, form: "prose", supplement: "Table 3.2").
+The majority of satellite @GDEM:pla are obtained using @InSAR; only two of those presented are derived from optical data.
+The common @GSD is 30m or 90m; a few, like WorldDEM or @ALOS are also available at finer resolutions.
+The majority of the @GDEM:pla are @DSM:pla; some products offer a "_pseudo_-@DTM" where some ground filtering has been performed.
 
-Copernicus DEM is particularly relevance to the current project as it is produced by the @ESA. It is available in three resolutions: the global datasets GLO-90 and GLO-30 are openly available at 90m and 30m resolution; and a further 10m dataset EEA-10 which is limited to the @EEA member states and is only available to select users. EEA-10 is the only dataset which is available in INSPIRE format. According to the product handbook #drafting.margin-note[TODO cite], the vertical accuracy of the global product is up to 2m on 79.6% of the EEA member states' land area; between 2 and 5m on further 18.4% of land area; and above 5m on the remaining 2% of the land area.
+The European data portal lists two official @DTM datasets: EU-DEM @eurostat_eudem and Copernicus @DEM @eurostat_copernicusdem.
+Both are based on Copernicus data and have a 30 and 90 meter cell resolution respectively.
+EU-DEM is available in geodetic @ETRS89 and @ETRS89-LAEA and is described to have a vertical @RMSE of 2.9m @dhigras_eudem_validation_2014 while Copernicus @DEM is availabe only in @ETRS89 with a vertical @RMSE of 1.68m @airbus_copernicusdem_validation_2020.
+Copernicus further offer a 10m dataset titled EEA-10 which is limited to the @EEA member states and is only available to select users @cdse_copdem.
+EEA-10 is the only dataset which is available in INSPIRE format and projected to @ETRS89-LAEA for continental Europe whereas 30m and 90m global datasets are only supplied in WGS84 @airbus_copernicusdem_handbook_2022.
 
-#drafting.margin-note[TODO cite] evaluate the accuracy of several @GDEM:pla against two sets of reference points in Bosnia and Herzogovina, additionally comparing them with the national @DEM. The authors further compare different interpolation methods in their assessment --- here, only results achieved with bilinear interpolation are referenced as it is the interpolation method recommended by @INSPIRE. For both sets of reference points, national @DEM has the lowest RMSE of 1.64m and 3.02m respectively; Copernicus DEM has the lowest RMSE of the @GDEM:pla with 2.35m and 3.11m respectively.
+#cite(<krdzalic2024>, form: "prose") evaluate the accuracy of several @GDEM:pla against two sets of reference points in Bosnia and Herzogovina, additionally comparing them with the national @DEM. The authors further compare different interpolation methods in their assessment --- here, only results achieved with bilinear interpolation are referenced as it is the interpolation method recommended by @INSPIRE. For both sets of reference points, national @DEM has the lowest RMSE of 1.64m and 3.02m respectively; Copernicus DEM has the lowest RMSE of the @GDEM:pla with 2.35m and 3.11m respectively.
 
-=== Composite Global Elevation Models <sec:mapterhorn>
+=== Aggregate Global Elevation Models <sec:mapterhorn>
 
-A composite elevation model serves as an alternative to the conventional @GDEM. With this approach, several heterogeneous @DEM:pla are assembled into one finished product --- this is also an approach taken in this project. The only example of this approach known to us is Mapterhorn #drafting.margin-note()[TODO cite]. Currently, Mapterhorn combines 70 open-access national, regional, and local elevation products alongside Copernicus DEM GLO-30 into one harmonised @DEM.
+An aggregate elevation model serves as an alternative to the conventional @GDEM. With this approach, several heterogeneous @DEM:pla are assembled into one finished product --- this is also an approach taken in this project. The only example of this approach known to us is Mapterhorn @wipfli2026mapterhorn. Currently, Mapterhorn combines 70 open-access national, regional, and local elevation products alongside Copernicus DEM GLO-30 into one harmonised @DEM.
 
 There are several shortcomings with current implementation of Mapterhorn. The first one is that it is neither a @DTM nor a @DSM: Copernicus DEM is a _surface_ model, and national products can be both a _terrain_ and a _surface_ model --- therefore, Mapterhorn's elevation data is a mix of both. The second one is the approach to resolving elevation conflicts at the border. Mapterhorn uses a Gaussian blur to blend the elevation data where two datasets overlap, which may introduce elevation points which may not be representative of reality for those point samples. Lastly, Mapterhorn enforces that the @CRS transform is only horizontal, explicitly ruling out vertical transform.
+
+A similar approach was described by #cite(<Noardo2016>, form: "prose") who report on harmonisation of the @CRS, orthrophoto, semantic information, and the @DEM.
+For @DEM harmonisation, the paper suggests an approach conceptually similar to that of Mapterhorn --- the elevation of the border regions is obtained by performing a linear interpolation, which has similar issues to using a Gaussian blur in that the data around the border may not match reality.
 
 == INSPIRE Specification on Elevation <sec:inspire>
 
@@ -91,7 +103,7 @@ For flat terrain, the resolution should be between $3 times "RMSE"$ and $20 time
 
 == Cross-border DEM <sec:inspire-cross-border>
 
-Whereas most reports focus on semantic data harmonization of cross-border areas, few look at @DTM data. While little more than an educated guess, it is likely due to existing datasets. The European data portal lists two official @DTM:pla datasets @europaDigitalElevation. These are both based on Copernicus data and have a 30 and 90 meter cell resolution respectively (at the equator). The Copernicus @DEM is listed as having a vertical @RMSE of $1.68 m$ for the 90 meter dataset @CopernicusDEM-RP-001_ValidationReport, and a @RMSE of $2.9 m$ for the 30 meter dataset @europaDigitalElevation. Meanwhile, most national datasets fall between 0.5 and 2 meter resolution for cells. It is therefore likely, that for most applications on a small scale, the national datasets suffice. While for large scale, cross-border projects, the European @DTM dataset suffices.
+
 
 Nevertheless, one report details a method of cross-border harmonization. The report details harmonization of the coordinate reference system, orthrophoto, semantic information, and the digital terrain model @Noardo2016. For this report only the @CRS transformation and @DTM harmonisation are relevant. They describe the process of transforming the datasets. However, for the pipeline this process will be automated using @GDAL. It also highlights the @INSPIRE recommendation of the quasi-geoid named @EVRF for the vertical reference. Therefore, @EVRF should be considered as the vertical reference.
 
@@ -106,6 +118,8 @@ Where $H_A$ is the final assigned height, while $D$ represents the distance from
 add reference to #cite(<carcano2013merging>, form: "prose")
 
 == Ground Filtering <sec:ground-filter>
+
+// we're not re-extracting things anymore, are we?
 
 In order to create a new @DTM from point clouds, a method called ground filtering is used. Several different methods exist for this process. However, in the interest of limiting the scope of the project an existing implementation in @PDAL will be used. However, other methods were evaluated to compare their performance against the @PMF used by @PDAL.
 

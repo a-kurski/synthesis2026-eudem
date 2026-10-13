@@ -98,7 +98,7 @@
   }
 
 @article{Haase2005,
-  title = {Topography data harmonisation and uncertainties applying SRTM,  laser scanner and cartographic elevation models},
+  title = {Topography data harmonisation and uncertainties applying SRTM, laser scanner and cartographic elevation models},
   volume = {5},
   ISSN = {1680-7359},
   url = {http://dx.doi.org/10.5194/adgeo-5-65-2005},
@@ -142,13 +142,70 @@ doi = {10.1007/s12518-016-0172-9}
 	year = {2026},
 }
 
-@article{CopernicusDEM-RP-001_ValidationReport,
-  author = {Vera Leister-Taylor},
-  year = {2020},
-  month = Nov,
-  pages = {18},
-  title = {CopernicusDEM-RP-001_ValidationReport},
-  version = {3.0},
+@online{eurostat_eudem,
+  author       = {{Eurostat}},
+  title        = {{EU-DEM}: Digital Elevation Model over {Europe}},
+  titleaddon   = {GISCO, Geodata, Digital elevation model},
+  organization = {European Commission},
+  url          = {https://ec.europa.eu/eurostat/web/gisco/geodata/digital-elevation-model/eu-dem},
+  urldate      = {2026-10-13}
+}
+
+@online{eurostat_copernicusdem,
+  author       = {{Eurostat}},
+  title        = {{Copernicus} Digital Elevation Model},
+  titleaddon   = {GISCO, Geodata, Digital elevation model},
+  organization = {European Commission},
+  url          = {https://ec.europa.eu/eurostat/web/gisco/geodata/digital-elevation-model/copernicus},
+  urldate      = {2026-10-13}
+}
+
+@report{dhigras_eudem_validation_2014,
+  author       = {{DHI GRAS}},
+  title        = {{EU-DEM} Statistical Validation Report},
+  type         = {Report},
+  institution  = {DHI GRAS},
+  location     = {Copenhagen, Denmark},
+  date         = {2014-08},
+  number       = {18800150-5},
+  note         = {Prepared for the European Environment Agency (EEA). Specific contract No.\ 3436/B2014/R0-GIO/EEA.55694},
+  url          = {https://ec.europa.eu/eurostat/documents/7116161/7172326/Report-EU-DEM-statistical-validation-August2014.pdf},
+  urldate      = {2026-10-13}
+}
+
+@report{airbus_copernicusdem_validation_2020,
+  author       = {{Airbus Defence and Space GmbH}},
+  title        = {{Copernicus} Digital Elevation Model: Validation Report},
+  type         = {Report},
+  institution  = {Airbus Defence and Space GmbH},
+  date         = {2020-11-09},
+  number       = {GEO1988-CopernicusDEM-RP-001},
+  version      = {3.0},
+  note         = {Campaign ID GEO.2018-1988-2},
+  url          = {https://ec.europa.eu/eurostat/documents/7116161/21574904/GEO1988-CopernicusDEM-RP-001_ValidationReport_I3.0_08.2024.pdf/77a7f626-500b-d524-4f97-76c3db005970?t=1747752837661},
+  urldate      = {2026-10-13}
+}
+
+@online{cdse_copdem,
+  author       = {{Copernicus Data Space Ecosystem}},
+  title        = {{Copernicus DEM} -- Global and {European} Digital Elevation Model},
+  titleaddon   = {Copernicus Contributing Missions, collections description},
+  organization = {European Space Agency},
+  url          = {https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM},
+  urldate      = {2026-10-13}
+}
+
+@report{airbus_copernicusdem_handbook_2022,
+  author       = {{Airbus Defence and Space GmbH}},
+  title        = {{Copernicus} Digital Elevation Model: Product Handbook},
+  type         = {Report},
+  institution  = {Airbus Defence and Space GmbH},
+  date         = {2022-11-29},
+  number       = {GEO1988-CopernicusDEM-SPE-002},
+  version      = {5.0},
+  note         = {Campaign ID GEO.2018-1988-2},
+  url          = {https://dataspace.copernicus.eu/sites/default/files/media/files/2024-06/geo1988-copernicusdem-spe-002_producthandbook_i5.0.pdf},
+  urldate      = {2026-10-13}
 }
 
 @article{Silva2018GroundFiltering,
@@ -228,4 +285,28 @@ keywords = {LiDAR Digital Terrain Model,  artifacts, accuracy, precision and val
   type         = {Ph.D. thesis},
   year         = {2013},
   address      = {Milan, Italy}
+}
+
+@article{krdzalic2024,
+title = {Evaluating the accuracy of the digital elevation models (DEMs) within the territory of Bosnia and Herzegovina},
+journal = {Remote Sensing Applications: Society and Environment},
+volume = {34},
+pages = {101187},
+year = {2024},
+issn = {2352-9385},
+doi = {https://doi.org/10.1016/j.rsase.2024.101187},
+url = {https://www.sciencedirect.com/science/article/pii/S235293852400051X},
+author = {Dževad Krdžalić and Jasmin Ćatić and Esad Vrce and Džanina Omićević},
+keywords = {DEM, Gravimetric geoid, Geoid accuracy, Terrain representation, Datum alignment, Comparative analysis},
+abstract = {This study focuses on evaluating the accuracy of Digital Elevation Models (DEMs) in Bosnia and Herzegovina, a region characterized by diverse topography. The accuracy of the gravimetric geoid model is directly correlated with the resolution and accuracy of the digital elevation model (DEM). To date, no research has been conducted on the accuracy of global and regional models for the area of Bosnia and Herzegovina, using ground control points. The analysis encompasses various aspects of DEMs, including interpolation methods (bicubic, B-spline, bilinear, and nearest neighbor), data sources, control points, and datum alignment. Both global and regional DEM models are integrated, introducing a native terrain model. Two sets of control points are utilized for accuracy assessment, along with datum alignment approach. The performance of the BIHDEM model is scrutinized, and a comparison with LIDAR data is conducted. Accuracy assessment involves calculating the Root Mean Square Error (RMSE) for all DEMs and interpolation methods. The study reveals that the bicubic interpolation method yields the best results. The BIHDEM model proves to be the most effective for SET1 (high precision leveling network), while COPERNICUS emerges as the optimal choice for SET2 (trigonometric network). Furthermore, an analysis of the elevation profiles obtained from LIDAR and DEM models highlights significant differences, with ASTER, MERIT, NASADEM and SRTM exhibiting the largest variations. In contrast, FABDEM and BIHDEM models demonstrate minimal differences. Mean values and RMSE further support the superiority of FABDEM and BIHDEM models, providing valuable insights for geospatial applications in the region.}
+}
+@online{wipfli2026mapterhorn,
+  author    = {Wipfli, Oliver},
+  title     = {Mapterhorn Terrain and Imagery},
+  type      = {Presentation},
+  eventtitle = {State of the Map 2026},
+  venue     = {Paris, France},
+  date      = {2026-08-28},
+  url       = {https://oliverwipfli.ch/presentation-state-of-the-map-2026-2026-08-31/sotm-2026-presentation.pdf},
+  urldate   = {2026-10-13},
 }
