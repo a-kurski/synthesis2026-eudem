@@ -33,6 +33,8 @@
 #show: abbr.show-rule
 #counter(page).update(0)
 
+#abbr.config(space-char: sym.space)
+
 #set page(
   numbering: "1"
 )

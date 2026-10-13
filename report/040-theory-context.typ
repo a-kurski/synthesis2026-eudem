@@ -11,11 +11,15 @@ A @GDEM covers most of the land surface of the Earth. Currently, there are two m
 
 Most @GDEM:pla are constructed using data from space-borne @InSAR or optical sensors. An overview of the most common existing @GDEM:pla has been provided by #cite(<terrain_book>, form: "prose", supplement: "Table 3.2"). The majority of satellite @GDEM:pla are obtained using @InSAR; only two of those presented are derived from optical data. The common @GSD is 30m or 90m; a few, like WorldDEM or @ALOS are also available at finer resolutions. The majority of the @GDEM:pla are @DSM:pla; some products offer a "_pseudo_-@DTM" where some ground filtering has been performed.
 
+Copernicus DEM is particularly relevance to the current project as it is produced by the @ESA. It is available in three resolutions: the global datasets GLO-90 and GLO-30 are openly available at 90m and 30m resolution; and a further 10m dataset EEA-10 which is limited to the @EEA member states and is only available to select users. EEA-10 is the only dataset which is available in INSPIRE format. According to the product handbook #drafting.margin-note[TODO cite], the vertical accuracy of the global product is up to 2m on 79.6% of the EEA member states' land area; between 2 and 5m on further 18.4% of land area; and above 5m on the remaining 2% of the land area.
 
+#drafting.margin-note[TODO cite] evaluate the accuracy of several @GDEM:pla against two sets of reference points in Bosnia and Herzogovina, additionally comparing them with the national @DEM. The authors further compare different interpolation methods in their assessment --- here, only results achieved with bilinear interpolation are referenced as it is the interpolation method recommended by @INSPIRE. For both sets of reference points, national @DEM has the lowest RMSE of 1.64m and 3.02m respectively; Copernicus DEM has the lowest RMSE of the @GDEM:pla with 2.35m and 3.11m respectively.
 
 === Composite Global Elevation Models <sec:mapterhorn>
 
-The alternative to a conventional @GDEM
+A composite elevation model serves as an alternative to the conventional @GDEM. With this approach, several heterogeneous @DEM:pla are assembled into one finished product --- this is also an approach taken in this project. The only example of this approach known to us is Mapterhorn #drafting.margin-note()[TODO cite]. Currently, Mapterhorn combines 70 open-access national, regional, and local elevation products alongside Copernicus DEM GLO-30 into one harmonised @DEM.
+
+There are several shortcomings with current implementation of Mapterhorn. The first one is that it is neither a @DTM nor a @DSM: Copernicus DEM is a _surface_ model, and national products can be both a _terrain_ and a _surface_ model --- therefore, Mapterhorn's elevation data is a mix of both. The second one is the approach to resolving elevation conflicts at the border. Mapterhorn uses a Gaussian blur to blend the elevation data where two datasets overlap, which may introduce elevation points which may not be representative of reality for those point samples. Lastly, Mapterhorn enforces that the @CRS transform is only horizontal, explicitly ruling out vertical transform.
 
 == INSPIRE Specification on Elevation <sec:inspire>
 
