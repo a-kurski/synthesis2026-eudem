@@ -451,7 +451,7 @@ def river_mask_creation(dem, show_all_features=SHOW_ALL_RIVER_FEATURES):
 
     data = np.asarray(dem.data.filled(0))
     sigmas = (
-        range(1, SIGMA_SWEEP_MAX + 1)
+        range(3, SIGMA_SWEEP_MAX + 1)
         if RUN_SIGMA_SWEEP
         else (GAUSSIAN_SIGMA,)
     )
@@ -563,27 +563,35 @@ def river_mask_creation(dem, show_all_features=SHOW_ALL_RIVER_FEATURES):
 
 
 def merge_sigma_features(iteration_features, crs):
-    if not iteration_features:
+    columns = [
+        "class",
+        "class_sigma",
+        "sigma_values",
+        "source_feature_count",
+        "area_m2",
+        "geometry",
+    ]
+
+    def empty_features():
         return gu.Vector(
             gpd.GeoDataFrame(
-                columns=[
-                    "class",
-                    "class_sigma",
-                    "sigma_values",
-                    "source_feature_count",
-                    "area_m2",
-                    "geometry",
-                ],
+                columns=columns,
                 geometry="geometry",
                 crs=crs,
             )
         )
+
+    if not iteration_features:
+        return empty_features()
 
     sources = gpd.GeoDataFrame(
         pd.concat(iteration_features, ignore_index=True),
         geometry="geometry",
         crs=crs,
     )
+    if sources.empty:
+        return empty_features()
+
     merged = shapely.ops.unary_union(sources.geometry.tolist())
     geometries = (
         list(merged.geoms)
@@ -596,9 +604,14 @@ def merge_sigma_features(iteration_features, crs):
     for geometry in geometries:
         if geometry.geom_type != "Polygon":
             continue
+
         indices = spatial_index.query(geometry, predicate="intersects")
         contributors = sources.iloc[indices]
         latest_contributor = contributors.loc[contributors["sigma"].idxmax()]
+
+        if len(contributors) < 10:
+            continue
+
         records.append(
             {
                 "class": latest_contributor["class"],
@@ -612,9 +625,10 @@ def merge_sigma_features(iteration_features, crs):
             }
         )
 
-    return gu.Vector(
-        gpd.GeoDataFrame(records, geometry="geometry", crs=crs)
-    )
+    if not records:
+        return empty_features()
+
+    return gu.Vector(gpd.GeoDataFrame(records, geometry="geometry", crs=crs))
 
 
 def river_polygons(
@@ -854,6 +868,7 @@ def river_polygons(
     classified_features = polygons.ds["class"].isin(
         ["large river", "river", "lake"]
     )
+
     removed_count = int((~classified_features).sum())
     if not show_all_features:
         polygons.ds = polygons.ds.loc[classified_features].reset_index(drop=True)
