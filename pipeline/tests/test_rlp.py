@@ -5,13 +5,14 @@ import tempfile
 import unittest
 from unittest.mock import MagicMock, patch
 
+import requests
 import numpy as np
 from osgeo import gdal, ogr, osr
 
 from dtm.acquire import cached, download_tile, sha256
 from dtm.coordinator import execute, load_config
 from dtm.countries.germany import rlp
-from dtm.countries.germany.rlp.acquisition import download, select_tiles
+from dtm.countries.germany.rlp.acquisition import catalogue, download, select_tiles
 from dtm.geo import rectangle, srs, validate_tile, verify_alignment
 from dtm.paths import scoped_root, raw_directory
 from dtm.target_grid import plan_grid, write_reference
@@ -80,6 +81,44 @@ class RLPTests(unittest.TestCase):
         for bad in [b'<html/>', self.manifest().replace(b'a' * 64, b'bad'), self.manifest([outside])]:
             with self.assertRaises(ValueError):
                 select_tiles(bad, self.plan)
+
+    def test_catalogue_retries_timeout_then_saves_success(self):
+        self.config['download_attempts'] = 4
+        session = self.response_session(self.manifest())
+        session.__enter__.return_value = session
+        response = session.get.return_value
+        session.get.side_effect = [requests.ReadTimeout('TLS handshake timed out'), response]
+        log = self.root / 'retry'
+        log.mkdir()
+        with patch('requests.Session', return_value=session), \
+             patch('dtm.countries.germany.rlp.acquisition.time.sleep') as sleep:
+            tiles = catalogue(self.config, self.plan, log)
+        self.assertEqual(tiles[0]['id'], self.tile['id'])
+        self.assertEqual(session.get.call_count, 2)
+        sleep.assert_called_once_with(2)
+        self.assertEqual((log / 'rlp_dgm1.meta4').read_bytes(), self.manifest())
+        self.assertTrue((log / 'rlp_selected_tiles.json').is_file())
+
+    def test_catalogue_retries_are_bounded_and_invalid_metadata_is_not_retried(self):
+        self.config['download_attempts'] = 3
+        session = self.response_session(b'<html/>')
+        session.__enter__.return_value = session
+        session.get.side_effect = requests.ConnectionError('disconnected')
+        log = self.root / 'failure'
+        log.mkdir()
+        with patch('requests.Session', return_value=session), \
+             patch('dtm.countries.germany.rlp.acquisition.time.sleep') as sleep:
+            with self.assertRaisesRegex(RuntimeError, 'after 3 attempts'):
+                catalogue(self.config, self.plan, log)
+            self.assertEqual(session.get.call_count, 3)
+            self.assertEqual([call.args[0] for call in sleep.call_args_list], [2, 4])
+            self.assertEqual(list(log.iterdir()), [])
+            session.get.reset_mock(side_effect=True)
+            sleep.reset_mock()
+            with self.assertRaises(ValueError):
+                catalogue(self.config, self.plan, log)
+            session.get.assert_called_once()
+            sleep.assert_not_called()
 
     def test_direct_download_cache_integrity_and_atomic_failure(self):
         raw = self.raw()

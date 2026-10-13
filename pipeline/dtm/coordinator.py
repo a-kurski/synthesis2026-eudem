@@ -17,7 +17,7 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 
 from .acquire import sha256, write_json
 from .downloads import worker_count
-from .countries import germany, netherlands, switzerland
+from .countries import france, germany, luxembourg, netherlands, switzerland
 from .paths import scoped_root, receipt_path, region_lock
 from .geo import bounds, read_aoi
 from .process import command
@@ -26,7 +26,8 @@ from .target_grid import plan_grid, resolution, write_reference
 # Future country packages implement validate_config, plan, download, probe and
 # prepare. A country is selected per invocation; all use the same target grid.
 COUNTRIES = {'netherlands': netherlands, 'germany': germany,
-             'switzerland': switzerland, 'liechtenstein': switzerland}
+             'switzerland': switzerland, 'liechtenstein': switzerland, 'france': france,
+             'luxembourg': luxembourg}
 DEFAULTS = {'layer': None, 'cache_root': 'data', 'output_root': 'data', 'old_runs_root': 'data/old_runs',
             'logs_dir': 'logs/preparation', 'nodata': -9999, 'block_size': 512,
             'alignment_tolerance_m': 1e-8, 'timeout_seconds': 300,
@@ -46,8 +47,15 @@ def load_config(path):
     if target.get('reference_raster'):
         target['reference_raster'] = str((path.parent / target['reference_raster']).resolve())
     config['target'] = target
+    if config.get('country_mask'):
+        config['country_mask'] = str((path.parent / config['country_mask']).resolve())
     if config.get('source_manifest'):
         config['source_manifest'] = str((path.parent / config['source_manifest']).resolve())
+    if config.get('country') == 'germany' and config.get('region') == 'hessen':
+        source = dict(config.get('source', {}))
+        if source.get('boundary_file'):
+            source['boundary_file'] = str((path.parent / source['boundary_file']).resolve())
+        config['source'] = source
     worker_count(config)
     if config['nodata'] != -9999:
         raise ValueError('nodata must be -9999.')
@@ -90,7 +98,7 @@ def create_log_directory(config, now=None):
 
 def execute(config, mode='run'):
     """Plan/prepare one country and return its result. No comparison is performed."""
-    if mode not in ('run', 'plan', 'probe', 'yes'):
+    if mode not in ('run', 'plan', 'probe', 'yes', 'prefetch'):
         raise ValueError(f'Unknown execution mode: {mode}')
     country = COUNTRIES[config['country']]
     country.validate_config(config)  # Also validate command-line overrides/library callers.
@@ -108,9 +116,18 @@ def execute(config, mode='run'):
         write_json(log_dir / 'config.json', config)
         logger.info('Invocation %s; Python=%s GDAL=%s NumPy=%s requests=%s',
                     sys.argv, platform.python_version(), gdal.VersionInfo('--version'), np.__version__, requests.__version__)
+        if mode == 'prefetch':
+            if config['country'] != 'germany' or config.get('region') != 'bw':
+                raise ValueError('--prefetch is currently supported only for Baden-Württemberg.')
+            resources.enter_context(region_lock(config))
+            result = country.prefetch(config, log_dir)
+            write_json(log_dir / 'result.json', result)
+            print(f'Statewide cache: {result}')
+            return result
         geometry, crs, layer = read_aoi(config['aoi'], config['layer'])
-        target = plan_grid(geometry, config['target'])
         source = country.plan(geometry, config)
+        target = None if source.get('skip_reason') else plan_grid(
+            geometry, config['target'], allow_shifted_origin=source.get('allow_shifted_target_origin', False))
         vertical_note = source.get('vertical_datum_note', country.VERTICAL_NOTE)
         identity = {'country': config['country']}
         if config.get('region'):
@@ -122,8 +139,18 @@ def execute(config, mode='run'):
         write_json(log_dir / 'plan.json', plan)
         write_json(log_dir.parent / 'latest_plan.json', plan)
         print(f"Country: {config['country']}; region: {config.get('region', 'national')}; AOI layer: {layer}")
-        if source.get('discovery_pending'):
-            print('Source: swissALTI3D 2 m; tile count and editions resolved during acquisition (offline plan).')
+        if source.get('skip_reason'):
+            print(f"Skipped: {source['skip_reason']}")
+            if mode == 'plan':
+                return plan
+            result = {**identity, 'status': 'skipped', 'reason': source['skip_reason'],
+                      'log_directory': str(log_dir), 'plan_file': str(log_dir / 'plan.json')}
+            write_json(log_dir / 'result.json', result)
+            return result
+        if source.get('local_source'):
+            print(f"Source: {source['product']}; persistent national COG: {source['local_source']}")
+        elif source.get('discovery_pending'):
+            print(f"Source: {source.get('product', 'swissALTI3D 2 m')}; tile count and editions resolved during acquisition (offline plan).")
         elif 'archive_bytes' in source:
             print(f"Source: {source.get('acquisition_note', 'Local native TIFFs first; archive fallback if needed')} "
                   f"Archive: {source['archive_bytes'] / 1e9:.2f} GB")
@@ -191,6 +218,7 @@ def main():
     parser.add_argument('config', nargs='?', default='config.netherlands.json', type=Path)
     modes = parser.add_mutually_exclusive_group()
     for flag, help_text in [('plan', 'Offline plan only.'), ('probe', 'Download one native source test tile (size depends on region).'),
+                            ('prefetch', 'Populate the full Baden-Württemberg ZIP cache without processing; ignores AOI.'),
                             ('yes', 'Run acquisition and preparation without prompting.'),
                             ('self-test', 'Run offline country-preparation tests.')]:
         modes.add_argument('--' + flag, action='store_true', help=help_text)
@@ -198,7 +226,7 @@ def main():
     filling.add_argument('--fill-holes', dest='fill_holes', action='store_true', default=None, help='Enable gap interpolation after resampling (currently Netherlands).')
     filling.add_argument('--no-fill-holes', dest='fill_holes', action='store_false', help='Prepare terrain without hole interpolation.')
     caching = parser.add_mutually_exclusive_group()
-    caching.add_argument('--fresh-download', dest='reuse_cache', action='store_false', default=None, help='Download into this run instead of reusing or replacing the existing cache.')
+    caching.add_argument('--fresh-download', dest='reuse_cache', action='store_false', default=None, help='Refresh sources; replace cached files only after validation.')
     caching.add_argument('--reuse-cache', dest='reuse_cache', action='store_true', help='Reuse validated source tiles.')
     parser.add_argument('--source-manifest', type=Path,
                         help='Resume swissALTI3D acquisition with the saved swissalti3d_manifest.json editions.')
@@ -209,7 +237,7 @@ def main():
         result = unittest.TextTestRunner(verbosity=2).run(suite)
         raise SystemExit(0 if result.wasSuccessful() else 1)
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
-    mode = 'plan' if args.plan else 'probe' if args.probe else 'yes' if args.yes else 'run'
+    mode = 'plan' if args.plan else 'probe' if args.probe else 'prefetch' if args.prefetch else 'yes' if args.yes else 'run'
     config = load_config(args.config)
     if args.source_manifest:
         if config['country'] not in ('switzerland', 'liechtenstein'):

@@ -40,7 +40,7 @@ class RequestGate:
             self.next_start = time.perf_counter() + self.interval
 
 
-def download_tiles(config, tiles, directory, candidates, description, download_one):
+def download_tiles(config, tiles, directory, candidates, description, download_one, *, completed_label='downloaded'):
     """Reuse cached files and download missing tiles in original manifest order.
 
     The caller fetches metadata once before entering this function. Only the
@@ -63,7 +63,7 @@ def download_tiles(config, tiles, directory, candidates, description, download_o
                     results[index] = path
                     reused += 1
                     LOG.info('Reusing validated source tile %s', path)
-                    progress.set_postfix(downloaded=downloaded, cached=reused, refresh=False)
+                    progress.set_postfix({completed_label: downloaded, 'cached': reused, 'refresh': False})
                     progress.update(1)
                     break
             else:
@@ -72,7 +72,7 @@ def download_tiles(config, tiles, directory, candidates, description, download_o
             return results
 
         workers = min(workers, len(missing))
-        LOG.info('%s: %d cached, %d to download, %d HTTP workers',
+        LOG.info('%s: %d cached, %d to acquire, %d HTTP workers',
                  description, reused, len(missing), workers)
         gate = RequestGate(config['request_pause_seconds'])
         stopped = threading.Event()
@@ -114,7 +114,7 @@ def download_tiles(config, tiles, directory, candidates, description, download_o
                     except Exception as exc:
                         raise RuntimeError(f'Failed to acquire {tile["id"]}: {exc}') from exc
                     downloaded += 1
-                    progress.set_postfix(downloaded=downloaded, cached=reused, refresh=False)
+                    progress.set_postfix({completed_label: downloaded, 'cached': reused, 'refresh': False})
                     progress.update(1)
                 for _ in completed:
                     submit_next()

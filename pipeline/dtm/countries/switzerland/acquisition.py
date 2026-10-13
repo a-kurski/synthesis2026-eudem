@@ -18,6 +18,7 @@ from ...acquire import sha256, write_json
 from ...downloads import RequestGate, worker_count
 from ...geo import srs
 from ...paths import raw_directory, receipt_path
+from ...progress import track
 from .processing import validate_native
 
 LOG = logging.getLogger('dtm')
@@ -200,7 +201,8 @@ def acquire(config, tiles):
     gate, stopped = RequestGate(config['request_pause_seconds']), threading.Event()
     with ThreadPoolExecutor(max_workers=min(worker_count(config), len(tiles))) as pool:
         try:
-            return list(pool.map(lambda tile: download_one(tile, directory, config, gate, stopped), tiles))
+            results = pool.map(lambda tile: download_one(tile, directory, config, gate, stopped), tiles)
+            return list(track(results, 'swissALTI3D downloads', total=len(tiles)))
         except BaseException:
             stopped.set()
             raise

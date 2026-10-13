@@ -1,3 +1,7 @@
+> Historical plan: since 29 September 2026, production hole filling runs after
+> resampling on the target grid, retaining GDAL IDW. See
+> [current workflow](NETHERLANDS_PREPARATION.md).
+
 # Plan: optional hole filling for Netherlands AHN preparation
 
 Status: initial implementation completed on 27 September 2026. See

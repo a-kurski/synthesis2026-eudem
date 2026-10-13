@@ -1,7 +1,7 @@
 {
   "country": "germany",
   "region": "rlp",
-  "aoi": "country_masks/Germany_RheinlandPfalz.gpkg",
+  "aoi": "test_masks/rlp_test.gpkg",
   "layer": null,
   "qgis_root": "C:/Program Files/QGIS 3.40.11",
   "cache_root": "data",

@@ -1,5 +1,6 @@
 """Resolve AOI lattice cells to published RLP TIFF URLs and reuse shared downloads."""
 import logging
+import time
 from pathlib import Path
 import re
 from urllib.parse import urlparse
@@ -55,9 +56,18 @@ def select_tiles(content, source_plan):
 def catalogue(config, source_plan, log_dir):
     with requests.Session() as session:
         session.headers['User-Agent'] = 'repeatable-dtm-comparison/1.0'
-        with session.get(config['source']['metalink_url'], timeout=(30, config['timeout_seconds'])) as response:
-            response.raise_for_status()
-            content = response.content
+        for attempt in range(1, config['download_attempts'] + 1):
+            try:
+                logging.getLogger('dtm').info('RLP catalogue request attempt %d/%d', attempt, config['download_attempts'])
+                with session.get(config['source']['metalink_url'], timeout=(30, config['timeout_seconds'])) as response:
+                    response.raise_for_status()
+                    content = response.content
+                break
+            except requests.RequestException as exc:
+                logging.getLogger('dtm').warning('RLP catalogue attempt %d failed: %s', attempt, exc)
+                if attempt == config['download_attempts']:
+                    raise RuntimeError(f'Failed to acquire RLP catalogue after {attempt} attempts: {exc}') from exc
+                time.sleep(min(2 ** attempt, 30))
     tiles = select_tiles(content, source_plan)
     (log_dir / 'rlp_dgm1.meta4').write_bytes(content)
     available = {tuple(tile['bounds']) for tile in tiles}

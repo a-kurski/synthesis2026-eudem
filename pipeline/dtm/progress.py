@@ -16,8 +16,8 @@ class Progress(tqdm):
 
 
 @contextmanager
-def bar(description, total, unit='tiles'):
-    with Progress(total=total, desc=description, unit=unit, disable=None,
+def bar(description, total, unit='tiles', *, initial=0):
+    with Progress(total=total, initial=initial, desc=description, unit=unit, disable=None,
                   dynamic_ncols=True, mininterval=0.25,
                   bar_format='{desc}: {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} {unit}, '
                              '{left:.0f} left [{elapsed}<{remaining}]{postfix}') as progress:

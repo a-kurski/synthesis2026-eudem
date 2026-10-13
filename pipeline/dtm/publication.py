@@ -38,7 +38,7 @@ def write_cog(source, destination):
     temporary.replace(destination)
 
 
-def mask_output(warped, mask_path, prepared, config, note='Heights retain their source vertical datum.', units='m'):
+def mask_output(warped, mask_path, prepared, config, note='Heights retain their source vertical datum.', units='m', metadata=None):
     """Final clean/mask pass shared by heights and dimensionless fill fractions."""
     temp = prepared.with_suffix('.part.tif')
     count = influenced = 0
@@ -47,6 +47,8 @@ def mask_output(warped, mask_path, prepared, config, note='Heights retain their 
         with create_raster(temp, src, config['nodata'], note) as dst:
             dst.GetRasterBand(1).SetUnitType(units)
             dst.SetMetadataItem('PREPARATION', 'Average-resampled to target grid; valid cells inside pixel-centre AOI mask')
+            for key, value in (metadata or {}).items():
+                dst.SetMetadataItem(key, str(value))
             for window in blocks(src, config['block_size'], 'Masking ' + prepared.name):
                 values, valid = valid_values(src.GetRasterBand(1), window)
                 valid &= mask.GetRasterBand(1).ReadAsArray(*window) != 0

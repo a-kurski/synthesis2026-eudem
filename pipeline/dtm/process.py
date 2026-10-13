@@ -103,7 +103,8 @@ def align(ahn, nrw, output, config, *, source_epsg=28992, label='AHN'):
              '-ot', 'Float32', '-of', 'GTiff', '-wm', '256', *co_args()]
     LOG.info('GDAL Warp options=%s source=%s output=%s', options, ahn, output)
     with gdal_progress(label + ' aligning/resampling ' + Path(output).name) as callback:
-        with gdal.Warp(str(output), str(ahn), options=gdal.WarpOptions(options=options, callback=callback)):
+        sources = [str(p) for p in ahn] if isinstance(ahn, (list, tuple)) else str(ahn)
+        with gdal.Warp(str(output), sources, options=gdal.WarpOptions(options=options, callback=callback)):
             pass
     verify_alignment(output, nrw, config['alignment_tolerance_m'])
     LOG.info('Alignment verified: %s', json.dumps(grid(output)))

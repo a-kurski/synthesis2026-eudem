@@ -144,6 +144,8 @@ class SaarlandTests(unittest.TestCase):
         package = self.package([('files/source.tif', self.raw().read_bytes())])
         response = MagicMock()
         response.__enter__.return_value = response
+        response.status_code = 200
+        response.headers = {}
         response.iter_content.return_value = [package.read_bytes()]
         self.config['reuse_cache'] = False
         with patch('requests.Session.get', return_value=response) as get:
@@ -152,7 +154,7 @@ class SaarlandTests(unittest.TestCase):
         self.assertEqual(path, package)
         self.assertTrue(verify_archive(path, self.config['source']))
         response.iter_content.return_value = [b'bad']
-        with patch('requests.Session.get', return_value=response), self.assertRaisesRegex(RuntimeError, 'MD5'):
+        with patch('requests.Session.get', return_value=response), self.assertRaisesRegex(RuntimeError, 'Incomplete archive size'):
             archive(self.config, self.root / 'bad')
         self.assertTrue(verify_archive(package, self.config['source']))
 

@@ -67,7 +67,7 @@ def aggregate(native, reference, destination, config, *, product="nrw", vertical
 
 
 def prepare(tiles, geometry, reference, run_dir, config, *, product="nrw", vertical_note=VERTICAL_NOTE,
-            validate=validate_native, resample=aggregate, mosaic_sources=mosaic):
+            validate=validate_native, resample=aggregate, mosaic_sources=mosaic, metadata=None):
     processed = run_dir / 'processed'
     work = processed / '_work'
     cleaned_dir = work / 'clean_tiles'
@@ -88,7 +88,7 @@ def prepare(tiles, geometry, reference, run_dir, config, *, product="nrw", verti
         with aoi_mask(geometry, ref, mask_path):
             pass
     prepared = work / f'{product}_prepared.tif'
-    count = mask_output(averaged, mask_path, prepared, config, vertical_note)['valid_cell_count']
+    count = mask_output(averaged, mask_path, prepared, config, vertical_note, metadata=metadata)['valid_cell_count']
     verify_alignment(prepared, reference, config['alignment_tolerance_m'])
     if not count:
         raise RuntimeError(f'No valid {product.upper()} coverage inside the AOI. All-NoData output saved: {prepared}')

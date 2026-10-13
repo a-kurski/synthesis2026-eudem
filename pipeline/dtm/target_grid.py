@@ -13,7 +13,7 @@ def resolution(target):
     return float(value)
 
 
-def plan_grid(geometry, target):
+def plan_grid(geometry, target, *, allow_shifted_origin=False):
     """Use a German reference raster, or snap to the target UTM32 lattice (5 m default).
 
     A reference must cover the entire AOI: silently cropping it would discard
@@ -29,7 +29,7 @@ def plan_grid(geometry, target):
             raise ValueError('The reference raster must use EPSG:25832.')
         if not math.isclose(info['transform'][1], step, abs_tol=1e-8, rel_tol=0) or not math.isclose(info['transform'][5], -step, abs_tol=1e-8, rel_tol=0):
             raise ValueError(f'The reference raster must have {step:g} m pixels.')
-        if any(not math.isclose(info['transform'][i], round(info['transform'][i] / step) * step,
+        if not allow_shifted_origin and any(not math.isclose(info['transform'][i], round(info['transform'][i] / step) * step,
                                 abs_tol=1e-8, rel_tol=0) for i in (0, 3)):
             raise ValueError(f'The reference origin must align to multiples of {step:g} m.')
         left, bottom, right, top = info['extent']

@@ -1,7 +1,7 @@
 {
   "country": "germany",
   "region": "nrw",
-  "aoi": "country_masks/Germany_NRW_catchment.gpkg",
+  "aoi": "test_masks/study_area_bigger.gpkg",
   "layer": null,
   "qgis_root": "C:/Program Files/QGIS 3.40.11",
   "cache_root": "data",

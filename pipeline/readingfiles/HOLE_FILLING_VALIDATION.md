@@ -2,6 +2,12 @@
 
 27 September 2026 (pilot ID uses UTC: `20260926T221031Z`).
 
+Update, 29 September 2026: production filling now runs after resampling on the
+target grid. GDAL IDW, the 20 m search distance, and zero smoothing are unchanged.
+The results below document the historical native-grid implementation, not the
+accuracy or performance of the new order. Fill provenance in new production
+outputs is binary target-cell status rather than averaged native contributions.
+
 The optional stage is implemented in
 `dtm/countries/netherlands/hole_filling.py` and integrated between the clean
 native mosaic and the filled branch's warp. GDAL inverse-distance interpolation
@@ -11,8 +17,8 @@ the unfilled prepared baseline are retained.
 
 ## Offline cached-data pilot
 
-[Detailed report and output paths](../data/pilots/hole_filling/20260926T221031Z/pilot_report.json)
-and [compact generated report](../data/pilots/hole_filling/20260926T221031Z/PILOT_REPORT.md).
+[Detailed report and output paths](../data/old_runs/netherlands/pilots/hole_filling/20260926T221031Z/pilot_report.json)
+and [compact generated report](../data/old_runs/netherlands/pilots/hole_filling/20260926T221031Z/PILOT_REPORT.md).
 
 Three validated cached 1 km AHN tiles intersecting the configured
 `netherlands.gpkg` polygon were deliberately selected for varied whole-tile
@@ -104,12 +110,13 @@ The default and current config enable filling with a 20 m radius and reuse the c
 python main.py config.netherlands.json --yes --fill-holes --reuse-cache
 # Existing cached downloads, no filling
 python main.py config.netherlands.json --yes --no-fill-holes
-# Fresh download without filling, preserving old cached inputs
+# Fresh download without filling, replacing matching TIFFs only after validation
 python main.py config.netherlands.json --yes --fresh-download --no-fill-holes
 ```
 
-New raw data is saved under the new run's `raw_ahn_tiles` folder. Finished tiles
-are in `processed_tiles`, and the assembled selected DTM is `ahn_stitched/ahn.tif`. Filling and
+New raw data is saved in `data/netherlands/raw_tiles` (TIFFs only). Target tiles
+are in `processed`, and the assembled selected DTM is `stitched/ahn.tif`. See
+[Data layout](DATA_LAYOUT.md) for receipts and archived products. Filling and
 cache reuse can also be set independently through `hole_filling.enabled` and
 `reuse_cache` in JSON. All gaps inside the AOI are eligible, including water;
 the estimates over water are not measured bathymetry. Full-area production

@@ -5,7 +5,8 @@ import os
 
 
 def scoped_root(config, key):
-    root = Path(config[key]) / config['country']
+    country = 'France' if config['country'] == 'france' and key in ('cache_root', 'output_root') else config['country']
+    root = Path(config[key]) / country
     if config.get('region'):
         root /= config['region']
     return root
@@ -24,6 +25,11 @@ def raw_directory(config):
 
 def receipt_path(path, config=None):
     path = Path(path)
+    if config and config.get('country') == 'luxembourg':
+        return scoped_root(config, 'logs_dir') / 'raw_receipts' / path.with_suffix('.json').name
+    if config and config.get('country') == 'france':
+        relative = path.resolve().relative_to(raw_directory(config).resolve())
+        return scoped_root(config, 'logs_dir') / 'raw_receipts' / relative.with_suffix('.json')
     if config and 'country' in config and path.parent.resolve() == raw_directory(config).resolve():
         return scoped_root(cache_scope(config), 'logs_dir') / 'raw_receipts' / path.with_suffix('.json').name
     return path.with_suffix('.json')
