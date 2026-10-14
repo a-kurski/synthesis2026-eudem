@@ -77,6 +77,8 @@ def infer_vcrs_country(file_name_or_path):
         None,
     )
 
+def name_from_path(path):
+    return os.path.splitext(os.path.basename(path))[0].removesuffix("_vcrs")
 
 def safe_name(obj, fallback="dem"):
     name = os.path.splitext(
@@ -164,10 +166,9 @@ def load_file(filename):
 
 
 def save_raster(array, filename, transform=None, crs=None, nodata=None, dtype=None,
-                resampling="AVERAGE"):
+                resampling="AVERAGE", tags = None):
     if transform is None:
-        # xdem/geoutils Raster objects: check Raster.save() options for your version
-        array.save(filename, driver="COG")
+        array.to_file(filename, driver="COG")
         return
 
     os.makedirs(os.path.dirname(filename) or ".", exist_ok=True)
@@ -191,6 +192,8 @@ def save_raster(array, filename, transform=None, crs=None, nodata=None, dtype=No
         tmp_path = os.path.join(tmpdir, "tmp.tif")
         with rasterio.open(tmp_path, "w", **profile) as tmp:
             tmp.write(array.astype(dtype, copy=False), 1)
+            if tags:
+                tmp.update_tags(**tags)
         with rasterio.Env(GDAL_CACHEMAX=512):
             rio_copy(
                 tmp_path,
@@ -219,7 +222,11 @@ def nanrmse(values):
 
 
 def analyze_dem(dem_1, dem_2, path_1=None, path_2=None,river_buffer=1):
+    name_1 = name_from_path(path_1) if path_1 else safe_name(dem_1)
+    name_2 = name_from_path(path_2) if path_2 else safe_name(dem_2)
     dem_library = load_xdem()
+    bounds = transform_bounds(dem_2.crs, dem_1.crs, *dem_2.bounds, densify_pts=21)
+    dem_1 = dem_1.crop(bounds)           # (left, bottom, right, top) in dem_1's CRS
     dem_2 = dem_2.reproject(dem_1)
 
     river = np.zeros(dem_1.shape, dtype=bool)
@@ -234,56 +241,66 @@ def analyze_dem(dem_1, dem_2, path_1=None, path_2=None,river_buffer=1):
         & np.isfinite(dem_2.data.data)
     )
     if not valid_overlap.any():
+        del valid_overlap
         print(
-            f"Skipping comparison for {safe_name(dem_1)} and "
-            f"{safe_name(dem_2)}: no shared valid elevation pixels.",
+            f"Skipping comparison for {name_1} and "
+            f"{name_2}: no shared valid elevation pixels.",
             flush=True,
         )
         return None
 
     coreg = dem_library.coreg.NuthKaab() + dem_library.coreg.Deramp(poly_order=2)
-    coreg_2 = dem_2.coregister_3d(
-        dem_1,
-        dem_library.coreg.NuthKaab() + dem_library.coreg.VerticalShift(),
-        resample=True,
-    )
-    sig_dem, rho_sig = coreg_2.estimate_uncertainty(
+    coreg.fit(dem_1, dem_2, inlier_mask=~river)
+    dem_2_aligned = coreg.apply(dem_2)
+
+
+    dh = dem_1 - dem_2_aligned
+    dh.set_mask(river)
+
+    sig_dem, rho_sig = dem_2_aligned.estimate_uncertainty(
         dem_1,
         precision_of_other="same",
         random_state=42,
     )
     plt = load_pyplot()
-    sig_dem.plot(cmap="Purples", cbar_title=r"Error in elevation (1$\sigma$, m)")
+    sig_values = sig_dem.data.compressed()          # valid (unmasked) values only
+    vmin, vmax = np.nanpercentile(sig_values, [2, 98])
+    del sig_values
 
-    plot_path = result_path(
-        f"uncertainty_{safe_name(dem_1)}_{safe_name(dem_2)}.png"
+    sig_dem.plot(
+        cmap="Purples",
+        vmin=vmin,
+        vmax=vmax,
+        cbar_title=r"Error in elevation (1$\sigma$, m)",
     )
-    plt.savefig(plot_path, dpi=300, bbox_inches="tight")
-    plt.close()
+    plt.savefig(
+        result_path(f"uncertainty_{name_1}_{name_2}.png"),
+        dpi=300,
+        bbox_inches="tight",
+    )
+    plt.close("all")
 
-    x = np.arange(0, 200, 1)
+    x = np.arange(0, 150, 1)
     plt.plot(x, [rho_sig(distance) for distance in x])
 
     save_raster(
         sig_dem,
-        result_path(f"uncertainty_{safe_name(dem_1)}_{safe_name(dem_2)}.tif"),
+        result_path(f"uncertainty_{name_1}_{name_2}.tif"),
     )
 
     plot_path = result_path(
-        f"Correlation_{safe_name(dem_1)}_{safe_name(dem_2)}.png"
+        f"Correlation_{name_1}_{name_2}.png"
     )
     plt.savefig(plot_path, dpi=300, bbox_inches="tight")
     plt.close()
-
-    coreg.fit(dem_1, dem_2)
-    dem_2_aligned = coreg.apply(dem_2)
-    dh = dem_1 - dem_2_aligned
+    
+    
     values = dh.data.filled(np.nan)
     valid_values = values[np.isfinite(values)]
     rmse = np.sqrt(np.mean(valid_values**2))
     stats = {
-        "reference_dem": safe_name(dem_1),
-        "comparison_dem": safe_name(dem_2),
+        "reference_dem": name_1,
+        "comparison_dem": name_2,
         "mean": np.mean(valid_values),
         "median": np.median(valid_values),
         "std": np.std(valid_values),
@@ -299,18 +316,20 @@ def analyze_dem(dem_1, dem_2, path_1=None, path_2=None,river_buffer=1):
     )
     save_raster(
         dh,
-        result_path(f"dh_{safe_name(dem_1)}_{safe_name(dem_2)}.tif"),
+        result_path(f"dh_{name_1}_{name_2}.tif"),
     )
     return {
-        "sig_dem": sig_dem,
         "coreg": coreg,
         "aligned_dem": dem_2_aligned,
         "dh": dh,
+        "dem_1": dem_1,
+        "name_1": name_1,
+        "name_2": name_2,
         **stats,
     }
 
 
-def local_inspire_rmse_analysis(dh, tile_size_m=50):
+def local_inspire_rmse_analysis(dh, name, tile_size_m=50):
     data = dh.data.filled(np.nan)
     crs = CRS.from_user_input(dh.crs)
     unit_to_meters = crs.axis_info[0].unit_conversion_factor
@@ -334,41 +353,50 @@ def local_inspire_rmse_analysis(dh, tile_size_m=50):
                 np.mean(values**2)
             )
 
-    name = safe_name(dh)
     output_path = result_path(f"local_inspire_rmse_{name}.tif")
     rmse_dem = dh.copy(new_array=rmse_raster)
     save_raster(rmse_dem, output_path)
-    with rasterio.open(output_path, "r+") as output:
-        output.update_tags(
-            metric="Local RMSE of elevation differences",
-            tile_size_m=str(tile_size_m),
-            pixel_resolution_m=str(resolution),
-            inspire_rmse_threshold_m=str(resolution / 3),
-            pass_condition="RMSE <= inspire_rmse_threshold_m",
-        )
+    output_path = result_path(f"local_inspire_rmse_{name}.tif")
+    save_raster(
+        rmse_raster,
+        output_path,
+        dh.transform,
+        dh.crs,
+        np.nan,
+        dtype="float32",
+        tags={
+            "metric": "Local RMSE of elevation differences",
+            "tile_size_m": str(tile_size_m),
+            "pixel_resolution_m": str(resolution),
+            "inspire_rmse_threshold_m": str(resolution / 3),
+            "pass_condition": "RMSE <= inspire_rmse_threshold_m",
+        },
+    )
     return rmse_dem
 
 
-def std_analysis(dh):
+def std_analysis(dh,name):
     save_raster(
         dh - nanmean(dh.data.filled(np.nan)),
-        result_path(f"dh_std_{safe_name(dh)}.tif"),
+        result_path(f"dh_std_{name}.tif"),
     )
 
 
-def histogram_analysis(dh):
+def histogram_analysis(dh, name):
     plt = load_pyplot()
     values = dh.data.compressed()
+
     plt.figure(figsize=(8, 5))
-    plt.hist(values, bins=1000)
+    plt.hist(values, bins=100, log=True)
     plt.xlabel("Elevation difference (m)")
-    plt.ylabel("Count")
+    plt.ylabel("Count (log scale)")
     plt.title("DEM Difference Histogram")
-    plt.savefig(result_path(f"histogram_{safe_name(dh)}.png"))
+    plt.grid(True, which="both", alpha=0.3)
+    plt.savefig(result_path(f"histogram_{name}.png"), dpi=200, bbox_inches="tight")
     plt.close()
 
 
-def cdf_analysis(dh):
+def cdf_analysis(dh,name):
     plt = load_pyplot()
     values = np.sort(dh.data.compressed())
     plt.figure(figsize=(8, 5))
@@ -377,21 +405,22 @@ def cdf_analysis(dh):
     plt.ylabel("Cumulative probability")
     plt.title("DEM Difference CDF")
     plt.grid()
-    plt.savefig(result_path(f"cdf_{safe_name(dh)}.png"))
+    plt.savefig(result_path(f"cdf_{name}.png"))
     plt.close()
 
 
-def aspect_difference_analysis(dem_1, dem_2):
+def aspect_difference_analysis(dem_1, dem_2,name_1,name_2):
     load_pyplot()
     difference = dem_1.aspect() - dem_2.reproject(dem_1).aspect()
     save_raster(
         difference,
-        result_path(f"aspect_difference_{safe_name(dem_1)}_{safe_name(dem_2)}.tif"),
+        result_path(f"aspect_difference_{name_1}_{name_2}.tif")
     )
     difference.plot(cmap="RdBu")
+    load_pyplot().close("all")
 
 
-def slope_error_analysis(dem_1, dh):
+def slope_error_analysis(dem_1, dh, name):
     plt = load_pyplot()
     slopes = dem_1.slope().data.filled(np.nan)
     differences = dh.data.filled(np.nan)
@@ -405,12 +434,12 @@ def slope_error_analysis(dem_1, dh):
     plt.xlabel("Slope (deg)")
     plt.ylabel("RMSE (m)")
     plt.title("RMSE versus Slope")
-    plt.savefig(result_path(f"slope_rmse_{safe_name(dh)}.png"))
+    plt.savefig(result_path(f"slope_rmse_{name}.png"))
     plt.close()
 
 
-def border_strip_analysis(dh, border_vector):
-    strips = [0, 50, 100, 250, 500, 1000]
+def border_strip_analysis(dh, border_vector, name):
+    strips = range(0,1001,50)#[0, 50, 100, 250, 500, 1000]
     z = dh.data.filled(np.nan)
     unit_to_meters = border_vector.crs.axis_info[0].unit_conversion_factor
     max_distance = strips[-1] / unit_to_meters
@@ -455,7 +484,7 @@ def border_strip_analysis(dh, border_vector):
         for lo, hi in zip(strips[:-1], strips[1:])
     ]
     df = pd.DataFrame(rows, columns=["min_dist", "max_dist", "mean", "rmse"])
-    df.to_csv(result_path(f"border_strips_{safe_name(dh)}.csv"), index=False)
+    df.to_csv(result_path(f"border_strips_{name}.csv"), index=False)
     return df
 
 
@@ -482,7 +511,7 @@ def load_border_vector(vector_path):
     return border_vector
 
 
-def border_trend_plot(csv_file):
+def border_trend_plot(csv_file,name):
     plt = load_pyplot()
     df = pd.read_csv(csv_file)
     plt.figure(figsize=(8, 5))
@@ -491,11 +520,11 @@ def border_trend_plot(csv_file):
     plt.ylabel("RMSE (m)")
     plt.title("Border Effect")
     plt.grid()
-    plt.savefig(result_path("border_effect.png"), dpi=300)
+    plt.savefig(result_path(f"border_effect_{name}.png"), dpi=300)
     plt.close()
 
 
-def top_problem_regions(dh, threshold=0.5, min_area=200, merge_distance=60):
+def top_problem_regions(dh, name, threshold=1.0, min_area=200, merge_distance=60):
     dh_array = dh.data.filled(np.nan)
     mask = (np.abs(dh_array) > threshold).astype(np.uint8)
     exceedance_count = int(np.count_nonzero(mask))
@@ -538,7 +567,7 @@ def top_problem_regions(dh, threshold=0.5, min_area=200, merge_distance=60):
     regions = regions.sort_values("severity", ascending=False).reset_index(drop=True)
     regions["rank"] = regions.index + 1
     regions = gu.Vector(regions)
-    save_vector(regions, result_path("problem_regions.gpkg"))
+    save_vector(regions, result_path(f"problem_regions_{name}.gpkg"))
     print(
         f"Problem regions: {exceedance_count} cells exceed {threshold} m; "
         f"{candidate_count} initial regions merged, {len(regions.ds)} retained "
@@ -673,6 +702,7 @@ def river_mask_on_grid(dem_path, reference, buffer_pixels=0):
 
     river = gu.Raster(mask_path).reproject(reference, resampling="nearest")
     mask = river.data.filled(0) == 1       # nodata (255 / outside) counts as not-river
+    del river
     if buffer_pixels:
         mask = ndimage.binary_dilation(
             mask, structure=np.ones((3, 3), dtype=bool), iterations=buffer_pixels
@@ -934,6 +964,12 @@ def run_all_analyses(data_dir=DATA_DIR):
     statistics = []
     pair_count = len(comparison_paths) * (len(comparison_paths) - 1) // 2
     last_dem_pair = (None, None)
+
+    border_path = find_border_vector(data_dir)
+    border_vector = load_border_vector(border_path) if border_path else None
+    if border_vector is None:
+        print("No border vector found, skipping border analyses", flush=True)
+
     print(f"Checking {pair_count} DEM combinations for overlap...", flush=True)
     for first_index, first_path in enumerate(comparison_paths):
         for second_path in comparison_paths[first_index + 1 :]:
@@ -962,11 +998,32 @@ def run_all_analyses(data_dir=DATA_DIR):
             analysis = analyze_dem(dem_1, dem_2, first_path, second_path)
             if analysis is None:
                 continue
+
+            dh = analysis["dh"]
+            dem_1_crop = analysis["dem_1"]     # needs the change in step 3
+
+
+            name = analysis["name_1"] + "_" + analysis["name_2"]
+            name_1 = analysis["name_1"]
+            name_2 = analysis["name_2"]
+
+            local_inspire_rmse_analysis(dh,name)
+            std_analysis(dh,name)
+            histogram_analysis(dh,name)
+            cdf_analysis(dh,name)
+            slope_error_analysis(dem_1_crop, dh, name)
+            aspect_difference_analysis(dem_1_crop, analysis["aligned_dem"], name_1,name_2)
+            top_problem_regions(dh,name)
+
+            if border_vector is not None:
+                border_strip_analysis(dh, border_vector,name)
+                border_trend_plot(result_path(f"border_strips_{name}.csv"),name)
+
             last_dem_pair = (dem_1, dem_2)
             statistics.append(
                 {
-                    "reference_dem": safe_name(dem_1),
-                    "comparison_dem": safe_name(dem_2),
+                    "reference_dem": name_1,
+                    "comparison_dem": name_2,
                     **{
                         key: analysis[key]
                         for key in (
@@ -982,6 +1039,7 @@ def run_all_analyses(data_dir=DATA_DIR):
                     },
                 }
             )
+            del analysis, dh, dem_1_crop
 
     statistics_columns = [
         "reference_dem",
