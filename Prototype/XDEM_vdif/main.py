@@ -218,9 +218,15 @@ def nanrmse(values):
     return np.sqrt(np.nanmean(np.asarray(values) ** 2))
 
 
-def analyze_dem(dem_1, dem_2):
+def analyze_dem(dem_1, dem_2, path_1=None, path_2=None,river_buffer=1):
     dem_library = load_xdem()
     dem_2 = dem_2.reproject(dem_1)
+
+    river = np.zeros(dem_1.shape, dtype=bool)
+    if path_1: river |= river_mask_on_grid(path_1, dem_1, river_buffer)
+    if path_2: river |= river_mask_on_grid(path_2, dem_1, river_buffer)
+    print(f"Excluding {np.count_nonzero(river):,} river cells", flush=True)
+
     valid_overlap = (
         ~np.ma.getmaskarray(dem_1.data)
         & ~np.ma.getmaskarray(dem_2.data)
@@ -657,14 +663,29 @@ def load_country_water_mask(
     print(f"Loaded {country} water mask: {np.count_nonzero(mask):,} cells")
     return mask
 
+def river_mask_on_grid(dem_path, reference, buffer_pixels=0):
+    """Boolean mask (True = river) of a DEM's river mask, resampled to `reference`'s grid."""
+    basename = os.path.splitext(os.path.basename(dem_path))[0]
+    mask_path = result_path(f"{basename}_river_mask.tif")
+    if not os.path.isfile(mask_path):
+        print(f"No river mask found for {basename}, skipping it", flush=True)
+        return np.zeros(reference.shape, dtype=bool)
 
-# def make_gaussian_kernel(sigma=GAUSSIAN_SIGMA):
-#     if sigma <= 0:
-#         raise ValueError("Gaussian sigma must be greater than zero")
-#     radius = int(4 * sigma + 0.5)
-#     offsets = np.arange(-radius, radius + 1, dtype=np.float32)
-#     weights = np.exp(-0.5 * (offsets / sigma) ** 2)
-#     return weights / weights.sum()
+    river = gu.Raster(mask_path).reproject(reference, resampling="nearest")
+    mask = river.data.filled(0) == 1       # nodata (255 / outside) counts as not-river
+    if buffer_pixels:
+        mask = ndimage.binary_dilation(
+            mask, structure=np.ones((3, 3), dtype=bool), iterations=buffer_pixels
+        )
+    return mask
+
+def make_gaussian_kernel(sigma=GAUSSIAN_SIGMA):
+    if sigma <= 0:
+        raise ValueError("Gaussian sigma must be greater than zero")
+    radius = int(4 * sigma + 0.5)
+    offsets = np.arange(-radius, radius + 1, dtype=np.float32)
+    weights = np.exp(-0.5 * (offsets / sigma) ** 2)
+    return weights / weights.sum()
 
 
 @njit(cache=True)
@@ -938,7 +959,7 @@ def run_all_analyses(data_dir=DATA_DIR):
                 second_path,
                 infer_vcrs_country(second_path),
             )
-            analysis = analyze_dem(dem_1, dem_2)
+            analysis = analyze_dem(dem_1, dem_2, first_path, second_path)
             if analysis is None:
                 continue
             last_dem_pair = (dem_1, dem_2)

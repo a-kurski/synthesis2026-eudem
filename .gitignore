@@ -9,3 +9,6 @@ report/*.pdf
 *.TIF
 *.TIFF
 *.gpkg
+*.nbc
+*.nbi
+*.tmp
