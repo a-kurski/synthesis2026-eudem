@@ -310,3 +310,76 @@ abstract = {This study focuses on evaluating the accuracy of Digital Elevation M
   url       = {https://oliverwipfli.ch/presentation-state-of-the-map-2026-2026-08-31/sotm-2026-presentation.pdf},
   urldate   = {2026-10-13},
 }
+
+@InProceedings{biagi_interpolation,
+author="Biagi, Ludovico
+and Carcano, Laura",
+editor="Sneeuw, Nico
+and Nov{\'a}k, Pavel
+and Crespi, Mattia
+and Sans{\`o}, Fernando",
+title="Re-gridding and Merging Overlapping DTMS: Problems and Solutions in HELI-DEM",
+booktitle="VIII Hotine-Marussi Symposium on Mathematical Geodesy",
+year="2016",
+publisher="Springer International Publishing",
+address="Cham",
+pages="257--262",
+abstract="Neighboring or partly overlapping Digital Terrain Models (DTMs) that are stored as grids with similar resolutions and accuracies must be merged to produce a unified model: a reference frame transformation and a re-gridding on a common output grid have to be applied. A direct approach foresees firstly the reference frame transformation of the input DTMs, then their re-gridding by interpolation on the final grid. In the individual re-gridding of a DTM, no smoothing is required, because the input data are not raw observations but the nodes of an already smoothed model. Furthermore, re-gridding of huge amount of data could be required: therefore an efficient numerical method should be applied. A iso-determined interpolation approach based on local bicubic surfaces is investigated in this paper. In particular, the problem of an ill conditioned interpolation due to critical spatial distributions of the input elevations is discussed and different techniques to overcome the problem are compared. Finally, different approaches are discussed to average partly overlapping DTMs in their overlaps.",
+isbn="978-3-319-30530-1"
+}
+
+@Article{cai2023,
+AUTHOR = {Cai, Shangshu and Yu, Sisi and Hui, Zhenyang and Tang, Zhanzhong},
+TITLE = {ICSF: An Improved Cloth Simulation Filtering Algorithm for Airborne LiDAR Data Based on Morphological Operations},
+JOURNAL = {Forests},
+VOLUME = {14},
+YEAR = {2023},
+NUMBER = {8},
+ARTICLE-NUMBER = {1520},
+URL = {https://www.mdpi.com/1999-4907/14/8/1520},
+ISSN = {1999-4907},
+ABSTRACT = {Ground filtering is an essential step in airborne light detection and ranging (LiDAR) data processing in various applications. The cloth simulation filtering (CSF) algorithm has gained popularity because of its ease of use advantage. However, CSF has limitations in topographically and environmentally complex areas. Therefore, an improved CSF (ICSF) algorithm was developed in this study. ICSF uses morphological closing operations to initialize the cloth, and estimates the cloth rigidness for providing a more accurate reference terrain in various terrain characteristics. Moreover, terrain-adaptive height difference thresholds are developed for better filtering of airborne LiDAR point clouds. The performance of ICSF was assessed using International Society for Photogrammetry and Remote Sensing urban and rural samples and Open Topography forested samples. Results showed that ICSF can improve the filtering accuracy of CSF in the samples with various terrain and non-ground object characteristics, while maintaining the ease of use advantage of CSF. In urban and rural samples, ICSF obtained an average total error of 4.03% and outperformed another eight reference algorithms in terms of accuracy and robustness. In forested samples, ICSF produced more accuracy than the well-known filtering algorithms (including the maximum slope, progressive morphology, and cloth simulation filtering algorithms), and performed better with respect to the preservation of steep slopes and discontinuities and vegetation removal. Thus, the proposed algorithm can be used as an efficient tool for LiDAR data processing.},
+DOI = {10.3390/f14081520}
+}
+
+@article{zheng2019,
+title = {An automatic and objective approach to hydro-flatten high resolution topographic data},
+journal = {Environmental Modelling & Software},
+volume = {116},
+pages = {72-86},
+year = {2019},
+issn = {1364-8152},
+doi = {https://doi.org/10.1016/j.envsoft.2019.02.007},
+url = {https://www.sciencedirect.com/science/article/pii/S1364815218305851},
+author = {Xing Zheng and Lukas Godbout and Jeff Zheng and Collin McCormick and Paola Passalacqua},
+keywords = {Lidar, High resolution topography, Hydro-flattening, River bank, Hydrological terrain analysis},
+abstract = {Hydro-flattening is an operation required to generate deliverable terrain products after lidar survey collections that usually entails extensive manual intervention. In this paper, we develop new modules of GeoNet, a computational tool for the automatic extraction of geomorphic channel features from high resolution topography, for detecting channel banks and produce a hydro-flattened Digital Terrain Model (DTM). We first review the original GeoNet workflow and then describe how it has been modified to extract channels as the least-cost-paths from given channel heads to outlets. A new code component enables hydro-flattening on a given reference network based on curvature and connectivity. A raster-based routine for extracting the geomorphic channel zone based on a statistical analysis of slope has also been added. We test our new components using three different test cases. Compared to manually delineated hydro-flattened zones and satellite imagery, our results show high consistency and the capability of our method to automatically hydro-flatten high resolution topographic data.}
+}
+
+@report{keurentjes2020ahn3,
+  author      = {Keurentjes, Lisa and de Jong, Maarten and Alhoz, Khaled and Kenesei, Kristof and Papageorgiou, Manos},
+  title       = {Improved {AHN3} Gridded {DTM}/{DSM}},
+  subtitle    = {{GEO1101.2020} -- {AHN3}},
+  type        = {Synthesis Project Report},
+  institution = {Delft University of Technology},
+  address     = {Delft, The Netherlands},
+  year        = {2020},
+  month       = {6},
+  language    = {english},
+  url         = {https://resolver.tudelft.nl/uuid:153b2a82-05ba-412b-8a0a-119cb5689afd},
+  urldate     = {2026-10-14},
+}
+
+@article{dysarz2018,
+AUTHOR = {Dysarz, Tomasz},
+TITLE = {Development of RiverBox—An ArcGIS Toolbox for River Bathymetry Reconstruction},
+JOURNAL = {Water},
+VOLUME = {10},
+YEAR = {2018},
+NUMBER = {9},
+ARTICLE-NUMBER = {1266},
+URL = {https://www.mdpi.com/2073-4441/10/9/1266},
+ISSN = {2073-4441},
+ABSTRACT = {The main purpose of the present research is to develop software for reconstruction of the river bed on the basis of sparse cross-section measurements. The tools prepared should support the process of hydrodynamic model preparation for simulation of river flow. Considering the formats of available data and the requirements of modern modeling techniques, the prepared software is fully integrated with the GIS environment. The scripting language Python 2.7 implemented in ArcGIS 10.5.1 was chosen for this purpose. Two study cases were selected to validate and test the prepared procedures. These are stream reaches in Poland. The first is located on the Warta river, and the second on the Ner river. The data necessary for the whole procedure are: a digital elevation model, measurements of the cross-sections in the form of points, and two polyline layers representing an arbitrary river centerline and river banks. In the presented research the concept of a channel-oriented coordinate system is applied. The elevations are linearly interpolated along the longitudinal and transversal directions. The interpolation along the channel is implemented in three computational schemes linking different tools available in ArcGIS and ArcToolbox. A simplified comparison of memory usage and computational time is presented. The scheme linking longitudinal and spatial interpolation algorithms seems to be the most advantageous.},
+DOI = {10.3390/w10091266}
+}

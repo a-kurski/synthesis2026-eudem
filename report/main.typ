@@ -52,11 +52,12 @@
 #outline(title: "Tables", target: figure.where(kind: table))
 #include "005-abbreviations.typ"
 #set heading(numbering: "1.1")
+#show heading.where(level: 4): set heading(numbering: none)
 
-#show heading.where(level: 1): it => {
-  pagebreak(weak: true)
-  it
-}
+// #show heading.where(level: 1): it => {
+//   pagebreak(weak: true)
+//   it
+// }
 
 #show figure: set block(breakable: true)
 

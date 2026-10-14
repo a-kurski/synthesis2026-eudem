@@ -2,36 +2,35 @@
 
 = Theory and Context <chap:theory>
 
-This chapter will go over the reviewed literature. It discusses both the existing approaches for harmonizing cross-border data, the @INSPIRE specification on elevation, and point cloud processing methods.
+This chapter covers the reviewed literature.
+In it, we present the definition for the Rhine catchment area; the summary of the relevant aspects of @INSPIRE specification on elevation; existing cross-border digital elevation models; and aspects of processing which affect the agreement between elevation products from different providers.
 
-== Global Elevation Models <sec:gdem>
+== Rhine Catchment Area <sec:rhine>
 
-A @GDEM covers most of the land surface of the Earth. Currently, there are two main approaches to creating a @GDEM: a conventional approach relies on satellite data, and more recently, there have been efforts to derive a @GDEM from national and regional datasets. Below is a brief overview of both approaches.
+The first step of the project is determining the area on which the project is going to get carried out.
+For this, different extents of the Rhine catchment area were considered.
+One most commonly agreed upon comes from International Association of Waterworks in the Rhine Basin @iawr_rhine and @ICPR @ICPR2013. It excludes the upstream Meuse but includes the rest of the delta, e.g. Ijssel and Waal.
+Another possible definition can be found on Wikimedia (see @fig:rhine-defs), and it includes the Meuse.
 
-=== Satellite Data-Derived Elevation Models <sec:spaceborne-gdem>
+#figure(
+  grid(
+    columns: (auto, auto),
+    [#image("assets/8278083_iawr-rheinkarte-2500x3452.jpg", width: 70%)], [#image("assets/960px-Flusssystemkarte_Rhein_04.jpg", width: 70%)]
+  ),
+  caption: [Maps of the Rhine catchment area from @ICPR (left, from #cite(<iawr_home>, form: "prose")) and Wikimedia (right, from #cite(<wiki:rhine>, form: "prose"))]
+)<fig:rhine-defs>
 
-Most @GDEM:pla are constructed using data from space-borne @InSAR or optical sensors.
-An overview of the most common existing @GDEM:pla has been provided by #cite(<terrain_book>, form: "prose", supplement: "Table 3.2").
-The majority of satellite @GDEM:pla are obtained using @InSAR; only two of those presented are derived from optical data.
-The common @GSD is 30m or 90m; a few, like WorldDEM or @ALOS are also available at finer resolutions.
-The majority of the @GDEM:pla are @DSM:pla; some products offer a "_pseudo_-@DTM" where some ground filtering has been performed.
+For this project, the Rhine river definition comes from HydroBASINS @Lehner2013, derived from a global elevation model. The Meuse and Ijssel are excluded from the main catchment area of the Rhine in this case; their exclusion has been discussed with the client and was deemed appropriate as the automated pipeline supports expanding the geographic extent of the dataset. @fig:rhine-catchment-regions shows the map of the area used in the project, coloured by elevation data provider.
 
-The European data portal lists two official @DTM datasets: EU-DEM @eurostat_eudem and Copernicus @DEM @eurostat_copernicusdem.
-Both are based on Copernicus data and have a 30 and 90 meter cell resolution respectively.
-EU-DEM is available in geodetic @ETRS89 and @ETRS89-LAEA and is described to have a vertical @RMSE of 2.9m @dhigras_eudem_validation_2014 while Copernicus @DEM is availabe only in @ETRS89 with a vertical @RMSE of 1.68m @airbus_copernicusdem_validation_2020.
-Copernicus further offer a 10m dataset titled EEA-10 which is limited to the @EEA member states and is only available to select users @cdse_copdem.
-EEA-10 is the only dataset which is available in INSPIRE format and projected to @ETRS89-LAEA for continental Europe whereas 30m and 90m global datasets are only supplied in WGS84 @airbus_copernicusdem_handbook_2022.
+The Rhine catchment area covers (parts of) Switzerland, Liechtenstein, Austria, Italy, Germany, France, Luxembourg, Belgium, and The Netherlands.
+Within the scope of the project, Italy, Austria and Belgium were excluded due to poor availability of the elevation data.
 
-#cite(<krdzalic2024>, form: "prose") evaluate the accuracy of several @GDEM:pla against two sets of reference points in Bosnia and Herzogovina, additionally comparing them with the national @DEM. The authors further compare different interpolation methods in their assessment --- here, only results achieved with bilinear interpolation are referenced as it is the interpolation method recommended by @INSPIRE. For both sets of reference points, national @DEM has the lowest RMSE of 1.64m and 3.02m respectively; Copernicus DEM has the lowest RMSE of the @GDEM:pla with 2.35m and 3.11m respectively.
+#drafting.inline-note()[TODO: update the map?]
 
-=== Aggregate Global Elevation Models <sec:mapterhorn>
-
-An aggregate elevation model serves as an alternative to the conventional @GDEM. With this approach, several heterogeneous @DEM:pla are assembled into one finished product --- this is also an approach taken in this project. The only example of this approach known to us is Mapterhorn @wipfli2026mapterhorn. Currently, Mapterhorn combines 70 open-access national, regional, and local elevation products alongside Copernicus DEM GLO-30 into one harmonised @DEM.
-
-There are several shortcomings with current implementation of Mapterhorn. The first one is that it is neither a @DTM nor a @DSM: Copernicus DEM is a _surface_ model, and national products can be both a _terrain_ and a _surface_ model --- therefore, Mapterhorn's elevation data is a mix of both. The second one is the approach to resolving elevation conflicts at the border. Mapterhorn uses a Gaussian blur to blend the elevation data where two datasets overlap, which may introduce elevation points which may not be representative of reality for those point samples. Lastly, Mapterhorn enforces that the @CRS transform is only horizontal, explicitly ruling out vertical transform.
-
-A similar approach was described by #cite(<Noardo2016>, form: "prose") who report on harmonisation of the @CRS, orthrophoto, semantic information, and the @DEM.
-For @DEM harmonisation, the paper suggests an approach conceptually similar to that of Mapterhorn --- the elevation of the border regions is obtained by performing a linear interpolation, which has similar issues to using a Gaussian blur in that the data around the border may not match reality.
+#figure(
+  image("assets/Catchment_map.png", width: 50%),
+  caption: [Rhine cathchment regions and countries (image by authors)]
+)<fig:rhine-catchment-regions>
 
 == INSPIRE Specification on Elevation <sec:inspire>
 
@@ -82,74 +81,92 @@ It instead recommends the use of a zoned geographic grid based on the geodetic c
 Under such a grid, the longitudinal resolution of the grid is different for different zones. Below 50°, the grid is "square": the latitude and longitude are in 1:1 ratio; between 50° and 70°, the ratio is 1:2; and it further increases in the higher latitudes.
 Annex D is informative only, i.e. it is not expressly required to follow the guidance set out in it.
 
+#include "051-crs.typ"
+
 === Data Quality <sec:inspire-quality>
 
 The specification defines several criteria to evaluate the data quality against.
-These are split into three categories: completeness, logical consistency, and positional accuracy.
+These are split into three categories: completeness, logical consistency, and positional accuracy #cite(<inspire2024elevation>, supplement:[pp. 121–138]).
 
 Completeness encompasses omission and commission.
-Omission errors are data which should be included in the scope of the dataset but is not; commission errors are data in excess of the dataset's scope, such as duplicates.
+Omission errors are data which is within the dataset's scope but is not present in the dataset; commission errors are data in excess of the dataset's scope, such as duplicates.
 In both cases, the target error rate is 0%.
 
 Logical consistency includes conceptual consistency, domain consistency, format consistency, and topological consistency.
 Conceptual consistency describes compliance with the conceptual schema; domain consistency describes compliance with the value domain; format consistency is related to the physical structure of the dataset, i.e. the formats and encodings used. Topological consistency is only applicable to the topology vector data and therefore out of scope for this project.
-Like with completeness, the target error rate is 0%.
+The error rate describes the ratio of non-compliant items and the target is 0%.
 
 Positional accuracy is defined differently for vector and @TIN data and for gridded data.
 For a grid, only the planimetric accuracy is considered. The @RMSE --- here, defined as the radius of a circle around the point, such that the true value of a point lies within that circle with a given probability --- is the chosen evaluation metric. The target for the maximum @RMSE is $"GSD"/6$, where @GSD is the ground sample distance, essentially the resolution of the grid.
 
-In the "Data Capture" section, the resolution is further related to the vertical accuracy of the dataset.
+In the "Data Capture" section #cite(<inspire2024elevation>, supplement:[p. 171]), the resolution is additionally related to the vertical accuracy of the dataset.
 For flat terrain, the resolution should be between $3 times "RMSE"$ and $20 times "RMSE"$, while for mountainous terrain it should be between $3 times "RMSE"$ and $10 times "RMSE"$.
+This will be the target when evaluating the agreement between overlapping border areas.
 
-== Cross-border DEM <sec:inspire-cross-border>
+== Global Elevation Models <sec:gdem>
 
+A @GDEM covers most of the land surface of the Earth. Currently, there are two main approaches to creating a @GDEM: a conventional approach relies on satellite data, and more recently, there have been efforts to derive a @GDEM from national and regional datasets like suggested by @INSPIRE. Below is a brief overview of both approaches.
 
+=== Satellite Data-Derived Elevation Models <sec:spaceborne-gdem>
 
-Nevertheless, one report details a method of cross-border harmonization. The report details harmonization of the coordinate reference system, orthrophoto, semantic information, and the digital terrain model @Noardo2016. For this report only the @CRS transformation and @DTM harmonisation are relevant. They describe the process of transforming the datasets. However, for the pipeline this process will be automated using @GDAL. It also highlights the @INSPIRE recommendation of the quasi-geoid named @EVRF for the vertical reference. Therefore, @EVRF should be considered as the vertical reference.
+Most @GDEM:pla are constructed using data from space-borne @InSAR or optical sensors.
+An overview of the most common existing @GDEM:pla has been provided by #cite(<terrain_book>, form: "prose", supplement: "Table 3.2").
+The majority of satellite @GDEM:pla are obtained using @InSAR; only two of those presented are derived from optical data.
+The common @GSD is 30m or 90m; a few, like WorldDEM or @ALOS are also available at finer resolutions.
+The majority of the @GDEM:pla are @DSM:pla; some products offer a "_pseudo_-@DTM" where some ground filtering has been performed.
 
-In an effort to harmonize the @DTM, the report describes a gradient approach. In this approach the point proximity of the border is evaluated to determine the weight of the pixel value from either @DTM. The following formula is used:
+The European data portal lists two official @DTM datasets: EU-DEM @eurostat_eudem and Copernicus @DEM @eurostat_copernicusdem.
+Both are based on Copernicus data and have a 30 and 90 meter cell resolution respectively.
+EU-DEM is available in geodetic @ETRS89 and @ETRS89-LAEA and is described to have a vertical @RMSE of 2.9m @dhigras_eudem_validation_2014 while Copernicus @DEM is availabe only in @ETRS89 with a vertical @RMSE of 1.68m @airbus_copernicusdem_validation_2020.
+Copernicus further offer a 10m dataset titled EEA-10 which is limited to the @EEA member states and is only available to select users @cdse_copdem.
+EEA-10 is the only dataset which is available in INSPIRE format and projected to @ETRS89-LAEA for continental Europe whereas 30m and 90m global datasets are only supplied in WGS84 @airbus_copernicusdem_handbook_2022.
 
-#align(center,
-$H_A = "DTM"_"France A" * D/500 + "DTM"_"Italy A" * (500-D)/500$)
+#cite(<krdzalic2024>, form: "prose") evaluate the accuracy of several @GDEM:pla against two sets of reference points in Bosnia and Herzogovina, additionally comparing them with the national @DEM. The authors further compare different interpolation methods in their assessment --- here, only results achieved with bilinear interpolation are referenced as it is the interpolation method recommended by @INSPIRE. For both sets of reference points, national @DEM has the lowest RMSE of 1.64m and 3.02m respectively; Copernicus DEM has the lowest RMSE of the @GDEM:pla with 2.35m and 3.11m respectively.
 
-Where $H_A$ is the final assigned height, while $D$ represents the distance from the border. While this method does smooth the transition, it does also likely diverge from reality, even if the discrepancy is minimized. While this method has been considered, further diluting the sampling of reality stands perpendicular to the goal of creating a map which visualizes reality. Therefore, this method will not be used for this project.
+=== Aggregate Global Elevation Models <sec:mapterhorn>
 
+An aggregate elevation model serves as an alternative to the conventional @GDEM. With this approach, several heterogeneous @DEM:pla are assembled into one finished product --- this is also an approach taken in this project. The only example of this approach known to us is Mapterhorn @wipfli2026mapterhorn. Currently, Mapterhorn combines 70 open-access national, regional, and local elevation products alongside Copernicus DEM GLO-30 into one harmonised @DEM.
 
-add reference to #cite(<carcano2013merging>, form: "prose")
+There are several shortcomings with current implementation of Mapterhorn. The first one is that it is neither a @DTM nor a @DSM: Copernicus DEM is a _surface_ model, and national products can be both a _terrain_ and a _surface_ model --- therefore, Mapterhorn's elevation data is a mix of both. The second one is the approach to resolving elevation conflicts at the border. Mapterhorn uses a Gaussian blur to blend the elevation data where two datasets overlap, which may introduce elevation points which may not be representative of reality for those point samples. Lastly, Mapterhorn enforces that the @CRS transform is only horizontal, explicitly ruling out vertical transform.
 
-== Ground Filtering <sec:ground-filter>
+A similar approach was described by #cite(<Noardo2016>, form: "prose") who report on harmonisation of the @CRS, orthrophoto, semantic information, and the @DEM and #cite(<biagi_interpolation>, form: "prose") who focus on @DEM harmonisation specifically.
+The papers try and harmonise Italian elevation data with France and Switzerland respectively, focusing on the mountainous regions.
+Both demonstrate presence of errors of high magnitude, exceeding 100m.
+To resolve those errors, both sets of authors suggest an approach conceptually similar to that of Mapterhorn --- #cite(<Noardo2016>, form: "author") obtain the elevation of the border regions by performing a linear interpolation on the overlapping region while #cite(<biagi_interpolation>, form: "author") perform bicubic interpolation --- which also introduce issues similar to using a Gaussian blur in that the data around the border may not match reality.
+#cite(<Noardo2016>, form: "author") comment on the potential discrepancy; #cite(<biagi_interpolation>, form: "author") leave it unaddressed.
 
-// we're not re-extracting things anymore, are we?
+== Point Cloud Processing <sec:pc-processing>
 
-In order to create a new @DTM from point clouds, a method called ground filtering is used. Several different methods exist for this process. However, in the interest of limiting the scope of the project an existing implementation in @PDAL will be used. However, other methods were evaluated to compare their performance against the @PMF used by @PDAL.
+A potential source of disagreement between gridded elevation data from different providers is the approach used to derive it from point clouds.
 
-In @Silva2018GroundFiltering, it is noted that @PMF differs from @MCC, @PTIN, and @WLS by excessively eliminating ground points to generate a @DTM from. This causes it to underestimate @DTM elevations, particularly in open-canopy forested areas. Silva and Klauberg theorise this is likely caused by the fact @PMF assumes a constant slope. While this is a serious drawback, it is one that needs to be used in the interest of the scope and time limit of this project.
-
-However, the documentation of @PDAL also states it is possible to alternatively use @SMRF. This method is a further developed version of the @PMF. However, #cite(<PINGEL201321>, form: "prose") states that @SMRF uses a slope-dependent elevation, making it more reliable, and possibly solving the issue with @PMF. Therefore, @PDAL using @SMRF ground filtering should allow for a reliable way to generate @DTM:pla from point clouds. Further research into the implementation of other methods will not be discussed or implemented within this project.
-
-== Rhine Catchment Area <sec:rhine>
-
-Different extents of the Rhine catchment area were considered. One most commonly agreed upon comes from International Association of Waterworks in the Rhine Basin @iawr_rhine and @ICPR @ICPR2013. It excludes the upstream Meuse but includes the rest of the delta, e.g. Ijssel and Waal. Another possible definition can be found on Wikimedia (see @fig:rhine-defs), and it includes the Meuse.
+Ground filtering is one of key steps to extracting a @DTM from a point cloud. #cite(<Silva2018GroundFiltering>, form: "prose") compare @PMF, @MCC, @PTIN, and @WLS.
+One notable finding from this study is that @PMF outputs a set of ground points with constant density whereas the other three algorithms produce a set of ground points with uneven density depending on the type of surface.
+@PMF's set is also approximately 10–15 times smaller than the other algorithms.
+However the resulting @DTM:pla are still very close to each other, with highest @RMSE of 0.37m (for shrubland; when comparing @MCC to @PMF).
+#cite(<Silva2018GroundFiltering>, form: "author") note that @PMF assumes constant slope and therefore struggles in steeper parts of the terrain.
+#cite(<cai2023>, form: "prose") carry out further assessment of @MSF, @PMF, @CSF, and @ICSF.
+The study provides both a quantitative and a qualitative assessment of the different methods.
+Quantitatively, omission and commission errors are evaluated: @MSF has the highest error rate of up to 20% for complex scene; @PMF and @CSF have generally comparable and slightly lower error rates (ca 14% for the same scene); @ICSF performs best, with an error rate of ca 7% for the same scene.
+Qualitative analysis can be illustrated with @fig:ground-filter.
+Compared to the reference (column a), @MSF (b) can introduce noise, @PMF (c) and @CSF (d) tend to smooth out steep slopes — this is especially apparent in row 2c — while @ICSF is mostly artefact-free.
 
 #figure(
-  grid(
-    columns: (auto, auto),
-    [#image("assets/8278083_iawr-rheinkarte-2500x3452.jpg", width: 70%)], [#image("assets/960px-Flusssystemkarte_Rhein_04.jpg", width: 70%)]
+  image(
+    "assets/cai2023-ground-filters.png",
+    width: 60%
   ),
-  caption: [Maps of the Rhine catchment area from @ICPR (left, from #cite(<iawr_home>, form: "prose")) and Wikimedia (right, from #cite(<wiki:rhine>, form: "prose"))]
-)<fig:rhine-defs>
+  caption: [Comparison of ground filtering algorithms. From: #cite(<cai2023>, form: "prose")]
+) <fig:ground-filter>
 
-For this project, the Rhine river definition comes from HydroBASINS @Lehner2013, derived from a global elevation model. The Meuse and Ijssel are excluded from the main catchment area of the Rhine in this case; their exclusion has been discussed with the client and was deemed appropriate as the automated pipeline supports expanding the geographic extent of the dataset. @fig:rhine-catchment-regions shows the map of the area used in the project, coloured by elevation data provider.
+// However, the documentation of @PDAL also states it is possible to alternatively use @SMRF. This method is a further developed version of the @PMF. However, #cite(<PINGEL201321>, form: "prose") states that @SMRF uses a slope-dependent elevation, making it more reliable, and possibly solving the issue with @PMF. Therefore, @PDAL using @SMRF ground filtering should allow for a reliable way to generate @DTM:pla from point clouds. Further research into the implementation of other methods will not be discussed or implemented within this project.
 
-#figure(
-  image("assets/Catchment_map.png", width: 70%),
-  caption: [Rhine cathchment regions and countries]
-)<fig:rhine-catchment-regions>
-
-
+Point distribution and interpolation methods can introduce further discrepancies between the raster products from different data providers.
+It is expected that these discrepancies are minimal for flatter areas or regions with high point density, and higher for steep slopes or regions with high point density.
+We expect that the documentation of the interpolation methods is primarily available in the national language of each data provider, therefore investigating it was deemed to be out of scope of the project.
 
 == River Elevation Data <sec:river-elevation>
 
-Upon observing the Dutch @DTM, it was noted that buildings and rivers are marked as voids. This is because unlike countries such as France and Germany, the Netherlands does not fill nodata values. A possible solution to this problem would be to approximate the river altitudes as described in #cite(<PARROT201628>, form:"prose"). The paper suggests that the river altitudes can be approximated by using the average of the surrounding terrain. However, this method is not without its drawbacks. It may not accurately reflect the true river altitudes, especially in areas with significant elevation changes. Since deviations from reality and river segments in other countries will not match, this method will not be used in this project. Instead, the voids will be filled using a bilinear interpolation method, as described in
-
---> add reference to chapter
+The way different @DEM:pla treat water body surfaces can further influence the differences between products:
+- Currently, the Netherlands assigns a `NoData` value to the water bodies without efforts to estimate either the elevation of the water surface or the bathymetry.
+- All other countries in the region perform hydro-flattening as described by #cite(<zheng2019>, form: "prose") which estimates a flat across-channel surface and a continuous along-channel slope. Similar approaches have been trialed for the Dutch elevation model @keurentjes2020ahn3 but are currently not included in the official product. Hydro-flattening may introduce artefacts due to temporal differences between different Lidar surveys, which are analysed in @chap:results.
+- A third approach is to estimate the riverbed as proposed by #cite(<dysarz2018>, form: "prose") which would allow for a mixed elevation/bathymetry model. No national product currently uses this approach; and estimating river elevation was deemed to be out of scope for this project.
