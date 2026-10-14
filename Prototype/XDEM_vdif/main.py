@@ -282,6 +282,8 @@ def analyze_dem(dem_1, dem_2, path_1=None, path_2=None,river_buffer=1):
 
     x = np.arange(0, 150, 1)
     plt.plot(x, [rho_sig(distance) for distance in x])
+    plt.xlabel("Distance [m]")
+    plt.ylabel("Error similarity [%]")
 
     save_raster(
         sig_dem,

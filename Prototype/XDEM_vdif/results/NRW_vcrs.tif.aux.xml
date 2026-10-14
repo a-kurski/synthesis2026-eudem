@@ -1,0 +1,20 @@
+<PAMDataset>
+  <Metadata>
+    <MDI key="COMPRESSION">DEFLATE</MDI>
+    <MDI key="INTERLEAVE">BAND</MDI>
+    <MDI key="LAYOUT">COG</MDI>
+    <MDI key="PREDICTOR">3</MDI>
+    <MDI key="PREPARATION">Average-resampled to target grid; valid cells inside pixel-centre AOI mask</MDI>
+    <MDI key="VERTICAL_DATUM_NOTE">NRW heights remain in DHHN2016/NHN. No horizontal or vertical transformation; 1 m to 5 m averaging only.</MDI>
+  </Metadata>
+  <PAMRasterBand band="1">
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">101.56900787354</MDI>
+      <MDI key="STATISTICS_MEAN">21.057202102698</MDI>
+      <MDI key="STATISTICS_MINIMUM">8.1785097122192</MDI>
+      <MDI key="STATISTICS_STDDEV">12.97124933811</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">63.66</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>
