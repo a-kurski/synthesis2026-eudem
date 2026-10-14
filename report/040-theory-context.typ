@@ -70,6 +70,14 @@ While the illsutrations (e.g. on pp. 52 and 53) show that the tiles may be overl
 
 It is also clarified that the coverage describes the elevation values at the centres of the geographic grid; and the geographic grid cells are the squares rendered when a GeoTIFF is displayed.
 
+#figure(
+  image(
+    "assets/image26.jpeg",
+    width: 70%
+  ),
+  caption: [INSPIRE definition of gridded coverage. Image from #cite(<inspire2024elevation>)]
+)
+
 === Coordinate Reference Systems <sec:inspire-crs>
 
 Generally, @INSPIRE demands that the @CRS used for datasets of continental Europe is based on @ETRS89, with a matching datum.
