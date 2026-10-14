@@ -1,0 +1,17 @@
+<PAMDataset>
+  <Metadata>
+    <MDI key="PREPARATION">Average-resampled to target grid; valid cells inside pixel-centre AOI mask</MDI>
+    <MDI key="VERTICAL_DATUM_NOTE">NRW heights remain in DHHN2016/NHN. No horizontal or vertical transformation; 1 m to 5 m averaging only.</MDI>
+  </Metadata>
+  <PAMRasterBand band="1">
+    <UnitType>m</UnitType>
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">100.94924163818</MDI>
+      <MDI key="STATISTICS_MEAN">21.033785998228</MDI>
+      <MDI key="STATISTICS_MINIMUM">8.6513586044312</MDI>
+      <MDI key="STATISTICS_STDDEV">12.977496413505</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">64.33</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>

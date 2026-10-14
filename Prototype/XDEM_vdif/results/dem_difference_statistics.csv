@@ -1,0 +1,2 @@
+reference_dem,comparison_dem,mean,median,std,rmse,mae,min,max,INSPIRE_target%
+NRW,Netherlands,0.00010734379,-0.012904644,0.4969309,0.49693093,0.08642503,-13.61001,55.431545,29.815855
