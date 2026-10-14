@@ -2,6 +2,7 @@ affine
 geopandas
 geoutils
 matplotlib
+numba
 numpy
 pandas
 pyproj
