@@ -10,7 +10,13 @@ For a given use case, each terrain model, whether a @DEM or a @PC, is associated
 
 == The Need for the European DEM
 
+Currently, there already exist several products which provide a European @DEM. 
+
 Currently, there are
+- mapterhorn sucks
+- global data too course/european data also too course (also only dsm)
+- cross border differences
+- need for european dem for analysis/research
 
 == Research Questions <questions>
 
