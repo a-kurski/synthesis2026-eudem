@@ -103,7 +103,14 @@ def load_or_transform_dem(dem_path, country_name):
     file_name = os.path.splitext(os.path.basename(dem_path))[0]
     transformed_path = result_path(f"{file_name}_vcrs.tif")
     if os.path.isfile(transformed_path):
-        return load_xdem().DEM(transformed_path)
+        with rasterio.open(dem_path) as src, rasterio.open(transformed_path) as cached:
+            same_grid = (
+                src.shape == cached.shape
+                and src.transform == cached.transform
+                and os.path.getmtime(transformed_path) >= os.path.getmtime(dem_path)
+            )
+        if same_grid:
+            return load_xdem().DEM(transformed_path)
 
     dem, _ = load_file(dem_path)
     dem = transform_dem_to_target_vcrs(dem, country_name, source_vcrs, target_vcrs)
@@ -226,7 +233,11 @@ def analyze_dem(dem_1, dem_2, path_1=None, path_2=None,river_buffer=1):
     name_2 = name_from_path(path_2) if path_2 else safe_name(dem_2)
     dem_library = load_xdem()
     bounds = transform_bounds(dem_2.crs, dem_1.crs, *dem_2.bounds, densify_pts=21)
-    dem_1 = dem_1.crop(bounds)           # (left, bottom, right, top) in dem_1's CRS
+    try:
+        dem_1 = dem_1.crop(bounds)
+    except rasterio.errors.WindowError:
+        print(f"No overlap between {name_1} and {name_2} after loading, skipping", flush=True)
+        return None
     dem_2 = dem_2.reproject(dem_1)
 
     river = np.zeros(dem_1.shape, dtype=bool)
