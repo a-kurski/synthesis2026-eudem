@@ -10,13 +10,9 @@ For a given use case, each terrain model, whether a @DEM or a @PC, is associated
 
 == The Need for the European DEM
 
-Currently, there already exist several products which provide a European @DEM. 
+There are currently several products which offer the elevation data for the @EU, as described in @sec:gdem. These products, however, have several shortcomings. Satellite-derived @DEM:pla have coarse resolution and do not fully support extracting the @DTM; aggregate @DEM:pla compromise accuracy in the border regions.
 
-Currently, there are
-- mapterhorn sucks
-- global data too course/european data also too course (also only dsm)
-- cross border differences
-- need for european dem for analysis/research
+The aim of this project is to develop an automated pipeline for a higher-quality European @DTM which would support runoff, flood, and other modelling.
 
 == Research Questions <questions>
 
