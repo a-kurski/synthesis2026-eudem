@@ -24,9 +24,8 @@ from rasterio.shutil import copy as rio_copy
 rasterio.Env(GDAL_CACHEMAX=512)
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")
-GAUSSIAN_SIGMA = 3
-REGION_GROWING_VARIANCE_TOLERANCE = 0.02
-SEED_VARIANCE_THRESHOLD = 9999 #1e-3
+REGION_GROWING_DIF_TOLERANCE = 0.02
+SEED_DIF_THRESHOLD = 9999
 MASK_BUFFER_PIXELS = 0
 MASK_NODATA = 255
 CLASS_MASK_SUFFIX = "_classes_2018.tif"
@@ -266,6 +265,12 @@ def analyze_dem(dem_1, dem_2, path_1=None, path_2=None,river_buffer=1):
 
 
     dh = dem_1 - dem_2_aligned
+
+    save_raster(
+            dh,
+            result_path(f"dh_{name_1}_{name_2}.tif"),
+        )
+
     dh.set_mask(river)
 
     sig_dem, rho_sig = dem_2_aligned.estimate_uncertainty(
@@ -291,7 +296,7 @@ def analyze_dem(dem_1, dem_2, path_1=None, path_2=None,river_buffer=1):
     )
     plt.close("all")
 
-    x = np.arange(0, 150, 1)
+    x = np.arange(0, 500, 1)
     plt.plot(x, [rho_sig(distance) for distance in x])
     plt.xlabel("Distance [m]")
     plt.ylabel("Error similarity [%]")
@@ -327,10 +332,7 @@ def analyze_dem(dem_1, dem_2, path_1=None, path_2=None,river_buffer=1):
         result_path("dem_difference_statistics.csv"),
         index=False,
     )
-    save_raster(
-        dh,
-        result_path(f"dh_{name_1}_{name_2}.tif"),
-    )
+    
     return {
         "coreg": coreg,
         "aligned_dem": dem_2_aligned,
@@ -722,13 +724,6 @@ def river_mask_on_grid(dem_path, reference, buffer_pixels=0):
         )
     return mask
 
-def make_gaussian_kernel(sigma=GAUSSIAN_SIGMA):
-    if sigma <= 0:
-        raise ValueError("Gaussian sigma must be greater than zero")
-    radius = int(4 * sigma + 0.5)
-    offsets = np.arange(-radius, radius + 1, dtype=np.float32)
-    weights = np.exp(-0.5 * (offsets / sigma) ** 2)
-    return weights / weights.sum()
 
 
 @njit(cache=True)
@@ -742,60 +737,17 @@ def _reflect_index(index, length):
 
 
 @njit(cache=True)
-def _local_variance_at(elevation, row, column, kernel):
-    return elevation[row,column]
-    # height, width = elevation.shape
-    # radius = kernel.size // 2
-    # mean = 0.0
-    # mean_squared = 0.0
-    # for row_offset in range(-radius, radius + 1):
-    #     source_row = _reflect_index(row + row_offset, height)
-    #     row_weight = kernel[row_offset + radius]
-    #     for column_offset in range(-radius, radius + 1):
-    #         source_column = _reflect_index(column + column_offset, width)
-    #         weight = row_weight * kernel[column_offset + radius]
-    #         value = elevation[source_row, source_column]
-    #         mean += weight * value
-    #         mean_squared += weight * value * value
-    # return max(mean_squared - mean * mean, 0.0)
-
-
-# @njit(cache=True)
-# def _find_component_seeds(elevation, labels, kernel, variance_cache, component_count):
-#     seed_indices = np.full(component_count, -1, dtype=np.int64)
-#     minimum_variances = np.full(component_count, np.inf, dtype=np.float32)
-#     width = labels.shape[1]
-#     flat_labels = labels.ravel()
-#     flat_cache = variance_cache.ravel()
-
-#     for flat_index in range(flat_labels.size):
-#         label = flat_labels[flat_index]
-#         if label == 0:
-#             continue
-#         row = flat_index // width
-#         column = flat_index - row * width
-#         value = _local_variance_at(elevation, row, column, kernel)
-#         flat_cache[flat_index] = value
-#         component_index = label - 1
-#         if value < minimum_variances[component_index]:
-#             minimum_variances[component_index] = value
-#             seed_indices[component_index] = flat_index
-#     return seed_indices, minimum_variances
-
-@njit(cache=True)
-def _fill_seed_cache(elevation, seed_mask, kernel, variance_cache):
+def _fill_seed_cache(elevation, seed_mask, dif_cache):
     height, width = elevation.shape
     for row in range(height):
         for column in range(width):
             if seed_mask[row, column]:
-                variance_cache[row, column] = _local_variance_at(
-                    elevation, row, column, kernel
-                )
+                dif_cache[row, column] = elevation[row,column]
 
 @njit(cache=True)
-def _grow_from_seeds(elevation, variance_cache, seeds, tolerance, valid_domain, kernel):
+def _grow_from_seeds(elevation, dif_cache, seeds, tolerance, valid_domain,):
     height, width = elevation.shape
-    flat_variance = variance_cache.ravel()
+    flat_dif = dif_cache.ravel()
     flat_domain = valid_domain.ravel()
     grown = np.zeros(valid_domain.shape, dtype=np.bool_)
     flat_grown = grown.ravel()
@@ -814,7 +766,7 @@ def _grow_from_seeds(elevation, variance_cache, seeds, tolerance, valid_domain, 
         head += 1
         row = current // width
         column = current - row * width
-        current_variance = flat_variance[current]
+        current_dif = flat_dif[current]
 
         for row_offset in range(-1, 2):
             neighbor_row = row + row_offset
@@ -828,23 +780,25 @@ def _grow_from_seeds(elevation, variance_cache, seeds, tolerance, valid_domain, 
                     continue
                 neighbor = neighbor_row * width + neighbor_column
                 if flat_domain[neighbor] and not flat_grown[neighbor]:
-                    if np.isnan(flat_variance[neighbor]):
-                        flat_variance[neighbor] = _local_variance_at(
-                            elevation, neighbor_row, neighbor_column, kernel
+                    if np.isnan(flat_dif[neighbor]):
+                        flat_dif[neighbor] = _local_dif_at(
+                            elevation, neighbor_row, neighbor_column
                         )
-                    if abs(flat_variance[neighbor] - current_variance) <= tolerance:
+                    if abs(flat_dif[neighbor] - current_dif) <= tolerance:
                         flat_grown[neighbor] = True
                         queue[tail] = neighbor
                         tail += 1
     return grown
 
+@njit(cache=True)
+def _local_dif_at(elevation, row, column):
+    return elevation[row, column]
 
-def grow_variance_regions(
+def grow_dif_regions(
     elevation,
     seed_mask,
-    tolerance=REGION_GROWING_VARIANCE_TOLERANCE,
+    tolerance=REGION_GROWING_DIF_TOLERANCE,
     valid_domain=None,
-    sigma=GAUSSIAN_SIGMA,
 ):
     if not np.isfinite(tolerance) or tolerance < 0:
         raise ValueError("Region-growing tolerance must be finite and non-negative")
@@ -857,29 +811,6 @@ def grow_variance_regions(
         raise ValueError("DEM and valid-domain dimensions do not match")
     valid_domain = valid_domain & np.isfinite(elevation)
     seed_cells = seed_mask & valid_domain
-    # labels, component_count = ndimage.label(
-    #     seed_cells,
-    #     structure=np.ones((3, 3), dtype=np.uint8),
-    # )
-    # if component_count == 0:
-    #     raise ValueError("Seed mask contains no cells with finite variance")
-
-    # kernel = make_gaussian_kernel(sigma)
-    # variance_cache = np.full(elevation.shape, np.nan, dtype=np.float32)
-    # seed_indices, minimum_variances = _find_component_seeds(
-    #     elevation,
-    #     labels,
-    #     kernel,
-    #     variance_cache,
-    #     component_count,
-    # )
-    # has_seed = seed_indices >= 0
-    # seed_indices = seed_indices[has_seed]
-    # minimum_variances = minimum_variances[has_seed]
-    # accepted = minimum_variances <= SEED_VARIANCE_THRESHOLD
-    # discarded_count = int(np.count_nonzero(~accepted))
-    # seeds = seed_indices[accepted]
-    # accepted_count = seeds.size
 
     # --- section to skip seed selection and set all 3 cell centers as a 3
     seed_cells = seed_mask & valid_domain
@@ -887,12 +818,11 @@ def grow_variance_regions(
     if seeds.size == 0:
         raise ValueError("Seed mask contains no valid cells")
 
-    kernel = make_gaussian_kernel(sigma)
-    variance_cache = np.full(elevation.shape, np.nan, dtype=np.float32)
-    _fill_seed_cache(elevation, seed_cells, kernel, variance_cache)
+    dif_cache = np.full(elevation.shape, np.nan, dtype=np.float32)
+    _fill_seed_cache(elevation, seed_cells, dif_cache)
 
     # optional: keep the per-seed threshold
-    keep = variance_cache.ravel()[seeds] <= SEED_VARIANCE_THRESHOLD
+    keep = dif_cache.ravel()[seeds] <= SEED_DIF_THRESHOLD
     discarded_count = int(np.count_nonzero(~keep))
     seeds = seeds[keep]
     accepted_count = seeds.size
@@ -900,22 +830,20 @@ def grow_variance_regions(
 
     print(
         f"Growing from {accepted_count:,} seeds; discarded {discarded_count:,} "
-        f"whose minimum variance exceeds {SEED_VARIANCE_THRESHOLD:g} "
         f"(8-connected, tolerance {tolerance:g})"
     )
     grown = (
         _grow_from_seeds(
             elevation,
-            variance_cache,
+            dif_cache,
             seeds,
             tolerance,
             valid_domain,
-            kernel,
         )
         if accepted_count
         else np.zeros(seed_mask.shape, dtype=bool)
     )
-    return grown, seeds, accepted_count, variance_cache
+    return grown, seeds, accepted_count, dif_cache
 
 
 def process_dem(dem_path, data_dir=DATA_DIR):
@@ -928,20 +856,19 @@ def process_dem(dem_path, data_dir=DATA_DIR):
     elevation = np.where(dem_valid, dem_values, 0.0).astype(np.float32)
     seed_mask = water_mask & dem_valid
 
-    grown, seeds, component_count, variance = grow_variance_regions(
+    grown, seeds, component_count, dif = grow_dif_regions(
         elevation,
         seed_mask,
-        tolerance=REGION_GROWING_VARIANCE_TOLERANCE,
+        tolerance=REGION_GROWING_DIF_TOLERANCE,
         valid_domain=dem_valid,
-        sigma=GAUSSIAN_SIGMA,
     )
 
     basename = os.path.splitext(os.path.basename(dem_path))[0]
-    variance_path = os.path.join(RESULTS_DIR, f"{basename}_variance.tif")
+    dif_path = os.path.join(RESULTS_DIR, f"{basename}_dif.tif")
     river_mask_path = os.path.join(RESULTS_DIR, f"{basename}_river_mask.tif")
     save_raster(
-        variance,
-        variance_path,
+        dif,
+        dif_path,
         dem.transform,
         dem.crs,
         np.nan,
@@ -959,8 +886,8 @@ def process_dem(dem_path, data_dir=DATA_DIR):
         dtype="uint8",
     )
     print(
-        f"Saved variance map and river mask for {component_count:,} accepted seeds "
-        f"({seeds.size:,} seeds):\n  {variance_path}\n  {river_mask_path}"
+        f"Saved elevation map and river mask for {component_count:,} accepted seeds "
+        f"({seeds.size:,} seeds):\n  {dif_path}\n  {river_mask_path}"
     )
 
 
@@ -1087,5 +1014,5 @@ def run_all_analyses(data_dir=DATA_DIR):
 
 
 if __name__ == "__main__":
-    print("Starting raster variance and river-region analysis.")
+    print("Starting raster difference and river-region analysis.")
     run_all_analyses()
