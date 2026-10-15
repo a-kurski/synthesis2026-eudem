@@ -107,8 +107,9 @@ class RiverMask(unittest.TestCase):
             tile(root / 'seeds.tif', 300000, 5600100, seeds, res=5)
             config = root / 'pipeline.json'
             write_vector(box(300000, 5600000, 300050, 5600100), root / 'region.gpkg')  # left half
-            config.write_text(json.dumps({'settings': {'river_seeds': 'seeds.tif', 'output_dir': 'out', 'crs': 25832},
-                                          'regions': {'a': {'dem': 'dem.tif', 'vector': 'region.gpkg'}}}))
+            config.write_text(json.dumps({'settings': {'output_dir': 'out', 'crs': 25832},
+                                          'regions': {'a': {'dem': 'dem.tif', 'vector': 'region.gpkg',
+                                                            'river_seeds': 'seeds.tif'}}}))
             create_masks(config)
             path = json.loads(config.read_text())['regions']['a']['river_mask']
             self.assertEqual(path, 'out/a/dem_river_mask.tif')

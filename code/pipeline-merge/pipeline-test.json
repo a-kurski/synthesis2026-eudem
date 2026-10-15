@@ -1,0 +1,42 @@
+{
+  "settings": {
+    "crs": 3035,
+    "vertical_crs": 5621,
+    "resolution": 5,
+    "extent": "test_masks/small_study_area.gpkg",
+    "interpolation_mask": null,
+    "buffer_m": 1000,
+    "nodata": -9999,
+    "output_dir": "../../local/test",
+    "qgis_root": null,
+    "hole_filling": {
+      "method": "gdal_idw",
+      "selection": "all_aoi_nodata",
+      "max_distance_m": 100,
+      "nearest_fallback": true,
+      "smoothing_iterations": 0
+    }
+  },
+  "regions": {
+    "netherlands": {
+      "vector": "test_masks/test_netherlands.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/netherlands/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 28992,
+      "vertical_crs": 5709,
+      "interpolate": true,
+      "crop": false,
+      "river_seeds": "water-masks/Netherlands_baseline_class.tif"
+    },
+    "germany_nrw": {
+      "vector": "test_masks/test_nrw.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/germany/nrw/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false,
+      "river_seeds": "water-masks/Germany_baseline_class.tif"
+    }
+  }
+}

@@ -185,7 +185,11 @@ class Run:
             self.save()
 
     def rivers(self):
-        from .river_mask import create_masks  # xdem/numba only needed for this stage
+        try:
+            from .river_mask import create_masks  # xdem/numba only needed for this stage
+        except ImportError as exc:
+            print(f'Skipping river masks ({exc}); run python -m dtm.river_mask pipeline.json in an xdem environment')
+            return
         self.save()
         create_masks(self.path)  # writes each region's river_mask path into the JSON
         self.cfg = json.loads(self.path.read_text(encoding='utf-8-sig'))
