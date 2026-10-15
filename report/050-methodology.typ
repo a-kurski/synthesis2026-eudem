@@ -170,3 +170,70 @@ To evaluate the accuracy, pure translation is needed. It is obtained by applying
 
 
 #drafting.inline-note()[The final version of this chapter will contain more quality ensurance/checking. The pipeline currently is not fully automated and this will be changed for the final version. ]
+
+== River mask processing
+One expected limitation of the pipeline is the errors introduced by water body interpolation. The solution to this problem is to exclude the subset of points which fall within the river area from the error analysis.
+
+This mask could be identified from the classified point clouds. However, the reprocessing of the DEM using point clouds is out of the scope for this project. Therefore, we can only rely on the DEM data for segmentation. While river/lake masks do exist, they either provide global low resolution vector data @HydroATLAS, or low resolution raster data @SDG. 
+
+In order to create a high quality water mask, the SDG mask was used as an input. The SDG mask contains a value 1, 2, or 3 to describe the certainty of the underlying value being water. The mask is filtered to only use certainty 2 and 3 values to ensure high confidence. The mask is then transformed to a binary format.
+
+However, the SDG mask is not fine enough to be applied to the elevation map. Instead, we can use the SDG mask as seed points in a region growing algorithm. Since rivers and waterbodies are known to be relatively flat, a low threshold can be set for the region growing, such that the elevation jump at the shore is registered as the boundary of the water body. 
+
+Each mask cell is transformed to the elevation map resolution, @CRS and grid. By applying this mask to the elevation map, it is essentially clipped to contain only heigh values that fall within the SDG mask. Each cell in this clipped DTM is taken as a seed point for a region growing algorithm. These seed points are added to the region growing queue. Each entry has eight neighbors and for each the height difference with the seed is calculated. When these differences are smaller than the set threshold, the neighboring point is added to the end of the queue. The result is a breadth first search which incrementally classifies cells as a water body. The end result is a binary mask, where cell values of one denote the existence of a water body.
+
+#[
+#show figure: set align(left)
+#figure(
+  align(left)[
+    #pseudocode-list(
+      booktabs: true,
+      booktabs-stroke: 1pt,
+      line-number-supplement: "line",
+      title: [#smallcaps[*River Mask Generation*]],
+    )[
+      + *Input:* @DTM $D$, water probability raster $C$, growth tolerance $T$
+      + *Output:* Binary river mask $R$
+      + Load @DTM $D$
+      + Determine the corresponding country classification raster $C$
+      + Reproject $C$ onto the grid of $D$
+      + Create initial water mask $W$
+      + Assign cells with class value $2$ or $3$ in $C$ to water
+      + Restrict $W$ to valid @DTM cells
+      + Initialise region-growing seeds $S arrow.l W$
+      + For every seed cell in $S$
+        + Compute seed elevation value
+      + Initialise empty region mask $G$
+      + Add all accepted seeds to a processing queue
+      + *while* the queue is not empty *do*
+        + Remove the next cell $p$ from the queue
+        + For each 8-connected neighbour $n$ of $p$
+          + *if* $n$ lies within the valid @DTM domain and has not been visited *then*
+            + Compute the elevation value of $n$
+            + *if* the difference between the elevation values of $p$ and $n$ is less than or equal to $T$ *then*
+              + Add $n$ to $G$
+              + Add $n$ to the queue
+            + *end*
+          + *end*
+        + *end*
+      + *end*
+      + Initialise binary river mask $R$ with value $0$
+      + Assign river value $1$ to all cells contained in $G$
+      + Assign NoData value to invalid @DTM cells
+      + Save $R$
+    ]
+  ],
+  kind: "algorithm",
+  supplement: [Algorithm],
+  caption: [Binary river-mask generation by seeded region growing from hydrographic classes.],
+) <alg-river-mask>
+]
+
+#drafting.inline-note("Add a nice image that shows the river mask for the entire rhine catchment area and another for a local area")
+
+#image("/assets/image.png")
+
+== VCRS transform
+
+== Border analysis
+
