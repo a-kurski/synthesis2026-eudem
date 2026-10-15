@@ -229,7 +229,14 @@ class Run:
 
     def assemble(self):
         s, res = self.s, self.s['resolution']
-        basin = self.geometry(s['extent'])
+        if s.get('extent'):
+            basin = self.geometry(s['extent'])
+        else:  # no extent: the union of the region outlines
+            outlines = [self.geometry(r['vector']) for r in self.regions.values()]
+            basin = outlines[0]
+            for g in outlines[1:]:
+                basin = basin.Union(g)
+            basin.AssignSpatialReference(srs(s['crs']))
         x0, y0, x1, y1 = snap(bounds(basin), res)
         crs = osr.SpatialReference()
         crs.SetFromUserInput(crs_name(s['crs'], s['vertical_crs']))

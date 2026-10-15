@@ -3,7 +3,7 @@
     "crs": 3035,
     "vertical_crs": 5621,
     "resolution": 5,
-    "extent": "test_masks/small_study_area.gpkg",
+    "extent": null,
     "interpolation_mask": null,
     "buffer_m": 1000,
     "nodata": -9999,
@@ -19,7 +19,7 @@
   },
   "regions": {
     "netherlands": {
-      "vector": "test_masks/test_netherlands.gpkg",
+      "vector": "country_masks/Netherlands.gpkg",
       "raster": "../../../ardabaysal/pipeline/data/netherlands/raw_tiles/*.tif",
       "point_clouds": null,
       "crs": 28992,
@@ -29,7 +29,7 @@
       "river_seeds": "water-masks/Netherlands_baseline_class.tif"
     },
     "germany_nrw": {
-      "vector": "test_masks/test_nrw.gpkg",
+      "vector": "country_masks/Germany_NRW.gpkg",
       "raster": "../../../ardabaysal/pipeline/data/germany/nrw/raw_tiles/*.tif",
       "point_clouds": null,
       "crs": 25832,
