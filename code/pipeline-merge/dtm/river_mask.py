@@ -279,7 +279,6 @@ def process_dem(dem_path, seeds_path, out_dir, region=None, epsg=25832):
 
 def create_masks(config_path):
     """Create a river mask for every region in the pipeline JSON and record its path there.
-
     Seeds: each region's own water raster `river_seeds` (cells valued 2 or 3), cropped
     to the region's `vector`; region growing runs separately on each region's DEM.
     Regions whose mask already exists are skipped, so reruns resume.

@@ -7,7 +7,7 @@
     "interpolation_mask": null,
     "buffer_m": 1000,
     "nodata": -9999,
-    "output_dir": "../../local",
+    "output_dir": "../../local/data",
     "qgis_root": "C:/Program Files/QGIS 3.40.11",
     "hole_filling": {
       "method": "gdal_idw",
@@ -21,6 +21,7 @@
     "netherlands": {
       "vector": "country_masks/Netherlands.gpkg",
       "raster": "../../../ardabaysal/pipeline/data/netherlands/raw_tiles/*.tif",
+      "raster": "data/netherlands/raw_tiles/*.tif",
       "point_clouds": null,
       "crs": 28992,
       "vertical_crs": 5709,
@@ -125,8 +126,7 @@
       "point_clouds": null,
       "crs": 2056,
       "vertical_crs": 5728,
-      "interpolate": false,
-      "crop": false,
+      "interpolate": false,      "crop": false,
       "river_seeds": "water-masks/Liechtenstein_baseline_class.tif"
     }
   }
