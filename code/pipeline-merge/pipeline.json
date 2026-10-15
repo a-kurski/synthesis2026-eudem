@@ -1,0 +1,133 @@
+{
+  "settings": {
+    "crs": 3035,
+    "vertical_crs": 5621,
+    "resolution": 5,
+    "extent": "test_masks/Rhine_area.gpkg",
+    "interpolation_mask": null,
+    "buffer_m": 1000,
+    "nodata": -9999,
+    "output_dir": "../../local",
+    "qgis_root": "C:/Program Files/QGIS 3.40.11",
+    "hole_filling": {
+      "method": "gdal_idw",
+      "selection": "all_aoi_nodata",
+      "max_distance_m": 100,
+      "nearest_fallback": true,
+      "smoothing_iterations": 0
+    }
+  },
+  "regions": {
+    "netherlands": {
+      "vector": "country_masks/Netherlands.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/netherlands/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 28992,
+      "vertical_crs": 5709,
+      "interpolate": true,
+      "crop": false,
+      "river_seeds": "water-masks/Netherlands_baseline_class.tif"
+    },
+    "germany_nrw": {
+      "vector": "country_masks/Germany_NRW.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/germany/nrw/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false,
+      "river_seeds": "water-masks/Germany_baseline_class.tif"
+    },
+    "germany_rlp": {
+      "vector": "country_masks/Germany_RheinlandPfalz.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/germany/rlp/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false,
+      "river_seeds": "water-masks/Germany_baseline_class.tif"
+    },
+    "germany_saarland": {
+      "vector": "country_masks/Germany_Saarland.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/germany/saarland/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false,
+      "river_seeds": "water-masks/Germany_baseline_class.tif"
+    },
+    "germany_hessen": {
+      "vector": "country_masks/Germany_Hessen.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/germany/hessen/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false,
+      "river_seeds": "water-masks/Germany_baseline_class.tif"
+    },
+    "germany_bw": {
+      "vector": "country_masks/Germany_BadenWurttemberg.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/germany/bw/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false,
+      "river_seeds": "water-masks/Germany_baseline_class.tif"
+    },
+    "germany_bavaria": {
+      "vector": "country_masks/Germany_Bayern.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/germany/bavaria/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false,
+      "river_seeds": "water-masks/Germany_baseline_class.tif"
+    },
+    "france": {
+      "vector": "country_masks/France.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/France/raw_tiles/**/*.asc",
+      "point_clouds": null,
+      "crs": 2154,
+      "vertical_crs": 5720,
+      "interpolate": false,
+      "crop": false,
+      "resampling": "bilinear",
+      "river_seeds": "water-masks/France_baseline_class.tif"
+    },
+    "luxembourg": {
+      "vector": "country_masks/Luxembourg.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/luxembourg/raw_tiles/MNT_Lidar2024.tif",
+      "point_clouds": null,
+      "crs": 2169,
+      "vertical_crs": 5774,
+      "interpolate": false,
+      "crop": false,
+      "river_seeds": "water-masks/Luxembourg_baseline_class.tif"
+    },
+    "switzerland": {
+      "vector": "country_masks/Swiss.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/switzerland/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 2056,
+      "vertical_crs": 5728,
+      "interpolate": false,
+      "crop": false,
+      "river_seeds": "water-masks/Switzerland_baseline_class.tif"
+    },
+    "liechtenstein": {
+      "vector": "country_masks/Liechtenstein.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/switzerland/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 2056,
+      "vertical_crs": 5728,
+      "interpolate": false,
+      "crop": false,
+      "river_seeds": "water-masks/Liechtenstein_baseline_class.tif"
+    }
+  }
+}
