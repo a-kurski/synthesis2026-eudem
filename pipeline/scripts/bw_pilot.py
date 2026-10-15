@@ -43,7 +43,9 @@ def main():
         archives = {r['archive']: sha256(r['archive']) for r in receipts}
         repeat = directory / 'offline_repeat'
         repeat.mkdir()
-        with patch('requests.Session.get', side_effect=AssertionError('Cached AOI made an HTTP request')):
+        with patch('requests.Session.get', side_effect=AssertionError('Cached AOI made an HTTP request')), \
+                patch('dtm.countries.germany.bw.acquisition.convert_xyz',
+                      side_effect=AssertionError('Cached AOI repeated XYZ conversion')):
             repeated = bw.download(config, plan, repeat)
         if [sha256(p) for p in repeated] != [sha256(p) for p in tiles]:
             raise AssertionError('Cached source conversions differ.')
@@ -64,7 +66,8 @@ def main():
     if any(sha256(p) != digest for p, digest in archives.items()):
         raise AssertionError('Source archives changed during processing.')
     report = {'status': 'passed', 'archive_count': len(archives), 'selected_xyz_count': len(tiles),
-              'offline_repeat_http_requests': 0, 'target_cells': expected.size,
+              'offline_repeat_http_requests': 0, 'offline_repeat_xyz_conversions': 0,
+              'target_cells': expected.size,
               'maximum_absolute_error_m': 0, 'source_archives_unchanged': True,
               'result': result}
     write_json(directory / 'pilot_report.json', report)

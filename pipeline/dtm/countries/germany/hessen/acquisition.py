@@ -15,7 +15,7 @@ from osgeo import gdal, ogr
 import requests
 
 from ....acquire import sha256, write_json
-from ....geo import rectangle, windows
+from ....geo import rectangle, windows, valid_values
 from ....paths import scoped_root, raw_directory, receipt_path, download_part
 from ....progress import bar, track
 from .processing import validate_native
@@ -175,7 +175,13 @@ def reusable_extraction(config, region):
         return None
     root = directory / index['directory']
     try:
-        if not index['tiles'] or not index['files'] or any((root/f['name']).stat().st_size != f['size'] for f in index['files']):
+        # Inner ZIPs are transport containers, not dependencies of an already
+        # completed extraction. Keep their receipts for provenance, but allow
+        # their removal without invalidating existing schema-1 caches.
+        required = [f for f in index['files'] if PurePosixPath(f['name']).suffix.lower() != '.zip']
+        if (not index['tiles'] or not required
+                or any((root/f['name']).stat().st_size != f['size']
+                       for f in [*required, *index['tiles']])):
             return None
     except (OSError, KeyError):
         return None
@@ -239,17 +245,28 @@ def extract_region(session, config, region):
     return root, index
 
 
-def same_raster(left, right):
+def compare_rasters(left, right):
     a, b = validate_native(left), validate_native(right)
-    if any(a[key] != b[key] for key in ('extent', 'rows', 'cols', 'transform', 'nodata', 'dtype')):
-        return False
+    if any(a[key] != b[key] for key in ('extent', 'rows', 'cols', 'transform')):
+        raise ValueError('Duplicate Hessen tiles do not share the same pixel grid.')
+    result = {'different_valid_pixels': 0, 'different_missing_pixels': 0,
+              'max_absolute_height_difference_m': 0.0}
     with gdal.Open(str(left)) as src, gdal.Open(str(right)) as other:
         for window in windows(src):
-            if (not np.array_equal(src.ReadAsArray(*window), other.ReadAsArray(*window), equal_nan=True)
-                    or not np.array_equal(src.GetRasterBand(1).GetMaskBand().ReadAsArray(*window),
-                                          other.GetRasterBand(1).GetMaskBand().ReadAsArray(*window))):
-                return False
-    return True
+            values, valid = valid_values(src.GetRasterBand(1), window)
+            other_values, other_valid = valid_values(other.GetRasterBand(1), window)
+            different = valid & other_valid & (values != other_values)
+            result['different_valid_pixels'] += int(different.sum())
+            result['different_missing_pixels'] += int((valid != other_valid).sum())
+            if different.any():
+                delta = np.abs(values[different].astype('float64') - other_values[different])
+                result['max_absolute_height_difference_m'] = max(result['max_absolute_height_difference_m'], float(delta.max()))
+    result['equivalent'] = not (result['different_valid_pixels'] or result['different_missing_pixels'])
+    return result
+
+
+def same_raster(left, right):
+    return compare_rasters(left, right)['equivalent']
 
 
 def acquire(config, source_plan, log_dir, *, probe_only=False):
@@ -266,7 +283,7 @@ def acquire(config, source_plan, log_dir, *, probe_only=False):
         raise ValueError('No official Hessen source TIFF intersects the AOI.')
     raw = raw_directory(config)
     raw.mkdir(parents=True, exist_ok=True)
-    paths, seen, selected, duplicates = [], {}, [], []
+    paths, seen, selected, duplicates, validated = [], {}, [], [], []
     for region, root, index, tile in track(candidates, 'Hessen selected tile validation'):
         source = root / tile['name']
         if sha256(source) != tile['sha256']:
@@ -274,14 +291,31 @@ def acquire(config, source_plan, log_dir, *, probe_only=False):
         info = validate_native(source)
         if info['extent'] != tile['bounds']:
             raise ValueError(f'Hessen TIFF bounds differ from filename/index: {source}')
+        validated.append((region, root, index, tile, info))
+    # Resolve every group before copying, so traversal order cannot choose a
+    # different winner. Metadata preference is a tie-break, not an accuracy claim.
+    policy = 'Prefer explicit NoData; then lowest district ID; then lexical member path.'
+    validated.sort(key=lambda item: (item[4]['nodata'] is None, item[0]['id'], item[3]['name']))
+    winners = []
+    for region, root, index, tile, info in validated:
+        source = root / tile['name']
         key = tuple(info['extent'])
         if key in seen:
             previous = seen[key]
-            if not same_raster(previous, source):
-                raise ValueError(f'Conflicting official Hessen tiles for the same area: {previous} and {source}')
-            duplicates.append({'kept': str(previous), 'identical_copy': str(source)})
+            comparison = compare_rasters(previous, source)
+            duplicates.append({'kept': str(previous), 'discarded_from_processing': str(source),
+                               'bounds': list(key), 'selection_policy': policy, **comparison})
+            LOG.warning('Hessen duplicate tile (%s): keeping %s; excluding %s. %s Differences: %s',
+                        'equivalent' if comparison['equivalent'] else 'CONFLICT',
+                        previous, source, policy, comparison)
             continue
         seen[key] = source
+        winners.append((region, root, index, tile, info))
+    write_json(log_dir/'hessen_duplicate_tiles.json', {'selection_policy': policy,
+               'duplicate_count': len(duplicates),
+               'conflict_count': sum(not d['equivalent'] for d in duplicates), 'duplicates': duplicates})
+    for region, root, index, tile, info in track(winners, 'Hessen selected tile caching'):
+        source = root / tile['name']
         # Unique flat names also avoid collisions in the unchanged shared cleaner.
         token = hashlib.sha256(tile['name'].encode()).hexdigest()[:12]
         path = raw / f'he_{config["source"]["download_date"]}_{region["id"]}_{token}_{source.name}'
@@ -301,7 +335,9 @@ def acquire(config, source_plan, log_dir, *, probe_only=False):
         selected.append({'path': str(path), 'district': region['id'], 'member': tile['name'], 'grid': info})
     write_json(log_dir/'hessen_selected_tiles.json', {'regions': source_plan['regions'],
                'download_date': config['source']['download_date'], 'tiles': selected,
-               'identical_boundary_duplicates': duplicates, 'probe_only': probe_only})
+               'identical_boundary_duplicates': [d for d in duplicates if d['equivalent']],
+               'conflicting_boundary_duplicates': [d for d in duplicates if not d['equivalent']],
+               'duplicate_report': str(log_dir/'hessen_duplicate_tiles.json'), 'probe_only': probe_only})
     return paths[:1] if probe_only else paths
 
 

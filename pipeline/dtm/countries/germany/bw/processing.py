@@ -1,5 +1,6 @@
 """Validate pixel-centred XYZ, assign its declared CRS, then use shared processing."""
 import json
+from functools import partial
 
 import numpy as np
 from osgeo import gdal
@@ -7,6 +8,7 @@ from osgeo import gdal
 from ....acquire import write_json
 from ....geo import grid, srs
 from ....paths import receipt_path, scoped_root
+from ....process import mosaic
 from ..processing import prepare as prepare_native
 
 VERTICAL_NOTE = ('Baden-Württemberg DGM1 heights retain DE_DHHN2016_NH (DHHN2016 normal heights). '
@@ -68,7 +70,8 @@ def convert_xyz(source, destination, extent, metadata, config):
 def prepare(tiles, geometry, reference, run_dir, config):
     from . import region_aoi
     result = prepare_native(tiles, region_aoi(geometry, config), reference, run_dir, config,
-                            product='bw', vertical_note=VERTICAL_NOTE)
+                            product='bw', vertical_note=VERTICAL_NOTE,
+                            clean_sources=False, mosaic_sources=partial(mosaic, virtual=True))
     provenance = run_dir / 'processed/source_provenance.json'
     write_json(provenance, {'producer': config['source']['producer'],
                            'vertical_datum_note': VERTICAL_NOTE,

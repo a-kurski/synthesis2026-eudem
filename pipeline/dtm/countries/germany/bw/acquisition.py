@@ -20,7 +20,7 @@ import requests
 from ....acquire import sha256, write_json
 from ....downloads import RequestGate, worker_count
 from ....geo import bounds, rectangle
-from ....paths import receipt_path, scoped_root
+from ....paths import raw_directory, receipt_path, scoped_root
 from ....progress import track
 from .processing import convert_xyz
 
@@ -30,6 +30,8 @@ LAYERS_URL = PORTAL + '/assets/config/local/core-layerconfig.json'
 GRID_URL = PORTAL + '/tiles/vts/2x2Gitter/{z}/{x}/{y}.pbf'
 ARCHIVE = re.compile(r'dgm1_32_(\d{3})_(\d{4})_2_bw\.zip')
 CHILD = re.compile(r'dgm1_32_(\d{3})_(\d{4})_1_bw_\d{4}\.xyz')
+# Increment when conversion semantics change, invalidating derived TIFFs only.
+CONVERSION_VERSION = 1
 
 
 def archive_url(name):
@@ -315,8 +317,21 @@ def prefetch(config, log_dir):
         write_json(scoped_root(config, 'logs_dir') / 'bw_cache_summary.json', summary)
 
 
+def cached_conversion(path, identity, config):
+    if not config.get('reuse_cache', True):
+        return False
+    try:
+        record = json.loads(receipt_path(path, config).read_text(encoding='utf-8'))
+        return (all(record.get(key) == value for key, value in identity.items())
+                and record['bytes'] == path.stat().st_size and record['sha256'] == sha256(path))
+    except (OSError, ValueError, KeyError):
+        return False
+
+
 def extract_tiles(tile, path, geometry, work, config, probe_only=False):
     paths = []
+    directory = raw_directory(config)
+    directory.mkdir(parents=True, exist_ok=True)
     receipt = scoped_root(config, 'logs_dir') / 'archive_receipts' / (path.name + '.json')
     archive_digest = json.loads(receipt.read_text(encoding='utf-8'))['sha256']
     with zipfile.ZipFile(path) as package:
@@ -332,7 +347,16 @@ def extract_tiles(tile, path, geometry, work, config, probe_only=False):
             if not intersects(child, geometry):
                 continue
             source = work / child['name']
-            destination = source.with_suffix('.tif')
+            destination = directory / source.with_suffix('.tif').name
+            identity = {'source': config['source'], 'archive_sha256': archive_digest,
+                        'member': child['member'], 'conversion_version': CONVERSION_VERSION,
+                        'bounds': child['bounds'], 'output_nodata': config['nodata']}
+            if cached_conversion(destination, identity, config):
+                LOG.info('Reusing converted BW tile %s', destination.name)
+                paths.append(destination)
+                if probe_only:
+                    break
+                continue
             with package.open(child['member']) as src, source.open('wb') as dst:
                 shutil.copyfileobj(src, dst)
             csv_member = str(PurePosixPath(child['member']).with_suffix('.csv'))
@@ -342,11 +366,12 @@ def extract_tiles(tile, path, geometry, work, config, probe_only=False):
             if len(rows) != 1:
                 raise ValueError(f'Expected one metadata row: {csv_member}')
             info = convert_xyz(source, destination, child['bounds'], rows[0], config)
-            write_json(receipt_path(destination, config), {
-                'source': config['source'], 'url': archive_url(tile['name']), 'archive': str(path),
-                'archive_sha256': archive_digest, 'member': child['member'],
+            converted_receipt = receipt_path(destination, config)
+            converted_receipt.parent.mkdir(parents=True, exist_ok=True)
+            write_json(converted_receipt, {
+                **identity, 'url': archive_url(tile['name']), 'archive': str(path),
                 'csv_member': csv_member, 'csv': rows[0], 'support_members': support,
-                'sha256': sha256(destination), **info})
+                'sha256': sha256(destination), 'bytes': destination.stat().st_size, **info})
             source.unlink()  # Original XYZ, CSV and licence remain in the cached ZIP.
             paths.append(destination)
             if probe_only:
@@ -356,7 +381,7 @@ def extract_tiles(tile, path, geometry, work, config, probe_only=False):
 
 def acquire(config, source_plan, log_dir, probe_only=False):
     geometry = ogr.CreateGeometryFromWkt(source_plan['selection_wkt'])
-    # Derivatives are per invocation; only original ZIPs are durable source data.
+    # Extraction scratch is per invocation; converted TIFFs persist in raw_tiles.
     work = log_dir / 'source_tiles'
     work.mkdir(parents=True, exist_ok=True)
     paths, selected, unavailable = [], [], []

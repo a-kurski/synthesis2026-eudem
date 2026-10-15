@@ -85,8 +85,9 @@ The old Mapterhorn TAR and index are ignored. See [Hessen preparation](GERMANY_H
 Baden-Württemberg retains original LGL ZIPs in `data/germany/bw/source_archive/`.
 Statewide `--prefetch` and AOI acquisition share this cache. The availability
 inventory, archive receipts and completeness summary live under
-`logs/preparation/germany/bw/`. Only selected XYZs are converted, in each run's
-`source_tiles/` log subdirectory; these derivatives are not a second durable cache.
+`logs/preparation/germany/bw/`. Selected XYZs are converted into persistent
+`data/germany/bw/raw_tiles/` TIFFs, with validation and provenance receipts in
+`logs/preparation/germany/bw/raw_receipts/`. Valid conversions are reused across runs.
 Source provenance is copied to `processed/source_provenance.json` before publication
 results are recorded. See [Baden-Württemberg preparation](GERMANY_BW_PREPARATION.md).
 

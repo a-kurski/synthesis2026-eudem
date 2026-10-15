@@ -18,8 +18,10 @@ defines the target. Heights retain `DE_DHHN2016_NH`; no vertical transformation.
    Validate each coordinate against the named 1 m pixel-centre grid and matching
    CSV CRS. Border tiles may contain fewer than 1,000,000 records. Place supplied
    points on the nominal 1000 × 1000 grid, leaving absent cells as NoData.
-5. Assign EPSG:25832, convert to a temporary Float32 TIFF, and use the shared
-   German cleaning, mosaicking and exact valid-pixel 5 × 5 averaging code.
+5. Assign EPSG:25832 and cache the converted Float32 TIFF. Validate source grids,
+   build a virtual mosaic (VRT), and use the shared exact valid-pixel 5 × 5
+   averaging code directly on it. Conversion already normalizes invalid values,
+   so BW writes neither separate cleaned TIFFs nor a merged 1 m TIFF.
 6. Mask to the AOI intersected with the region and publish through the existing
    COG module. Genuine gaps remain NoData; hole filling is disabled.
 7. Save source identifiers, URLs, hashes, verbatim CSV fields, source NoData
@@ -40,8 +42,8 @@ independently of `aoi`, without extracting XYZs or creating rasters. Rerun the
 same command after interruption: valid ZIPs are checked and reused. It is not
 required before an AOI run; `--yes` fetches only missing AOI archives.
 
-`--probe` downloads/reuses the first selected archive and converts one selected
-XYZ. `--fresh-download` explicitly refreshes the inventory and selected archives;
+`--probe` downloads/reuses the first selected archive and converts or reuses one
+selected tile. `--fresh-download` explicitly refreshes the inventory and selected archives;
 combine it with `--prefetch` to refresh the whole collection. Normal runs use the
 saved inventory snapshot, so newly published source editions are picked up only
 on explicit refresh. Failed downloads leave existing ZIPs and receipts intact.
@@ -64,14 +66,22 @@ disk activity; they do not promise proportional speedup for XYZ text parsing.
 The `BW archives + XYZ conversion` progress bar includes ZIP validation,
 extraction, text parsing and TIFF creation. It is not a download-only rate.
 Per-archive logs separate acquisition/cache-validation time from local preparation.
-`--prefetch` avoids conversion; a subsequent `--yes` still converts the selected
-XYZs. Each restart creates new run derivatives while reusing valid source ZIPs.
+`--prefetch` avoids conversion; a subsequent `--yes` converts selected XYZs that
+are not already cached. Restarts reuse valid source ZIPs and converted TIFFs.
+Converted TIFF receipts check the source archive hash, member, conversion version,
+bounds, output NoData and TIFF size/hash. Missing, changed or outdated conversions
+are rebuilt from the cached ZIP. `--fresh-download` also rebuilds conversions.
 
 Cache reuse hashes each ZIP once and compares its size/hash/URL with its saved
 validation receipt, then checks the ZIP directory. Identical previously validated
 bytes do not need another full decompression/CRC pass. New downloads and ZIPs
 without receipts still receive full CRC validation. The saved archive hash is
 reused in child provenance, avoiding repeated reads of the ZIP for every child.
+
+After acquisition, BW validates cached tile grids, builds the VRT, averages to
+5 m, masks to the AOI and publishes COGs. The VRT references the persistent TIFFs;
+keep `raw_tiles` available while processing. Other regions retain their existing
+cleaning and mosaicking behaviour.
 
 ## Official discovery and completeness
 
@@ -111,28 +121,45 @@ statewide XYZ. Full XYZ validation happens for selected processing tiles.
 ```text
 data/germany/bw/
   source_archive/dgm1_32_<E>_<N>_2_bw.zip
+  raw_tiles/<XYZ-stem>.tif        persistent converted 1 m tiles
   <run_id>/processed/             common grid, target tiles, _work and provenance
   <run_id>/stitched/bw.tif        final 5 m COG
 
 logs/preparation/germany/bw/
   bw_inventory.json              official availability manifest and snapshot date
   archive_receipts/<ZIP>.json     per-archive cache manifest: URL, hash, bytes, children
+  raw_receipts/<XYZ-stem>.json    conversion identity, hash and source provenance
   bw_cache_summary.json           latest statewide prefetch outcome
   download_work/                  cached discovery responses
   <run_id>/bw_selection.json
-  <run_id>/source_tiles/          selected derived TIFFs, CSVs and receipts
+  <run_id>/source_tiles/          extraction scratch and CSV copies
   <run_id>/source_manifest.json
   <run_id>/bw_prefetch.json        prefetch invocations only
   pilots/<run_id>/pilot_report.json
 ```
 
-Copy `source_archive`, `bw_inventory.json` and `archive_receipts` when moving the
-cache to another machine. Valid ZIPs without receipts can also be adopted after
+Copy `source_archive`, `raw_tiles`, `bw_inventory.json`, `archive_receipts` and
+`raw_receipts` when moving the cache to another machine. Valid ZIPs without receipts can also be adopted after
 CRC and structure checks; this is local validation, not a provider checksum.
 AOI processing neither deletes nor extracts the whole ZIP collection. Extracted
 XYZ text is removed after conversion; the original remains in its ZIP. Other
 derivatives are per-run files that may be removed with those run outputs.
-Never remove `source_archive` during run cleanup.
+Never remove `source_archive` or `raw_tiles` during run cleanup. TIFFs from older
+per-run `source_tiles` directories are not automatically adopted; the first run
+with persistent conversion caching rebuilds selected tiles from the cached ZIPs.
+
+To explicitly recover completed conversions from an older, stopped run, use:
+
+```bash
+python scripts/bw_recover_conversions.py config.germany.bw.json logs/preparation/germany/bw/<run_id>/source_tiles
+```
+
+This validates TIFF/ZIP hashes, grids and valid-cell counts before adopting each
+tile. It retains original files and uses hard links where possible, copying only
+when linking fails. Do not edit linked TIFFs in place. Recovery is resumable and
+stops on invalid files or conflicting cache content. A subsequent normal `--yes`
+run reuses the recovered cache. If a terminated run left `active.lock`, verify its
+recorded process is no longer running before removing that stale lock.
 
 The sample ZIPs advertise no source NoData sentinel. The implementation does not
 invent one. It accepts partial coverage, rejects duplicate, off-grid or out-of-tile
@@ -158,3 +185,13 @@ are valid, and its 847,104 absent cells remain NoData. The partial-tile fix
 passed 13 regional tests. All 40,000 cells of the tile's aligned, masked 5 m COG
 matched independent coordinate-based means (or NoData) exactly. Statewide
 border/survey-year variation has not been exhaustively sampled.
+
+On 2026-10-13, persistent conversion caching passed all 18 regional tests,
+including missing/corrupt TIFF repair, conversion-version and source changes,
+and preservation of the previous cache after a failed conversion. The two-archive
+pilot passed with HTTP and XYZ conversion forbidden on repeat acquisition; all
+1,600 final 5 m cells still matched independent means exactly.
+
+The VRT processing change passed 19 BW tests, including exact comparison against
+the previous cleaned, physical-mosaic workflow across tile seams and NoData gaps,
+and rejection of a shifted source grid.

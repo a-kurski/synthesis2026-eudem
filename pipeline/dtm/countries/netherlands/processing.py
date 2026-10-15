@@ -56,6 +56,18 @@ def prepare(tiles, geometry, reference, run_dir, config):
         warp_reference = write_reference(context, aligned / 'target_with_context.vrt')
     context_warp = aligned / 'ahn_resampled_with_context.tif'
     align(merged, warp_reference, context_warp, config)
+    return finish_from_alignment(context_warp, merged, geometry, reference, run_dir, config, padding)
+
+
+def finish_from_alignment(context_warp, merged, geometry, reference, run_dir, config, padding):
+    """Finish a completed contextual warp without acquisition or resampling."""
+    processed = run_dir / 'processed'
+    work = processed / '_work'
+    aligned, output = work / 'aligned', work / 'output'
+    stitched = run_dir / 'stitched'
+    for directory in (aligned, output, stitched):
+        directory.mkdir(parents=True, exist_ok=True)
+    fill = settings(config)
     warped = aligned / 'ahn_aligned_to_target.tif'
     crop_target(context_warp, warped, reference, padding)
     report = fill_holes(context_warp, geometry, work / 'hole_filling', config) if fill['enabled'] else None

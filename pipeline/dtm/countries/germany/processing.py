@@ -67,16 +67,21 @@ def aggregate(native, reference, destination, config, *, product="nrw", vertical
 
 
 def prepare(tiles, geometry, reference, run_dir, config, *, product="nrw", vertical_note=VERTICAL_NOTE,
-            validate=validate_native, resample=aggregate, mosaic_sources=mosaic, metadata=None):
+            validate=validate_native, resample=aggregate, mosaic_sources=mosaic, metadata=None,
+            clean_sources=True):
     processed = run_dir / 'processed'
     work = processed / '_work'
     cleaned_dir = work / 'clean_tiles'
     stitched = run_dir / 'stitched'
-    for directory in (cleaned_dir, stitched):
+    for directory in (cleaned_dir if clean_sources else work, stitched):
         directory.mkdir(parents=True, exist_ok=True)
     cleaned = []
-    for source in track(tiles, f'{product.upper()} cleaning'):
+    for source in track(tiles, f'{product.upper()} cleaning' if clean_sources else f'{product.upper()} validating grids'):
         validate(source)
+        if not clean_sources:
+            # Only for sources already normalized by their regional converter.
+            cleaned.append(source)
+            continue
         destination = cleaned_dir / source.name
         clean(source, destination, config, vertical_note=vertical_note)
         cleaned.append(destination)

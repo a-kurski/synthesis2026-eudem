@@ -84,6 +84,15 @@ also apply inside nested ZIPs. Completion is recorded only after nested extracti
 has produced TIFFs. An inner-package failure retains the completed outer ZIP for
 inspection or a later retry; it does not trigger another network download.
 
+After completion, both outer and inner ZIPs are optional for cache reuse. Inner
+ZIP entries remain in `extraction.json` for provenance but are excluded from
+the existence/size check. This also applies to existing extraction receipts,
+without migration or re-extraction. All extracted TIFFs, TFWs and other non-ZIP
+files remain required; selected TIFF hashes are still verified on every run.
+Keep the extraction directories and receipts intact. No ZIPs are automatically
+deleted. If a required extracted file is later lost and the outer ZIP has also
+been removed, recovery requires downloading the district package again.
+
 Downloads retain interrupted `.zip.part` files and resume with HTTP Range. An
 ignored or invalid Range response never truncates the saved prefix. ZIP structure,
 member safety and all member CRCs are checked before replacing a cached archive;
@@ -112,6 +121,23 @@ TIFFs and returns one TIFF; it is not a lightweight URL check. Use the diagnosti
 script above for that purpose. Completed data and old processing runs are retained.
 
 ## Processing and provenance
+
+After successful publication and verification, Hessen automatically removes that
+run's `processed/_work` directory. Failed processing/publication retains it for
+diagnosis. Published tiles, the stitched TIFF/VRT, target grid, source caches and
+receipts are preserved. Results record `work_cleanup` and move removed intermediate
+paths under its historical `removed_intermediates` field. A filesystem cleanup
+failure logs a warning and records `work_cleanup.status = incomplete` without
+invalidating the finished terrain outputs; cleanup may then be partial.
+
+Duplicate tiles covering the same grid are compared using valid elevations and
+missing-pixel coverage, not the spelling or presence of the NoData tag. Selection
+prefers an explicit NoData tag, then the lowest district ID, then lexical member
+path. This is deterministic selection, not a judgement of survey accuracy.
+Both equivalent duplicates and genuine conflicts produce warnings and entries in
+the run's `hessen_duplicate_tiles.json`, with kept/excluded paths, differing-pixel
+counts and maximum height difference. Conflicts continue with the chosen whole
+tile; they are not averaged or merged. Original source files remain preserved.
 
 Selected inputs must be single-band EPSG:25832, Float32, exact 1 m
 north-up pixels and integer-metre boundaries. Source NoData may be absent or

@@ -62,7 +62,7 @@ def clean(source, destination, config, vertical_note=VERTICAL_NOTE):
     temp.replace(destination)
 
 
-def mosaic(name, tiles, directory, config):
+def mosaic(name, tiles, directory, config, *, virtual=False):
     # VRT only includes this run's manifest, never a wildcard over old AOIs.
     if not tiles:
         raise ValueError(f'No source tiles for {name}')
@@ -85,6 +85,8 @@ def mosaic(name, tiles, directory, config):
                            options=gdal.BuildVRTOptions(resolution='highest', strict=True,
                                                        VRTNodata=config['nodata'], callback=callback)):
             pass
+    if virtual:
+        return vrt
     merged = directory / f'{name}_merged.tif'
     with gdal_progress(name.upper() + ' writing mosaic') as callback:
         with gdal.Translate(str(merged), str(vrt), format='GTiff', outputType=gdal.GDT_Float32,

@@ -2,6 +2,7 @@
 import logging
 from pathlib import Path
 import re
+import shutil
 
 from osgeo import gdal
 
@@ -65,4 +66,35 @@ def prepare(tiles, geometry, reference, run_dir, config):
                   source_crs_assigned_from_config=assigned,
                   producer=config['source']['producer'], distributor='Hessen Geodaten online (HVBG)',
                   license=config['source']['license'])
+    cleanup_work(run_dir, result)
     return result
+
+
+def cleanup_work(run_dir, result):
+    """Remove only this run's intermediates after successful final publication."""
+    run_dir = Path(run_dir).resolve()
+    work = run_dir/'processed'/'_work'
+    # Reject redirected paths before recursive deletion. Final publication is
+    # already pixel-verified by prepare_native and consists of standalone COGs.
+    if work.resolve() != work or any(p.is_symlink() or p.is_junction()
+                                    for p in (work, *work.rglob('*'))):
+        raise ValueError(f'Refusing cleanup of redirected Hessen work directory: {work}')
+    final = Path(result['prepared_raster']).resolve()
+    if not final.is_file() or final.is_relative_to(work):
+        raise ValueError('Hessen final raster must exist outside the work directory.')
+    removed = {key: result[key] for key in ('native_mosaic', 'resampled_raster', 'aoi_mask')
+               if key in result}
+    try:
+        if work.exists():
+            shutil.rmtree(work)
+    except OSError as exc:
+        # A locked intermediate must not turn a verified publication into a
+        # failed terrain run. Report that cleanup may have been partial.
+        logging.getLogger('dtm').warning('Hessen outputs complete, but work cleanup failed: %s', exc)
+        result['work_cleanup'] = {'status': 'incomplete', 'directory': str(work), 'error': str(exc)}
+        return
+    for key in removed:
+        result.pop(key)
+    result['work_cleanup'] = {'status': 'removed', 'directory': str(work),
+                              'removed_intermediates': removed}
+    logging.getLogger('dtm').info('Removed Hessen processing intermediates after verified publication: %s', work)

@@ -135,6 +135,41 @@ class HessenTests(unittest.TestCase):
                 self.assertEqual(sha256(archive),original)
                 self.assertIsNone(acq.reusable_extraction(self.config,self.region))
 
+    def test_complete_extraction_reuses_without_any_zip_but_requires_payload(self):
+        inner=io.BytesIO()
+        source=self.raw()
+        with zipfile.ZipFile(inner,'w') as z:
+            z.writestr(source.name,source.read_bytes())
+            z.writestr(source.stem+'.tfw',b'world file')
+        middle=io.BytesIO()
+        with zipfile.ZipFile(middle,'w') as z:z.writestr('tiles.ZIP',inner.getvalue())
+        archive=self.package(entries=[('municipality.zip',middle.getvalue())])
+        paths=acq.download(self.config,self.plan,self.log)
+        root,index=acq.reusable_extraction(self.config,self.region)
+        _,records=acq.locations(self.config,self.region)
+        receipt_before=(records/'extraction.json').read_bytes()
+        archive.unlink()
+        for entry in index['files']:
+            if Path(entry['name']).suffix.lower()=='.zip':(root/entry['name']).unlink()
+        with patch.object(acq,'cached_package',side_effect=AssertionError('Unexpected archive access')), \
+                patch.object(acq,'extract_contents',side_effect=AssertionError('Unexpected extraction')):
+            self.assertEqual(acq.download(self.config,self.plan,self.log),paths)
+        self.assertEqual((records/'extraction.json').read_bytes(),receipt_before)
+        # Supporting files and TIFFs remain required, even when raw copies exist.
+        world=next(root.rglob('*.tfw')); world_bytes=world.read_bytes();world.unlink()
+        self.assertIsNone(acq.reusable_extraction(self.config,self.region))
+        world.write_bytes(world_bytes)
+        tile=root/index['tiles'][0]['name']; original=tile.read_bytes()
+        tile.write_bytes(original[:-1])
+        self.assertIsNone(acq.reusable_extraction(self.config,self.region))
+        tile.unlink()
+        self.assertIsNone(acq.reusable_extraction(self.config,self.region))
+        tile.write_bytes(original)
+        self.assertIsNotNone(acq.reusable_extraction(self.config,self.region))
+        index['complete']=False
+        acq.atomic_json(records/'extraction.json',index)
+        self.assertIsNone(acq.reusable_extraction(self.config,self.region))
+
     def test_incomplete_extraction_recovers_from_zip(self):
         self.package();acq.download(self.config,self.plan,self.log)
         root,index=acq.reusable_extraction(self.config,self.region)
@@ -186,7 +221,7 @@ class HessenTests(unittest.TestCase):
             z.writestr(link,'target')
         with self.assertRaisesRegex(ValueError,'Unsafe'):acq.validate_zip(package)
 
-    def test_duplicate_district_tiles_are_deduplicated_only_if_equal(self):
+    def test_duplicate_district_tiles_are_flagged_and_resolved_deterministically(self):
         self.package(entries=[('tile.tif',self.raw().read_bytes())])
         second={'id':'414','name':'Kreisfreie Stadt Wiesbaden'}
         self.package(second,entries=[('tile.tif',self.raw().read_bytes())])
@@ -195,7 +230,38 @@ class HessenTests(unittest.TestCase):
         self.package(second,entries=[('tile.tif',self.raw(value=50).read_bytes())])
         _,records=acq.locations(self.config,second)
         (records/'archive.json').unlink();(records/'extraction.json').unlink()
-        with self.assertRaisesRegex(ValueError,'Conflicting official'):acq.download(self.config,plan,self.log)
+        with self.assertLogs('dtm',level='WARNING') as messages:
+            paths=acq.download(self.config,plan,self.log)
+        self.assertEqual(len(paths),1)
+        self.assertIn('CONFLICT',' '.join(messages.output))
+        report=json.loads((self.log/'hessen_duplicate_tiles.json').read_text())
+        self.assertEqual(report['conflict_count'],1)
+        self.assertEqual(report['duplicates'][0]['different_valid_pixels'],1000000)
+        self.assertEqual(report['duplicates'][0]['max_absolute_height_difference_m'],8)
+        reversed_paths=acq.download(self.config,{**plan,'regions':list(reversed(plan['regions']))},self.log)
+        self.assertEqual(paths,reversed_paths)
+        with gdal.Open(str(paths[0])) as ds:self.assertEqual(float(ds.ReadAsArray()[0,0]),42)
+
+    def test_duplicate_metadata_prefers_explicit_nodata_and_compares_validity(self):
+        source=self.raw()
+        second={'id':'414','name':'Kreisfreie Stadt Wiesbaden'}
+        self.package(second,entries=[('tile.tif',source.read_bytes())])
+        with gdal.Open(str(source),gdal.GA_Update) as ds:ds.GetRasterBand(1).DeleteNoDataValue()
+        self.package(entries=[('tile.tif',source.read_bytes())])
+        plan={**self.plan,'regions':[self.region,second]}
+        paths=acq.download(self.config,plan,self.log)
+        self.assertEqual(len(paths),1)
+        self.assertIn('_414_',paths[0].name)
+        report=json.loads((self.log/'hessen_duplicate_tiles.json').read_text())
+        self.assertEqual(report['conflict_count'],0)
+        self.assertTrue(report['duplicates'][0]['equivalent'])
+        # Equal valid heights with different missing pixels are a real conflict.
+        a=raster(self.root/'a.tif',[[42,-9999]],25832,(498000,1,0,5555000,0,-1))
+        b=raster(self.root/'b.tif',[[42,42]],25832,(498000,1,0,5555000,0,-1))
+        comparison=acq.compare_rasters(a,b)
+        self.assertFalse(comparison['equivalent'])
+        self.assertEqual(comparison['different_missing_pixels'],1)
+        self.assertEqual(comparison['different_valid_pixels'],0)
 
     def test_legacy_mapterhorn_cache_is_never_used(self):
         old=scoped_root(self.config,'cache_root')/'source_archive/dehessen.tar'
@@ -297,6 +363,35 @@ class HessenTests(unittest.TestCase):
         self.assertEqual(result['distributor'],'Hessen Geodaten online (HVBG)')
         self.assertTrue(Path(result['prepared_raster']).is_file())
         self.assertEqual(result['target_resolution_m'],5)
+        self.assertEqual(result['work_cleanup']['status'],'removed')
+        self.assertFalse(Path(result['work_cleanup']['directory']).exists())
+        self.assertNotIn('native_mosaic',result)
+        self.assertTrue(Path(result['processed_tiles']['manifest']).exists())
+        with gdal.Open(result['prepared_raster']) as ds:
+            self.assertIsNotNone(ds.ReadAsArray())
+
+    def test_failed_publication_preserves_work(self):
+        source=self.raw()
+        run=self.root/'failed_run';work=run/'processed/_work'
+        work.mkdir(parents=True);intermediate=work/'diagnostic.txt';intermediate.write_text('retain')
+        ref=write_reference(plan_grid(self.geometry,self.config['target']),self.root/'failure_ref.vrt')
+        with patch('dtm.countries.germany.processing.publish_tiles',side_effect=RuntimeError('publication failed')):
+            with self.assertRaisesRegex(RuntimeError,'publication failed'):
+                hessen.prepare([source],self.geometry,ref,run,self.config)
+        self.assertEqual(intermediate.read_text(),'retain')
+        self.assertTrue((work/'hessen_prepared.tif').exists())
+
+    def test_cleanup_failure_is_reported_without_losing_final_output(self):
+        from dtm.countries.germany.hessen.processing import cleanup_work
+        run=self.root/'locked_run';work=run/'processed/_work';work.mkdir(parents=True)
+        final=run/'final.tif';final.write_bytes(b'preserved output')
+        result={'prepared_raster':str(final)}
+        with patch('dtm.countries.germany.hessen.processing.shutil.rmtree',side_effect=PermissionError('locked')):
+            with self.assertLogs('dtm',level='WARNING'):cleanup_work(run,result)
+        self.assertEqual(result['work_cleanup']['status'],'incomplete')
+        self.assertEqual(final.read_bytes(),b'preserved output')
+        self.assertTrue(work.exists())
+
     def test_exact_average_seam_nodata_and_shared_reference(self):
         values = np.arange(100, dtype='float32').reshape(10, 10)
         values[:5, :5] = -9999

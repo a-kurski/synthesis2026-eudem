@@ -20,7 +20,7 @@ from dtm.countries.germany import bw
 from dtm.countries.germany.bw import acquisition as acq
 from dtm.countries.germany.bw.processing import convert_xyz
 from dtm.geo import rectangle, srs, verify_alignment
-from dtm.paths import receipt_path, scoped_root
+from dtm.paths import raw_directory, receipt_path, scoped_root
 from dtm.target_grid import plan_grid, write_reference
 from test_preparation import raster
 
@@ -244,13 +244,57 @@ class BadenWuerttembergTests(unittest.TestCase):
             paths = acq.download(self.config, self.plan, self.log)
             again = self.root / 'again'
             again.mkdir()
-            acq.download(self.config, self.plan, again)
-            self.assertEqual(convert.call_count, 2)
+            self.assertEqual(acq.download(self.config, self.plan, again), paths)
+            self.assertEqual(convert.call_count, 1)
             get.assert_not_called()
         self.assertEqual(len(paths), 1)
+        self.assertEqual(paths[0].parent, raw_directory(self.config))
         self.assertEqual(json.loads(receipt_path(paths[0], self.config).read_text())['csv'], self.metadata)
         self.assertEqual(sha256(archive), digest)
         self.assertFalse(list((self.log / 'source_tiles').glob('*.xyz')))
+
+    def test_converted_cache_repairs_missing_changed_or_outdated_tiles_without_http(self):
+        self.index()
+        self.cache(self.package())
+
+        def convert(source, destination, *args):
+            destination.write_bytes(b'converted')
+            return {'source_nodata': None}
+
+        with patch.object(acq, 'convert_xyz', side_effect=convert) as convert, patch('requests.Session.get') as get:
+            path = acq.download(self.config, self.plan, self.log)[0]
+            path.unlink()
+            acq.download(self.config, self.plan, self.log)
+            path.write_bytes(b'corrupted')
+            acq.download(self.config, self.plan, self.log)
+            with patch.object(acq, 'CONVERSION_VERSION', acq.CONVERSION_VERSION + 1):
+                acq.download(self.config, self.plan, self.log)
+            self.assertEqual(convert.call_count, 4)
+            get.assert_not_called()
+
+    def test_source_update_invalidates_conversion_and_failed_conversion_preserves_old_cache(self):
+        self.index()
+        self.cache(self.package())
+
+        def convert(source, destination, *args):
+            destination.write_bytes(source.read_bytes())
+            return {'source_nodata': None}
+
+        with patch.object(acq, 'convert_xyz', side_effect=convert):
+            path = acq.download(self.config, self.plan, self.log)[0]
+        before = (path.read_bytes(), receipt_path(path, self.config).read_bytes())
+        self.cache(self.package(xyz=b'updated source'))
+        archive_receipt = scoped_root(self.config, 'logs_dir') / 'archive_receipts' / (self.tile['name'] + '.json')
+        archive_receipt.unlink()  # Simulate adoption of a separately refreshed ZIP.
+        with patch.object(acq, 'convert_xyz', side_effect=ValueError('invalid XYZ')), patch('requests.Session.get') as get:
+            with self.assertRaisesRegex(RuntimeError, 'invalid XYZ'):
+                acq.download(self.config, self.plan, self.log)
+            get.assert_not_called()
+        self.assertEqual((path.read_bytes(), receipt_path(path, self.config).read_bytes()), before)
+        with patch.object(acq, 'convert_xyz', side_effect=convert) as convert:
+            acq.download(self.config, self.plan, self.log)
+            convert.assert_called_once()
+        self.assertEqual(path.read_bytes(), b'updated source')
 
     def test_xyz_conversion_complete_cell_validation_and_exact_5m_cog(self):
         source = self.root / (self.metadata['Kachelname'] + '.xyz')
@@ -317,6 +361,61 @@ class BadenWuerttembergTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     convert_xyz(source, destination, [557000, 5434000, 558000, 5435000], self.metadata, self.config)
                 self.assertEqual(destination.read_bytes(), b'previous output')
+
+    def test_recover_legacy_conversions_reuses_cache_and_rejects_corruption(self):
+        from scripts.bw_recover_conversions import recover
+        source = self.log / (self.metadata['Kachelname'] + '.xyz')
+        source.write_text('557010.5 5434019.5 0\n')
+        tile = source.with_suffix('.tif')
+        info = convert_xyz(source, tile, [557000, 5434000, 558000, 5435000], self.metadata, self.config)
+        archive = self.cache(self.package())
+        record = {**info, 'source': self.config['source'], 'archive': str(archive),
+                  'archive_sha256': sha256(archive), 'member': source.name, 'sha256': sha256(tile)}
+        write_json(tile.with_suffix('.json'), record)
+        recover(self.config, self.log)
+        recover(self.config, self.log)
+        destination = raw_directory(self.config) / tile.name
+        identity = {'archive_sha256': sha256(archive), 'member': source.name,
+                    'conversion_version': acq.CONVERSION_VERSION,
+                    'bounds': [557000, 5434000, 558000, 5435000], 'output_nodata': self.config['nodata']}
+        self.assertTrue(acq.cached_conversion(destination, identity, self.config))
+        self.assertTrue(tile.exists())
+        write_json(tile.with_suffix('.json'), {**record, 'sha256': 'invalid'})
+        with self.assertRaisesRegex(ValueError, 'differs from receipt'):
+            recover(self.config, self.log)
+
+    def test_virtual_preparation_matches_cleaned_mosaic_at_seams_and_gaps(self):
+        from dtm.countries.germany.processing import prepare as legacy_prepare
+        values = np.arange(200, dtype='float32').reshape(10, 20) - 50
+        values[:5, :5] = -9999
+        values[2:4, 11:15] = -9999  # Partial NoData across a seam inside a 5 m cell.
+        tiles = [raster(self.root / 'left.tif', values[:, :13], 25832,
+                        (557000, 1, 0, 5434010, 0, -1)),
+                 raster(self.root / 'right.tif', values[:, 13:], 25832,
+                        (557013, 1, 0, 5434010, 0, -1))]
+        for tile in tiles:
+            write_json(receipt_path(tile, self.config), {})
+        geometry = rectangle([557000, 5434000, 557020, 5434010])
+        geometry.AssignSpatialReference(srs(25832))
+        extent = rectangle([556995, 5433995, 557025, 5434015])
+        extent.AssignSpatialReference(srs(25832))
+        reference = write_reference(plan_grid(extent, self.config['target']), self.root / 'ref.vrt')
+        with patch('dtm.countries.germany.processing.clean', side_effect=AssertionError('Redundant cleaning')):
+            result = bw.prepare(tiles, geometry, reference, self.root / 'fast', self.config)
+        legacy = legacy_prepare(tiles, geometry, reference, self.root / 'legacy', self.config, product='bw')
+        with gdal.Open(result['prepared_raster']) as actual, gdal.Open(legacy['prepared_raster']) as expected:
+            np.testing.assert_array_equal(actual.ReadAsArray(), expected.ReadAsArray())
+            self.assertEqual(actual.GetRasterBand(1).GetNoDataValue(), expected.GetRasterBand(1).GetNoDataValue())
+            self.assertEqual(actual.GetMetadataItem('LAYOUT', 'IMAGE_STRUCTURE'), 'COG')
+        verify_alignment(result['prepared_raster'], reference)
+        self.assertEqual(result['valid_cell_count'], legacy['valid_cell_count'])
+        self.assertEqual(Path(result['native_mosaic']).suffix, '.vrt')
+        self.assertFalse((self.root / 'fast/processed/_work/clean_tiles').exists())
+        self.assertFalse(list((self.root / 'fast').rglob('*_merged.tif')))
+        with gdal.Open(str(tiles[1]), gdal.GA_Update) as ds:
+            ds.SetGeoTransform((557013.5, 1, 0, 5434010, 0, -1))
+        with self.assertRaisesRegex(ValueError, 'integer-metre'):
+            bw.prepare(tiles, geometry, reference, self.root / 'invalid', self.config)
 
     def test_config_skip_plan_and_prefetch_does_not_read_aoi(self):
         outside = rectangle([300000, 5800000, 300010, 5800010])

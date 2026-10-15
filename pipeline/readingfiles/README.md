@@ -19,7 +19,7 @@ NRW, Rheinland-Pfalz, Saarland, Hessen, Baden-Württemberg and Bavaria regions o
 
 France stores native ASC tiles by department, for example `data/France/raw_tiles/25/<tile>.asc`.
 Baden-Württemberg keeps original ZIPs in `data/germany/bw/source_archive/` and
-converts only selected XYZs into per-run derivatives. Other countries/regions have a shared `raw_tiles/` cache (native TIFFs only) and a
+keeps converted 1 m TIFFs in `data/germany/bw/raw_tiles/`. Countries/regions use a shared `raw_tiles/` cache and a
 separate `<run_id>/` folder for each processing run. Every run contains
 `processed/` (intermediate and target tiles) and `stitched/` (final DTMs).
 Earlier runs stay untouched. `data/old_runs/` contains older-version runs only.
