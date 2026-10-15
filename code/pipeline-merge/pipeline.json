@@ -1,0 +1,123 @@
+{
+  "settings": {
+    "crs": 3035,
+    "vertical_crs": 5621,
+    "resolution": 5,
+    "extent": "test_masks/Rhine_area.gpkg",
+    "interpolation_mask": null,
+    "river_seeds": "data/rivers/water.tif",
+    "buffer_m": 1000,
+    "nodata": -9999,
+    "output_dir": "../../local/data/pipeline",
+    "qgis_root": "C:/Program Files/QGIS 3.40.11",
+    "hole_filling": {
+      "method": "gdal_idw",
+      "selection": "all_aoi_nodata",
+      "max_distance_m": 100,
+      "nearest_fallback": true,
+      "smoothing_iterations": 0
+    }
+  },
+  "regions": {
+    "netherlands": {
+      "vector": "country_masks/Netherlands.gpkg",
+      "raster": "data/netherlands/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 28992,
+      "vertical_crs": 5709,
+      "interpolate": true,
+      "crop": false
+    },
+    "germany_nrw": {
+      "vector": "country_masks/Germany_NRW.gpkg",
+      "raster": "data/germany/nrw/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false
+    },
+    "germany_rlp": {
+      "vector": "country_masks/Germany_RheinlandPfalz.gpkg",
+      "raster": "data/germany/rlp/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false
+    },
+    "germany_saarland": {
+      "vector": "country_masks/Germany_Saarland.gpkg",
+      "raster": "data/germany/saarland/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false
+    },
+    "germany_hessen": {
+      "vector": "country_masks/Germany_Hessen.gpkg",
+      "raster": "data/germany/hessen/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false
+    },
+    "germany_bw": {
+      "vector": "country_masks/Germany_BadenWurttemberg.gpkg",
+      "raster": "data/germany/bw/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false
+    },
+    "germany_bavaria": {
+      "vector": "country_masks/Germany_Bayern.gpkg",
+      "raster": "data/germany/bavaria/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false
+    },
+    "france": {
+      "vector": "country_masks/France.gpkg",
+      "raster": "data/France/raw_tiles/**/*.asc",
+      "point_clouds": null,
+      "crs": 2154,
+      "vertical_crs": 5720,
+      "interpolate": false,
+      "crop": false,
+      "resampling": "bilinear"
+    },
+    "luxembourg": {
+      "vector": "country_masks/Luxembourg.gpkg",
+      "raster": "data/luxembourg/raw_tiles/MNT_Lidar2024.tif",
+      "point_clouds": null,
+      "crs": 2169,
+      "vertical_crs": 5774,
+      "interpolate": false,
+      "crop": false
+    },
+    "switzerland": {
+      "vector": "country_masks/Swiss.gpkg",
+      "raster": "data/switzerland/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 2056,
+      "vertical_crs": 5728,
+      "interpolate": false,
+      "crop": false
+    },
+    "liechtenstein": {
+      "vector": "country_masks/Liechtenstein.gpkg",
+      "raster": "data/switzerland/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 2056,
+      "vertical_crs": 5728,
+      "interpolate": false,
+      "crop": false
+    }
+  }
+}
