@@ -1,7 +1,9 @@
 import argparse
 import json
+import logging
 import os
 from pathlib import Path
+import time
 
 import geoutils as gu
 import numpy as np
@@ -18,6 +20,8 @@ from osgeo import gdal
 from .geo import read_aoi, write_json
 from .process import aoi_mask
 from .vertical_transform import load_file, save_raster
+
+LOG = logging.getLogger("dtm")
 
 GAUSSIAN_SIGMA = 3
 REGION_GROWING_VARIANCE_TOLERANCE = 0.02
@@ -85,14 +89,14 @@ def load_seed_mask(dem, seeds_path, buffer_pixels=MASK_BUFFER_PIXELS):
             structure=np.ones((3, 3), dtype=bool),
             iterations=buffer_pixels,
         )
-    print(f"Loaded {np.count_nonzero(mask):,} seed cells")
+    LOG.info(f"Loaded {np.count_nonzero(mask):,} seed cells")
     return mask
 
 
 def river_mask_on_grid(mask_path, reference, buffer_pixels=0):
     """Boolean mask (True = river) of a river mask raster, resampled to `reference`'s grid."""
     if not mask_path or not os.path.isfile(mask_path):
-        print(f"No river mask {mask_path}, not excluding river cells", flush=True)
+        LOG.info(f"No river mask {mask_path}, not excluding river cells")
         return np.zeros(reference.shape, dtype=bool)
 
     river = gu.Raster(mask_path).reproject(reference, resampling="nearest")
@@ -215,7 +219,7 @@ def grow_variance_regions(
     discarded_count = int(np.count_nonzero(~keep))
     seeds = seeds[keep]
 
-    print(
+    LOG.info(
         f"Growing from {seeds.size:,} seeds; discarded {discarded_count:,} "
         f"whose minimum variance exceeds {SEED_VARIANCE_THRESHOLD:g} "
         f"(8-connected, tolerance {tolerance:g})"
@@ -231,14 +235,14 @@ def process_dem(dem_path, seeds_path, out_dir, region=None, epsg=25832):
     With `region` (an OGR polygon) only seeds inside it are used; regions may
     still grow beyond it within the DEM, e.g. along a border river.
     """
-    print(f"\nProcessing {os.path.basename(dem_path)}")
+    LOG.info(f"Processing {dem_path}")
     dem, _ = load_file(dem_path)
     water_mask = load_seed_mask(dem, seeds_path)
     if region is not None:
         with gdal.Open(dem_path) as reference, \
                 aoi_mask(region, reference, os.path.join(out_dir, "region_mask.tif"), epsg) as inside:
             water_mask &= inside.ReadAsArray() != 0
-        print(f"{np.count_nonzero(water_mask):,} seed cells inside the region")
+        LOG.info(f"{np.count_nonzero(water_mask):,} seed cells inside the region")
     dem_values = np.asarray(dem.data.filled(np.nan), dtype=np.float32)
     dem_valid = np.isfinite(dem_values)
     elevation = np.where(dem_valid, dem_values, 0.0).astype(np.float32, copy=False)
@@ -270,7 +274,7 @@ def process_dem(dem_path, seeds_path, out_dir, region=None, epsg=25832):
         dtype="int32",
         resampling="NEAREST",  # region ids must not be averaged in overviews
     )
-    print(
+    LOG.info(
         f"Saved variance map and river mask: {seeds.size:,} accepted seeds in "
         f"{int(river_mask.max()):,} regions:\n  {variance_path}\n  {river_mask_path}"
     )
@@ -279,6 +283,7 @@ def process_dem(dem_path, seeds_path, out_dir, region=None, epsg=25832):
 
 def create_masks(config_path):
     """Create a river mask for every region in the pipeline JSON and record its path there.
+
     Seeds: each region's own water raster `river_seeds` (cells valued 2 or 3), cropped
     to the region's `vector`; region growing runs separately on each region's DEM.
     Regions whose mask already exists are skipped, so reruns resume.
@@ -293,19 +298,23 @@ def create_masks(config_path):
         if mask and (root / mask).exists():
             continue
         if not region.get("dem"):
-            print(f"{name}: no DEM yet, skipping river mask")
+            LOG.info(f"{name}: no DEM yet, skipping river mask")
             continue
         if not seeds or not (root / seeds).exists():
-            print(f"{name}: water raster river_seeds missing ({seeds}), skipping river mask")
+            LOG.info(f"{name}: water raster river_seeds missing ({seeds}), skipping river mask")
             continue
         (out / name).mkdir(parents=True, exist_ok=True)
+        start = time.perf_counter()
+        LOG.info(f"{name}: river mask started")
         path = process_dem(str(root / region["dem"]), str(root / seeds), str(out / name),
                            region=read_aoi(root / region["vector"])[0], epsg=settings.get("crs", 25832))
         region["river_mask"] = Path(os.path.relpath(path, root)).as_posix()
         write_json(config_path, config)
+        LOG.info(f"{name}: river mask done ({time.perf_counter() - start:.0f} s)")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create river masks for the regions in a pipeline JSON.")
     parser.add_argument("config", nargs="?", default="pipeline.json")
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     create_masks(parser.parse_args().config)

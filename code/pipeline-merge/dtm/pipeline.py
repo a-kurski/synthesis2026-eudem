@@ -7,10 +7,12 @@ from concurrent.futures import ThreadPoolExecutor
 import glob
 from itertools import combinations
 import json
+import logging
 import math
 import os
 from pathlib import Path
 import threading
+import time
 
 import numpy as np
 from osgeo import gdal, ogr, osr
@@ -18,6 +20,26 @@ from osgeo import gdal, ogr, osr
 from .geo import bounds, project, read_aoi, srs, valid_values, windows, write_json
 from .hole_filling import fill_holes
 from .process import OPTIONS, aoi_mask, create_raster, write_cog
+
+LOG = logging.getLogger('dtm')
+
+
+def elapsed(start):
+    seconds = int(time.perf_counter() - start)
+    return f'{seconds // 3600}h{seconds // 60 % 60:02d}m{seconds % 60:02d}s'
+
+
+def gdal_progress(label, step=10):
+    """GDAL callback logging every `step` percent, so long warps show signs of life."""
+    state = {'next': step, 'start': time.perf_counter()}
+
+    def callback(fraction, message, data):
+        if fraction * 100 >= state['next']:
+            LOG.info('%s: %d%% (%s)', label, state['next'], elapsed(state['start']))
+            state['next'] += step
+        return 1
+    return callback
+
 
 STAGES = ('vectors', 'rasters', 'rivers', 'overlaps', 'assemble')
 DEFAULTS = {'threads': 'ALL_CPUS', 'region_workers': 1, 'warp_memory_mb': 2048, 'vertical_crs': None, 'interpolation_mask': None, 'river_seeds': None, 'buffer_m': 1000, 'nodata': -9999,
@@ -101,7 +123,7 @@ class Run:
                        'alignment_tolerance_m': 1e-8, 'hole_filling': {**self.s['hole_filling'], 'enabled': True}}
 
     def warp_options(self, threads):
-        return {'multithread': True, 'warpMemoryLimit': self.s['warp_memory_mb'],
+        return {'multithread': True, 'warpMemoryLimit': self.s['warp_memory_mb'] * 1024 ** 2,  # bytes: GDAL reads values < 10000 as MB, larger as bytes
                 'warpOptions': [f'NUM_THREADS={threads}']}
 
     def abs(self, path):
@@ -154,24 +176,33 @@ class Run:
             self.regions[a]['intersections'].append(b)
             self.regions[b]['intersections'].append(a)
             self.cfg['overlaps'][f'{a}__{b}'] = {'regions': [a, b], 'vector': self.rel(path), 'merged': None}
-            print(f'Intersection: {a} / {b}')
+            LOG.info('Intersection: %s / %s (%.1f km2)', a, b, zone.GetArea() / 1e6)
 
     def rasters(self):
         todo = [(name, r) for name, r in self.regions.items() if not self.exists('dem', r)]
         # Largest regions first, so a big one never starts last and drags out the run.
         todo.sort(key=lambda item: self.geometry(item[1]['vector']).GetArea(), reverse=True)
+        LOG.info('%d of %d regions to process (%d done earlier), %d at a time: %s', len(todo), len(self.regions),
+                 len(self.regions) - len(todo), self.workers, ', '.join(name for name, _ in todo))
+        self.finished = 0
         with ThreadPoolExecutor(self.workers) as pool:  # GDAL releases the GIL while working
-            for future in [pool.submit(self.raster, name, r) for name, r in todo]:
-                future.result()  # re-raise the first error
+            futures = {pool.submit(self.raster, name, r): name for name, r in todo}
+            for future in futures:
+                try:
+                    future.result()
+                except Exception:
+                    LOG.exception('%s: FAILED', futures[future])
+                    raise
 
     def raster(self, name, r):
         s, res = self.s, self.s['resolution']
+        start = time.perf_counter()
         directory = self.out / name
         directory.mkdir(exist_ok=True)
         tiles = sorted(glob.glob(str(self.abs(r['raster'])), recursive=True))
         if not tiles:
             raise FileNotFoundError(f'{name}: no rasters match {r["raster"]}')
-        print(f'{name}: {len(tiles)} tiles')
+        LOG.info('%s: started, %d source tiles', name, len(tiles))
         vrt = directory / 'tiles.vrt'
         with gdal.BuildVRT(str(vrt), tiles):
             pass
@@ -179,37 +210,45 @@ class Run:
         vertical = s['vertical_crs'] and r.get('vertical_crs')
         if (vertical and r['vertical_crs'] != s['vertical_crs']
                 and zero_vertical_shift(area.Centroid(), s['crs'], r['vertical_crs'], s['vertical_crs'])):
-            print(f"WARNING {name}: PROJ has no EPSG:{r['vertical_crs']} -> EPSG:{s['vertical_crs']} "
-                  'transformation here; heights are NOT shifted (install the grids or enable PROJ_NETWORK).')
+            LOG.warning('%s: PROJ has no EPSG:%s -> EPSG:%s transformation here; heights are NOT shifted '
+                        '(install the grids or enable PROJ_NETWORK).', name, r['vertical_crs'], s['vertical_crs'])
         dem = directory / 'dem.tif'
+        box = snap(bounds(area.Buffer(s['buffer_m'])), res)
+        cols, rows = round((box[2] - box[0]) / res), round((box[3] - box[1]) / res)
+        LOG.info('%s: warping to %d x %d cells (%.2f billion) at %g m', name, cols, rows, cols * rows / 1e9, res)
         # Steps 1-3 (CRS/VRS, stitch, resample) in one warp; the extent keeps a
         # buffer_m margin so neighbouring regions overlap.
         with gdal.Warp(str(dem), str(vrt), options=gdal.WarpOptions(
                 srcSRS=crs_name(r['crs'], r.get('vertical_crs') if vertical else None),
                 dstSRS=crs_name(s['crs'], s['vertical_crs'] if vertical else None),
-                outputBounds=snap(bounds(area.Buffer(s['buffer_m'])), res), xRes=res, yRes=res,
+                outputBounds=box, xRes=res, yRes=res,
                 resampleAlg=r.get('resampling', 'average'), errorThreshold=0, overviewLevel='NONE',
                 dstNodata=s['nodata'], outputType=gdal.GDT_Float32, creationOptions=OPTIONS,
-                **self.warp,
+                **self.warp, callback=gdal_progress(f'{name}: warp'),
                 cutlineDSName=str(self.abs(r['vector'])) if r.get('crop') else None)):
             pass
+        LOG.info('%s: warp done (%s)', name, elapsed(start))
         fill_mask = None
         if r.get('interpolate'):
+            LOG.info('%s: filling gaps', name)
             if s['interpolation_mask']:
                 area = area.Intersection(self.geometry(s['interpolation_mask']))
                 area.AssignSpatialReference(srs(s['crs']))
             report = fill_holes(dem, area, directory / 'hole_filling', self.helper)
             dem, fill_mask = report['filled_raster'], self.rel(report['fill_mask'])
+            LOG.info('%s: filled %d of %d gap cells (%d left)', name, report['filled_cell_count'],
+                     report['candidate_cell_count'], report['remaining_nodata_cell_count'])
         with self.lock:
             r['fill_mask'], r['dem'] = fill_mask, self.rel(dem)
             self.save()
-        print(f'{name}: done')
+            self.finished += 1
+            LOG.info('%s: done in %s (%d regions finished this run)', name, elapsed(start), self.finished)
 
     def rivers(self):
         try:
             from .river_mask import create_masks  # xdem/numba only needed for this stage
         except ImportError as exc:
-            print(f'Skipping river masks ({exc}); run python -m dtm.river_mask pipeline.json in an xdem environment')
+            LOG.warning(f'Skipping river masks ({exc}); run python -m dtm.river_mask pipeline.json in an xdem environment')
             return
         self.save()
         create_masks(self.path)  # writes each region's river_mask path into the JSON
@@ -223,6 +262,7 @@ class Run:
                 continue
             a, b = (self.regions[n] for n in o['regions'])
             if not (a.get('fill_mask') or b.get('fill_mask')):
+                LOG.info('Overlap %s: nothing interpolated, skipped', key)
                 continue  # nothing interpolated: each region simply keeps its own cells
             box = snap(bounds(self.geometry(o['vector'])), res)
             directory = self.out / 'overlaps' / key
@@ -246,7 +286,7 @@ class Run:
             dst = owners = None
             o['merged'] = self.rel(merged)
             self.save()
-            print(f'Overrides written: {key}')
+            LOG.info('Overlap %s: replacements written', key)
 
     def assemble(self):
         s, res = self.s, self.s['resolution']
@@ -271,18 +311,24 @@ class Run:
         # Each region inside its own polygon, then measured-over-interpolated overrides on top.
         patches = [(r['dem'], r['vector']) for r in self.regions.values()]
         patches += [(o['merged'], o['vector']) for o in self.cfg.get('overlaps', {}).values() if o.get('merged')]
-        for raster, cutline in patches:
-            print(f'Assembling {raster}')
+        LOG.info('Assembling %d x %d cells (%.2f billion) from %d patches', ds.RasterXSize, ds.RasterYSize,
+                 ds.RasterXSize * ds.RasterYSize / 1e9, len(patches))
+        for i, (raster, cutline) in enumerate(patches, 1):
+            start = time.perf_counter()
             gdal.Warp(ds, str(self.abs(raster)), options=gdal.WarpOptions(
                 cutlineDSName=str(self.abs(cutline)), resampleAlg='near', **self.warp_all))
+            LOG.info('Assembled %d/%d: %s (%s)', i, len(patches), raster, elapsed(start))
         write_vector(basin, self.out / 'extent.gpkg')
         gdal.Rasterize(ds, str(self.out / 'extent.gpkg'), options=gdal.RasterizeOptions(
             burnValues=[s['nodata']], inverse=True))
         ds = None
+        LOG.info('Writing COG')
+        start = time.perf_counter()
         write_cog(work, product)
+        LOG.info('COG written (%s)', elapsed(start))
         work.unlink()
         self.cfg['product'] = self.rel(product)
-        print(f'Product: {product}')
+        LOG.info('Product: %s', product)
 
 
 def main(argv=None):
@@ -293,7 +339,17 @@ def main(argv=None):
     args = parser.parse_args(argv)
     gdal.UseExceptions()
     run = Run(args.config)
-    for stage in args.stages:
-        print(f'== {stage}')
+    # Log to the terminal and to <output_dir>/pipeline.log (appended across runs).
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S', force=True,
+                        handlers=[logging.StreamHandler(), logging.FileHandler(run.out / 'pipeline.log', encoding='utf-8')])
+    total = time.perf_counter()
+    LOG.info('Run %s: %d regions, stages %s, %s threads over %d region workers, GDAL %s',
+             args.config, len(run.regions), ' '.join(args.stages), run.s['threads'], run.workers,
+             gdal.VersionInfo('--version'))
+    for i, stage in enumerate(args.stages, 1):
+        start = time.perf_counter()
+        LOG.info('== Stage %d/%d: %s', i, len(args.stages), stage)
         getattr(run, stage)()
         run.save()
+        LOG.info('== Stage %s finished (%s)', stage, elapsed(start))
+    LOG.info('Run finished (%s)', elapsed(total))
