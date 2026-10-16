@@ -8,7 +8,7 @@
     "buffer_m": 1000,
     "nodata": -9999,
     "threads": 64,
-    "region_workers": 4,
+    "region_workers": 2,
     "warp_memory_mb": 16384,
     "output_dir": "../../local/test",
     "qgis_root": null,
