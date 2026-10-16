@@ -8,7 +8,7 @@ from .progress import gdal_progress
 
 OPTIONS = ['TILED=YES', 'COMPRESS=DEFLATE', 'PREDICTOR=3', 'BIGTIFF=YES']
 COG_OPTIONS = ['COMPRESS=DEFLATE', 'PREDICTOR=FLOATING_POINT', 'BIGTIFF=YES', 'BLOCKSIZE=512',
-               'OVERVIEWS=IGNORE_EXISTING', 'OVERVIEW_RESAMPLING=AVERAGE', 'NUM_THREADS=ALL_CPUS']
+               'OVERVIEWS=IGNORE_EXISTING', 'OVERVIEW_RESAMPLING=AVERAGE']  # threads: GDAL_NUM_THREADS
 VERTICAL_NOTE = 'Heights transformed to the pipeline vertical CRS where both source and target vertical CRS are configured.'
 
 

@@ -7,6 +7,9 @@
     "interpolation_mask": null,
     "buffer_m": 1000,
     "nodata": -9999,
+    "threads": 64,
+    "region_workers": 4,
+    "warp_memory_mb": 16384,
     "output_dir": "../../local/data",
     "qgis_root": null,
     "hole_filling": {

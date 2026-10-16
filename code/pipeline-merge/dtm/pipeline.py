@@ -3,12 +3,14 @@
 Stages read and update one JSON file, so a rerun resumes where the last one stopped.
 """
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import glob
 from itertools import combinations
 import json
 import math
 import os
 from pathlib import Path
+import threading
 
 import numpy as np
 from osgeo import gdal, ogr, osr
@@ -18,7 +20,7 @@ from .hole_filling import fill_holes
 from .process import OPTIONS, aoi_mask, create_raster, write_cog
 
 STAGES = ('vectors', 'rasters', 'rivers', 'overlaps', 'assemble')
-DEFAULTS = {'vertical_crs': None, 'interpolation_mask': None, 'river_seeds': None, 'buffer_m': 1000, 'nodata': -9999,
+DEFAULTS = {'threads': 'ALL_CPUS', 'region_workers': 1, 'warp_memory_mb': 2048, 'vertical_crs': None, 'interpolation_mask': None, 'river_seeds': None, 'buffer_m': 1000, 'nodata': -9999,
             'block_size': 512, 'output_dir': 'data/pipeline', 'hole_filling': {}}
 
 
@@ -87,8 +89,20 @@ class Run:
         self.out = self.abs(self.s['output_dir'])
         self.out.mkdir(parents=True, exist_ok=True)
         # Settings shared with hole_filling / process helpers.
+        # Thread budget: `threads` in total, split evenly over `region_workers` parallel regions.
+        total = os.cpu_count() if self.s['threads'] == 'ALL_CPUS' else int(self.s['threads'])
+        self.workers = max(1, int(self.s['region_workers']))
+        per_region = max(1, total // self.workers)
+        gdal.SetConfigOption('GDAL_NUM_THREADS', str(per_region))  # compression, COG, overviews
+        self.warp = self.warp_options(per_region)  # rasters stage (one warp per region worker)
+        self.warp_all = self.warp_options(total)   # assemble stage (one warp at a time)
+        self.lock = threading.Lock()  # guards the shared JSON while regions run in parallel
         self.helper = {'nodata': self.s['nodata'], 'block_size': self.s['block_size'], 'crs': self.s['crs'],
                        'alignment_tolerance_m': 1e-8, 'hole_filling': {**self.s['hole_filling'], 'enabled': True}}
+
+    def warp_options(self, threads):
+        return {'multithread': True, 'warpMemoryLimit': self.s['warp_memory_mb'],
+                'warpOptions': [f'NUM_THREADS={threads}']}
 
     def abs(self, path):
         return self.root / path
@@ -143,46 +157,53 @@ class Run:
             print(f'Intersection: {a} / {b}')
 
     def rasters(self):
+        todo = [(name, r) for name, r in self.regions.items() if not self.exists('dem', r)]
+        # Largest regions first, so a big one never starts last and drags out the run.
+        todo.sort(key=lambda item: self.geometry(item[1]['vector']).GetArea(), reverse=True)
+        with ThreadPoolExecutor(self.workers) as pool:  # GDAL releases the GIL while working
+            for future in [pool.submit(self.raster, name, r) for name, r in todo]:
+                future.result()  # re-raise the first error
+
+    def raster(self, name, r):
         s, res = self.s, self.s['resolution']
-        for name, r in self.regions.items():
-            if self.exists('dem', r):
-                continue
-            directory = self.out / name
-            directory.mkdir(exist_ok=True)
-            tiles = sorted(glob.glob(str(self.abs(r['raster'])), recursive=True))
-            if not tiles:
-                raise FileNotFoundError(f'{name}: no rasters match {r["raster"]}')
-            print(f'{name}: {len(tiles)} tiles')
-            vrt = directory / 'tiles.vrt'
-            with gdal.BuildVRT(str(vrt), tiles):
-                pass
-            area = self.geometry(r['vector'])
-            vertical = s['vertical_crs'] and r.get('vertical_crs')
-            if (vertical and r['vertical_crs'] != s['vertical_crs']
-                    and zero_vertical_shift(area.Centroid(), s['crs'], r['vertical_crs'], s['vertical_crs'])):
-                print(f"WARNING {name}: PROJ has no EPSG:{r['vertical_crs']} -> EPSG:{s['vertical_crs']} "
-                      'transformation here; heights are NOT shifted (install the grids or enable PROJ_NETWORK).')
-            dem = directory / 'dem.tif'
-            # Steps 1-3 (CRS/VRS, stitch, resample) in one warp; the extent keeps a
-            # buffer_m margin so neighbouring regions overlap.
-            with gdal.Warp(str(dem), str(vrt), options=gdal.WarpOptions(
-                    srcSRS=crs_name(r['crs'], r.get('vertical_crs') if vertical else None),
-                    dstSRS=crs_name(s['crs'], s['vertical_crs'] if vertical else None),
-                    outputBounds=snap(bounds(area.Buffer(s['buffer_m'])), res), xRes=res, yRes=res,
-                    resampleAlg=r.get('resampling', 'average'), errorThreshold=0, overviewLevel='NONE',
-                    dstNodata=s['nodata'], outputType=gdal.GDT_Float32, creationOptions=OPTIONS,
-                    multithread=True, warpMemoryLimit=512,
-                    cutlineDSName=str(self.abs(r['vector'])) if r.get('crop') else None)):
-                pass
-            r['fill_mask'] = None
-            if r.get('interpolate'):
-                if s['interpolation_mask']:
-                    area = area.Intersection(self.geometry(s['interpolation_mask']))
-                    area.AssignSpatialReference(srs(s['crs']))
-                report = fill_holes(dem, area, directory / 'hole_filling', self.helper)
-                dem, r['fill_mask'] = report['filled_raster'], self.rel(report['fill_mask'])
-            r['dem'] = self.rel(dem)
+        directory = self.out / name
+        directory.mkdir(exist_ok=True)
+        tiles = sorted(glob.glob(str(self.abs(r['raster'])), recursive=True))
+        if not tiles:
+            raise FileNotFoundError(f'{name}: no rasters match {r["raster"]}')
+        print(f'{name}: {len(tiles)} tiles')
+        vrt = directory / 'tiles.vrt'
+        with gdal.BuildVRT(str(vrt), tiles):
+            pass
+        area = self.geometry(r['vector'])
+        vertical = s['vertical_crs'] and r.get('vertical_crs')
+        if (vertical and r['vertical_crs'] != s['vertical_crs']
+                and zero_vertical_shift(area.Centroid(), s['crs'], r['vertical_crs'], s['vertical_crs'])):
+            print(f"WARNING {name}: PROJ has no EPSG:{r['vertical_crs']} -> EPSG:{s['vertical_crs']} "
+                  'transformation here; heights are NOT shifted (install the grids or enable PROJ_NETWORK).')
+        dem = directory / 'dem.tif'
+        # Steps 1-3 (CRS/VRS, stitch, resample) in one warp; the extent keeps a
+        # buffer_m margin so neighbouring regions overlap.
+        with gdal.Warp(str(dem), str(vrt), options=gdal.WarpOptions(
+                srcSRS=crs_name(r['crs'], r.get('vertical_crs') if vertical else None),
+                dstSRS=crs_name(s['crs'], s['vertical_crs'] if vertical else None),
+                outputBounds=snap(bounds(area.Buffer(s['buffer_m'])), res), xRes=res, yRes=res,
+                resampleAlg=r.get('resampling', 'average'), errorThreshold=0, overviewLevel='NONE',
+                dstNodata=s['nodata'], outputType=gdal.GDT_Float32, creationOptions=OPTIONS,
+                **self.warp,
+                cutlineDSName=str(self.abs(r['vector'])) if r.get('crop') else None)):
+            pass
+        fill_mask = None
+        if r.get('interpolate'):
+            if s['interpolation_mask']:
+                area = area.Intersection(self.geometry(s['interpolation_mask']))
+                area.AssignSpatialReference(srs(s['crs']))
+            report = fill_holes(dem, area, directory / 'hole_filling', self.helper)
+            dem, fill_mask = report['filled_raster'], self.rel(report['fill_mask'])
+        with self.lock:
+            r['fill_mask'], r['dem'] = fill_mask, self.rel(dem)
             self.save()
+        print(f'{name}: done')
 
     def rivers(self):
         try:
@@ -253,7 +274,7 @@ class Run:
         for raster, cutline in patches:
             print(f'Assembling {raster}')
             gdal.Warp(ds, str(self.abs(raster)), options=gdal.WarpOptions(
-                cutlineDSName=str(self.abs(cutline)), resampleAlg='near', multithread=True, warpMemoryLimit=512))
+                cutlineDSName=str(self.abs(cutline)), resampleAlg='near', **self.warp_all))
         write_vector(basin, self.out / 'extent.gpkg')
         gdal.Rasterize(ds, str(self.out / 'extent.gpkg'), options=gdal.RasterizeOptions(
             burnValues=[s['nodata']], inverse=True))

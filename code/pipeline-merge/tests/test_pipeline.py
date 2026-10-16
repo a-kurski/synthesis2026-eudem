@@ -68,7 +68,7 @@ class EndToEnd(unittest.TestCase):
             tile(root / 'b/t1.tif', mid - 1500, y1, b)
             region = {'point_clouds': None, 'crs': 25832, 'vertical_crs': None, 'crop': False}
             config = {'settings': {'crs': 25832, 'vertical_crs': None, 'resolution': 5, 'extent': 'basin.gpkg',
-                                   'buffer_m': 1000, 'output_dir': 'out', 'hole_filling': {'max_distance_m': 100, 'nearest_fallback': False}},
+                                   'buffer_m': 1000, 'output_dir': 'out', 'threads': 4, 'region_workers': 2, 'hole_filling': {'max_distance_m': 100, 'nearest_fallback': False}},
                       'regions': {'a': {**region, 'vector': 'a.gpkg', 'raster': 'a/*.tif', 'interpolate': True},
                                   'b': {**region, 'vector': 'b.gpkg', 'raster': 'b/*.tif', 'interpolate': False}}}
             path = root / 'pipeline.json'
