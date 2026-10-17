@@ -92,6 +92,41 @@ class EndToEnd(unittest.TestCase):
             self.assertAlmostEqual(at(mid - 500, y1 - 1250), 100, 3)     # big difference, both measured -> owner
 
 
+class SkipMissing(unittest.TestCase):
+    def test_skip_then_retry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_vector(box(300000, 5600000, 302000, 5602000), root / 'a.gpkg')
+            write_vector(box(302000, 5600000, 304000, 5602000), root / 'b.gpkg')
+            (root / 'a').mkdir()
+            tile(root / 'a/t.tif', 299000, 5603000, np.full((1200, 1600), 100, 'float32'))
+            region = {'crs': 25832, 'vertical_crs': None, 'interpolate': False}
+            config = {'settings': {'crs': 25832, 'resolution': 5, 'extent': None, 'output_dir': 'out', 'threads': 2},
+                      'regions': {'a': {**region, 'vector': 'a.gpkg', 'raster': 'a/*.tif'},
+                                  'b': {**region, 'vector': 'b.gpkg', 'raster': 'b/*.tif'}}}
+            path = root / 'pipeline.json'
+            path.write_text(json.dumps(config))
+            stages = ['--stages', 'vectors', 'rasters', 'overlaps', 'assemble']
+            with self.assertRaises(FileNotFoundError):  # default: stop on missing inputs
+                main([str(path), *stages])
+            config['settings']['skip_missing'] = True
+            path.write_text(json.dumps(config))
+            main([str(path), *stages])  # b has no tiles yet: skipped, product from a only
+            result = json.loads(path.read_text())
+            self.assertIn('dem', result['regions']['a'])
+            self.assertNotIn('dem', result['regions']['b'])
+            self.assertEqual(result['overlaps'], {})
+            (root / 'b').mkdir()  # b's data arrives: the next run picks it up
+            tile(root / 'b/t.tif', 301000, 5603000, np.full((1200, 1600), 101, 'float32'))
+            main([str(path), *stages])
+            result = json.loads(path.read_text())
+            self.assertIn('dem', result['regions']['b'])
+            self.assertIn('a__b', result['overlaps'])
+            with gdal.Open(str(root / result['product'])) as ds:
+                product = ds.ReadAsArray()
+            self.assertAlmostEqual(float(product[200, 100]), 100, 3)  # inside a
+            self.assertAlmostEqual(float(product[200, 700]), 101, 3)  # inside b
+
 @unittest.skipUnless(importlib.util.find_spec('xdem'), 'river masks need xdem')
 class RiverMask(unittest.TestCase):
     def test_grows_from_seed_point(self):

@@ -75,7 +75,7 @@ def difference_statistics(values, threshold):
         "std": float(np.std(values)),
         "rmse": rmse,
         "mae": float(np.mean(np.abs(values))),
-        "nmad": float(xdem.spatialstats.nmad(values)),
+        "nmad": float(gu.stats.nmad(values)),
         "le90": float(np.percentile(np.abs(values), 90)),
         "min": float(np.min(values)),
         "max": float(np.max(values)),
@@ -86,7 +86,7 @@ def difference_statistics(values, threshold):
     }
 
 
-def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_buffer=1):
+def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_buffer=1, fill_1=None, fill_2=None):
     bounds = transform_bounds(dem_2.crs, dem_1.crs, *dem_2.bounds, densify_pts=21)
     try:
         dem_1 = dem_1.crop(bounds)
@@ -97,6 +97,12 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
 
     river = river_mask_on_grid(mask_1, dem_1, river_buffer) | river_mask_on_grid(mask_2, dem_1, river_buffer)
     print(f"Excluding {np.count_nonzero(river):,} river cells", flush=True)
+    # Interpolated (hole-filled) cells of either DEM; same lattice as the DEMs, so nearest = exact.
+    interpolated = np.zeros(dem_1.shape, dtype=bool)
+    for fill in (fill_1, fill_2):
+        if fill:
+            interpolated |= river_mask_on_grid(fill, dem_1)  # generic: any raster > 0 on dem_1's grid
+    print(f"{np.count_nonzero(interpolated):,} interpolated cells (reported separately)", flush=True)
 
     if not (
         ~np.ma.getmaskarray(dem_1.data)
@@ -111,12 +117,19 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
         )
         return None
 
-    coreg = xdem.coreg.NuthKaab() + xdem.coreg.Deramp(poly_order=2)
+    # Nuth & Kaab only: horizontal shift + vertical offset. Used for the systematic-offset
+    # numbers and the uncertainty estimate; everything spatial uses the raw difference.
+    # (A 2nd-order deramp is poorly constrained on thin border strips and was dropped.)
+    coreg = xdem.coreg.NuthKaab()
     coreg.fit(dem_1, dem_2, inlier_mask=~river)
     dem_2_aligned = coreg.apply(dem_2)
+    shift_x, shift_y, shift_z = (float(v) for v in coreg.to_matrix()[:3, 3])
+    print(f"Nuth & Kaab shift applied to {name_2}: x {shift_x:.3f} m, y {shift_y:.3f} m, z {shift_z:.3f} m", flush=True)
 
-    dh = dem_1 - dem_2_aligned
+    dh = dem_1 - dem_2  # raw difference, as merged
     dh.set_mask(river)
+    dh_aligned = dem_1 - dem_2_aligned
+    dh_aligned.set_mask(river)
 
     sig_dem, rho_sig = dem_2_aligned.estimate_uncertainty(
         dem_1,
@@ -160,8 +173,7 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
 
     # Border consistency on the raw difference (before coregistration), river cells excluded.
     threshold = abs(dh.transform.a) / 3  # resolution / 3
-    raw = (dem_1 - dem_2).data.filled(np.nan)
-    raw[river] = np.nan
+    raw = dh.data.filled(np.nan)
     exceeds = np.where(np.isfinite(raw), np.abs(raw) > threshold, MASK_NODATA_U8).astype("uint8")
     save_raster(
         exceeds,
@@ -174,12 +186,16 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
         tags={"meaning": f"1 = |{name_1} - {name_2}| > {threshold:g} m (resolution/3), 0 = within, "
                          f"{MASK_NODATA_U8} = no common data or river; before coregistration"},
     )
-    rows = [
-        {"reference_dem": name_1, "comparison_dem": name_2, "stage": "before_coregistration",
-         **difference_statistics(raw, threshold)},
-        {"reference_dem": name_1, "comparison_dem": name_2, "stage": "after_coregistration",
-         **difference_statistics(dh.data.filled(np.nan), threshold)},
-    ]
+    # Statistics with all compared cells, and with interpolated cells excluded (measured only).
+    shift = {"shift_x_m": shift_x, "shift_y_m": shift_y, "shift_z_m": shift_z}
+    rows = []
+    for stage, values, extra in (("before_coregistration", raw, {}),
+                                 ("after_coregistration", dh_aligned.data.filled(np.nan), shift)):
+        measured = values.copy()
+        measured[interpolated] = np.nan
+        for cells, selected in (("all", values), ("measured_only", measured)):
+            rows.append({"reference_dem": name_1, "comparison_dem": name_2, "stage": stage, "cells": cells,
+                         **difference_statistics(selected, threshold), **extra})
     pd.DataFrame(rows).to_csv(result_path(f"statistics_{name_1}_{name_2}.csv"), index=False)
     stats = rows[0]
     save_raster(
@@ -188,7 +204,7 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
     )
     return {
         "coreg": coreg,
-        "aligned_dem": dem_2_aligned,
+        "dem_2": dem_2,
         "dh": dh,
         "dem_1": dem_1,
         "name_1": name_1,
@@ -446,9 +462,11 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
     config = json.loads(config_path.read_text(encoding="utf-8-sig"))
     regions = config["regions"]
     # Results go to <output_dir>/comparison next to the pipeline outputs.
-    vertical_transform.RESULTS_DIR = str(config_path.parent / config["settings"].get("output_dir", "data/pipeline") / "comparison")
+    results = config_path.parent / config["settings"].get("output_dir", "data/pipeline") / "comparison"
+    vertical_transform.RESULTS_DIR = str(results)
     resolve = lambda path: str(config_path.parent / path) if path else None  # noqa: E731
-    dems = {name: (resolve(r["dem"]), resolve(r.get("river_mask"))) for name, r in regions.items() if r.get("dem")}
+    dems = {name: (resolve(r["dem"]), resolve(r.get("river_mask")), resolve(r.get("fill_mask")))
+            for name, r in regions.items() if r.get("dem")}
     if not dems:
         raise FileNotFoundError(f"No region DEMs recorded in {config_path}; run the pipeline first")
     names = list(dems)
@@ -465,7 +483,7 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
     print(f"Checking {pair_count} DEM combinations for overlap...", flush=True)
     for first_index, first_name in enumerate(names):
         for second_name in names[first_index + 1 :]:
-            (first_path, first_mask), (second_path, second_mask) = dems[first_name], dems[second_name]
+            (first_path, first_mask, first_fill), (second_path, second_mask, second_fill) = dems[first_name], dems[second_name]
             pair_name = f"{first_name} and {second_name}"
             if not dem_files_overlap(first_path, second_path):
                 print(
@@ -479,8 +497,11 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
                 flush=True,
             )
             # Pipeline DEMs already share the target CRS/VRS: load as-is.
+            # One folder per pair: <output_dir>/comparison/<first>__<second>/
+            vertical_transform.RESULTS_DIR = str(results / f"{first_name}__{second_name}")
             dem_1, dem_2 = load_file(first_path)[0], load_file(second_path)[0]
-            analysis = analyze_dem(dem_1, dem_2, first_name, second_name, first_mask, second_mask)
+            analysis = analyze_dem(dem_1, dem_2, first_name, second_name, first_mask, second_mask,
+                                   fill_1=first_fill, fill_2=second_fill)
             if analysis is None:
                 continue
 
@@ -495,7 +516,7 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
             histogram_analysis(dh, name)
             cdf_analysis(dh, name)
             slope_error_analysis(dem_1_crop, dh, name)
-            aspect_difference_analysis(dem_1_crop, analysis["aligned_dem"], name_1, name_2)
+            aspect_difference_analysis(dem_1_crop, analysis["dem_2"], name_1, name_2)
             top_problem_regions(dh, name)
 
             if border_vector is not None:
@@ -506,6 +527,7 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
             statistics.extend(analysis["statistics"])
             del analysis, dh, dem_1_crop
 
+    vertical_transform.RESULTS_DIR = str(results)  # summary of all pairs at the top level
     pd.DataFrame(statistics).to_csv(
         result_path("dem_difference_statistics.csv"),
         index=False,
@@ -519,7 +541,7 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
         flush=True,
     )
     return {
-        "dem_paths": {name: dem for name, (dem, _) in dems.items()},
+        "dem_paths": {name: paths[0] for name, paths in dems.items()},
         "statistics": statistics,
         "dem_1": last_dem_pair[0],
         "dem_2": last_dem_pair[1],

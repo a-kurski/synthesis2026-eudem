@@ -42,7 +42,7 @@ def gdal_progress(label, step=10):
 
 
 STAGES = ('vectors', 'rasters', 'rivers', 'overlaps', 'assemble')
-DEFAULTS = {'threads': 'ALL_CPUS', 'region_workers': 1, 'warp_memory_mb': 2048, 'vertical_crs': None, 'interpolation_mask': None, 'river_seeds': None, 'buffer_m': 1000, 'nodata': -9999,
+DEFAULTS = {'skip_missing': False, 'threads': 'ALL_CPUS', 'region_workers': 1, 'warp_memory_mb': 2048, 'vertical_crs': None, 'interpolation_mask': None, 'river_seeds': None, 'buffer_m': 1000, 'nodata': -9999,
             'block_size': 512, 'output_dir': 'data/pipeline', 'hole_filling': {}}
 
 
@@ -119,8 +119,33 @@ class Run:
         self.warp = self.warp_options(per_region)  # rasters stage (one warp per region worker)
         self.warp_all = self.warp_options(total)   # assemble stage (one warp at a time)
         self.lock = threading.Lock()  # guards the shared JSON while regions run in parallel
+        self.skipped = {}  # region -> reason, filled by preflight()
         self.helper = {'nodata': self.s['nodata'], 'block_size': self.s['block_size'], 'crs': self.s['crs'],
                        'alignment_tolerance_m': 1e-8, 'hole_filling': {**self.s['hole_filling'], 'enabled': True}}
+
+    @property
+    def active(self):
+        """Regions taking part in this run (skipped ones are retried on the next run)."""
+        return {name: r for name, r in self.regions.items() if name not in self.skipped}
+
+    def preflight(self):
+        """Check inputs before any work. Global paths must exist; regions with missing inputs
+        stop the run, or are skipped with "skip_missing": true. Nothing is recorded for a
+        skipped region, so the next run checks it again and processes it once its data exists."""
+        for key in ('extent', 'interpolation_mask'):
+            if self.s.get(key) and not self.abs(self.s[key]).exists():
+                raise FileNotFoundError(f'settings.{key} not found: {self.abs(self.s[key])}')
+        self.skipped = {}
+        for name, r in self.regions.items():
+            if not self.abs(r['vector']).exists():
+                self.skipped[name] = f"outline not found: {r['vector']}"
+            elif not self.exists('dem', r) and not glob.glob(str(self.abs(r['raster'])), recursive=True):
+                self.skipped[name] = f"no rasters match {r['raster']}"
+        problems = '; '.join(f'{name}: {reason}' for name, reason in self.skipped.items())
+        if self.skipped and not self.s['skip_missing']:
+            raise FileNotFoundError(f'Missing inputs (set "skip_missing": true to skip these regions): {problems}')
+        for name, reason in self.skipped.items():
+            LOG.warning('%s: SKIPPED (%s); it will be retried on the next run', name, reason)
 
     def warp_options(self, threads):
         return {'multithread': True, 'warpMemoryLimit': self.s['warp_memory_mb'] * 1024 ** 2,  # bytes: GDAL reads values < 10000 as MB, larger as bytes
@@ -157,14 +182,14 @@ class Run:
     # --- stages -------------------------------------------------------------
 
     def vectors(self):
-        geoms = {name: self.geometry(r['vector']) for name, r in self.regions.items()}
+        geoms = {name: self.geometry(r['vector']) for name, r in self.active.items()}
         buffered = {name: g.Buffer(self.s['buffer_m']) for name, g in geoms.items()}
         directory = self.out / 'intersections'
         directory.mkdir(exist_ok=True)
         for r in self.regions.values():
             r['intersections'] = []
         self.cfg['overlaps'] = {}
-        for a, b in combinations(self.regions, 2):
+        for a, b in combinations(self.active, 2):
             zone = buffered[a].Intersection(buffered[b])
             if zone.IsEmpty() or zone.GetArea() <= 0:
                 continue
@@ -179,11 +204,12 @@ class Run:
             LOG.info('Intersection: %s / %s (%.1f km2)', a, b, zone.GetArea() / 1e6)
 
     def rasters(self):
-        todo = [(name, r) for name, r in self.regions.items() if not self.exists('dem', r)]
+        todo = [(name, r) for name, r in self.active.items() if not self.exists('dem', r)]
         # Largest regions first, so a big one never starts last and drags out the run.
         todo.sort(key=lambda item: self.geometry(item[1]['vector']).GetArea(), reverse=True)
-        LOG.info('%d of %d regions to process (%d done earlier), %d at a time: %s', len(todo), len(self.regions),
-                 len(self.regions) - len(todo), self.workers, ', '.join(name for name, _ in todo))
+        LOG.info('%d of %d regions to process (%d done earlier, %d skipped), %d at a time: %s', len(todo),
+                 len(self.regions), len(self.active) - len(todo), len(self.skipped), self.workers,
+                 ', '.join(name for name, _ in todo))
         self.finished = 0
         with ThreadPoolExecutor(self.workers) as pool:  # GDAL releases the GIL while working
             futures = {pool.submit(self.raster, name, r): name for name, r in todo}
@@ -261,6 +287,9 @@ class Run:
             if self.exists('merged', o):
                 continue
             a, b = (self.regions[n] for n in o['regions'])
+            if not (self.exists('dem', a) and self.exists('dem', b)):
+                LOG.warning('Overlap %s: a region has no DEM (skipped or failed), skipped', key)
+                continue
             if not (a.get('fill_mask') or b.get('fill_mask')):
                 LOG.info('Overlap %s: nothing interpolated, skipped', key)
                 continue  # nothing interpolated: each region simply keeps its own cells
@@ -293,7 +322,7 @@ class Run:
         if s.get('extent'):
             basin = self.geometry(s['extent'])
         else:  # no extent: the union of the region outlines
-            outlines = [self.geometry(r['vector']) for r in self.regions.values()]
+            outlines = [self.geometry(r['vector']) for r in self.active.values()]
             basin = outlines[0]
             for g in outlines[1:]:
                 basin = basin.Union(g)
@@ -309,8 +338,9 @@ class Run:
         ds.SetSpatialRef(crs)
         ds.GetRasterBand(1).SetNoDataValue(s['nodata'])
         # Each region inside its own polygon, then measured-over-interpolated overrides on top.
-        patches = [(r['dem'], r['vector']) for r in self.regions.values()]
-        patches += [(o['merged'], o['vector']) for o in self.cfg.get('overlaps', {}).values() if o.get('merged')]
+        patches = [(r['dem'], r['vector']) for r in self.active.values() if self.exists('dem', r)]
+        patches += [(o['merged'], o['vector']) for o in self.cfg.get('overlaps', {}).values()
+                    if self.exists('merged', o) and all(n in self.active for n in o['regions'])]
         LOG.info('Assembling %d x %d cells (%.2f billion) from %d patches', ds.RasterXSize, ds.RasterYSize,
                  ds.RasterXSize * ds.RasterYSize / 1e9, len(patches))
         for i, (raster, cutline) in enumerate(patches, 1):
@@ -346,10 +376,15 @@ def main(argv=None):
     LOG.info('Run %s: %d regions, stages %s, %s threads over %d region workers, GDAL %s',
              args.config, len(run.regions), ' '.join(args.stages), run.s['threads'], run.workers,
              gdal.VersionInfo('--version'))
+    run.preflight()
     for i, stage in enumerate(args.stages, 1):
         start = time.perf_counter()
         LOG.info('== Stage %d/%d: %s', i, len(args.stages), stage)
         getattr(run, stage)()
         run.save()
         LOG.info('== Stage %s finished (%s)', stage, elapsed(start))
-    LOG.info('Run finished (%s)', elapsed(total))
+    if run.skipped:
+        LOG.warning('Run finished (%s) with %d region(s) SKIPPED, rerun once their data is in place: %s',
+                    elapsed(total), len(run.skipped), ', '.join(run.skipped))
+    else:
+        LOG.info('Run finished (%s)', elapsed(total))

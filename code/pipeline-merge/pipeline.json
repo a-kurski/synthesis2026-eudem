@@ -11,6 +11,7 @@
     "region_workers": 4,
     "warp_memory_mb": 16384,
     "output_dir": "../../local/data",
+    "skip_missing": true,
     "qgis_root": null,
     "hole_filling": {
       "method": "gdal_idw",
