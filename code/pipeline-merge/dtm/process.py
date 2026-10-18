@@ -24,7 +24,7 @@ def create_raster(path, reference, nodata=-9999, vertical_note=VERTICAL_NOTE):
 
 def aoi_mask(geometry, reference, path, epsg=25832):
     geometry = project(geometry, srs(epsg))
-    memory = ogr.GetDriverByName('Memory').CreateDataSource('')
+    memory = (ogr.GetDriverByName('MEM') or ogr.GetDriverByName('Memory')).CreateDataSource('')  # 'Memory' deprecated in GDAL 3.11
     layer = memory.CreateLayer('aoi', srs(epsg), ogr.wkbUnknown)
     feature = ogr.Feature(layer.GetLayerDefn())
     feature.SetGeometry(geometry)

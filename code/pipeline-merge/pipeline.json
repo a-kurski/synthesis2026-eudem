@@ -24,7 +24,7 @@
   "regions": {
     "netherlands": {
       "vector": "country_masks/Netherlands.gpkg",
-      "raster": "data/netherlands/raw_tiles/*.tif",
+      "raster": "../../../ardabaysal/pipeline/data/netherlands/raw_tiles/*.tif",
       "point_clouds": null,
       "crs": 28992,
       "vertical_crs": 5709,

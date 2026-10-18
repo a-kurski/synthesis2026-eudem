@@ -230,7 +230,9 @@ class Run:
             raise FileNotFoundError(f'{name}: no rasters match {r["raster"]}')
         LOG.info('%s: started, %d source tiles', name, len(tiles))
         vrt = directory / 'tiles.vrt'
-        with gdal.BuildVRT(str(vrt), tiles):
+        # Tiles may spell the same CRS differently (seen in RLP); the region's CRS is
+        # declared in the JSON anyway, so don't drop them.
+        with gdal.BuildVRT(str(vrt), tiles, options=gdal.BuildVRTOptions(allowProjectionDifference=True)):
             pass
         area = self.geometry(r['vector'])
         vertical = s['vertical_crs'] and r.get('vertical_crs')

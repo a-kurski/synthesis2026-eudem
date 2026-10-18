@@ -142,12 +142,13 @@ class RiverMask(unittest.TestCase):
             tile(root / 'seeds.tif', 300000, 5600100, seeds, res=5)
             config = root / 'pipeline.json'
             write_vector(box(300000, 5600000, 300050, 5600100), root / 'region.gpkg')  # left half
-            config.write_text(json.dumps({'settings': {'output_dir': 'out', 'crs': 25832},
-                                          'regions': {'a': {'dem': 'dem.tif', 'vector': 'region.gpkg',
-                                                            'river_seeds': 'seeds.tif'}}}))
+            region = {'dem': 'dem.tif', 'vector': 'region.gpkg', 'river_seeds': 'seeds.tif'}
+            config.write_text(json.dumps({'settings': {'output_dir': 'out', 'crs': 25832, 'region_workers': 2},
+                                          'regions': {'a': region, 'b': region}}))  # two regions in parallel
             create_masks(config)
-            path = json.loads(config.read_text())['regions']['a']['river_mask']
-            self.assertEqual(path, 'out/a/dem_river_mask.tif')
+            masks = {name: r['river_mask'] for name, r in json.loads(config.read_text())['regions'].items()}
+            self.assertEqual(masks, {'a': 'out/a/dem_river_mask.tif', 'b': 'out/b/dem_river_mask.tif'})
+            path = masks['a']
             mask = gdal.Open(str(root / path)).ReadAsArray()
             self.assertTrue((mask[:, 2:5] == 1).all())  # grown from the seed inside the region
             self.assertTrue((mask[:, 5:] == 0).all() and (mask[:, :2] == 0).all())  # outside seed ignored

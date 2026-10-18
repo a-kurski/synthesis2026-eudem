@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import time
+import traceback
 
 import geopandas as gpd
 import geoutils as gu
@@ -59,6 +60,7 @@ def nanrmse(values):
 
 
 MASK_NODATA_U8 = 255
+MAX_DISTANCE_M = 2000  # x-axis extent of the distance plots (correlation, border strips)
 
 
 def difference_statistics(values, threshold):
@@ -131,45 +133,50 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
     dh_aligned = dem_1 - dem_2_aligned
     dh_aligned.set_mask(river)
 
-    sig_dem, rho_sig = dem_2_aligned.estimate_uncertainty(
-        dem_1,
-        precision_of_other="same",
-        random_state=42,
-    )
-    plt = load_pyplot()
-    sig_values = sig_dem.data.compressed()          # valid (unmasked) values only
-    vmin, vmax = np.nanpercentile(sig_values, [2, 98])
-    del sig_values
+    try:  # optional: needs enough valid cells for the variogram fit
+        sig_dem, rho_sig = dem_2_aligned.estimate_uncertainty(
+            dem_1,
+            precision_of_other="same",
+            random_state=42,
+        )
+        plt = load_pyplot()
+        sig_values = sig_dem.data.compressed()          # valid (unmasked) values only
+        vmin, vmax = np.nanpercentile(sig_values, [2, 98])
+        del sig_values
 
-    sig_dem.plot(
-        cmap="Purples",
-        vmin=vmin,
-        vmax=vmax,
-        cbar_title=r"Error in elevation (1$\sigma$, m)",
-    )
-    plt.savefig(
-        result_path(f"uncertainty_{name_1}_{name_2}.png"),
-        dpi=300,
-        bbox_inches="tight",
-    )
-    plt.close("all")
+        sig_dem.plot(
+            cmap="Purples",
+            vmin=vmin,
+            vmax=vmax,
+            cbar_title=r"Error in elevation (1$\sigma$, m)",
+        )
+        plt.savefig(
+            result_path(f"uncertainty_{name_1}_{name_2}.png"),
+            dpi=300,
+            bbox_inches="tight",
+        )
+        plt.close("all")
 
-    x = np.arange(0, 150, 1)
-    plt.plot(x, [rho_sig(distance) for distance in x])
-    plt.xlabel("Distance [m]")
-    plt.ylabel("Error similarity [%]")
+        x = np.arange(0, MAX_DISTANCE_M + 1, 10)
+        plt.plot(x, [rho_sig(distance) for distance in x])
+        plt.xlabel("Distance [m]")
+        plt.ylabel("Error correlation (0-1)")
 
-    save_raster(
-        sig_dem,
-        result_path(f"uncertainty_{name_1}_{name_2}.tif"),
-    )
+        save_raster(
+            sig_dem,
+            result_path(f"uncertainty_{name_1}_{name_2}.tif"),
+        )
 
-    plt.savefig(
-        result_path(f"Correlation_{name_1}_{name_2}.png"),
-        dpi=300,
-        bbox_inches="tight",
-    )
-    plt.close()
+        plt.savefig(
+            result_path(f"Correlation_{name_1}_{name_2}.png"),
+            dpi=300,
+            bbox_inches="tight",
+        )
+        plt.close()
+    except Exception as exc:
+        load_pyplot().close("all")
+        print(f"Uncertainty estimate skipped for {name_1} and {name_2}: {type(exc).__name__}: "
+              f"{str(exc).splitlines()[0] if str(exc) else ''}", flush=True)
 
     # Border consistency on the raw difference (before coregistration), river cells excluded.
     threshold = abs(dh.transform.a) / 3  # resolution / 3
@@ -318,7 +325,7 @@ def slope_error_analysis(dem_1, dh, name):
 
 
 def border_strip_analysis(dh, border_vector, name):
-    strips = range(0, 1001, 50)
+    strips = range(0, MAX_DISTANCE_M + 1, 50)
     z = dh.data.filled(np.nan)
     unit_to_meters = border_vector.crs.axis_info[0].unit_conversion_factor
     max_distance = strips[-1] / unit_to_meters
@@ -472,6 +479,7 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
     names = list(dems)
 
     statistics = []
+    failed_pairs = []
     pair_count = len(names) * (len(names) - 1) // 2
     last_dem_pair = (None, None)
 
@@ -499,39 +507,46 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
             # Pipeline DEMs already share the target CRS/VRS: load as-is.
             # One folder per pair: <output_dir>/comparison/<first>__<second>/
             vertical_transform.RESULTS_DIR = str(results / f"{first_name}__{second_name}")
-            dem_1, dem_2 = load_file(first_path)[0], load_file(second_path)[0]
-            analysis = analyze_dem(dem_1, dem_2, first_name, second_name, first_mask, second_mask,
-                                   fill_1=first_fill, fill_2=second_fill)
-            if analysis is None:
-                continue
+            try:
+                dem_1, dem_2 = load_file(first_path)[0], load_file(second_path)[0]
+                analysis = analyze_dem(dem_1, dem_2, first_name, second_name, first_mask, second_mask,
+                                       fill_1=first_fill, fill_2=second_fill)
+                if analysis is None:
+                    continue
 
-            dh = analysis["dh"]
-            dem_1_crop = analysis["dem_1"]
-            name_1 = analysis["name_1"]
-            name_2 = analysis["name_2"]
-            name = f"{name_1}_{name_2}"
+                dh = analysis["dh"]
+                dem_1_crop = analysis["dem_1"]
+                name_1 = analysis["name_1"]
+                name_2 = analysis["name_2"]
+                name = f"{name_1}_{name_2}"
 
-            local_inspire_rmse_analysis(dh, name)
-            std_analysis(dh, name)
-            histogram_analysis(dh, name)
-            cdf_analysis(dh, name)
-            slope_error_analysis(dem_1_crop, dh, name)
-            aspect_difference_analysis(dem_1_crop, analysis["dem_2"], name_1, name_2)
-            top_problem_regions(dh, name)
+                local_inspire_rmse_analysis(dh, name)
+                std_analysis(dh, name)
+                histogram_analysis(dh, name)
+                cdf_analysis(dh, name)
+                slope_error_analysis(dem_1_crop, dh, name)
+                aspect_difference_analysis(dem_1_crop, analysis["dem_2"], name_1, name_2)
+                top_problem_regions(dh, name)
 
-            if border_vector is not None:
-                border_strip_analysis(dh, border_vector, name)
-                border_trend_plot(result_path(f"border_strips_{name}.csv"), name)
+                if border_vector is not None:
+                    border_strip_analysis(dh, border_vector, name)
+                    border_trend_plot(result_path(f"border_strips_{name}.csv"), name)
 
-            last_dem_pair = (dem_1, dem_2)
-            statistics.extend(analysis["statistics"])
-            del analysis, dh, dem_1_crop
+                last_dem_pair = (dem_1, dem_2)
+                statistics.extend(analysis["statistics"])
+                del analysis, dh, dem_1_crop
+            except Exception:  # one failing pair must not stop the others
+                traceback.print_exc()
+                print(f"Comparison FAILED for {pair_name}; continuing with the next pair", flush=True)
+                failed_pairs.append(pair_name)
 
     vertical_transform.RESULTS_DIR = str(results)  # summary of all pairs at the top level
     pd.DataFrame(statistics).to_csv(
         result_path("dem_difference_statistics.csv"),
         index=False,
     )
+    if failed_pairs:
+        print(f"{len(failed_pairs)} pair(s) FAILED: {', '.join(failed_pairs)}", flush=True)
     elapsed_seconds = time.perf_counter() - analysis_start
     hours, remainder = divmod(int(elapsed_seconds), 3600)
     minutes, seconds = divmod(remainder, 60)
