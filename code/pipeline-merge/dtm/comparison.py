@@ -483,7 +483,13 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
     pair_count = len(names) * (len(names) - 1) // 2
     last_dem_pair = (None, None)
 
-    border_path = find_border_vector(data_dir)
+    # Border lines for the distance-from-border analysis: settings.borders in the JSON,
+    # otherwise the first vector file found in data_dir (old behaviour).
+    border_setting = config["settings"].get("borders")
+    border_path = str(config_path.parent / border_setting) if border_setting else find_border_vector(data_dir)
+    if border_setting and not os.path.isfile(border_path):
+        print(f"settings.borders not found: {border_path}", flush=True)
+        border_path = None
     border_vector = load_border_vector(border_path) if border_path else None
     if border_vector is None:
         print("No border vector found, skipping border analyses", flush=True)

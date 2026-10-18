@@ -232,7 +232,11 @@ class Run:
         vrt = directory / 'tiles.vrt'
         # Tiles may spell the same CRS differently (seen in RLP); the region's CRS is
         # declared in the JSON anyway, so don't drop them.
-        with gdal.BuildVRT(str(vrt), tiles, options=gdal.BuildVRTOptions(allowProjectionDifference=True)):
+        # VRTNodata: gaps between tiles must be NoData, not 0. Without it, tiles lacking a
+        # NoData tag (e.g. Hessen) leave gaps that read as 0 m, get the vertical offset added
+        # and are averaged into neighbouring cells.
+        with gdal.BuildVRT(str(vrt), tiles, options=gdal.BuildVRTOptions(
+                allowProjectionDifference=True, VRTNodata=s['nodata'])):
             pass
         area = self.geometry(r['vector'])
         vertical = s['vertical_crs'] and r.get('vertical_crs')

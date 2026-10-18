@@ -4,6 +4,7 @@
     "vertical_crs": 5621,
     "resolution": 5,
     "extent": "test_masks/Rhine_area.gpkg",
+    "borders": "country_masks/borders.gpkg",
     "interpolation_mask": null,
     "buffer_m": 1000,
     "nodata": -9999,
