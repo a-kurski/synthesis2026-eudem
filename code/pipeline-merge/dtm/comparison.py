@@ -1,10 +1,10 @@
 import argparse
 import glob
 import json
+import logging
 import os
 from pathlib import Path
 import time
-import traceback
 
 import geopandas as gpd
 import geoutils as gu
@@ -22,6 +22,8 @@ from shapely.geometry import box, shape
 from .river_mask import river_mask_on_grid
 from . import vertical_transform
 from .vertical_transform import DATA_DIR, load_file, result_path, save_raster
+
+LOG = logging.getLogger(__name__)
 
 
 def load_pyplot():
@@ -93,18 +95,18 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
     try:
         dem_1 = dem_1.crop(bounds)
     except rasterio.errors.WindowError:
-        print(f"No overlap between {name_1} and {name_2} after loading, skipping", flush=True)
+        LOG.info(f"No overlap between {name_1} and {name_2} after loading, skipping")
         return None
     dem_2 = dem_2.reproject(dem_1)
 
     river = river_mask_on_grid(mask_1, dem_1, river_buffer) | river_mask_on_grid(mask_2, dem_1, river_buffer)
-    print(f"Excluding {np.count_nonzero(river):,} river cells", flush=True)
+    LOG.info(f"Excluding {np.count_nonzero(river):,} river cells")
     # Interpolated (hole-filled) cells of either DEM; same lattice as the DEMs, so nearest = exact.
     interpolated = np.zeros(dem_1.shape, dtype=bool)
     for fill in (fill_1, fill_2):
         if fill:
             interpolated |= river_mask_on_grid(fill, dem_1)  # generic: any raster > 0 on dem_1's grid
-    print(f"{np.count_nonzero(interpolated):,} interpolated cells (reported separately)", flush=True)
+    LOG.info(f"{np.count_nonzero(interpolated):,} interpolated cells (reported separately)")
 
     if not (
         ~np.ma.getmaskarray(dem_1.data)
@@ -112,11 +114,9 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
         & np.isfinite(dem_1.data.data)
         & np.isfinite(dem_2.data.data)
     ).any():
-        print(
+        LOG.info(
             f"Skipping comparison for {name_1} and "
-            f"{name_2}: no shared valid elevation pixels.",
-            flush=True,
-        )
+            f"{name_2}: no shared valid elevation pixels.")
         return None
 
     # Nuth & Kaab only: horizontal shift + vertical offset. Used for the systematic-offset
@@ -126,7 +126,7 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
     coreg.fit(dem_1, dem_2, inlier_mask=~river)
     dem_2_aligned = coreg.apply(dem_2)
     shift_x, shift_y, shift_z = (float(v) for v in coreg.to_matrix()[:3, 3])
-    print(f"Nuth & Kaab shift applied to {name_2}: x {shift_x:.3f} m, y {shift_y:.3f} m, z {shift_z:.3f} m", flush=True)
+    LOG.info(f"Nuth & Kaab shift applied to {name_2}: x {shift_x:.3f} m, y {shift_y:.3f} m, z {shift_z:.3f} m")
 
     dh = dem_1 - dem_2  # raw difference, as merged
     dh.set_mask(river)
@@ -175,8 +175,8 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
         plt.close()
     except Exception as exc:
         load_pyplot().close("all")
-        print(f"Uncertainty estimate skipped for {name_1} and {name_2}: {type(exc).__name__}: "
-              f"{str(exc).splitlines()[0] if str(exc) else ''}", flush=True)
+        LOG.info(f"Uncertainty estimate skipped for {name_1} and {name_2}: {type(exc).__name__}: "
+              f"{str(exc).splitlines()[0] if str(exc) else ''}")
 
     # Border consistency on the raw difference (before coregistration), river cells excluded.
     threshold = abs(dh.transform.a) / 3  # resolution / 3
@@ -450,7 +450,7 @@ def top_problem_regions(dh, name, threshold=None, min_area=200, merge_distance=6
     regions["rank"] = regions.index + 1
     regions = gu.Vector(regions)
     save_vector(regions, result_path(f"problem_regions_{name}.gpkg"))
-    print(
+    LOG.info(
         f"Problem regions: {exceedance_count} cells exceed {threshold} m; "
         f"{candidate_count} initial regions merged, {len(regions.ds)} retained "
         f"above {min_area} m²."
@@ -488,28 +488,24 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
     border_setting = config["settings"].get("borders")
     border_path = str(config_path.parent / border_setting) if border_setting else find_border_vector(data_dir)
     if border_setting and not os.path.isfile(border_path):
-        print(f"settings.borders not found: {border_path}", flush=True)
+        LOG.info(f"settings.borders not found: {border_path}")
         border_path = None
     border_vector = load_border_vector(border_path) if border_path else None
     if border_vector is None:
-        print("No border vector found, skipping border analyses", flush=True)
+        LOG.info("No border vector found, skipping border analyses")
 
-    print(f"Checking {pair_count} DEM combinations for overlap...", flush=True)
+    LOG.info(f"Checking {pair_count} DEM combinations for overlap...")
     for first_index, first_name in enumerate(names):
         for second_name in names[first_index + 1 :]:
             (first_path, first_mask, first_fill), (second_path, second_mask, second_fill) = dems[first_name], dems[second_name]
             pair_name = f"{first_name} and {second_name}"
             if not dem_files_overlap(first_path, second_path):
-                print(
-                    f"Skipping comparison for non-overlapping DEMs: {pair_name}",
-                    flush=True,
-                )
+                LOG.info(
+                    f"Skipping comparison for non-overlapping DEMs: {pair_name}")
                 continue
 
-            print(
-                f"Running comparison for overlapping DEMs: {pair_name}",
-                flush=True,
-            )
+            LOG.info(f"Running comparison for overlapping DEMs: {pair_name}")
+            pair_start = time.perf_counter()
             # Pipeline DEMs already share the target CRS/VRS: load as-is.
             # One folder per pair: <output_dir>/comparison/<first>__<second>/
             vertical_transform.RESULTS_DIR = str(results / f"{first_name}__{second_name}")
@@ -541,9 +537,9 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
                 last_dem_pair = (dem_1, dem_2)
                 statistics.extend(analysis["statistics"])
                 del analysis, dh, dem_1_crop
+                LOG.info(f"Comparison done for {pair_name} ({time.perf_counter() - pair_start:.0f} s)")
             except Exception:  # one failing pair must not stop the others
-                traceback.print_exc()
-                print(f"Comparison FAILED for {pair_name}; continuing with the next pair", flush=True)
+                LOG.exception(f"Comparison FAILED for {pair_name}; continuing with the next pair")
                 failed_pairs.append(pair_name)
 
     vertical_transform.RESULTS_DIR = str(results)  # summary of all pairs at the top level
@@ -552,15 +548,13 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
         index=False,
     )
     if failed_pairs:
-        print(f"{len(failed_pairs)} pair(s) FAILED: {', '.join(failed_pairs)}", flush=True)
+        LOG.info(f"{len(failed_pairs)} pair(s) FAILED: {', '.join(failed_pairs)}")
     elapsed_seconds = time.perf_counter() - analysis_start
     hours, remainder = divmod(int(elapsed_seconds), 3600)
     minutes, seconds = divmod(remainder, 60)
-    print(
+    LOG.info(
         f"Total analysis loop time: {hours:02d}:{minutes:02d}:{seconds:02d} "
-        f"({elapsed_seconds:.1f} seconds).",
-        flush=True,
-    )
+        f"({elapsed_seconds:.1f} seconds).")
     return {
         "dem_paths": {name: paths[0] for name, paths in dems.items()},
         "statistics": statistics,
@@ -572,4 +566,12 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Compare overlapping region DEMs from a pipeline JSON.")
     parser.add_argument("config", nargs="?", default="pipeline.json")
-    run_all_analyses(parser.parse_args().config)
+    config = Path(parser.parse_args().config).resolve()
+    settings = json.loads(config.read_text(encoding="utf-8-sig"))["settings"]
+    out = config.parent / settings.get("output_dir", "data/pipeline")
+    out.mkdir(parents=True, exist_ok=True)
+    # Same format as the pipeline; appended to <output_dir>/pipeline.log.
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S",
+                        force=True, handlers=[logging.StreamHandler(), logging.FileHandler(out / "pipeline.log", encoding="utf-8")])
+    LOG.info(f"Comparison run: {config}")
+    run_all_analyses(config)

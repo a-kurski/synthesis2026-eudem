@@ -56,6 +56,30 @@ def crs_name(horizontal, vertical):
     return f'EPSG:{horizontal}+{vertical}' if vertical else f'EPSG:{horizontal}'
 
 
+ELLIPSOIDAL = ('ETRS89', 4937, '4937')  # region vertical_crs for ETRS89 ellipsoidal heights
+
+
+def subtract_geoid(dem_path, geoid_path, nodata):
+    """Ellipsoidal -> physical heights in place: H = h - N, with geoid undulation N (metres,
+    any CRS) resampled bilinearly onto the DEM grid. NoData cells stay NoData."""
+    with gdal.Open(str(dem_path), gdal.GA_Update) as dem:
+        x0, dx, _, y1, _, dy = dem.GetGeoTransform()
+        bounds = (x0, y1 + dy * dem.RasterYSize, x0 + dx * dem.RasterXSize, y1)
+        geoid = gdal.Warp('', str(geoid_path), options=gdal.WarpOptions(
+            format='VRT', dstSRS=dem.GetSpatialRef(), outputBounds=bounds, width=dem.RasterXSize,
+            height=dem.RasterYSize, resampleAlg='bilinear', outputType=gdal.GDT_Float32, dstNodata=float('nan')))
+        band, n_band = dem.GetRasterBand(1), geoid.GetRasterBand(1)
+        missing = 0
+        for window in windows(dem, 2048):
+            h, valid = valid_values(band, window)
+            n, n_valid = valid_values(n_band, window)
+            missing += np.count_nonzero(valid & ~n_valid)
+            band.WriteArray(np.where(valid & n_valid, h - n, nodata).astype('float32'), *window[:2])
+        geoid = None
+    if missing:
+        LOG.warning('%s: geoid %s does not cover %d valid cells; set to NoData', dem_path, geoid_path, missing)
+
+
 def zero_vertical_shift(point, horizontal, source, target):
     """True if PROJ only knows a ballpark (no-op) source -> target height transformation."""
     a, b = (osr.SpatialReference() for _ in range(2))
@@ -141,6 +165,8 @@ class Run:
                 self.skipped[name] = f"outline not found: {r['vector']}"
             elif not self.exists('dem', r) and not glob.glob(str(self.abs(r['raster'])), recursive=True):
                 self.skipped[name] = f"no rasters match {r['raster']}"
+            elif r.get('vertical_crs') in ELLIPSOIDAL and not (r.get('geoid') and self.abs(r['geoid']).exists()):
+                self.skipped[name] = f"ellipsoidal heights need a geoid raster; not found: {r.get('geoid')}"
         problems = '; '.join(f'{name}: {reason}' for name, reason in self.skipped.items())
         if self.skipped and not self.s['skip_missing']:
             raise FileNotFoundError(f'Missing inputs (set "skip_missing": true to skip these regions): {problems}')
@@ -232,14 +258,20 @@ class Run:
         vrt = directory / 'tiles.vrt'
         # Tiles may spell the same CRS differently (seen in RLP); the region's CRS is
         # declared in the JSON anyway, so don't drop them.
-        # VRTNodata: gaps between tiles must be NoData, not 0. Without it, tiles lacking a
-        # NoData tag (e.g. Hessen) leave gaps that read as 0 m, get the vertical offset added
-        # and are averaged into neighbouring cells.
+        # Gaps between tiles must be NoData, not 0. Tiles that declare NoData give the VRT their
+        # value (fast, direct reads). Only if they don't (e.g. Hessen) force one, otherwise gaps
+        # read as 0 m, get the vertical offset added and are averaged into neighbouring cells.
+        with gdal.Open(tiles[0]) as first:
+            declared = first.GetRasterBand(1).GetNoDataValue() is not None
+        vrt_options = {} if declared else {'VRTNodata': s['nodata']}
+        if not declared:
+            LOG.info('%s: tiles declare no NoData value; using %s for gaps between tiles', name, s['nodata'])
         with gdal.BuildVRT(str(vrt), tiles, options=gdal.BuildVRTOptions(
-                allowProjectionDifference=True, VRTNodata=s['nodata'])):
+                allowProjectionDifference=True, **vrt_options)):
             pass
         area = self.geometry(r['vector'])
-        vertical = s['vertical_crs'] and r.get('vertical_crs')
+        ellipsoidal = s['vertical_crs'] and r.get('vertical_crs') in ELLIPSOIDAL  # geoid applied after the warp
+        vertical = s['vertical_crs'] and r.get('vertical_crs') and not ellipsoidal
         if (vertical and r['vertical_crs'] != s['vertical_crs']
                 and zero_vertical_shift(area.Centroid(), s['crs'], r['vertical_crs'], s['vertical_crs'])):
             LOG.warning('%s: PROJ has no EPSG:%s -> EPSG:%s transformation here; heights are NOT shifted '
@@ -260,6 +292,9 @@ class Run:
                 cutlineDSName=str(self.abs(r['vector'])) if r.get('crop') else None)):
             pass
         LOG.info('%s: warp done (%s)', name, elapsed(start))
+        if ellipsoidal:
+            LOG.info('%s: ETRS89 ellipsoidal heights; subtracting geoid %s', name, r['geoid'])
+            subtract_geoid(dem, self.abs(r['geoid']), s['nodata'])
         fill_mask = None
         if r.get('interpolate'):
             LOG.info('%s: filling gaps', name)

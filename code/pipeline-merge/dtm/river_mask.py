@@ -1,8 +1,6 @@
 import argparse
-from concurrent.futures import ProcessPoolExecutor, as_completed
 import json
 import logging
-import multiprocessing
 import os
 from pathlib import Path
 import time
@@ -286,21 +284,11 @@ def process_dem(dem_path, seeds_path, out_dir, region=None, epsg=25832):
 LOG_FORMAT = "%(asctime)s %(levelname)s %(message)s"
 
 
-def _init_worker(log_file):
-    """Worker processes log like the parent, prefixed with the region they work on."""
-    handlers = [logging.StreamHandler()]
-    if log_file and os.path.isdir(os.path.dirname(log_file)):
-        handlers.append(logging.FileHandler(log_file, encoding="utf-8"))
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(processName)s] %(message)s",
-                        datefmt="%Y-%m-%d %H:%M:%S", handlers=handlers, force=True)
-
-
 def _mask_job(name, dem, seeds, out_dir, vector, epsg):
-    multiprocessing.current_process().name = name  # shows up as [name] in the log
     start = time.perf_counter()
-    LOG.info("river mask started")
+    LOG.info(f"{name}: river mask started")
     path = process_dem(dem, seeds, out_dir, region=read_aoi(vector)[0], epsg=epsg)
-    LOG.info(f"river mask done ({time.perf_counter() - start:.0f} s)")
+    LOG.info(f"{name}: river mask done ({time.perf_counter() - start:.0f} s)")
     return path
 
 
@@ -309,8 +297,7 @@ def create_masks(config_path):
 
     Seeds: each region's own water raster `river_seeds` (cells valued 2 or 3), cropped
     to the region's `vector`; region growing runs separately on each region's DEM.
-    Up to `settings.region_workers` regions run at once, each in its own process
-    (the numba region growing holds the GIL, so threads would not run in parallel).
+    Regions run one after another (in parallel they ran out of memory).
     Regions whose mask already exists are skipped, so reruns resume.
     """
     config_path = Path(config_path).resolve()
@@ -334,25 +321,18 @@ def create_masks(config_path):
                       str(root / region["vector"]), settings.get("crs", 25832))
     if not jobs:
         return
-    workers = max(1, min(int(settings.get("region_workers", 1)), len(jobs)))
-    log_file = next((h.baseFilename for h in logging.getLogger().handlers if isinstance(h, logging.FileHandler)), None)
-    LOG.info(f"River masks for {len(jobs)} region(s), {workers} at a time: {', '.join(jobs)}")
+    LOG.info(f"River masks for {len(jobs)} region(s), one at a time: {', '.join(jobs)}")
     failed = []
-    # Fresh 'spawn' processes: forking after GDAL has started its worker threads crashes the children.
-    context = multiprocessing.get_context("spawn")
-    with ProcessPoolExecutor(workers, mp_context=context, initializer=_init_worker, initargs=(log_file,)) as pool:
-        futures = {pool.submit(_mask_job, name, *args): name for name, args in jobs.items()}
-        for future in as_completed(futures):
-            name = futures[future]
-            try:
-                path = future.result()
-            except Exception:
-                LOG.exception(f"{name}: river mask FAILED")
-                failed.append(name)
-                continue
-            # Only this (parent) process writes the JSON, as each region finishes.
-            config["regions"][name]["river_mask"] = Path(os.path.relpath(path, root)).as_posix()
-            write_json(config_path, config)
+    for i, (name, args) in enumerate(jobs.items(), 1):
+        LOG.info(f"River mask {i}/{len(jobs)}: {name}")
+        try:
+            path = _mask_job(name, *args)
+        except Exception:
+            LOG.exception(f"{name}: river mask FAILED")
+            failed.append(name)
+            continue
+        config["regions"][name]["river_mask"] = Path(os.path.relpath(path, root)).as_posix()
+        write_json(config_path, config)
     if failed:
         raise RuntimeError(f"River masks failed for: {', '.join(failed)} (finished ones are recorded; rerun to retry)")
 
