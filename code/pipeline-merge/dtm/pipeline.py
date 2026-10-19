@@ -1,4 +1,5 @@
-"""Rhine-basin DTM merge pipeline (see pipeline.md). Downloads and point clouds are out of scope.
+"""Merge regional DTMs (countries, states, ...) into one seamless DTM. Everything that differs
+between datasets is configured in the pipeline JSON; see README.md.
 
 Stages read and update one JSON file, so a rerun resumes where the last one stopped.
 """
@@ -42,7 +43,7 @@ def gdal_progress(label, step=10):
 
 
 STAGES = ('vectors', 'rasters', 'rivers', 'overlaps', 'assemble')
-DEFAULTS = {'skip_missing': False, 'threads': 'ALL_CPUS', 'region_workers': 1, 'warp_memory_mb': 2048, 'vertical_crs': None, 'interpolation_mask': None, 'river_seeds': None, 'buffer_m': 1000, 'nodata': -9999,
+DEFAULTS = {'skip_missing': False, 'threads': 'ALL_CPUS', 'region_workers': 1, 'warp_memory_mb': 2048, 'vertical_crs': None, 'interpolation_mask': None, 'river_seeds': None, 'buffer_m': 1000, 'nodata': -9999, 'product_name': 'merged_dtm.tif',
             'block_size': 512, 'output_dir': 'data/pipeline', 'hole_filling': {}}
 
 
@@ -54,9 +55,6 @@ def snap(box, res):
 
 def crs_name(horizontal, vertical):
     return f'EPSG:{horizontal}+{vertical}' if vertical else f'EPSG:{horizontal}'
-
-
-ELLIPSOIDAL = ('ETRS89', 4937, '4937')  # region vertical_crs for ETRS89 ellipsoidal heights
 
 
 def subtract_geoid(dem_path, geoid_path, nodata):
@@ -165,8 +163,8 @@ class Run:
                 self.skipped[name] = f"outline not found: {r['vector']}"
             elif not self.exists('dem', r) and not glob.glob(str(self.abs(r['raster'])), recursive=True):
                 self.skipped[name] = f"no rasters match {r['raster']}"
-            elif r.get('vertical_crs') in ELLIPSOIDAL and not (r.get('geoid') and self.abs(r['geoid']).exists()):
-                self.skipped[name] = f"ellipsoidal heights need a geoid raster; not found: {r.get('geoid')}"
+            elif r.get('geoid') and not self.abs(r['geoid']).exists():
+                self.skipped[name] = f"geoid raster not found: {r['geoid']}"
         problems = '; '.join(f'{name}: {reason}' for name, reason in self.skipped.items())
         if self.skipped and not self.s['skip_missing']:
             raise FileNotFoundError(f'Missing inputs (set "skip_missing": true to skip these regions): {problems}')
@@ -256,21 +254,27 @@ class Run:
             raise FileNotFoundError(f'{name}: no rasters match {r["raster"]}')
         LOG.info('%s: started, %d source tiles', name, len(tiles))
         vrt = directory / 'tiles.vrt'
-        # Tiles may spell the same CRS differently (seen in RLP); the region's CRS is
+        # Tiles may spell the same CRS differently, or lack one; the region's CRS is
         # declared in the JSON anyway, so don't drop them.
         # Gaps between tiles must be NoData, not 0. Tiles that declare NoData give the VRT their
-        # value (fast, direct reads). Only if they don't (e.g. Hessen) force one, otherwise gaps
+        # value (fast, direct reads). Only if they don't, force one, otherwise gaps
         # read as 0 m, get the vertical offset added and are averaged into neighbouring cells.
-        with gdal.Open(tiles[0]) as first:
-            declared = first.GetRasterBand(1).GetNoDataValue() is not None
-        vrt_options = {} if declared else {'VRTNodata': s['nodata']}
-        if not declared:
-            LOG.info('%s: tiles declare no NoData value; using %s for gaps between tiles', name, s['nodata'])
+        # `source_nodata` (per region): a value used *inside* the tiles for missing data that the
+        # tiles don't declare (e.g. 0); it is then ignored by the warp and its averaging.
+        if r.get('source_nodata') is not None:
+            vrt_options = {'srcNodata': r['source_nodata'], 'VRTNodata': s['nodata']}
+            LOG.info('%s: treating source value %s as NoData', name, r['source_nodata'])
+        else:
+            with gdal.Open(tiles[0]) as first:
+                declared = first.GetRasterBand(1).GetNoDataValue() is not None
+            vrt_options = {} if declared else {'VRTNodata': s['nodata']}
+            if not declared:
+                LOG.info('%s: tiles declare no NoData value; using %s for gaps between tiles', name, s['nodata'])
         with gdal.BuildVRT(str(vrt), tiles, options=gdal.BuildVRTOptions(
                 allowProjectionDifference=True, **vrt_options)):
             pass
         area = self.geometry(r['vector'])
-        ellipsoidal = s['vertical_crs'] and r.get('vertical_crs') in ELLIPSOIDAL  # geoid applied after the warp
+        ellipsoidal = s['vertical_crs'] and r.get('geoid')  # ellipsoidal heights: geoid subtracted after the warp
         vertical = s['vertical_crs'] and r.get('vertical_crs') and not ellipsoidal
         if (vertical and r['vertical_crs'] != s['vertical_crs']
                 and zero_vertical_shift(area.Centroid(), s['crs'], r['vertical_crs'], s['vertical_crs'])):
@@ -293,7 +297,7 @@ class Run:
             pass
         LOG.info('%s: warp done (%s)', name, elapsed(start))
         if ellipsoidal:
-            LOG.info('%s: ETRS89 ellipsoidal heights; subtracting geoid %s', name, r['geoid'])
+            LOG.info('%s: ellipsoidal heights; subtracting geoid %s', name, r['geoid'])
             subtract_geoid(dem, self.abs(r['geoid']), s['nodata'])
         fill_mask = None
         if r.get('interpolate'):
@@ -371,8 +375,8 @@ class Run:
         x0, y0, x1, y1 = snap(bounds(basin), res)
         crs = osr.SpatialReference()
         crs.SetFromUserInput(crs_name(s['crs'], s['vertical_crs']))
-        product = self.out / 'rhine_dtm.tif'
-        work = self.out / 'rhine_dtm_work.tif'  # writable GTiff; a COG cannot be updated in place
+        product = self.out / s['product_name']
+        work = product.with_name(product.stem + '_work.tif')  # writable GTiff; a COG cannot be updated in place
         ds = gdal.GetDriverByName('GTiff').Create(str(work), round((x1 - x0) / res), round((y1 - y0) / res),
                                                   1, gdal.GDT_Float32, OPTIONS)
         ds.SetGeoTransform([x0, res, 0, y1, 0, -res])
@@ -403,7 +407,7 @@ class Run:
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description='Merge regional DTMs into one Rhine-basin DTM.')
+    parser = argparse.ArgumentParser(description='Merge regional DTMs into one seamless DTM.')
     parser.add_argument('config', nargs='?', default='pipeline.json', type=Path)
     parser.add_argument('--stages', nargs='+', choices=STAGES, default=STAGES,
                         help='Stages to run (default: all). Finished outputs recorded in the JSON are reused.')

@@ -1,4 +1,4 @@
-"""Run the Rhine-basin DTM pipeline: python main.py [pipeline.json] [--stages ...]"""
+"""Merge regional DTMs into one seamless DTM: python main.py [pipeline.json] [--stages ...]"""
 import sys
 
 from dtm.runtime import bootstrap

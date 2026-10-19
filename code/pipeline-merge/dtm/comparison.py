@@ -1,7 +1,8 @@
 import argparse
-import glob
+from concurrent.futures import ProcessPoolExecutor, as_completed
 import json
 import logging
+import multiprocessing
 import os
 from pathlib import Path
 import time
@@ -19,9 +20,10 @@ from rasterio.features import shapes
 from rasterio.warp import transform_bounds
 from shapely.geometry import box, shape
 
+from .geo import write_json
 from .river_mask import river_mask_on_grid
-from . import vertical_transform
-from .vertical_transform import DATA_DIR, load_file, result_path, save_raster
+from . import raster_io
+from .raster_io import load_file, result_path, save_raster
 
 LOG = logging.getLogger(__name__)
 
@@ -62,7 +64,27 @@ def nanrmse(values):
 
 
 MASK_NODATA_U8 = 255
-MAX_DISTANCE_M = 2000  # x-axis extent of the distance plots (correlation, border strips)
+# Defaults for settings.comparison in the pipeline JSON.
+COMPARISON = {
+    "threshold_fraction": 1 / 3,       # problem threshold = resolution * this (INSPIRE: resolution / 3)
+    "river_buffer_cells": 1,           # river masks are dilated by this many cells before exclusion
+    "max_distance_m": 2000,            # x-axis extent of the distance plots (correlation, border strips)
+    "border_strip_m": 50,              # width of the distance-to-border strips
+    "local_rmse_tile_m": 50,           # tile size of the local RMSE raster
+    "problem_min_area_m2": 200,        # smallest problem region kept
+    "problem_merge_distance_m": 60,    # problem cells closer than this are merged into one region
+    # Uncertainty (xdem, Hugonnet et al. 2022): heteroscedasticity + spatial correlation + propagation
+    "uncertainty": True,               # false skips the whole uncertainty analysis (it is the slowest step)
+    "precision_of_other": "same",      # "same": both DEMs equally precise; "finer": the first DEM is much better
+    "uncertainty_variables": ["slope", "max_curvature"],  # terrain attributes that explain error variability
+    "variogram_models": ["Gaussian", "Spherical"],         # summed models = several correlation ranges
+    "workers": 1,                      # pairs compared at the same time (one process each)
+}
+CFG = dict(COMPARISON)  # active settings, set by run_all_analyses
+
+
+def threshold_for(raster):
+    return abs(raster.transform.a) * CFG["threshold_fraction"]
 
 
 def difference_statistics(values, threshold):
@@ -90,7 +112,7 @@ def difference_statistics(values, threshold):
     }
 
 
-def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_buffer=1, fill_1=None, fill_2=None):
+def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_buffer=None, fill_1=None, fill_2=None):
     bounds = transform_bounds(dem_2.crs, dem_1.crs, *dem_2.bounds, densify_pts=21)
     try:
         dem_1 = dem_1.crop(bounds)
@@ -99,6 +121,7 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
         return None
     dem_2 = dem_2.reproject(dem_1)
 
+    river_buffer = CFG["river_buffer_cells"] if river_buffer is None else river_buffer
     river = river_mask_on_grid(mask_1, dem_1, river_buffer) | river_mask_on_grid(mask_2, dem_1, river_buffer)
     LOG.info(f"Excluding {np.count_nonzero(river):,} river cells")
     # Interpolated (hole-filled) cells of either DEM; same lattice as the DEMs, so nearest = exact.
@@ -133,55 +156,21 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
     dh_aligned = dem_1 - dem_2_aligned
     dh_aligned.set_mask(river)
 
-    try:  # optional: needs enough valid cells for the variogram fit
-        sig_dem, rho_sig = dem_2_aligned.estimate_uncertainty(
-            dem_1,
-            precision_of_other="same",
-            random_state=42,
-        )
-        plt = load_pyplot()
-        sig_values = sig_dem.data.compressed()          # valid (unmasked) values only
-        vmin, vmax = np.nanpercentile(sig_values, [2, 98])
-        del sig_values
-
-        sig_dem.plot(
-            cmap="Purples",
-            vmin=vmin,
-            vmax=vmax,
-            cbar_title=r"Error in elevation (1$\sigma$, m)",
-        )
-        plt.savefig(
-            result_path(f"uncertainty_{name_1}_{name_2}.png"),
-            dpi=300,
-            bbox_inches="tight",
-        )
-        plt.close("all")
-
-        x = np.arange(0, MAX_DISTANCE_M + 1, 10)
-        plt.plot(x, [rho_sig(distance) for distance in x])
-        plt.xlabel("Distance [m]")
-        plt.ylabel("Error correlation (0-1)")
-
-        save_raster(
-            sig_dem,
-            result_path(f"uncertainty_{name_1}_{name_2}.tif"),
-        )
-
-        plt.savefig(
-            result_path(f"Correlation_{name_1}_{name_2}.png"),
-            dpi=300,
-            bbox_inches="tight",
-        )
-        plt.close()
-    except Exception as exc:
-        load_pyplot().close("all")
-        LOG.info(f"Uncertainty estimate skipped for {name_1} and {name_2}: {type(exc).__name__}: "
-              f"{str(exc).splitlines()[0] if str(exc) else ''}")
+    # Random-error model on stable terrain (no water, no gap-filled cells), after coregistration.
+    model = None
+    if CFG["uncertainty"]:
+        try:  # optional: needs enough valid cells for the binning and variogram fit
+            model = uncertainty_model(dem_1, dh_aligned, river | interpolated, name_1, name_2)
+        except Exception as exc:
+            load_pyplot().close("all")
+            LOG.info(f"Uncertainty estimate skipped for {name_1} and {name_2}: {type(exc).__name__}: "
+                     f"{str(exc).splitlines()[0] if str(exc) else ''}")
 
     # Border consistency on the raw difference (before coregistration), river cells excluded.
-    threshold = abs(dh.transform.a) / 3  # resolution / 3
+    threshold = threshold_for(dh)
     raw = dh.data.filled(np.nan)
-    exceeds = np.where(np.isfinite(raw), np.abs(raw) > threshold, MASK_NODATA_U8).astype("uint8")
+    # Interpolated cells are not judged: they are overridden by measured data where the neighbour has it.
+    exceeds = np.where(np.isfinite(raw) & ~interpolated, np.abs(raw) > threshold, MASK_NODATA_U8).astype("uint8")
     save_raster(
         exceeds,
         result_path(f"exceeds_threshold_{name_1}_{name_2}.tif"),
@@ -190,8 +179,8 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
         MASK_NODATA_U8,
         dtype="uint8",
         resampling="NEAREST",
-        tags={"meaning": f"1 = |{name_1} - {name_2}| > {threshold:g} m (resolution/3), 0 = within, "
-                         f"{MASK_NODATA_U8} = no common data or river; before coregistration"},
+        tags={"meaning": f"1 = |{name_1} - {name_2}| > {threshold:g} m (resolution * {CFG['threshold_fraction']:g}), 0 = within, "
+                         f"{MASK_NODATA_U8} = no common data, river or interpolated; before coregistration"},
     )
     # Statistics with all compared cells, and with interpolated cells excluded (measured only).
     shift = {"shift_x_m": shift_x, "shift_y_m": shift_y, "shift_z_m": shift_z}
@@ -202,7 +191,8 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
         measured[interpolated] = np.nan
         for cells, selected in (("all", values), ("measured_only", measured)):
             rows.append({"reference_dem": name_1, "comparison_dem": name_2, "stage": stage, "cells": cells,
-                         **difference_statistics(selected, threshold), **extra})
+                         **difference_statistics(selected, threshold),
+                         **(mean_uncertainty(model, np.isfinite(selected), dh) if model else {}), **extra})
     pd.DataFrame(rows).to_csv(result_path(f"statistics_{name_1}_{name_2}.csv"), index=False)
     stats = rows[0]
     save_raster(
@@ -213,6 +203,7 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
         "coreg": coreg,
         "dem_2": dem_2,
         "dh": dh,
+        "interpolated": interpolated,
         "dem_1": dem_1,
         "name_1": name_1,
         "name_2": name_2,
@@ -221,7 +212,75 @@ def analyze_dem(dem_1, dem_2, name_1, name_2, mask_1=None, mask_2=None, river_bu
     }
 
 
-def local_inspire_rmse_analysis(dh, name, tile_size_m=50):
+def uncertainty_model(dem, dh, unstable, name_1, name_2):
+    """xdem's uncertainty workflow (Hugonnet et al., 2022) on the coregistered difference `dh`:
+
+    1. heteroscedasticity: error (NMAD) binned by terrain attributes on stable terrain -> error map;
+    2. spatial correlation: variogram of the standardized differences, fitted with summed models;
+    3. propagation (see mean_uncertainty): error of a mean over an area via the number of
+       effective samples.
+    Writes the error map, binning and variogram plots. Returns what mean_uncertainty needs.
+    """
+    import xdem.spatialstats as ss
+
+    plt = load_pyplot()
+    scale = np.sqrt(2) if CFG["precision_of_other"] == "same" else 1.0  # dh error -> error of one DEM
+    names = list(CFG["uncertainty_variables"])
+    variables = [getattr(xdem.terrain, name)(dem) for name in names]
+    sig_dh, binning, _ = ss.infer_heteroscedasticity_from_stable(
+        dh, list_var=variables, list_var_names=names, unstable_mask=unstable)
+    for name in names:
+        ss.plot_1d_binning(binning, name, "nmad", label_var=name.replace("_", " "),
+                           label_statistic="NMAD of dh (m)", out_fname=result_path(f"heteroscedasticity_{name}_{name_1}_{name_2}.png"))
+        plt.close("all")
+
+    empirical, params, correlation = ss.infer_spatial_correlation_from_stable(
+        dh, list_models=list(CFG["variogram_models"]), unstable_mask=unstable, errors=sig_dh, random_state=42)
+    ss.plot_variogram(empirical, list_fit_fun=[ss.get_variogram_model_func(params)],
+                      list_fit_fun_label=["model"], xscale="log",
+                      out_fname=result_path(f"variogram_{name_1}_{name_2}.png"))
+    plt.close("all")
+    LOG.info("Error correlation ranges: " + ", ".join(
+        f"{row.model} {row.range:.0f} m (psill {row.psill:.2f})" for row in params.itertuples()))
+
+    sig_dem = sig_dh / scale
+    save_raster(sig_dem, result_path(f"uncertainty_{name_1}_{name_2}.tif"))
+    values = sig_dem.data.compressed()
+    vmin, vmax = np.nanpercentile(values, [2, 98]) if values.size else (None, None)
+    sig_dem.plot(cmap="Purples", vmin=vmin, vmax=vmax, cbar_title=r"Error in elevation (1$\sigma$, m)")
+    plt.savefig(result_path(f"uncertainty_{name_1}_{name_2}.png"), dpi=300, bbox_inches="tight")
+    plt.close("all")
+
+    x = np.linspace(0, CFG["max_distance_m"], 201)
+    plt.plot(x, correlation(x))
+    plt.xlabel("Distance [m]")
+    plt.ylabel("Error correlation (0-1)")
+    plt.savefig(result_path(f"Correlation_{name_1}_{name_2}.png"), dpi=300, bbox_inches="tight")
+    plt.close("all")
+    return {"sig_dh": sig_dh.data.filled(np.nan), "params": params, "scale": scale,
+            "correlation_1km": float(correlation(1000))}
+
+
+def mean_uncertainty(model, cells, dh):
+    """1-sigma error of the mean difference over `cells`: mean error / sqrt(number of effective samples).
+
+    The area is passed as a number, which xdem treats as a disk: for thin border strips this
+    gives fewer effective samples than the true shape, i.e. a conservative (larger) error."""
+    import xdem.spatialstats as ss
+
+    cells = cells & np.isfinite(model["sig_dh"])
+    if not cells.any():
+        return {}
+    area = np.count_nonzero(cells) * abs(dh.transform.a * dh.transform.e)
+    n_eff = float(ss.number_effective_samples(area=area, params_variogram_model=model["params"]))
+    mean_error = float(np.nanmean(model["sig_dh"][cells]))
+    return {"mean_sigma_dh_m": mean_error, "n_effective": n_eff,
+            "mean_dh_sigma_m": mean_error / np.sqrt(max(n_eff, 1.0)),
+            "error_correlation_1km": model["correlation_1km"]}
+
+
+def local_inspire_rmse_analysis(dh, name, tile_size_m=None):
+    tile_size_m = CFG["local_rmse_tile_m"] if tile_size_m is None else tile_size_m
     data = dh.data.filled(np.nan)
     crs = CRS.from_user_input(dh.crs)
     unit_to_meters = crs.axis_info[0].unit_conversion_factor
@@ -257,7 +316,7 @@ def local_inspire_rmse_analysis(dh, name, tile_size_m=50):
             "metric": "Local RMSE of elevation differences",
             "tile_size_m": str(tile_size_m),
             "pixel_resolution_m": str(resolution),
-            "inspire_rmse_threshold_m": str(resolution / 3),
+            "inspire_rmse_threshold_m": str(resolution * CFG["threshold_fraction"]),
             "pass_condition": "RMSE <= inspire_rmse_threshold_m",
         },
     )
@@ -325,7 +384,7 @@ def slope_error_analysis(dem_1, dh, name):
 
 
 def border_strip_analysis(dh, border_vector, name):
-    strips = range(0, MAX_DISTANCE_M + 1, 50)
+    strips = range(0, int(CFG["max_distance_m"]) + 1, int(CFG["border_strip_m"]))
     z = dh.data.filled(np.nan)
     unit_to_meters = border_vector.crs.axis_info[0].unit_conversion_factor
     max_distance = strips[-1] / unit_to_meters
@@ -369,25 +428,12 @@ def border_strip_analysis(dh, border_vector, name):
     return df
 
 
-def find_border_vector(data_dir):
-    preferred_path = os.path.join(data_dir, "border.gpkg")
-    if os.path.isfile(preferred_path):
-        return preferred_path
-    candidates = sorted(
-        {
-            path
-            for pattern in ("*.gpkg", "*.shp", "*.geojson")
-            for path in glob.glob(os.path.join(data_dir, pattern))
-        }
-    )
-    return candidates[0] if candidates else None
-
-
-def load_border_vector(vector_path):
+def load_border_vector(vector_path, crs):
+    """Border lines; files without a CRS are assumed to be in the pipeline CRS."""
     with rasterio.Env(SHAPE_RESTORE_SHX="YES"):
         border_vector = gu.Vector(vector_path)
     border_vector.ds = border_vector.ds.set_crs(
-        border_vector.crs or CRS.from_epsg(3035)
+        border_vector.crs or CRS.from_epsg(crs)
     )
     return border_vector
 
@@ -405,9 +451,14 @@ def border_trend_plot(csv_file, name):
     plt.close()
 
 
-def top_problem_regions(dh, name, threshold=None, min_area=200, merge_distance=60):
-    threshold = abs(dh.transform.a) / 3 if threshold is None else threshold  # resolution / 3
-    dh_array = dh.data.filled(np.nan)
+def top_problem_regions(dh, name, threshold=None, min_area=None, merge_distance=None, exclude=None):
+    """Polygons of clustered cells with |dh| > threshold; `exclude` (bool array) cells are ignored."""
+    threshold = threshold_for(dh) if threshold is None else threshold
+    min_area = CFG["problem_min_area_m2"] if min_area is None else min_area
+    merge_distance = CFG["problem_merge_distance_m"] if merge_distance is None else merge_distance
+    dh_array = np.array(dh.data.filled(np.nan), dtype=float)  # copy: edited below
+    if exclude is not None:
+        dh_array[exclude] = np.nan
     mask = (np.abs(dh_array) > threshold).astype(np.uint8)
     exceedance_count = int(np.count_nonzero(mask))
     geometries = [
@@ -458,19 +509,68 @@ def top_problem_regions(dh, name, threshold=None, min_area=200, merge_distance=6
     return regions
 
 
-def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
+def _init_worker(cfg, log_file):
+    """Comparison worker process: same settings and log format as the parent, prefixed with the pair."""
+    os.environ.setdefault("MPLBACKEND", "Agg")
+    CFG.clear()
+    CFG.update(cfg)
+    handlers = [logging.StreamHandler()]
+    if log_file and os.path.isdir(os.path.dirname(log_file)):
+        handlers.append(logging.FileHandler(log_file, encoding="utf-8"))
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(processName)s] %(message)s",
+                        datefmt="%Y-%m-%d %H:%M:%S", handlers=handlers, force=True)
+
+
+def compare_pair(first_name, second_name, first, second, out_dir, border_path, crs):
+    """Run every analysis for one pair; `first`/`second` are (dem, river_mask, fill_mask) paths.
+
+    Writes into `out_dir` and returns the statistics rows and the statistics CSV path,
+    or None if the DEMs share no valid cells."""
+    if multiprocessing.parent_process() is not None:
+        multiprocessing.current_process().name = f"{first_name}__{second_name}"  # shows up in the log
+    raster_io.RESULTS_DIR = str(out_dir)
+    started = time.perf_counter()
+    # Pipeline DEMs already share the target CRS/VRS: load as-is.
+    dem_1, dem_2 = load_file(first[0])[0], load_file(second[0])[0]
+    analysis = analyze_dem(dem_1, dem_2, first_name, second_name, first[1], second[1],
+                           fill_1=first[2], fill_2=second[2])
+    if analysis is None:
+        return None
+    dh, dem_1_crop = analysis["dh"], analysis["dem_1"]
+    name = f"{first_name}_{second_name}"
+    local_inspire_rmse_analysis(dh, name)
+    std_analysis(dh, name)
+    histogram_analysis(dh, name)
+    cdf_analysis(dh, name)
+    slope_error_analysis(dem_1_crop, dh, name)
+    aspect_difference_analysis(dem_1_crop, analysis["dem_2"], first_name, second_name)
+    top_problem_regions(dh, name, exclude=analysis["interpolated"])
+    if border_path:
+        border_strip_analysis(dh, load_border_vector(border_path, crs), name)
+        border_trend_plot(result_path(f"border_strips_{name}.csv"), name)
+    LOG.info(f"Comparison done for {first_name} and {second_name} ({time.perf_counter() - started:.0f} s)")
+    return analysis["statistics"], result_path(f"statistics_{name}.csv")
+
+
+def run_all_analyses(config_path="pipeline.json"):
     """Compare every overlapping pair of region DEMs listed in the pipeline JSON.
 
     DEM and river mask paths come from each region's `dem` and `river_mask`
-    entries (written by the pipeline and river_mask.create_masks).
+    entries (written by the pipeline and river_mask.create_masks). Up to
+    `settings.comparison.workers` pairs run at once, each in its own process.
     """
     analysis_start = time.perf_counter()
     config_path = Path(config_path).resolve()
     config = json.loads(config_path.read_text(encoding="utf-8-sig"))
     regions = config["regions"]
+    unknown = set(config["settings"].get("comparison", {})) - set(COMPARISON)
+    if unknown:
+        raise ValueError(f"Unknown settings.comparison keys: {sorted(unknown)}")
+    CFG.clear()
+    CFG.update({**COMPARISON, **config["settings"].get("comparison", {})})
     # Results go to <output_dir>/comparison next to the pipeline outputs.
     results = config_path.parent / config["settings"].get("output_dir", "data/pipeline") / "comparison"
-    vertical_transform.RESULTS_DIR = str(results)
+    raster_io.RESULTS_DIR = str(results)
     resolve = lambda path: str(config_path.parent / path) if path else None  # noqa: E731
     dems = {name: (resolve(r["dem"]), resolve(r.get("river_mask")), resolve(r.get("fill_mask")))
             for name, r in regions.items() if r.get("dem")}
@@ -481,72 +581,95 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
     statistics = []
     failed_pairs = []
     pair_count = len(names) * (len(names) - 1) // 2
-    last_dem_pair = (None, None)
 
-    # Border lines for the distance-from-border analysis: settings.borders in the JSON,
-    # otherwise the first vector file found in data_dir (old behaviour).
+    # Border lines for the distance-from-border analysis (optional): settings.borders.
     border_setting = config["settings"].get("borders")
-    border_path = str(config_path.parent / border_setting) if border_setting else find_border_vector(data_dir)
-    if border_setting and not os.path.isfile(border_path):
-        LOG.info(f"settings.borders not found: {border_path}")
+    border_path = str(config_path.parent / border_setting) if border_setting else None
+    if border_path and not os.path.isfile(border_path):
+        LOG.warning(f"settings.borders not found: {border_path}")
         border_path = None
-    border_vector = load_border_vector(border_path) if border_path else None
-    if border_vector is None:
-        LOG.info("No border vector found, skipping border analyses")
+    if border_path is None:
+        LOG.info("No border lines (settings.borders), skipping border analyses")
 
+    # Resume: finished pairs are recorded in the JSON under "comparisons" (pair -> statistics CSV);
+    # a pair is skipped while that file exists and is newer than both DEMs. Delete the entry or
+    # the file to redo a pair.
+    done = config.setdefault("comparisons", {})
     LOG.info(f"Checking {pair_count} DEM combinations for overlap...")
+    attempted = reused = 0
+    todo = []
     for first_index, first_name in enumerate(names):
         for second_name in names[first_index + 1 :]:
-            (first_path, first_mask, first_fill), (second_path, second_mask, second_fill) = dems[first_name], dems[second_name]
+            attempted += 1
+            first_path, second_path = dems[first_name][0], dems[second_name][0]
             pair_name = f"{first_name} and {second_name}"
-            if not dem_files_overlap(first_path, second_path):
-                LOG.info(
-                    f"Skipping comparison for non-overlapping DEMs: {pair_name}")
-                continue
+            progress = f"[{attempted}/{pair_count}]"
+            # Recorded, file present and newer than both DEMs (a reprocessed region is compared again).
+            newest_dem = max(os.path.getmtime(first_path), os.path.getmtime(second_path))
+            key = next((k for k in (f"{first_name}__{second_name}", f"{second_name}__{first_name}")
+                        if done.get(k) and (config_path.parent / done[k]).is_file()
+                        and os.path.getmtime(config_path.parent / done[k]) >= newest_dem), None)
+            if key:  # also catches the reversed name, e.g. after reordering regions in the JSON
+                LOG.info(f"{progress} Already compared: {pair_name} ({done[key]}), skipping")
+                statistics.extend(pd.read_csv(config_path.parent / done[key]).to_dict("records"))
+                reused += 1
+            elif not dem_files_overlap(first_path, second_path):
+                LOG.info(f"{progress} Skipping comparison for non-overlapping DEMs: {pair_name}")
+            else:
+                LOG.info(f"{progress} Queued for comparison: {pair_name}")
+                todo.append((first_name, second_name))
 
-            LOG.info(f"Running comparison for overlapping DEMs: {pair_name}")
-            pair_start = time.perf_counter()
-            # Pipeline DEMs already share the target CRS/VRS: load as-is.
-            # One folder per pair: <output_dir>/comparison/<first>__<second>/
-            vertical_transform.RESULTS_DIR = str(results / f"{first_name}__{second_name}")
+    workers = max(1, min(int(CFG["workers"]), len(todo) or 1))
+    LOG.info(f"{len(todo)} overlapping pair(s) to compare, {workers} at a time")
+
+    def finished(pair, result):
+        first_name, second_name = pair
+        pair_name = f"{first_name} and {second_name}"
+        if result is None:
+            return
+        rows, stats_file = result
+        statistics.extend(rows)
+        done[f"{first_name}__{second_name}"] = Path(os.path.relpath(stats_file, config_path.parent)).as_posix()
+        write_json(config_path, config)  # only this (parent) process writes the JSON
+        LOG.info(f"Recorded {pair_name}: {done[f'{first_name}__{second_name}']}")
+
+    def arguments(pair):
+        first_name, second_name = pair
+        return (first_name, second_name, dems[first_name], dems[second_name],
+                results / f"{first_name}__{second_name}", border_path, config["settings"]["crs"])
+
+    if workers == 1:
+        for number, pair in enumerate(todo, 1):
+            LOG.info(f"Comparing pair {number}/{len(todo)}: {pair[0]} and {pair[1]}")
             try:
-                dem_1, dem_2 = load_file(first_path)[0], load_file(second_path)[0]
-                analysis = analyze_dem(dem_1, dem_2, first_name, second_name, first_mask, second_mask,
-                                       fill_1=first_fill, fill_2=second_fill)
-                if analysis is None:
-                    continue
-
-                dh = analysis["dh"]
-                dem_1_crop = analysis["dem_1"]
-                name_1 = analysis["name_1"]
-                name_2 = analysis["name_2"]
-                name = f"{name_1}_{name_2}"
-
-                local_inspire_rmse_analysis(dh, name)
-                std_analysis(dh, name)
-                histogram_analysis(dh, name)
-                cdf_analysis(dh, name)
-                slope_error_analysis(dem_1_crop, dh, name)
-                aspect_difference_analysis(dem_1_crop, analysis["dem_2"], name_1, name_2)
-                top_problem_regions(dh, name)
-
-                if border_vector is not None:
-                    border_strip_analysis(dh, border_vector, name)
-                    border_trend_plot(result_path(f"border_strips_{name}.csv"), name)
-
-                last_dem_pair = (dem_1, dem_2)
-                statistics.extend(analysis["statistics"])
-                del analysis, dh, dem_1_crop
-                LOG.info(f"Comparison done for {pair_name} ({time.perf_counter() - pair_start:.0f} s)")
+                finished(pair, compare_pair(*arguments(pair)))
             except Exception:  # one failing pair must not stop the others
-                LOG.exception(f"Comparison FAILED for {pair_name}; continuing with the next pair")
-                failed_pairs.append(pair_name)
+                LOG.exception(f"Comparison FAILED for {pair[0]} and {pair[1]}; continuing with the next pair")
+                failed_pairs.append(f"{pair[0]} and {pair[1]}")
+    else:
+        # Separate 'spawn' processes: matplotlib and GDAL are not safe to share between threads or forks.
+        log_file = next((h.baseFilename for h in logging.getLogger().handlers
+                         if isinstance(h, logging.FileHandler)), None)
+        context = multiprocessing.get_context("spawn")
+        with ProcessPoolExecutor(workers, mp_context=context, initializer=_init_worker,
+                                 initargs=(dict(CFG), log_file)) as pool:
+            futures = {pool.submit(compare_pair, *arguments(pair)): pair for pair in todo}
+            for number, future in enumerate(as_completed(futures), 1):
+                pair = futures[future]
+                try:
+                    finished(pair, future.result())
+                except Exception:
+                    LOG.exception(f"Comparison FAILED for {pair[0]} and {pair[1]}; continuing with the next pair")
+                    failed_pairs.append(f"{pair[0]} and {pair[1]}")
+                LOG.info(f"{number}/{len(todo)} pairs finished")
 
-    vertical_transform.RESULTS_DIR = str(results)  # summary of all pairs at the top level
+    raster_io.RESULTS_DIR = str(results)  # summary of all pairs at the top level
     pd.DataFrame(statistics).to_csv(
         result_path("dem_difference_statistics.csv"),
         index=False,
     )
+    LOG.info(f"Attempted {attempted} of {pair_count} combinations; {reused} already done earlier, "
+             f"{len(todo)} with overlapping extents run, {len(failed_pairs)} failed")
     if failed_pairs:
         LOG.info(f"{len(failed_pairs)} pair(s) FAILED: {', '.join(failed_pairs)}")
     elapsed_seconds = time.perf_counter() - analysis_start
@@ -555,12 +678,7 @@ def run_all_analyses(config_path="pipeline.json", data_dir=DATA_DIR):
     LOG.info(
         f"Total analysis loop time: {hours:02d}:{minutes:02d}:{seconds:02d} "
         f"({elapsed_seconds:.1f} seconds).")
-    return {
-        "dem_paths": {name: paths[0] for name, paths in dems.items()},
-        "statistics": statistics,
-        "dem_1": last_dem_pair[0],
-        "dem_2": last_dem_pair[1],
-    }
+    return {"dem_paths": {name: paths[0] for name, paths in dems.items()}, "statistics": statistics}
 
 
 if __name__ == "__main__":

@@ -80,6 +80,7 @@ class EndToEnd(unittest.TestCase):
             self.assertTrue((root / result['regions']['a']['fill_mask']).exists())
             with gdal.Open(str(root / result['product'])) as ds:
                 self.assertEqual(ds.GetMetadataItem('LAYOUT', 'IMAGE_STRUCTURE'), 'COG')
+                self.assertTrue(result['product'].endswith('merged_dtm.tif'))  # default product_name
                 product = ds.ReadAsArray()
             at = lambda x, y: product[int((y1 + 500 - y) / 5), int((x - x0 + 500) / 5)]
             self.assertEqual(at(x0 - 250, y0), -9999)                    # outside every region polygon
@@ -127,6 +128,30 @@ class SkipMissing(unittest.TestCase):
             self.assertAlmostEqual(float(product[200, 100]), 100, 3)  # inside a
             self.assertAlmostEqual(float(product[200, 700]), 101, 3)  # inside b
 
+class GeoidHeights(unittest.TestCase):
+    def test_ellipsoidal_heights_minus_geoid(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_vector(box(300000, 5600000, 302000, 5602000), root / 'a.gpkg')
+            (root / 'a').mkdir()
+            tile(root / 'a/t.tif', 299000, 5603000, np.full((1600, 1600), 148, 'float32'))  # h = H + N
+            geoid = gdal.GetDriverByName('GTiff').Create(str(root / 'geoid.tif'), 300, 200, 1, gdal.GDT_Float32)
+            geoid.SetGeoTransform([5, 0.01, 0, 52, 0, -0.01])
+            geoid.SetSpatialRef(srs(4326))
+            geoid.GetRasterBand(1).WriteArray(np.full((200, 300), 48, 'float32'))
+            geoid = None
+            config = {'settings': {'crs': 25832, 'vertical_crs': 5621, 'resolution': 5, 'extent': None,
+                                   'output_dir': 'out', 'threads': 2},
+                      'regions': {'a': {'vector': 'a.gpkg', 'raster': 'a/*.tif', 'crs': 25832,
+                                        'vertical_crs': 4937, 'geoid': 'geoid.tif', 'interpolate': False}}}
+            path = root / 'pipeline.json'
+            path.write_text(json.dumps(config))
+            main([str(path), '--stages', 'vectors', 'rasters'])
+            dem = json.loads(path.read_text())['regions']['a']['dem']
+            values = gdal.Open(str(root / dem)).ReadAsArray()
+            self.assertTrue(np.allclose(values[values != -9999], 100))
+
+
 @unittest.skipUnless(importlib.util.find_spec('xdem'), 'river masks need xdem')
 class RiverMask(unittest.TestCase):
     def test_grows_from_seed_point(self):
@@ -138,11 +163,12 @@ class RiverMask(unittest.TestCase):
             dem[:, 14:17] = 90  # channel outside the region
             tile(root / 'dem.tif', 300000, 5600100, dem, res=5)
             seeds = np.ones((20, 20), 'float32')
-            seeds[10, 3] = seeds[10, 15] = 2  # a seed in each channel
+            seeds[10, 3] = seeds[10, 15] = 5  # a seed in each channel; seed value set per region below
             tile(root / 'seeds.tif', 300000, 5600100, seeds, res=5)
             config = root / 'pipeline.json'
             write_vector(box(300000, 5600000, 300050, 5600100), root / 'region.gpkg')  # left half
-            region = {'dem': 'dem.tif', 'vector': 'region.gpkg', 'river_seeds': 'seeds.tif'}
+            region = {'dem': 'dem.tif', 'vector': 'region.gpkg', 'river_seeds': 'seeds.tif',
+                      'river_growing': {'seed_values': [5]}}
             config.write_text(json.dumps({'settings': {'output_dir': 'out', 'crs': 25832, 'region_workers': 2},
                                           'regions': {'a': region, 'b': region}}))  # two regions in parallel
             create_masks(config)

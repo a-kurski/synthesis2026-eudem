@@ -19,19 +19,21 @@ from osgeo import gdal
 
 from .geo import read_aoi, write_json
 from .process import aoi_mask
-from .vertical_transform import load_file, save_raster
+from .raster_io import load_file, save_raster
 
 LOG = logging.getLogger("dtm")
 
-GAUSSIAN_SIGMA = 3
-REGION_GROWING_VARIANCE_TOLERANCE = 0.02
-SEED_VARIANCE_THRESHOLD = 9999
-MASK_BUFFER_PIXELS = 0
+# Defaults for settings.river_growing (each region may override keys in its own "river_growing").
+RIVER_GROWING = {
+    "seed_values": [2, 3],    # values of the water raster that mark water (seed) cells
+    "tolerance_m": 0.02,      # max height step between neighbouring cells of one water body
+    "seed_buffer_cells": 0,   # dilate the seeds by this many DEM cells
+}
 MASK_NODATA = -1
 
 
-def load_seed_mask(dem, seeds_path, buffer_pixels=MASK_BUFFER_PIXELS):
-    """Boolean DEM-grid mask, True in every cell containing a seed-raster cell valued 2 or 3."""
+def load_seed_mask(dem, seeds_path, seed_values, buffer_pixels=0):
+    """Boolean DEM-grid mask, True in every cell containing a seed-raster cell with one of `seed_values`."""
     dem_crs = dem.crs
     dem_transform = dem.transform
     dem_height, dem_width = dem.shape
@@ -69,8 +71,8 @@ def load_seed_mask(dem, seeds_path, buffer_pixels=MASK_BUFFER_PIXELS):
         source_array = source.read(1, window=source_window)
         source_transform = source.window_transform(source_window)
 
-    # Cells valued 2 or 3 are seeds; each centre, snapped to the DEM cell that contains it.
-    rows, cols = np.nonzero((source_array == 2) | (source_array == 3))
+    # Seed cells; each centre, snapped to the DEM cell that contains it.
+    rows, cols = np.nonzero(np.isin(source_array, seed_values))
     xs, ys = Transformer.from_crs(source_crs, dem_crs, always_xy=True).transform(
         source_transform.c + (cols + 0.5) * source_transform.a,
         source_transform.f + (rows + 0.5) * source_transform.e,
@@ -109,43 +111,12 @@ def river_mask_on_grid(mask_path, reference, buffer_pixels=0):
     return mask
 
 
-def make_gaussian_kernel(sigma=GAUSSIAN_SIGMA):
-    if sigma <= 0:
-        raise ValueError("Gaussian sigma must be greater than zero")
-    radius = int(4 * sigma + 0.5)
-    offsets = np.arange(-radius, radius + 1, dtype=np.float32)
-    weights = np.exp(-0.5 * (offsets / sigma) ** 2)
-    return weights / weights.sum()
-
-
 @njit(cache=True)
-def _reflect_index(index, length):
-    while index < 0 or index >= length:
-        if index < 0:
-            index = -index - 1
-        else:
-            index = 2 * length - index - 1
-    return index
-
-
-@njit(cache=True)
-def _local_variance_at(elevation, row, column):
-    return elevation[row, column]
-
-
-@njit(cache=True)
-def _fill_seed_cache(elevation, seed_mask, variance_cache):
+def _grow_from_seeds(elevation, seeds, tolerance, valid_domain):
+    """Flood fill from each seed over 8-connected valid cells whose height differs from the
+    cell they are reached from by at most `tolerance` (flat water surfaces)."""
     height, width = elevation.shape
-    for row in range(height):
-        for column in range(width):
-            if seed_mask[row, column]:
-                variance_cache[row, column] = _local_variance_at(elevation, row, column)
-
-
-@njit(cache=True)
-def _grow_from_seeds(elevation, variance_cache, seeds, tolerance, valid_domain):
-    height, width = elevation.shape
-    flat_variance = variance_cache.ravel()
+    flat_elevation = elevation.ravel()
     flat_domain = valid_domain.ravel()
     labels = np.zeros(valid_domain.shape, dtype=np.int32)
     flat_labels = labels.ravel()
@@ -166,7 +137,7 @@ def _grow_from_seeds(elevation, variance_cache, seeds, tolerance, valid_domain):
             head += 1
             row = current // width
             column = current - row * width
-            current_variance = flat_variance[current]
+            current_height = flat_elevation[current]
 
             for row_offset in range(-1, 2):
                 neighbor_row = row + row_offset
@@ -179,24 +150,17 @@ def _grow_from_seeds(elevation, variance_cache, seeds, tolerance, valid_domain):
                     if neighbor_column < 0 or neighbor_column >= width:
                         continue
                     neighbor = neighbor_row * width + neighbor_column
-                    if flat_domain[neighbor] and not flat_labels[neighbor]:
-                        if np.isnan(flat_variance[neighbor]):
-                            flat_variance[neighbor] = _local_variance_at(
-                                elevation, neighbor_row, neighbor_column
-                            )
-                        if abs(flat_variance[neighbor] - current_variance) <= tolerance:
-                            flat_labels[neighbor] = region
-                            queue[tail] = neighbor
-                            tail += 1
+                    if (flat_domain[neighbor] and not flat_labels[neighbor]
+                            and abs(flat_elevation[neighbor] - current_height) <= tolerance):
+                        flat_labels[neighbor] = region
+                        queue[tail] = neighbor
+                        tail += 1
     return labels
 
 
-def grow_variance_regions(
-    elevation,
-    seed_mask,
-    tolerance=REGION_GROWING_VARIANCE_TOLERANCE,
-    valid_domain=None,
-):
+def grow_water_regions(elevation, seed_mask, tolerance=RIVER_GROWING["tolerance_m"], valid_domain=None):
+    """Label water bodies grown from `seed_mask`: 0 = not water, 1..R = region, in seed order.
+    Returns (labels, accepted seed indices)."""
     if not np.isfinite(tolerance) or tolerance < 0:
         raise ValueError("Region-growing tolerance must be finite and non-negative")
     if elevation.shape != seed_mask.shape:
@@ -207,37 +171,26 @@ def grow_variance_regions(
     elif valid_domain.shape != elevation.shape:
         raise ValueError("DEM and valid-domain dimensions do not match")
     valid_domain = valid_domain & np.isfinite(elevation)
-    seed_cells = seed_mask & valid_domain
-    seeds = np.flatnonzero(seed_cells)          # flat indices, int64
+    seeds = np.flatnonzero(seed_mask & valid_domain)  # flat indices, int64
     if seeds.size == 0:
         raise ValueError("Seed mask contains no valid cells")
 
-    variance_cache = np.full(elevation.shape, np.nan, dtype=np.float32)
-    _fill_seed_cache(elevation, seed_cells, variance_cache)
-
-    keep = variance_cache.ravel()[seeds] <= SEED_VARIANCE_THRESHOLD
-    discarded_count = int(np.count_nonzero(~keep))
-    seeds = seeds[keep]
-
-    LOG.info(
-        f"Growing from {seeds.size:,} seeds; discarded {discarded_count:,} "
-        f"whose minimum variance exceeds {SEED_VARIANCE_THRESHOLD:g} "
-        f"(8-connected, tolerance {tolerance:g})"
-    )
-    # labels: 0 = not river, 1..R = regions, numbered in seed order
-    labels = _grow_from_seeds(elevation, variance_cache, seeds, tolerance, valid_domain)
-    return labels, seeds, seeds.size, variance_cache
+    LOG.info(f"Growing from {seeds.size:,} seeds (8-connected, tolerance {tolerance:g} m)")
+    return _grow_from_seeds(elevation, seeds, tolerance, valid_domain), seeds
 
 
-def process_dem(dem_path, seeds_path, out_dir, region=None, epsg=25832):
-    """Grow river regions from seed-raster cells valued 2/3; returns the river mask path (0 = no river, 1..R = region id).
+def process_dem(dem_path, seeds_path, out_dir, epsg, region=None, growing=None):
+    """Grow river regions from seed-raster cells; returns the river mask path (0 = no river, 1..R = region id).
+
+    `growing`: settings as in RIVER_GROWING (missing keys take the defaults); `epsg`: CRS of `region`.
 
     With `region` (an OGR polygon) only seeds inside it are used; regions may
     still grow beyond it within the DEM, e.g. along a border river.
     """
     LOG.info(f"Processing {dem_path}")
     dem, _ = load_file(dem_path)
-    water_mask = load_seed_mask(dem, seeds_path)
+    growing = {**RIVER_GROWING, **(growing or {})}
+    water_mask = load_seed_mask(dem, seeds_path, growing["seed_values"], growing["seed_buffer_cells"])
     if region is not None:
         with gdal.Open(dem_path) as reference, \
                 aoi_mask(region, reference, os.path.join(out_dir, "region_mask.tif"), epsg) as inside:
@@ -247,22 +200,13 @@ def process_dem(dem_path, seeds_path, out_dir, region=None, epsg=25832):
     dem_valid = np.isfinite(dem_values)
     elevation = np.where(dem_valid, dem_values, 0.0).astype(np.float32, copy=False)
 
-    labels, seeds, _, variance = grow_variance_regions(
-        elevation, water_mask, valid_domain=dem_valid
+    labels, seeds = grow_water_regions(
+        elevation, water_mask, tolerance=growing["tolerance_m"], valid_domain=dem_valid
     )
 
     basename = os.path.splitext(os.path.basename(dem_path))[0]
     output = lambda name: os.path.join(out_dir, name)  # noqa: E731
-    variance_path = output(f"{basename}_variance.tif")
     river_mask_path = output(f"{basename}_river_mask.tif")
-    save_raster(
-        variance,
-        variance_path,
-        dem.transform,
-        dem.crs,
-        np.nan,
-        dtype="float32",
-    )
     river_mask = labels
     river_mask[~dem_valid] = MASK_NODATA
     save_raster(
@@ -275,8 +219,7 @@ def process_dem(dem_path, seeds_path, out_dir, region=None, epsg=25832):
         resampling="NEAREST",  # region ids must not be averaged in overviews
     )
     LOG.info(
-        f"Saved variance map and river mask: {seeds.size:,} accepted seeds in "
-        f"{int(river_mask.max()):,} regions:\n  {variance_path}\n  {river_mask_path}"
+        f"Saved river mask: {seeds.size:,} seeds in {int(river_mask.max()):,} regions: {river_mask_path}"
     )
     return river_mask_path
 
@@ -284,10 +227,10 @@ def process_dem(dem_path, seeds_path, out_dir, region=None, epsg=25832):
 LOG_FORMAT = "%(asctime)s %(levelname)s %(message)s"
 
 
-def _mask_job(name, dem, seeds, out_dir, vector, epsg):
+def _mask_job(name, dem, seeds, out_dir, vector, epsg, growing):
     start = time.perf_counter()
     LOG.info(f"{name}: river mask started")
-    path = process_dem(dem, seeds, out_dir, region=read_aoi(vector)[0], epsg=epsg)
+    path = process_dem(dem, seeds, out_dir, epsg, region=read_aoi(vector)[0], growing=growing)
     LOG.info(f"{name}: river mask done ({time.perf_counter() - start:.0f} s)")
     return path
 
@@ -295,8 +238,10 @@ def _mask_job(name, dem, seeds, out_dir, vector, epsg):
 def create_masks(config_path):
     """Create a river mask for every region in the pipeline JSON and record its path there.
 
-    Seeds: each region's own water raster `river_seeds` (cells valued 2 or 3), cropped
-    to the region's `vector`; region growing runs separately on each region's DEM.
+    Seeds: each region's own water raster `river_seeds` (cells with one of the
+    `river_growing.seed_values`), cropped to the region's `vector`; region growing runs
+    separately on each region's DEM. `river_growing` comes from the settings, with
+    per-region overrides.
     Regions run one after another (in parallel they ran out of memory).
     Regions whose mask already exists are skipped, so reruns resume.
     """
@@ -317,8 +262,9 @@ def create_masks(config_path):
             LOG.info(f"{name}: water raster river_seeds missing ({seeds}), skipping river mask")
             continue
         (out / name).mkdir(parents=True, exist_ok=True)
+        growing = {**RIVER_GROWING, **settings.get("river_growing", {}), **region.get("river_growing", {})}
         jobs[name] = (str(root / region["dem"]), str(root / seeds), str(out / name),
-                      str(root / region["vector"]), settings.get("crs", 25832))
+                      str(root / region["vector"]), settings["crs"], growing)
     if not jobs:
         return
     LOG.info(f"River masks for {len(jobs)} region(s), one at a time: {', '.join(jobs)}")

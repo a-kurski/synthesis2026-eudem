@@ -1,1 +1,1 @@
-"""Reproducible AHN/NRW comparison."""
+"""Regional DTM merge pipeline."""
