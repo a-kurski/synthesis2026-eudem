@@ -55,6 +55,10 @@
   ("UTM", "Universal Transverse Mercator"),
   ("WLS", "Weighted Linear Least Squares"),
   ("XML", "Extensible Markup Language"),
+  ("API", "Application Programming Interface"),
+  ("VCRS", "Vertical Coordinate Reference System"),
+  ("EVRF2019", "European Vertical Reference Frame (2019)"),
+  ("STD", "Standard Deviation")
 )
 
 #abbr.config(style: it => text(it))

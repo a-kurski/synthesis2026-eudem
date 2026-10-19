@@ -65,6 +65,8 @@ The required native-resolution terrain rasters are then acquired or reused from 
 
 For @AHN, the 0.5 m terrain in Amersfoort / RD New (@EPSG:s code 28992) is reprojected and averaged directly onto the 5 m target grid in a single operation. Combining these steps avoids repeated resampling. For @NRW, the 1 m terrain already uses @EPSG:s code 25832. After verifying that its cells nest within the target grid, each 5 m elevation is calculated as the mean of valid elevations in the corresponding $5 times 5$ block. No terrain reprojection is required for @NRW.
 
+The @DTM is also vertically transformed. This is done through the XDEM @API. Not all @DTM:pls have an included @VCRS, there is an included fallback which infers the source @VCRS from the file name. All rasters are transformed to the @EVRF2019.
+
 Both paths exclude invalid values from averaging. Cells without valid contributors remain NoData, while partially observed cells receive the mean of their valid contributors. Averaging reduces data volume but can suppress narrow terrain features and local extremes. Remaining cells with invalid elevation values are set to the common NoData value of -9999
 
 === Gap filling and final outputs
@@ -233,7 +235,17 @@ Each mask cell is transformed to the elevation map resolution, @CRS and grid. By
 
 #image("/assets/image.png")
 
-== VCRS transform
-
 == Border analysis
+
+The final step of the pipeline is to pairwise compare neighboring datasets, and evaluate the results. The first step in this process is analysing which regions overlap. It is followed by calculating the height difference, coregistration, INSPIRE resolution threshold compliance for fine and course resolutions, height difference @STD:asf, aspect difference, error due to slope, error due to distance from the border, 
+
+The final step of the pipeline is to pairwise compare neighboring datasets, and to evaluate the results. The first step in this process is to identify which @DTM:pls neighbor one another. In order to determine wether overlap exists, the maximum and minimum $x$ and $y$ coordinates of each country's @DTM are stored. The following logic is applied to see if the bounding boxes overlap:
+
+$max(x_("region_1_min"),x_("region_2_min")) < min(x_("region_1_max"),x_("region_2_max")) and max(y_("region_1_min"),y_("region_2_min")) < min(y_("region_1_max"),y_("region_2_max"))$
+
+This is not a perfect method as regions which do not cover the entire bounding box may not overlap. Therefore, another check is done by cropping the @DTM of one country to the other. However, this is a computationally heavier operation and can therefore be avoided if no overlap is known to exist.
+
+The next step in the analysis process is to calculate the elevation differences between the two maps. @GDAL allows for this process to be simplified to a subtraction operation. The raw difference does however not tell the full story. Systematic errors may offset an entire DTM, and are a potential limitation of the vertical transform. Therefore, a @STD raster is also produced to highlight stark deviations in height between the @DTM:pls.
+
+Another way to analyse these systematic errors is through coregistration. This is a function in XDEM which
 
