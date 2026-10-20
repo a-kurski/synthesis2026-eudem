@@ -148,8 +148,46 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
 )
 <fig:NRW-RLP-slope>
 
-==== 
+#pagebreak()
+==== Hessen - BW
+The border between Hessen and @BW one of the shorter borders, coming in at roughly $33"km"$. It does however contain some interesting elements such as an exclave of Hessen inside of @BW. Furthermore, the elevations in this region range from $90$ meters in the large and relatively flat valley, to nearly $550$ meters in the hills (@fig:Hessen-BW-overview).
 
+#figure(
+  image("/report/assets/Hessen-BW-overview.png",width:40%),
+  caption:"Hessen-BW border"
+)
+<fig:Hessen-BW-overview>
+
+The first obvious difference is a bright highlight at the border of the @DTM (@fig:Hessen-BW-BorderArtifact). The effect. This artifact is a byproduct of the @BW dataset being cut differently compared to the Hessen dataset. Therefore, this difference is an artifact caused by the clipped dataset and not a real physical difference. This effect occurs on all difference analysis @DTM:pls, though it is not always as pronounced as within this comparison.
+
+#figure(
+  image("/report/assets/Hessen-BW-BorderArtifact.png",width:40%),
+  caption:"Hessen-BW border artifact"
+)
+<fig:Hessen-BW-BorderArtifact>
+
+A secondary source of differences appears to be the narrow clearings within wooded areas (@fig:Hessen-BW-clearing). This occurs in several locations.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("/report/assets/Hessen-BW-clearingESRI.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+
+    [
+      #image("/report/assets/Hessen-BW-clearingDH.png", width: 100%)
+      #align(center)[(NRW)]
+    ],
+  ),
+  caption: "Forest clearing",
+)
+<fig:Hessen-BW-clearing>
+
+#pagebreak()
 === Luxembourg - Germany - France
 
 === Switzerland - Germany - France

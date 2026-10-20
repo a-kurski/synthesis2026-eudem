@@ -6,6 +6,7 @@
   ("ALOS", "Advanced Land Observing Satellite"),
   ("AOI", "Area of Interest", "Areas of Interest"),
   ("API", "Application Programming Interface"),
+  ("BW","Baden-Württemberg"),
   ("BSc", "Bachelor of Science"),
   ("COG", "Cloud-Optimized GeoTIFF"),
   ("COPC", "Cloud-Optimized Point Cloud"),
