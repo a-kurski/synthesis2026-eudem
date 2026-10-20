@@ -12,7 +12,7 @@ The data scraping is not considered a part of the processing pipeline. However, 
 
 #drafting.inline-note("TODO: arda write about this section here")
 
-== Pipeline
+== Pipeline <chap:Pipeline>
 #drafting.inline-note("Go over the pipeline shortcomings in accordance with the subquestion")
 harmonizing nodata -> reprojection -> regridding -> resampling -> interpolation (Netherlands)
 
@@ -23,9 +23,130 @@ The last step of the scraping process is interpolation. This step only applies t
 For this process nearest inverse distance weighing is used. This does not catch all nodata values. In case it does not, nearest neighbor interpolation is used to supplement to fill the remaining holes. However, due to the range set for nearest neighbor, not all nodata cells are interpolated. Increasing the radius would likely solve this issue, but would also significantly increase processing time. Therefore, the interpolation limitations of the Netherlands have had to be excepted as a shortcoming of the pipeline, caused by the available data.
 
 ...
+
+The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
 == Analysis
 #drafting.inline-note("Explain what we see in the comparisons")
+
+#pagebreak()
 === Regions of Germany
+
+==== NRW - RLP
+
+@NRW:l, and @RLP both fall within the extent of Germany. The overlapping border area is hilly with few waterbodies spread throughout the landscape. As with all Germany @DTM data, the tiles are aligned to the same tile grid, and overlap by one or two tiles.
+
+Loading in the $italic("dh_germany_nrw_germany_rlp.tif")$ @DTM, representing the elevation differences, there are several interesting observations. @fig:NRW-RLP-striping shows North-South or South-North scanning tracks created by aerial @LiDAR scanning. The elevation jump in the order of $3 "cm"$, which while minimal, shows that some differences are caused by the misalignment of the scan passes within tiles. 
+
+#figure(
+  image("/report/assets/NRW-RLP-striping.png", width:40%),
+  caption:"Striping artifact on the border difference DTM"
+)
+<fig:NRW-RLP-striping>
+
+Secondly, there appears to be misalignment between tiles within the @DTM. This is illustrated in @fig:NRW-RLP-nonalignment as the sharp transition between the four tiles. This transition is is however more drastic at a difference of $30"cm"$ in the difference @DTM. On close inspection of the @NRW and @RLP @DTM:pls, it appears that cells on the edge between tiles, the jump between neighboring cell values increased with $40"cm"$ more on the @NRW @DTM, compared to the @RLP @DTM. However, it is possible this effect occurs on both the @NRW and @RLP @DTM:pls. To evaluate this we would require the uncut tiles within the @DTM of a region and perform coregistration to determine the vertical tile shift. Unfortunately, we do not have access to this data.
+#drafting.inline-note("maybe pt cloud data would solve this.")
+
+$italic("statistics_germany_nrw_germany_rlp.csv")$ confirms these findings. It lists the similarity of errors within one kilometer to be $99.9%$. High correlation which is consistent throughout the correlation graph either points towards a tiling or vertical transform artifact. Since the median difference between the two tiles is $-2"cm"$, which also corresponds with the z-shift for the coregistration. Therefore, it can be concluded most errors within the border comparison are caused by this tiling artifact.
+
+#figure(
+  image("/report/assets/NRW-RLP-nonalignment.png",width:40%),
+  caption:"Tile vertical misalignment artifact on the border difference DTM"
+)
+<fig:NRW-RLP-nonalignment>
+
+Lastly, as described in @chap:Pipeline, small waterbodies such as narrow rivers, or small lakes are not filtered out and are therefore counted towards the differences in the comparison. This is however, a small contribution and does not appear disproportianally represented in the calculated problem areas.
+
+There do appear to be several differences which are likely related to @LiDAR sensing limitations or subsequent processing steps. Examples include interpolation errors for buildings (@fig:NRW-RLP-roofinter), ground filtering discrepancies (@fig:NRW-RLP-overpass), possible temporal changes (@fig:NRW-RLP-quarry)(where the red line represents the region border), and steep slopes (@fig:NRW-RLP-slope).
+
+Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply with the @INSPIRE target described in @sec:inspire-quality. Furthermore, only $0.05%$ of points within the overlap fall outside of the @INSPIRE derived threshold described in @sec:border-analysis. Therefore, the quality of the resulting @DTM does comply with the guidelines we have followed for the full Rhine @DTM.
+
+#figure(
+  grid(
+    columns: 4,
+    gutter: 5pt,
+
+    [
+      #image("/report/assets/NRW-RLP-roofinterESRI.png", width: 100%)
+      #align(center)[(ESRI)]
+    ],
+
+    [
+      #image("/report/assets/NRW-RLP-roofinterNRW.png", width: 100%)
+      #align(center)[(NRW)]
+    ],
+
+    [
+      #image("/report/assets/NRW-RLP-roofinterRLP.png", width: 100%)
+      #align(center)[(RLP)]
+    ],
+
+    [
+      #image("/report/assets/NRW-RLP-roofinter.png", width: 100%)
+      #align(center)[(DH)]
+    ]
+  ),
+  caption: "Roof interpolation example",
+)
+<fig:NRW-RLP-roofinter>
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("/report/assets/NRW-RLP-overpass.png", width: 100%)
+      #align(center)[(ESRI)]
+    ],
+
+    [
+      #image("/report/assets/NRW-RLP-overpassNRW.png", width: 100%)
+      #align(center)[(NRW)]
+    ],
+
+    [
+      #image("/report/assets/NRW-RLP-overpassRLP.png", width: 100%)
+      #align(center)[(RLP)]
+    ],
+  ),
+  caption: "Overpass example",
+)
+<fig:NRW-RLP-overpass>
+
+#figure(
+  grid(
+    columns: 4,
+    gutter: 5pt,
+
+    [
+      #image("/report/assets/NRW-RLP-quarry.png", width: 100%)
+      #align(center)[(ESRI)]
+    ],
+
+    [
+      #image("/report/assets/NRW-RLP-quarryNRW.png", width: 100%)
+      #align(center)[(NRW)]
+    ],
+
+    [
+      #image("/report/assets/NRW-RLP-quarryRLP.png", width: 100%)
+      #align(center)[(RLP)]
+    ],
+
+    [
+      #image("/report/assets/NRW-RLP-quarryDH.png", width: 100%)
+      #align(center)[(DH)]
+    ]
+  ),
+  caption: "Quarry example",
+)
+<fig:NRW-RLP-quarry>
+
+#figure(
+  image("/report/assets/slope_rmse_germany_nrw_germany_rlp.png",width:60%),
+  caption:"Slope effect on the RMSE of the difference"
+)
+<fig:NRW-RLP-slope>
 
 === Luxembourg - Germany - France
 

@@ -233,9 +233,9 @@ Each mask cell is transformed to the elevation map resolution, @CRS and grid. By
 
 #drafting.inline-note("Add a nice image that shows the river mask for the entire rhine catchment area and another for a local area")
 
-#image("/assets/image.png")
 
-== Border analysis
+
+== Border analysis <sec:border-analysis>
 
 The final step of the pipeline is to pairwise compare neighboring datasets, and evaluate the results. The first step in this process is analysing which regions overlap. It is followed by calculating the height difference, coregistration, INSPIRE resolution threshold analysis for a course grid, error threshold analysis for identifying problem areas, height difference @STD:asf, aspect difference, error due to slope, error due to distance from the border, 
 

@@ -269,7 +269,7 @@
 == Risk analysis
 
 #figure(
-  image("assets/image.png", width: 60%),
+  image("assets/riskmatrix.png", width: 60%),
   caption: "Risk Assessment Matrix."
 ) <Risk_Assessment_Matrix>
 
