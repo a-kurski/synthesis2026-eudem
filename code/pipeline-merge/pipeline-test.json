@@ -1,0 +1,74 @@
+{
+  "settings": {
+    "crs": 3035,
+    "vertical_crs": 5621,
+    "resolution": 5,
+    "extent": null,
+    "interpolation_mask": null,
+    "buffer_m": 1000,
+    "nodata": -9999,
+    "threads": 64,
+    "region_workers": 2,
+    "warp_memory_mb": 16384,
+    "output_dir": "../../local/test",
+    "qgis_root": null,
+    "product_name": "test_dtm.tif",
+    "river_growing": {
+      "seed_values": [
+        2,
+        3
+      ],
+      "tolerance_m": 0.02,
+      "seed_buffer_cells": 0
+    },
+    "comparison": {
+      "threshold_fraction": 0.3333333333333333,
+      "river_buffer_cells": 1,
+      "max_distance_m": 2000,
+      "border_strip_m": 50,
+      "local_rmse_tile_m": 50,
+      "problem_min_area_m2": 200,
+      "problem_merge_distance_m": 60,
+      "uncertainty": true,
+      "precision_of_other": "same",
+      "uncertainty_variables": [
+        "slope",
+        "max_curvature"
+      ],
+      "variogram_models": [
+        "Gaussian",
+        "Spherical"
+      ],
+      "workers": 2
+    },
+    "hole_filling": {
+      "method": "gdal_idw",
+      "selection": "all_aoi_nodata",
+      "max_distance_m": 100,
+      "nearest_fallback": true,
+      "smoothing_iterations": 0
+    }
+  },
+  "regions": {
+    "netherlands": {
+      "vector": "country_masks/Netherlands.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/netherlands/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 28992,
+      "vertical_crs": 5709,
+      "interpolate": true,
+      "crop": false,
+      "river_seeds": "water-masks/Netherlands_baseline_class.tif"
+    },
+    "germany_nrw": {
+      "vector": "country_masks/Germany_NRW.gpkg",
+      "raster": "../../../ardabaysal/pipeline/data/germany/nrw/raw_tiles/*.tif",
+      "point_clouds": null,
+      "crs": 25832,
+      "vertical_crs": 7837,
+      "interpolate": false,
+      "crop": false,
+      "river_seeds": "water-masks/Germany_baseline_class.tif"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+# GDAL (with its Python bindings) must come from conda-forge or your system packages,
+# not from pip; see README.md. Python packages:
+numpy>=1.24
+scipy>=1.10
+tqdm>=4.66
+# Rivers stage and comparison:
+xdem
+geoutils
+rasterio
+numba
+geopandas
+pandas
+matplotlib
+scikit-gstat
