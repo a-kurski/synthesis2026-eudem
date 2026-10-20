@@ -56,7 +56,7 @@ $italic("statistics_germany_nrw_germany_rlp.csv")$ confirms these findings. It l
 
 Lastly, as described in @chap:Pipeline, small waterbodies such as narrow rivers, or small lakes are not filtered out and are therefore counted towards the differences in the comparison. This is however, a small contribution and does not appear disproportianally represented in the calculated problem areas.
 
-There do appear to be several differences which are likely related to @LiDAR sensing limitations or subsequent processing steps. Examples include interpolation errors for buildings (@fig:NRW-RLP-roofinter), ground filtering discrepancies (@fig:NRW-RLP-overpass), possible temporal changes (@fig:NRW-RLP-quarry)(where the red line represents the region border), and steep slopes (@fig:NRW-RLP-slope).
+There do appear to be several differences which are likely related to @LiDAR sensing limitations or subsequent processing steps. Examples include interpolation errors for buildings (@fig:NRW-RLP-roofinter), ground filtering discrepancies (@fig:NRW-RLP-overpass), temporal changes (@fig:NRW-RLP-quarry)(verified using Google Earth), and steep slopes (@fig:NRW-RLP-slope).
 
 Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply with the @INSPIRE target described in @sec:inspire-quality. Furthermore, only $0.05%$ of points within the overlap fall outside of the @INSPIRE derived threshold described in @sec:border-analysis. Therefore, the quality of the resulting @DTM does comply with the guidelines we have followed for the full Rhine @DTM.
 
@@ -147,6 +147,8 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
   caption:"Slope effect on the RMSE of the difference"
 )
 <fig:NRW-RLP-slope>
+
+==== 
 
 === Luxembourg - Germany - France
 
