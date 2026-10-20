@@ -40,6 +40,7 @@
   ("LAEA", "Lambert Azimuthal Equal Area"),
   ("LAZ", "LASzip-compressed point-cloud format"),
   ("LCC", "Lambert Conformal Conic"),
+  ("LE90", "Linear error at 90th percentile"),
   ("LiDAR", "Light Detection and Ranging"),
   ("MCC", "Multiscale Curvature Classification"),
   ("MoSCoW", "Must, Should, Could, Won't"),

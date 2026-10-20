@@ -31,14 +31,14 @@ The river mask is limited by the quality of the course resolution of the SDG mas
 #pagebreak()
 === Regions of Germany
 
-==== NRW - RLP
+==== NRW -- RLP
 
 @NRW:l, and @RLP both fall within the extent of Germany. The overlapping border area is hilly with few waterbodies spread throughout the landscape. As with all Germany @DTM data, the tiles are aligned to the same tile grid, and overlap by one or two tiles.
 
-Loading in the $italic("dh_germany_nrw_germany_rlp.tif")$ @DTM, representing the elevation differences, there are several interesting observations. @fig:NRW-RLP-striping shows North-South or South-North scanning tracks created by aerial @LiDAR scanning. The elevation jump in the order of $3 "cm"$, which while minimal, shows that some differences are caused by the misalignment of the scan passes within tiles. 
+Loading in the $italic("dh_germany_nrw_germany_rlp.tif")$ @DTM, representing the elevation differences, there are several interesting observations. @fig:NRW-RLP-striping shows North-South or South-North scanning tracks created by aerial @LiDAR scanning. The elevation jump in the order of $3 "cm"$, which while minimal, shows that some differences are caused by the misalignment of the scan passes within tiles.
 
 #figure(
-  image("/report/assets/NRW-RLP-striping.png", width:40%),
+  image("assets/NRW-RLP-striping.png", width:40%),
   caption:"Striping artifact on the border difference DTM"
 )
 <fig:NRW-RLP-striping>
@@ -49,12 +49,12 @@ Secondly, there appears to be misalignment between tiles within the @DTM. This i
 $italic("statistics_germany_nrw_germany_rlp.csv")$ confirms these findings. It lists the similarity of errors within one kilometer to be $99.9%$. High correlation which is consistent throughout the correlation graph either points towards a tiling or vertical transform artifact. Since the median difference between the two tiles is $-2"cm"$, which also corresponds with the z-shift for the coregistration. Therefore, it can be concluded most errors within the border comparison are caused by this tiling artifact.
 
 #figure(
-  image("/report/assets/NRW-RLP-nonalignment.png",width:40%),
+  image("assets/NRW-RLP-nonalignment.png",width:40%),
   caption:"Tile vertical misalignment artifact on the border difference DTM"
 )
 <fig:NRW-RLP-nonalignment>
 
-Lastly, as described in @chap:Pipeline, small waterbodies such as narrow rivers, or small lakes are not filtered out and are therefore counted towards the differences in the comparison. This is however, a small contribution and does not appear disproportianally represented in the calculated problem areas.
+Lastly, as described in @chap:Pipeline, small water bodies such as narrow rivers, or small lakes are not filtered out and are therefore counted towards the differences in the comparison. This is however, a small contribution and does not appear disproportionally represented in the calculated problem areas.
 
 There do appear to be several differences which are likely related to @LiDAR sensing limitations or subsequent processing steps. Examples include interpolation errors for buildings (@fig:NRW-RLP-roofinter), ground filtering discrepancies (@fig:NRW-RLP-overpass), temporal changes (@fig:NRW-RLP-quarry)(verified using Google Earth), and steep slopes (@fig:NRW-RLP-slope).
 
@@ -66,22 +66,22 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
     gutter: 5pt,
 
     [
-      #image("/report/assets/NRW-RLP-roofinterESRI.png", width: 100%)
+      #image("assets/NRW-RLP-roofinterESRI.png", width: 100%)
       #align(center)[(ESRI)]
     ],
 
     [
-      #image("/report/assets/NRW-RLP-roofinterNRW.png", width: 100%)
+      #image("assets/NRW-RLP-roofinterNRW.png", width: 100%)
       #align(center)[(NRW)]
     ],
 
     [
-      #image("/report/assets/NRW-RLP-roofinterRLP.png", width: 100%)
+      #image("assets/NRW-RLP-roofinterRLP.png", width: 100%)
       #align(center)[(RLP)]
     ],
 
     [
-      #image("/report/assets/NRW-RLP-roofinter.png", width: 100%)
+      #image("assets/NRW-RLP-roofinter.png", width: 100%)
       #align(center)[(DH)]
     ]
   ),
@@ -95,17 +95,17 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
     gutter: 5pt,
 
     [
-      #image("/report/assets/NRW-RLP-overpass.png", width: 100%)
+      #image("assets/NRW-RLP-overpass.png", width: 100%)
       #align(center)[(ESRI)]
     ],
 
     [
-      #image("/report/assets/NRW-RLP-overpassNRW.png", width: 100%)
+      #image("assets/NRW-RLP-overpassNRW.png", width: 100%)
       #align(center)[(NRW)]
     ],
 
     [
-      #image("/report/assets/NRW-RLP-overpassRLP.png", width: 100%)
+      #image("assets/NRW-RLP-overpassRLP.png", width: 100%)
       #align(center)[(RLP)]
     ],
   ),
@@ -119,22 +119,22 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
     gutter: 5pt,
 
     [
-      #image("/report/assets/NRW-RLP-quarry.png", width: 100%)
+      #image("assets/NRW-RLP-quarry.png", width: 100%)
       #align(center)[(ESRI)]
     ],
 
     [
-      #image("/report/assets/NRW-RLP-quarryNRW.png", width: 100%)
+      #image("assets/NRW-RLP-quarryNRW.png", width: 100%)
       #align(center)[(NRW)]
     ],
 
     [
-      #image("/report/assets/NRW-RLP-quarryRLP.png", width: 100%)
+      #image("assets/NRW-RLP-quarryRLP.png", width: 100%)
       #align(center)[(RLP)]
     ],
 
     [
-      #image("/report/assets/NRW-RLP-quarryDH.png", width: 100%)
+      #image("assets/NRW-RLP-quarryDH.png", width: 100%)
       #align(center)[(DH)]
     ]
   ),
@@ -143,17 +143,18 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
 <fig:NRW-RLP-quarry>
 
 #figure(
-  image("/report/assets/slope_rmse_germany_nrw_germany_rlp.png",width:60%),
+  image("assets/slope_rmse_germany_nrw_germany_rlp.png",width:60%),
   caption:"Slope effect on the RMSE of the difference"
 )
 <fig:NRW-RLP-slope>
 
 #pagebreak()
 ==== Hessen - BW
+
 The border between Hessen and @BW one of the shorter borders, coming in at roughly $33"km"$. It does however contain some interesting elements such as an exclave of Hessen inside of @BW. Furthermore, the elevations in this region range from $90$ meters in the large and relatively flat valley, to nearly $550$ meters in the hills (@fig:Hessen-BW-overview).
 
 #figure(
-  image("/report/assets/Hessen-BW-overview.png",width:40%),
+  image("assets/Hessen-BW-overview.png",width:40%),
   caption:"Hessen-BW border"
 )
 <fig:Hessen-BW-overview>
@@ -161,7 +162,7 @@ The border between Hessen and @BW one of the shorter borders, coming in at rough
 The first obvious difference is a bright highlight at the border of the @DTM (@fig:Hessen-BW-BorderArtifact). The effect. This artifact is a byproduct of the @BW dataset being cut differently compared to the Hessen dataset. Therefore, this difference is an artifact caused by the clipped dataset and not a real physical difference. This effect occurs on all difference analysis @DTM:pls, though it is not always as pronounced as within this comparison.
 
 #figure(
-  image("/report/assets/Hessen-BW-BorderArtifact.png",width:40%),
+  image("assets/Hessen-BW-BorderArtifact.png",width:40%),
   caption:"Hessen-BW border artifact"
 )
 <fig:Hessen-BW-BorderArtifact>
@@ -174,18 +175,29 @@ A secondary source of differences appears to be the narrow clearings within wood
     gutter: 5pt,
 
     [
-      #image("/report/assets/Hessen-BW-clearingESRI.png", width: 100%)
+      #image("assets/Hessen-BW-clearingESRI.png", width: 100%)
       #align(center)[(DH)]
     ],
 
     [
-      #image("/report/assets/Hessen-BW-clearingDH.png", width: 100%)
+      #image("assets/Hessen-BW-clearingDH.png", width: 100%)
       #align(center)[(NRW)]
     ],
   ),
   caption: "Forest clearing",
 )
 <fig:Hessen-BW-clearing>
+
+
+==== NRW -- Hessen
+
+Only 59 kilometres of @NRW -- Hessen border, and 127 1km#sym.times\1km tiles fall into the study area. Due to the shape of the catchment area, the border is split in two --- a longer section in the South and a shorter, approx. 3-kilometre section in the North. Notably, @NRW openly publishes point cloud data which enables further analysis, whereas Hessen does not.
+
+The errors in this region are relatively low: @RMSE is 18cm, @LE90 is 7.5cm, and only 0.07% of cells exceed the 1.67m difference threshold, suggesting a high agreement between the @DTM:pla. Still, the biggest differences are -9m and 22m in the positive and negative direction respectively.
+
+Most of the errors which exceed threshold are due to the temporal differences in the datasets. There are two large quarries in the overlapping region, and the earthworks at both sites contribute to the largest errors. Additionally, there are several places where judging by the historical Google Earth imagery, the error is likely to be due to new or ongoing construction, such as the bridge near the Haiger service station. Additionally at the time of acquisition, there was snow on the ground in Willingen ski resort which was classified as ground by @NRW.
+
+There are several smaller issues which we believe are best attributed to the differences in processing. The built-up areas display a high number of scattered differences around 0.5m which are likely caused by either the states' approach to ground filtering or interpolation algorithms used to create the original @DTM:pla. An interesting artefact is a 0.6m-tall "mound" between Wallau and Bad Laasphe. @NRW appears to be using @CSF and extract the heights of synthetic cloth points instead of interpolating authentic ground points --- we believe the mound is most likely caused by the "sagging" of the simulated cloth, which we verify by examining the point clouds.
 
 #pagebreak()
 === Luxembourg - Germany - France

@@ -5,6 +5,6 @@ We first and foremost thank the project supervisors, Daan van der Heide and Maar
 
 Without the Synthesis Project coordinators, Bastiaan van Loenen, Hugo Ledoux, and Edward Verbree, this project would not have existed. Alongside them, we thank the rest of the MSc Geomatics teaching staff for giving us confidence we can take on this project.
 
-We are also grateful to the other Synthesis group~--- Anna, Henryk, and Simon~--- who we have been working side by side with for the past 10 weeks for letting us share the joys and sorrows of the project with them.
+We are also grateful to the other Synthesis group~--- Anna, Henryk, and Simon~--- who we have been working side by side with for the past 10 weeks for letting us share the joys and sorrows of the project with them (even if the distribution of joys and sorrows wasn't equal).
 
 Artemi additionally thanks the MSc Geomatics first-year students for their interest towards the project; and Kirah, Emilia, and Lola for suddenly coming to Delft and breaking up the monotony.
