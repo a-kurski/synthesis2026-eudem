@@ -25,6 +25,16 @@ For this process nearest inverse distance weighing is used. This does not catch 
 ...
 == Analysis
 #drafting.inline-note("Explain what we see in the comparisons")
+=== Regions of Germany
+
+=== Luxembourg - Germany - France
+
+=== Switzerland - Germany - France
+
+=== Germany - France
+
+=== Germany - Netherlands
+
 == Observations
 
 
