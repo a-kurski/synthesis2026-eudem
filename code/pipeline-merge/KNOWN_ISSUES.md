@@ -8,7 +8,6 @@ Status: **Open** = needs action or investigation, **Mitigated** = worked around 
 
 | # | Item | Section |
 |---|---|---|
-| D1 | Luxembourg heights: confirm the geoid conversion removes the ~48 m offset | [D1](#d1-luxembourg-heights-are-ellipsoidal-48-m-offset) |
 | D2 | RLP is offset ~0.5 m northwards relative to all neighbours | [D2](#d2-rlp-has-a-systematic-05-m-offset-in-y) |
 | D3b | BW: reprocess with `source_nodata: 0` and verify | [D3b](#d3b-baden-württemberg-undeclared-zeros-inside-tiles) |
 | D5 | Saarland/France: many cells above threshold without a systematic shift | [D5](#d5-saarland--france-many-local-disagreements) |
@@ -19,17 +18,22 @@ Status: **Open** = needs action or investigation, **Mitigated** = worked around 
 
 ## Data findings
 
-### D1. Luxembourg heights are ellipsoidal (~48 m offset)
+### D1. Luxembourg heights were shifted by ~48 m
 
-**Status: Mitigated (needs verification)**
+**Status: Fixed**
 
-- Nuth & Kaab gives a vertical shift of −47.9 m for Luxembourg against both RLP and Saarland. RLP/Luxembourg had 5.4 M cells above the threshold.
-- The geoid in Luxembourg is about 47–48 m above the GRS80 ellipsoid. So the lidar DEM (`MNT_Lidar2024.tif`) is almost certainly in ETRS89 ellipsoidal heights, not NG95 (EPSG:5774) as first configured.
-- **Fix:** Luxembourg now has `vertical_crs: 4937` and `geoid: geoids/us_nga_egm08_25.tif`. The pipeline subtracts the geoid height (H = h − N).
-- **Remaining:**
-  - Confirm the height reference in the dataset's metadata.
-  - After the rerun, the Nuth & Kaab vertical shift against RLP and Saarland should be close to 0. Whatever is left is the mismatch between EGM2008 and EVRF2007, likely cm to dm.
-  - A regional geoid (EGG2015, or Luxembourg's official one) would be more accurate than the global EGM2008.
+- **First run** (`vertical_crs: 5774`, NG95): Nuth & Kaab gave −47.9 m for Luxembourg against RLP and Saarland, so Luxembourg was 48 m too high.
+- **Second run** (treated as ellipsoidal, EGM2008 geoid subtracted): +48.2 m, so Luxembourg was 48 m too low.
+- **Checks at 6.13 E, 49.61 N** (Luxembourg City, roughly 300 m above sea level):
+  - geoid height 48.01 m;
+  - raw tile 299.12 m;
+  - processed DEM 251.07 m.
+  The pipeline subtracted the geoid once, as intended. But the raw tiles are already orthometric heights (NG95), not ellipsoidal.
+- **Conclusion:** the original +48 m came from the NG95 → EVRF2007 warp on the server, which seems to add the geoid height on one side only. The server's `projinfo -s EPSG:2169+5774 -t EPSG:3035+5621` lists a height-preserving pipeline, but the warp evidently did not behave that way. The old check tested the transformation in the output's horizontal CRS, not the region's own, so it missed this.
+- **Fix:**
+  - Luxembourg now has `vertical_crs: null` and no `geoid`, so heights are left unchanged. NG95 is within centimetres of EVRF2007.
+  - The height check now tests the warp's own transformation, logs the shift for every region, and warns above `max_vertical_shift_m` (10 m).
+- **Verified:** after reprocessing, the Luxembourg results against RLP and Saarland are consistent with the neighbouring datasets.
 
 ### D2. RLP has a systematic ~0.5 m offset in y
 
@@ -109,7 +113,7 @@ Some RLP tiles define the same CRS differently, and `BuildVRT` skipped them. The
 | Switzerland, Liechtenstein | LN02 (5728) | real transformation (offset) |
 | Netherlands | NAP (5709) | only a no-op ("ballpark"); heights unchanged |
 | France | NGF-IGN69 (5720) | only a no-op ("ballpark"); heights unchanged |
-| Luxembourg | ETRS89 ellipsoidal | geoid subtracted (D1) |
+| Luxembourg | NG95 (5774) | none: heights left unchanged, NG95 is within cm of EVRF2007 (D1) |
 
 - For NAP and NGF-IGN69 the true datum offset to EVRF2007 isn't applied. It's small for NAP; for NGF-IGN69 it may be larger.
 - The pipeline logs `PROJ has no EPSG:a -> EPSG:b transformation here; heights are NOT shifted` for these regions.

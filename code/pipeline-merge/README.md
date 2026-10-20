@@ -128,6 +128,7 @@ The JSON has two parts you write, `settings` and `regions`. The pipeline adds mo
 | `product_name` | File name of the merged DTM. | `merged_dtm.tif` |
 | `buffer_m` | Buffer around each outline: used for the intersection test and as the margin of each region's DEM. | `1000` |
 | `nodata` | NoData value of all outputs. | `-9999` |
+| `max_vertical_shift_m` | The pipeline logs the height shift PROJ applies at each region's centre, and warns if it is larger than this. A shift of tens of metres usually means ellipsoidal and physical heights are being mixed. | `10` |
 | `interpolation_mask` | Optional polygon; gap filling is limited to the part of each region inside it. | `null` |
 | `borders` | Optional border lines, used for the distance-to-border analyses in the comparison. | none |
 | `skip_missing` | `true`: regions with a missing outline, missing tiles or a missing geoid are skipped with a warning. `false`: the run stops. | `false` |

@@ -139,8 +139,7 @@
       "raster": "../../../ardabaysal/pipeline/data/luxembourg/raw_tiles/MNT_Lidar2024.tif",
       "point_clouds": null,
       "crs": 2169,
-      "vertical_crs": 4937,
-      "geoid": "geoids/us_nga_egm08_25.tif",
+      "vertical_crs": null,
       "interpolate": false,
       "crop": false,
       "river_seeds": "water-masks/Luxembourg_baseline_class.tif"
