@@ -43,7 +43,7 @@ def gdal_progress(label, step=10):
 
 
 STAGES = ('vectors', 'rasters', 'rivers', 'overlaps', 'assemble')
-DEFAULTS = {'skip_missing': False, 'threads': 'ALL_CPUS', 'region_workers': 1, 'warp_memory_mb': 2048, 'vertical_crs': None, 'interpolation_mask': None, 'river_seeds': None, 'buffer_m': 1000, 'nodata': -9999, 'product_name': 'merged_dtm.tif',
+DEFAULTS = {'skip_missing': False, 'threads': 'ALL_CPUS', 'region_workers': 1, 'warp_memory_mb': 2048, 'vertical_crs': None, 'interpolation_mask': None, 'river_seeds': None, 'buffer_m': 1000, 'nodata': -9999, 'product_name': 'merged_dtm.tif', 'max_vertical_shift_m': 10,
             'block_size': 512, 'output_dir': 'data/pipeline', 'hole_filling': {}}
 
 
@@ -78,13 +78,19 @@ def subtract_geoid(dem_path, geoid_path, nodata):
         LOG.warning('%s: geoid %s does not cover %d valid cells; set to NoData', dem_path, geoid_path, missing)
 
 
-def zero_vertical_shift(point, horizontal, source, target):
-    """True if PROJ only knows a ballpark (no-op) source -> target height transformation."""
-    a, b = (osr.SpatialReference() for _ in range(2))
-    for crs, vertical in ((a, source), (b, target)):
-        crs.SetFromUserInput(crs_name(horizontal, vertical))
-        crs.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
-    return osr.CoordinateTransformation(a, b).TransformPoint(point.GetX(), point.GetY(), 0)[2] == 0
+def vertical_shift(point, source_horizontal, source_vertical, target_horizontal, target_vertical):
+    """Height change (m) the warp applies at `point` (given in the target horizontal CRS),
+    using the same source -> target transformation as the warp itself."""
+    def crs(text):
+        ref = osr.SpatialReference()
+        ref.SetFromUserInput(text)
+        ref.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
+        return ref
+    x, y, _ = osr.CoordinateTransformation(crs(f'EPSG:{target_horizontal}'), crs(f'EPSG:{source_horizontal}')) \
+        .TransformPoint(point.GetX(), point.GetY(), 0)
+    source = crs(crs_name(source_horizontal, source_vertical))
+    target = crs(crs_name(target_horizontal, target_vertical))
+    return osr.CoordinateTransformation(source, target).TransformPoint(x, y, 0)[2]
 
 
 def write_vector(geometry, path):
@@ -276,10 +282,20 @@ class Run:
         area = self.geometry(r['vector'])
         ellipsoidal = s['vertical_crs'] and r.get('geoid')  # ellipsoidal heights: geoid subtracted after the warp
         vertical = s['vertical_crs'] and r.get('vertical_crs') and not ellipsoidal
-        if (vertical and r['vertical_crs'] != s['vertical_crs']
-                and zero_vertical_shift(area.Centroid(), s['crs'], r['vertical_crs'], s['vertical_crs'])):
-            LOG.warning('%s: PROJ has no EPSG:%s -> EPSG:%s transformation here; heights are NOT shifted '
-                        '(install the grids or enable PROJ_NETWORK).', name, r['vertical_crs'], s['vertical_crs'])
+        if vertical and r['vertical_crs'] != s['vertical_crs']:
+            dz = vertical_shift(area.Centroid(), r['crs'], r['vertical_crs'], s['crs'], s['vertical_crs'])
+            if dz == 0:
+                LOG.warning('%s: PROJ has no EPSG:%s -> EPSG:%s transformation here; heights are NOT shifted '
+                            '(install the grids or enable PROJ_NETWORK).', name, r['vertical_crs'], s['vertical_crs'])
+            elif abs(dz) > s['max_vertical_shift_m']:
+                LOG.warning('%s: EPSG:%s -> EPSG:%s shifts heights by %.2f m at the region centre, more than '
+                            'max_vertical_shift_m (%g); PROJ is probably mixing ellipsoidal and physical heights. '
+                            'Check with: projinfo -s EPSG:%s+%s -t EPSG:%s+%s', name, r['vertical_crs'],
+                            s['vertical_crs'], dz, s['max_vertical_shift_m'], r['crs'], r['vertical_crs'],
+                            s['crs'], s['vertical_crs'])
+            else:
+                LOG.info('%s: heights shifted by %.3f m at the region centre (EPSG:%s -> EPSG:%s)',
+                         name, dz, r['vertical_crs'], s['vertical_crs'])
         dem = directory / 'dem.tif'
         box = snap(bounds(area.Buffer(s['buffer_m'])), res)
         cols, rows = round((box[2] - box[0]) / res), round((box[3] - box[1]) / res)

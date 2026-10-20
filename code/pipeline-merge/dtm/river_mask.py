@@ -101,9 +101,14 @@ def river_mask_on_grid(mask_path, reference, buffer_pixels=0):
         LOG.info(f"No river mask {mask_path}, not excluding river cells")
         return np.zeros(reference.shape, dtype=bool)
 
-    river = gu.Raster(mask_path).reproject(reference, resampling="nearest")
-    mask = river.data.filled(0) > 0        # region ids > 0; nodata (-1 / outside) counts as not-river
-    del river
+    # Read only the part of the mask under `reference` (the pair's overlap grid), resampled
+    # straight onto that grid; the full region mask is never loaded.
+    left, bottom, right, top = reference.bounds
+    with gdal.Warp("", mask_path, options=gdal.WarpOptions(
+            format="MEM", dstSRS=reference.crs.to_wkt(), outputBounds=(left, bottom, right, top),
+            width=reference.shape[1], height=reference.shape[0], resampleAlg="near",
+            outputType=gdal.GDT_Float32, dstNodata=0)) as river:
+        mask = river.GetRasterBand(1).ReadAsArray() > 0  # region ids > 0; nodata (-1 / outside) = not river
     if buffer_pixels:
         mask = ndimage.binary_dilation(
             mask, structure=np.ones((3, 3), dtype=bool), iterations=buffer_pixels
