@@ -261,7 +261,28 @@ An interesting artefact is a 0.6m-tall "mound" between Wallau and Bad Laasphe.
   caption: [Ground and building filtering differences between NRW and Hessen]
 )<fig:nrw-hessen-ground>
 
-#pagebreak()
+==== Hessen -- Bavaria
+
+The statistics of the errors along Hessen--Bavaria border are similar to those of Hessen--NRW border, but their sources appear to be somewhat different.
+Between Hessen and Bavaria, @RMSE is 0.18m and the @LE90 is 0.10m; the minimum and the maximum errors are -18.35m and 19.07m respectively.
+
+The highest absolute errors can all be traced to temporal changes, specifically the excavation taking place at a single quarry outside Ringheim.
+There are additionally some construction works taking place along the border, but there, the magnitude of the errors there is lower.
+
+#drafting.inline-note()[TODO: Quarry]
+
+More noteworthy are the small (typically around 0.3--0.5m) differences in rural, especially forested, areas.
+These are areas of difference which appear to correspond to linear features in the landscape such as roads, streams, or edges between a forest and an open field.
+We believe these are likely an effect of ground and/or vegetation filtering used by one of the data providers; without access to point cloud data it is impossible to infer more detailed differences.
+
+#drafting.inline-note()[TODO: Forest]
+
+Another detail evident from the comparison is the difference in approach to estimating the elevation of the water surface.
+Hessen appears to be relying on the data about the water surface obtained from the point cloud --- the surface does not appear to be perfectly smooth and seems to contain small artefacts.
+Bavaria instead uses Delaunay triangulation, seemingly based on the lowest point along the coastline of the water body.
+
+#drafting.inline-note()[TODO: Water]
+
 === Luxembourg - Germany - France
 
 === Switzerland - Germany - France
