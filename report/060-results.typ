@@ -211,13 +211,55 @@ Further artifacts include common elements throughout the catchment @DTM. These i
 
 ==== NRW -- Hessen
 
-Only 59 kilometres of @NRW -- Hessen border, and 127 1km#sym.times\1km tiles fall into the study area. Due to the shape of the catchment area, the border is split in two --- a longer section in the South and a shorter, approx. 3-kilometre section in the North. Notably, @NRW openly publishes point cloud data which enables further analysis, whereas Hessen does not.
+Only 59 kilometres of @NRW -- Hessen border and 127 1km#sym.times\1km tiles fall into the study area.
+Due to the shape of the catchment area, the border is split in two --- a longer section in the South and a shorter, approx. 3-kilometre section in the North.
+Notably, @NRW openly publishes point cloud data which enables further analysis, whereas Hessen does not.
 
-The errors in this region are relatively low: @RMSE is 18cm, @LE90 is 7.5cm, and only 0.07% of cells exceed the 1.67m difference threshold, suggesting a high agreement between the @DTM:pla. Still, the biggest differences are -9m and 22m in the positive and negative direction respectively.
+The errors in this region are relatively low: @RMSE is 18cm, @LE90 is 7.5cm, and only 0.07% of cells exceed the 1.67m difference threshold, suggesting a high agreement between the @DTM:pla.
+Still, the biggest differences are -9m and 22m in the negative and positive direction respectively.
 
-Most of the errors which exceed threshold are due to the temporal differences in the datasets. There are two large quarries in the overlapping region, and the earthworks at both sites contribute to the largest errors. Additionally, there are several places where judging by the historical Google Earth imagery, the error is likely to be due to new or ongoing construction, such as the bridge near the Haiger service station. Additionally at the time of acquisition, there was snow on the ground in Willingen ski resort which was classified as ground by @NRW.
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/nrw-hessen-quarry-satellite.png")],
+    [#image("assets/nrw-hessen-quarry.png")],
+    [#image("assets/nrw-hessen-roadworks-satellite.png")],
+    [#image("assets/nrw-hessen-roadworks.png")]
+  ),
+  caption: [Areas on the Hessen--NRW border with high temporal differences]
+)<fig:nrw-hessen-temporal>
 
-There are several smaller issues which we believe are best attributed to the differences in processing. The built-up areas display a high number of scattered differences around 0.5m which are likely caused by either the states' approach to ground filtering or interpolation algorithms used to create the original @DTM:pla. An interesting artefact is a 0.6m-tall "mound" between Wallau and Bad Laasphe. @NRW appears to be using @CSF and extract the heights of synthetic cloth points instead of interpolating authentic ground points --- we believe the mound is most likely caused by the "sagging" of the simulated cloth, which we verify by examining the point clouds.
+Most of the errors which exceed threshold are best explained by the temporal differences in the datasets.
+There are two large quarries in the overlapping region, and the earthworks at both sites contribute to the largest errors.
+Additionally, there are several places where judging by the historical Google Earth imagery, the error is likely to be due to new or ongoing construction, such as the bridge near the Haiger service station.
+Additionally at the time of acquisition, there was snow on the ground in Willingen ski resort which was classified as ground by @NRW (@fig:nrw-hessen-snow, snow shown in yellow).
+
+#figure(
+  grid(
+    columns: (1fr, 1fr, 2fr),
+    column-gutter: 5pt,
+    [#image("assets/nrw-hessen-snow-satellite.png")],
+    [#image("assets/nrw-hessen-snow.png")],
+    [#image("assets/nrw-hessen-snow.jpeg", width: 85%)]
+  ),
+  caption: [Effects of snow on the ground in NRW]
+)<fig:nrw-hessen-snow>
+
+There are several smaller issues which we believe are best attributed to the differences in processing. The built-up areas display a high number of scattered differences around 0.5m which are likely caused by either the states' approach to ground filtering or interpolation algorithms used to create the original @DTM:pla.
+An interesting artefact is a 0.6m-tall "mound" between Wallau and Bad Laasphe.
+@NRW appears to be using @CSF and extract the heights of synthetic cloth points instead of interpolating authentic ground points --- we believe the mound is most likely caused by the "sagging" of the simulated cloth (see @fig:nrw-hessen-ground, simulated cloth in yellow), which we verify by examining the point clouds.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr, 2fr),
+    column-gutter: 5pt,
+    [#image("assets/nrw-hessen-buildings-satellite.png")],
+    [#image("assets/nrw-hessen-buildings.png")],
+    [#image("assets/nrw-hessen-warehouse.jpeg")]
+  ),
+  caption: [Ground and building filtering differences between NRW and Hessen]
+)<fig:nrw-hessen-ground>
 
 
 ==== BW -- Bavaria
