@@ -43,8 +43,8 @@ Loading in the $italic("dh_germany_nrw_germany_rlp.tif")$ @DTM, representing the
 )
 <fig:NRW-RLP-striping>
 
-Secondly, there appears to be misalignment between tiles within the @DTM. This is illustrated in @fig:NRW-RLP-nonalignment as the sharp transition between the four tiles. This transition is is however more drastic at a difference of $30"cm"$ in the difference @DTM. On close inspection of the @NRW and @RLP @DTM:pls, it appears that cells on the edge between tiles, the jump between neighboring cell values increased with $40"cm"$ more on the @NRW @DTM, compared to the @RLP @DTM. However, it is possible this effect occurs on both the @NRW and @RLP @DTM:pls. To evaluate this we would require the uncut tiles within the @DTM of a region and perform coregistration to determine the vertical tile shift. Unfortunately, we do not have access to this data.
-#drafting.inline-note("maybe pt cloud data would solve this.")
+Secondly, there appears to be misalignment between tiles within the @DTM. This is illustrated in @fig:NRW-RLP-nonalignment as the sharp transition between the four tiles. This transition is is however more drastic at a difference of $30"cm"$ in the difference @DTM. On close inspection of the @NRW and @RLP @DTM:pls, it appears that cells on the edge between tiles, the jump between neighboring cell values increased with $40"cm"$ more on the @NRW @DTM, compared to the @RLP @DTM. However, it is possible this effect occurs on both the @NRW and @RLP @DTM:pls. To verify this hypothesis, we compared the point clouds to determine where this effect is introduced.
+#drafting.inline-note("maybe pt would data would solve this.")
 
 $italic("statistics_germany_nrw_germany_rlp.csv")$ confirms these findings. It lists the similarity of errors within one kilometer to be $99.9%$. High correlation which is consistent throughout the correlation graph either points towards a tiling or vertical transform artifact. Since the median difference between the two tiles is $-2"cm"$, which also corresponds with the z-shift for the coregistration. Therefore, it can be concluded most errors within the border comparison are caused by this tiling artifact.
 
@@ -167,7 +167,7 @@ The first obvious difference is a bright highlight at the border of the @DTM (@f
 )
 <fig:Hessen-BW-BorderArtifact>
 
-A secondary source of differences appears to be the narrow clearings within wooded areas (@fig:Hessen-BW-clearing). This occurs in several locations.
+A secondary source of differences appears to be the narrow clearings within wooded areas (@fig:Hessen-BW-clearing). This occurs in several locations. It is unclear exactly why this happens. The uncertainty @DTM representing random error. It shows a very constant, yet small error of around $3"cm"$. This implies that the observed error is not simply consisting of noise. Observing the @BW @DTM, we see a steep drop in elevation. Streetview furthermore confirms that it is indeed a cliff face. The elevation difference is likely caused by ground filtering or different flight paths during @LiDAR scanning.
 
 #figure(
   grid(
@@ -176,18 +176,38 @@ A secondary source of differences appears to be the narrow clearings within wood
 
     [
       #image("assets/Hessen-BW-clearingESRI.png", width: 100%)
-      #align(center)[(DH)]
+      #align(center)[(ESRI)]
     ],
 
     [
       #image("assets/Hessen-BW-clearingDH.png", width: 100%)
-      #align(center)[(NRW)]
+      #align(center)[(DH)]
     ],
   ),
   caption: "Forest clearing",
 )
 <fig:Hessen-BW-clearing>
 
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/Hessen-BW-clearingUC.png", width: 100%)
+      #align(center)[(Uncertainty)]
+    ],
+
+    [
+      #image("assets/Hessen-BW-clearingSV.png", width: 100%)
+      #align(center)[(Google Street View (49.4762, 8.4208))]
+    ],
+  ),
+  caption: "Forest clearing cause",
+)
+<fig:Hessen-BW-clearingEx>
+
+Further artifacts include common elements throughout the catchment @DTM. These include building interpolation differences, quarries/construction sites, and lakes/rivers not caught by the river mask. These errors are expected and can likely only be fixed through the reextraction of the @DTM, by using both the Hessen and @BW point clouds. Nevertheless, the Hessen-@BW border falls well within the @INSPIRE threshold, with only 0.06% of points being non-compliant. The alignment of the two @DTM:pls also appears to be accurate, with the coregistration recommending a vertical transform of only $1" cm"$ in vertical direction for the best possible alignment.
 
 ==== NRW -- Hessen
 
