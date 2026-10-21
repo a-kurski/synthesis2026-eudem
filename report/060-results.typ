@@ -151,7 +151,7 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
 #pagebreak()
 ==== Hessen - BW
 
-The border between Hessen and @BW one of the shorter borders, coming in at roughly $33"km"$. It does however contain some interesting elements such as an exclave of Hessen inside of @BW. Furthermore, the elevations in this region range from $90$ meters in the large and relatively flat valley, to nearly $550$ meters in the hills (@fig:Hessen-BW-overview).
+The border between Hessen and @BW one of the shorter borders, coming in at roughly $33"km"$. It does however contain some interesting elements such as an exclave of Hessen inside of @BW. This exclave does however not appear to contain any notable differences. Furthermore, the elevations in this region range from $90$ meters in the large and relatively flat valley, to nearly $550$ meters in the hills (@fig:Hessen-BW-overview).
 
 #figure(
   image("assets/Hessen-BW-overview.png",width:40%),
@@ -209,6 +209,7 @@ A secondary source of differences appears to be the narrow clearings within wood
 
 Further artifacts include common elements throughout the catchment @DTM. These include building interpolation differences, quarries/construction sites, and lakes/rivers not caught by the river mask. These errors are expected and can likely only be fixed through the reextraction of the @DTM, by using both the Hessen and @BW point clouds. Nevertheless, the Hessen-@BW border falls well within the @INSPIRE threshold, with only 0.06% of points being non-compliant. The alignment of the two @DTM:pls also appears to be accurate, with the coregistration recommending a vertical transform of only $1" cm"$ in vertical direction for the best possible alignment.
 
+#pagebreak()
 ==== NRW -- Hessen
 
 Only 59 kilometres of @NRW -- Hessen border and 127 1km#sym.times\1km tiles fall into the study area.
@@ -260,7 +261,6 @@ An interesting artefact is a 0.6m-tall "mound" between Wallau and Bad Laasphe.
   ),
   caption: [Ground and building filtering differences between NRW and Hessen]
 )<fig:nrw-hessen-ground>
-
 ==== Hessen -- Bavaria
 
 The statistics of the errors along Hessen--Bavaria border are similar to those of Hessen--NRW border, but their sources appear to be somewhat different.
@@ -282,6 +282,82 @@ Hessen appears to be relying on the data about the water surface obtained from t
 Bavaria instead uses Delaunay triangulation, seemingly based on the lowest point along the coastline of the water body.
 
 #drafting.inline-note()[TODO: Water]
+
+==== BW -- Bavaria
+The @BW -- Bavaria border to the @NRW -- Hessen border, as it is split in two sections due to the catchment area shape. For this region Bavaria provides point cloud data, whereas @BW does not. This means that point cloud comparisons will not be possible for this border region.
+
+#figure(
+  image("assets/BW-Bavaria-Border.png",width:40%),
+  caption:"BW – Bavaria border"
+)
+<fig:BW-Bavaria-Border>
+
+The border area appears to display two main artifacts. The first of these being a pronounced difference @DTM edge (@fig:BW_Bavaria_BorderArtifact). However, this effect only appears at the southern border, and appears abscent from the northern border. The cause of this artifact is that the @BW @DTM appears to have two nodata values. The metadata states that the nodata value is at $-9999$, while the value in the black area is 0 before the vertical transform. The code currently corrects for this artifact. However, the border edge still has traces of this effect due to the rotation applied during the horizontal transform, and the interpolation that occurs at that stage. These errors make up almost 25% of all designated problem areas. @fig:BW-Bavaria-BorderArtifact-Histo illustrates the effect this has on the total error distribution for the border comparison. Nearly all values below $-5$ meters can be attributed to this effect.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/BW-Bavaria-BorderArtifactBW.png", width: 100%)
+      #align(center)[(BW)]
+    ],
+
+    [
+      #image("assets/BW-Bavaria-BorderArtifactDH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption: "Border artifact",
+)
+<fig:BW_Bavaria_BorderArtifact>
+
+#figure(
+  image("assets/histogram_germany_bw_germany_bavaria.png",width:60%),
+  caption:"BW – Bavaria border"
+)
+<fig:BW-Bavaria-BorderArtifact-Histo>
+
+The second artifact within this border comparison is similar to the one encountered in @NRW -- @RLP section. In this instance, the effect clearly occurs in the Bavaria @DTM. @fig:BW-Bavaria-Discrete shows this effect. It appears as if these specific tiles are seperate from the the rest of the @DTM as it contains both positive and negative differences, meaning it cannot be the result of a vertical shift. Zooming in on the border confirms that these different tiles exist in the Bavaria, shown by the faint line at the same line as the DH @DTM. The cause for this can be that the tiles have either been collected at a different time, or that the aquisition was done through another method. This can be confirmed using the Bavaria point cloud...
+
+#drafting.inline-note("Look at the bavaria point cloud to see what the difference in aquisition time is between those tiles")
+
+#figure(
+  image("assets/BW-Bavaria-DiscreteDH.png",width:60%),
+  caption:"Discrete tile step"
+)
+<fig:BW-Bavaria-Discrete>
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/BW-Bavaria-Discrete-zoomDH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+
+    [
+      #image("assets/BW-Bavaria-Discrete-zoomBavaria.png", width: 100%)
+      #align(center)[(Bavaria)]
+    ],
+
+    [
+      #image("assets/BW-Bavaria-Discrete-zoomBW.png", width: 100%)
+      #align(center)[(BW)]
+    ],
+  ),
+  caption: "Discrete tile step zoomed",
+)
+<fig:BW_Bavaria_DiscreteZoom>
+
+Several other errors exist within the border comparison. These are in line with the errors encountered at other borders. These include interpolation errors, differences in ground filtering (differences in overpass handling), temporal changes (mostly due to quarries or construction areas), differnces due to watermask shortcomings (including small pools, small lakes, creaks), steep slopes
+
+For this border comparison, the @INSPIRE target is not met. The amount of points above the threshold is only $0.14%$. However, the total @RMSE is a factor $3.2$ greater than what it is allowed to be for the $5$ meter resolution. These results are not acceptable for the final map. However, due to the errors being identified as primarily the edges
+
+#pagebreak()
 
 === Luxembourg - Germany - France
 
