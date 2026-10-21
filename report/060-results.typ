@@ -151,7 +151,7 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
 #pagebreak()
 ==== Hessen - BW
 
-The border between Hessen and @BW one of the shorter borders, coming in at roughly $33"km"$. It does however contain some interesting elements such as an exclave of Hessen inside of @BW. Furthermore, the elevations in this region range from $90$ meters in the large and relatively flat valley, to nearly $550$ meters in the hills (@fig:Hessen-BW-overview).
+The border between Hessen and @BW one of the shorter borders, coming in at roughly $33"km"$. It does however contain some interesting elements such as an exclave of Hessen inside of @BW. This exclave does however not appear to contain any notable differences. Furthermore, the elevations in this region range from $90$ meters in the large and relatively flat valley, to nearly $550$ meters in the hills (@fig:Hessen-BW-overview).
 
 #figure(
   image("assets/Hessen-BW-overview.png",width:40%),
@@ -218,6 +218,20 @@ The errors in this region are relatively low: @RMSE is 18cm, @LE90 is 7.5cm, and
 Most of the errors which exceed threshold are due to the temporal differences in the datasets. There are two large quarries in the overlapping region, and the earthworks at both sites contribute to the largest errors. Additionally, there are several places where judging by the historical Google Earth imagery, the error is likely to be due to new or ongoing construction, such as the bridge near the Haiger service station. Additionally at the time of acquisition, there was snow on the ground in Willingen ski resort which was classified as ground by @NRW.
 
 There are several smaller issues which we believe are best attributed to the differences in processing. The built-up areas display a high number of scattered differences around 0.5m which are likely caused by either the states' approach to ground filtering or interpolation algorithms used to create the original @DTM:pla. An interesting artefact is a 0.6m-tall "mound" between Wallau and Bad Laasphe. @NRW appears to be using @CSF and extract the heights of synthetic cloth points instead of interpolating authentic ground points --- we believe the mound is most likely caused by the "sagging" of the simulated cloth, which we verify by examining the point clouds.
+
+
+==== BW -- Bavaria
+The @BW -- Bavaria border to the @NRW -- Hessen border, as it is split in two sections due to the catchment area shape. For this region Bavaria provides point cloud data, whereas @BW does not. This means that point cloud comparisons will not be possible for this border region.
+
+#figure(
+  image("assets/BW-Bavaria-Border.png",width:40%),
+  caption:"BW – Bavaria border"
+)
+<fig:BW-Bavaria-Border>
+
+The border area appears to display two main artifacts. The first of these being a pronounced difference @DTM edge. However, this effect only appears at the southern border, and appears abscent from the northern border.
+
+
 
 #pagebreak()
 === Luxembourg - Germany - France
