@@ -4,7 +4,7 @@
 
 = Methodology <chap:method>
 
-This chapter describes the current state of the harmonisation pipeline, providing a general overview and specifics of the approach to processing gridded (raster) elevation data and point clouds.
+This chapter describes the harmonisation pipeline, providing a general overview and specifics of the approach to processing heterogeneous elevation data and subsequent evaluation of the results.
 
 == Pipeline Overview
 
@@ -176,11 +176,11 @@ To evaluate the accuracy, pure translation is needed. It is obtained by applying
 == River mask processing
 One expected limitation of the pipeline is the errors introduced by water body interpolation. The solution to this problem is to exclude the subset of points which fall within the river area from the error analysis.
 
-This mask could be identified from the classified point clouds. However, the reprocessing of the DEM using point clouds is out of the scope for this project. Therefore, we can only rely on the DEM data for segmentation. While river/lake masks do exist, they either provide global low resolution vector data @HydroATLAS, or low resolution raster data @SDG. 
+This mask could be identified from the classified point clouds. However, the reprocessing of the DEM using point clouds is out of the scope for this project. Therefore, we can only rely on the DEM data for segmentation. While river/lake masks do exist, they either provide global low resolution vector data @HydroATLAS, or low resolution raster data @SDG.
 
 In order to create a high quality water mask, the SDG mask was used as an input. The SDG mask contains a value 1, 2, or 3 to describe the certainty of the underlying value being water. The mask is filtered to only use certainty 2 and 3 values to ensure high confidence. The mask is then transformed to a binary format.
 
-However, the SDG mask is not fine enough to be applied to the elevation map. Instead, we can use the SDG mask as seed points in a region growing algorithm. Since rivers and waterbodies are known to be relatively flat, a low threshold can be set for the region growing, such that the elevation jump at the shore is registered as the boundary of the water body. 
+However, the SDG mask is not fine enough to be applied to the elevation map. Instead, we can use the SDG mask as seed points in a region growing algorithm. Since rivers and waterbodies are known to be relatively flat, a low threshold can be set for the region growing, such that the elevation jump at the shore is registered as the boundary of the water body.
 
 Each mask cell is transformed to the elevation map resolution, @CRS and grid. By applying this mask to the elevation map, it is essentially clipped to contain only heigh values that fall within the SDG mask. Each cell in this clipped DTM is taken as a seed point for a region growing algorithm. These seed points are added to the region growing queue. Each entry has eight neighbors and for each the height difference with the seed is calculated. When these differences are smaller than the set threshold, the neighboring point is added to the end of the queue. The result is a breadth first search which incrementally classifies cells as a water body. The end result is a binary mask, where cell values of one denote the existence of a water body.
 
@@ -235,9 +235,9 @@ Each mask cell is transformed to the elevation map resolution, @CRS and grid. By
 
 
 
-== Border analysis <sec:border-analysis>
+== Border Analysis <sec:border-analysis>
 
-The final step of the pipeline is to pairwise compare neighboring datasets, and evaluate the results. The first step in this process is analysing which regions overlap. It is followed by calculating the height difference, coregistration, INSPIRE resolution threshold analysis for a course grid, error threshold analysis for identifying problem areas, height difference @STD:asf, aspect difference, error due to slope, error due to distance from the border, 
+The final step of the pipeline is to pairwise compare neighboring datasets, and evaluate the results. The first step in this process is analysing which regions overlap. It is followed by calculating the height difference, coregistration, INSPIRE resolution threshold analysis for a course grid, error threshold analysis for identifying problem areas, height difference @STD:asf, aspect difference, error due to slope, error due to distance from the border,
 
 The final step of the pipeline is to pairwise compare neighboring datasets, and to evaluate the results. The first step in this process is to identify which @DTM:pls neighbor one another. In order to determine wether overlap exists, the maximum and minimum $x$ and $y$ coordinates of each country's @DTM are stored. The following logic is applied to see if the bounding boxes overlap:
 
@@ -258,4 +258,3 @@ Another metric that is evaluated, is the difference in aspect between the two @D
 Aside from random noise and systematic errors, other elements such as slope can affect the error of a @LiDAR derived @DTM:pls. By taking the errors in 5 degree angle bins, we can calculate the RMSE in slope ranges. Due to slope, a small horizontal displacement in sample location, can greatly affect the vertical position of the sample point. Therefore, evaluating this statistic helps us understand when errors are the result of steep slopes. It is expected that highly sloped areas suffer most from this kind of error.
 
 The last element that is evaluated is the distance from the border. Since there exists overlap between countries, we can evaluate if points further outside of the administrative borders of either region affect the quality of the data and the elevation difference. A similar approach to the slope RMSE is used. By taking the distance of a point from a provided border vector and dividing the distance into bins, we can evaluate at various distances from the border if there is a relation between the distance and the RMSE.
-
