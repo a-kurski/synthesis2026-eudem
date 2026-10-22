@@ -192,8 +192,10 @@ def zip_members(package, tile):
         csv_name = str(PurePosixPath(child['member']).with_suffix('.csv'))
         if csv_name not in package.namelist():
             raise ValueError(f'Missing matching CSV metadata: {child["name"]}')
-    if not children or not any(n.endswith('.pdf') for n in names) or not any(n.endswith('.txt') for n in names):
+    if not any(n.endswith('.csv') for n in names) or not any(n.endswith('.pdf') for n in names) or not any(n.endswith('.txt') for n in names):
         raise ValueError(f'Unexpected LGL archive contents (XYZ/CSV, licence PDF and metadata TXT required): {tile["name"]}')
+    if not children:
+        LOG.warning('LGL archive %s contains metadata but no XYZ elevations; continuing without coverage from this archive.', tile['name'])
     return sorted(children, key=lambda c: c['name'])
 
 
@@ -203,7 +205,8 @@ def validate_zip(path, tile):
         bad = package.testzip()
         if bad is not None:
             raise ValueError(f'ZIP CRC failed: {bad}')
-    return {'sha256': sha256(path), 'bytes': path.stat().st_size, 'children': children}
+    return {'sha256': sha256(path), 'bytes': path.stat().st_size, 'children': children,
+            'has_elevation_data': bool(children)}
 
 
 def cached_archive(session, tile, config, *, request_gate=None, stop_event=None):
@@ -336,6 +339,8 @@ def extract_tiles(tile, path, geometry, work, config, probe_only=False):
     archive_digest = json.loads(receipt.read_text(encoding='utf-8'))['sha256']
     with zipfile.ZipFile(path) as package:
         children = zip_members(package, tile)
+        if not children:
+            return []
         covered = {tuple(c['bounds'][:2]) for c in children}
         x0, y0, _, _ = tile['bounds']
         for x in (x0, x0 + 1000):
