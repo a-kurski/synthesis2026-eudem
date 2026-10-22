@@ -318,7 +318,8 @@ Bavaria instead uses Delaunay triangulation, seemingly based on the lowest point
     column-gutter: 5pt,
     [#image("assets/bavaria-hessen-water-satellite.png")
       satellite view],
-    [#image("assets/bavaria-hessen-water.png")      elevation difference],
+    [#image("assets/bavaria-hessen-water.png")
+      elevation difference],
     [#image("assets/bavaria-hessen-water-elev-bavaria.png")
       Bavaria],
     [#image("assets/bavaria-hessen-water-elev-hessen.png")
