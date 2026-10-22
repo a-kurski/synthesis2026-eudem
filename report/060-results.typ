@@ -269,19 +269,63 @@ Between Hessen and Bavaria, @RMSE is 0.18m and the @LE90 is 0.10m; the minimum a
 The highest absolute errors can all be traced to temporal changes, specifically the excavation taking place at a single quarry outside Ringheim.
 There are additionally some construction works taking place along the border, but there, the magnitude of the errors there is lower.
 
-#drafting.inline-note()[TODO: Quarry]
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/bavaria-hessen-quarry-satellite.png")],
+    [#image("assets/bavaria-hessen-quarry-elev.png")],
+    [#image("assets/bavaria-hessen-quarry.png")],
+  ),
+  caption: [Temporal differences between Hessen and Bavaria]
+) <fig:hessen-bavaria-forest>
 
 More noteworthy are the small (typically around 0.3--0.5m) differences in rural, especially forested, areas.
 These are areas of difference which appear to correspond to linear features in the landscape such as roads, streams, or edges between a forest and an open field.
-We believe these are likely an effect of ground and/or vegetation filtering used by one of the data providers; without access to point cloud data it is impossible to infer more detailed differences.
 
-#drafting.inline-note()[TODO: Forest]
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/hessen-bavaria-forest-satellite.png")],
+    [#image("assets/hessen-bavaria-forest-osm.png")],
+    [#image("assets/hessen-bavaria-forest.png")],
+  ),
+  caption: [Differences between forested terrain in Hessen and Bavaria]
+) <fig:hessen-bavaria-forest>
+
+These are likely consequences of the approaches to ground and vegetation classification employed by the different data providers.
+Examining the Bavarian point cloud reveal that all points in the relevant tile are strictly classified into ground (2) and "objects" (20); as well as scan patterns and non-uniform point distribution, largely due to shadowing from trees.
+Due to lack of open point cloud data in Hessen, the comparison between two states is impossible.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/hessen-bavaria-pc-forest-bare.jpeg")],
+    [#image("assets/hessen-bavaria-pc-forest-trees.jpeg")],
+  ),
+  caption: [Bavarian point cloud data]
+) <fig:bavaria-forest-slope>
 
 Another detail evident from the comparison is the difference in approach to estimating the elevation of the water surface.
 Hessen appears to be relying on the data about the water surface obtained from the point cloud --- the surface does not appear to be perfectly smooth and seems to contain small artefacts.
 Bavaria instead uses Delaunay triangulation, seemingly based on the lowest point along the coastline of the water body.
 
-#drafting.inline-note()[TODO: Water]
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/bavaria-hessen-water-satellite.png")
+      satellite view],
+    [#image("assets/bavaria-hessen-water.png")      elevation difference],
+    [#image("assets/bavaria-hessen-water-elev-bavaria.png")
+      Bavaria],
+    [#image("assets/bavaria-hessen-water-elev-hessen.png")
+      Hessen]
+  ),
+  caption: [Differences in water processing between Bavaria and Hessen]
+)<fig:bavaria-hessen-water>
 
 ==== BW -- Bavaria
 The @BW -- Bavaria border to the @NRW -- Hessen border, as it is split in two sections due to the catchment area shape. For this region Bavaria provides point cloud data, whereas @BW does not. This means that point cloud comparisons will not be possible for this border region.
