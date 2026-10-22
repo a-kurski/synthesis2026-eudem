@@ -149,6 +149,94 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
 <fig:NRW-RLP-slope>
 
 #pagebreak()
+==== Saarland -- RLP
+https://www.welt.de/regionales/rheinland-pfalz-saarland/article205711099/Rheinland-pfaelzische-Landesgrenze-misst-1185-Kilometer.html
+
+The Saarland -- @RLP border is roughly $207$ kilometers long and consists of mostly hilly terrain. The amount of non-compliant pixels for this area appears slightly higher than that for other regions. However, at 0.15% it is still not a significant amount.
+
+Most errors within this region can be attributed to interpolation errors, temporal changes such as windmill construction or quarries, steep slopes, waterbodies missed by the mask, and border artifacts. The only notable difference between the Saarland and @RLP @DTM:pls, appears to be the inclusion of extrapolation artifacts at the borders, as seen in @fig:Saarland-RLP-Extrapolation1 and @fig:Saarland-RLP-Extrapolation2. These are only two out of several occurances. These large areas of similar errors do explain the secondary peaks seen within the difference histogram (@fig:Hessen-BW-BorderArtifact). Upon further inspection, there do also appear to be occurances of overpasses as discussed in @NRW -- @RLP, and cliffs as discussed in Hessen -- @BW.
+
+All in all, despite issues with the source data, the quality of the @DTM is not affected, due to the region cutoff at the border for the catchment @DTM.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/RLP-Saarland-ExtrapolationBoth.png", width: 100%)
+      #align(center)[(RLP + Saarland)]
+    ],
+
+    [
+      #image("assets/RLP-Saarland-ExtrapolationDH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption: "Extrapolation example 1",
+)
+<fig:Saarland-RLP-Extrapolation1>
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/RLP-Saarland-Extrapolation2Both.png", width: 100%)
+      #align(center)[(RLP + Saarland)]
+    ],
+
+    [
+      #image("assets/RLP-Saarland-Extrapolation2DH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption: "Extrapolation example 2",
+)
+<fig:Saarland-RLP-Extrapolation2>
+
+#figure(
+  image("assets/histogram_germany_rlp_germany_saarland.png", width:80%),
+  caption:"Saarland-RLP Histogram"
+)
+<fig:Saarland-RLP-Histogram>
+
+#pagebreak()
+==== RLP -- BW
+
+The @RLP -- @BW border is a very flat region, which is entirely bisected by the Rhine river. The border region is home to several ports, which also created the greatest source of discrepancy. These ports prominently contain piles of sand and coal. Because these sources shift during the loading and unloading of ships (@fig:RLP-BW-Coal).
+
+Another source of differences are interpolation errors. These are mostly found around the city of Mannheim. These are the common example of building roofs. Furthermore, the tile offset found in several of the other datasets also occurs at the @RLP -- @BW border, as shown in @fig:RLP-BW-TileOffset. More common differences related to waterbodies, overpasses, and construction sites.
+
+The only notable outlier within the data is the convergence of error similarity at 60%, which is explained by the tile offset. The reason why the percentage is so high is due to the small over all range of elevation differences. Over all, the comparison falls well within the allowed threshold and causes no noticable issues for the full @DTM.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/RLP-BW-CoalESRI.png", width: 100%)
+      #align(center)[(ESRI)]
+    ],
+
+    [
+      #image("assets/RLP-BW-CoalDH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption: "Coal storage example",
+)
+<fig:RLP-BW-Coal>
+
+#figure(
+  image("assets/RLP-BW-TileoffsetDH.png"),
+  caption:"Tile offset example"
+)
+<fig:RLP-BW-TileOffset>
+
+#pagebreak()
 ==== Hessen - BW
 
 The border between Hessen and @BW one of the shorter borders, coming in at roughly $33"km"$. It does however contain some interesting elements such as an exclave of Hessen inside of @BW. This exclave does however not appear to contain any notable differences. Furthermore, the elevations in this region range from $90$ meters in the large and relatively flat valley, to nearly $550$ meters in the hills (@fig:Hessen-BW-overview).
@@ -355,9 +443,11 @@ The second artifact within this border comparison is similar to the one encounte
 
 Several other errors exist within the border comparison. These are in line with the errors encountered at other borders. These include interpolation errors, differences in ground filtering (differences in overpass handling), temporal changes (mostly due to quarries or construction areas), differnces due to watermask shortcomings (including small pools, small lakes, creaks), steep slopes
 
-For this border comparison, the @INSPIRE target is not met. The amount of points above the threshold is only $0.14%$. However, the total @RMSE is a factor $3.2$ greater than what it is allowed to be for the $5$ meter resolution. These results are not acceptable for the final map. However, due to the errors being identified as primarily the edges
+For this border comparison, the @INSPIRE target is not met. The amount of points above the threshold is only $0.14%$. However, the total @RMSE is a factor $3.2$ greater than what it is allowed to be for the $5$ meter resolution. These results are not acceptable for the final map. However, solving this problem does not fall within the scope or time constraints of this project, and is primarily a challenge created due to available input data and not by the processing pipeline.
 
 #pagebreak()
+
+
 
 === Luxembourg - Germany - France
 
