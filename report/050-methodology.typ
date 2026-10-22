@@ -4,13 +4,15 @@
 
 = Methodology <chap:method>
 
-This chapter describes the harmonisation pipeline, providing a general overview and specifics of the approach to processing heterogeneous elevation data and subsequent evaluation of the results.
+This chapter describes the harmonisation pipeline, providing both a general overview and specifics of the approach to processing heterogeneous elevation data and subsequent evaluation of the results.
 
 == Pipeline Overview
 
-The aim of the project is to create a fully automated pipeline, which at this stage has not yet been achieved. Instead, separate pipelines for processing raster and point cloud data have been developed, which will be integrated after the midterm.
+Within this project, we create a fully automated pipeline for processing and harmonising heterogeneous gridded elevation data.
+Raster processing has been chosen as the focus of the project as re-extracting a @DTM from scratch is computationally expensive and is deemed unnecessary, and it is assumed that the national @DTM:pla are sufficiently accurate to allow near-seamless integration --- this assumption is tested in @chap:results.
+The pipeline can currently handle data from 6 countries within the Rhine catchment area and is expected to support similar data from other providers.
+Point cloud processing has been excluded from the pipeline due to the limited time of the project and limited availability of the data; where available, point clouds are used for additional evaluation of the gridded elevation dataset.
 
-The raster processing is the main part of the pipeline --- re-extracting a @DTM from scratch is computationally expensive and is deemed unnecessary, and it is assumed #drafting.margin-note[but should be tested!] that the national @DTM:pla are sufficiently accurate. Point cloud processing is secondary and predominantly serves as an additional layer of evaluation and quality assurance.
 
 // Boxed "start/end" nodes vs. plain process steps
 #let boxed(pos, label, ..args) = node(
@@ -19,45 +21,59 @@ The raster processing is the main part of the pipeline --- re-extracting a @DTM 
 
 #figure(
   diagram(
-    spacing: (2.2em, 1.5em),
+    spacing: (2.5em, 2em),
     edge-stroke: 1pt,
     node-inset: 6pt,
 
-    // ── DEM branch ──────────────────────────────
-    boxed((0, 0), [@DEM]),
+    // ── DEM A branch ──────────────────────────────
+    boxed((0, 0), [@DEM A]),
     boxed((0, 1), [Reproject]),
     boxed((0, 2), [Resample]),
     boxed((0, 3), [Interpolate]),
-    boxed((0, 4), [Stitch]),
+    boxed((1, 5), [Stitch]),
+
+    // DEM B branch
+    boxed((2, 0), [@DEM B]),
+    boxed((2, 1), [Reproject]),
+    boxed((2, 2), [Resample]),
+    boxed((2, 3), [Interpolate]),
 
     edge((0, 0), (0, 1), "-|>"),
     edge((0, 1), (0, 2), "-|>"),
     edge((0, 2), (0, 3), "-|>"),
-    edge((0, 3), (0, 4), "-|>"),
+    // edge((0, 3), (0, 4), "-|>"),
+    //
+    edge((2, 0), (2, 1), "-|>"),
+    edge((2, 1), (2, 2), "-|>"),
+    edge((2, 2), (2, 3), "-|>"),
 
     // Side branch: DEM -> compare
-    boxed((1.4, 1), [Compare in overlaps]),
-    edge((0, 0), (1.4, 0), (1.4, 1), "-|>"),
-
-    // ── Point cloud branch ──────────────────────
-    boxed((3.2, 0), [@PC]),
-    boxed((3.2, 1), [Register]),
-    boxed((3.2, 2), [Analyse registration \ Affine transform]),
-    boxed((3.2, 3.4), [Re-extract @DEM \ if necessary]),
-
-    edge((3.2, 0), (3.2, 1), "-|>"),
-    edge((3.2, 1), (3.2, 2), "-|>"),
-    edge((3.2, 2), (3.2, 3.4), "-|>"),
-  )
+    boxed((1, 4), [Resolve conflicts]),
+    edge((0, 3), (.9, 3), (.9, 4), "-|>"),
+    edge((2, 3), (1.1, 3), (1.1, 4), "-|>"),
+    edge((1, 4), (1, 5), "-|>"),
+  ),
+  caption: [Pipeline flowchart]
 )
 
-== DTM harmonisation
+=== Input Handling
 
-A Python pipeline using @GDAL prepares national @DTM:pla on a common horizontal grid for subsequent cross-border analysis. Each run processes one country or region within a supplied @AOI. The current implementation supports the Netherlands through @AHN and Germany through @NRW. Shared preparation and verification stages are combined with processing rules specific to each source.
+=== Reprojection & Resampling
+
+=== Gap Filling
+
+// [X]
+
+If required, gap filling is applied after resampling using @IDW interpolation with a specified maximum search distance and no smoothing.
+This order targets gaps remaining in the final-resolution surface and preserves all already valid target elevations.
+Valid surrounding terrain may supply interpolation donors outside the @AOI.
+The unfilled surface and a binary interpolation mask are retained to distinguish unchanged cells from interpolated cells.
 
 === Common preparation
 
-The pipeline first validates the inputs and defines a target grid with a cell size of 5 m in @ETRS89 / @UTM zone 32N (@EPSG:s code 25832). Fixing cell placement before processing ensures that cells align where outputs overlap. This is done to ensure cell-by-cell comparison is possible. Output extents follow the @AOI, so separate runs do not necessarily produce rasters with identical dimensions.
+
+
+The pipeline first validates the inputs and defines a target grid with a cell size of 5 m in @ETRS89-LAEA (EPSG:3035). Fixing cell placement before processing ensures that cells align where outputs overlap. This is done to ensure cell-by-cell comparison is possible. Output extents follow the @AOI, so separate runs do not necessarily produce rasters with identical dimensions.
 
 The required native-resolution terrain rasters are then acquired or reused from validated downloads. A surrounding margin is included to retain terrain contributing to boundary cells and, where applicable, nearby interpolation donors. Invalid elevations are converted to a common NoData value before averaging, preventing them from affecting the resulting elevations. The cleaned rasters are mosaicked at their native resolution so that subsequent processing can use neighbouring terrain across source-tile boundaries.
 
@@ -125,58 +141,59 @@ Harmonisation currently covers horizontal coordinates, cell size and grid placem
  ]
 
 
-== Harmonisation with Point Clouds
+// == Harmonisation with Point Clouds
+//
+// In the pipeline, the point clouds are used as an additional step to assess the agreement between two different national datasets. Converting the point clouds to the same @CRS and subsequently performing registration allows to obtain better estimates of planimetric and vertical accuracy. The pseudocode describing the general principles is presented below; more elaborate description follows.
+//
+// #[
+//   #show figure: set align(left)
+//
+//   #figure(
+//     align(left)[
+//       #pseudocode-list(
+//         booktabs: true,
+//         booktabs-stroke: 1pt,
+//         line-number-supplement: "line",
+//         title: [#smallcaps[*Point Cloud Registration*]],
+//       )[
+//         + *Input:* a set of point clouds of country A $scr(a) in scr(A)$; a set of point clouds of country B $scr(b) in scr(B)$ \
+//           *Output:* a set of translation vectors $scr(T)$ obtained from registering $scr(a) in scr(A)$ against $scr(b) in scr(B)$
+//         + *for* every $scr(a)_i in scr(A) inter scr(b)_j in scr(B) != emptyset$ *do:*
+//           + perform registration of $scr(a)_i$ against $scr(b)_j$
+//           + $A_(i j) arrow.l$ affine transform from registration
+//           + $bold(p)^T = mat(x, y, z) arrow.l$ a point in $scr(a)_i$
+//           + $bold(p)_t arrow.l A_(i j) bold(p)$ \// _apply affine transform to point_
+//           + $bold(t)_(i j) arrow.l bold(p)_t - bold(p)$ \// _find pure translation from initial point to transform_
+//           + append $bold(t)_(i j) "to" scr(T)$
+//       ]
+//     ],
+//     kind: "algorithm",
+//     supplement: [Algorithm],
+//     caption: [Point Cloud Registration],
+//   ) <alg-point-cloud-registration>
+// ]
+//
+// Due to computational limitations, the comparison is done between tiles rather than between full national datasets.
+// The downside of this approach is that the registration is likely to be less accurate overall as it relies on relatively fewer points; the upside is that it may be more informative in regards to small-scale changes at the border.
+//
+// Another decision made to reduce computational costs is to use the extent of a point cloud as provided in the header when finding pairs of intersections instead of a convex, concave, or an #sym.alpha\-hull.
+// This may result in false positives among intersection pairs and thus an incorrect assessment of the accuracy.
+// In these cases, cross-referencing with a raster is advised #highlight(fill: none, stroke: red)[but currently not implemented].
+//
+// The registration is performed using the @ICP algorithm of the `open3D` python library --- equivalent functionality exists in @PDAL #highlight(fill: none, stroke: red)[(which we might switch to for the final processing)].
+// Notably, the registration produces a full affine transform $A = mat(R, bold(t))$ --- as the point clouds can be far from the origin, even a small rotational component has a large influence on the transformation and needs to be compensated with a large translation vector.
+// To evaluate the accuracy, pure translation is needed. It is obtained by applying the full affine transform $A$ to a point from the dataset $bold(p)$ and subtracting the transformed coordinates from coordinates of the initial point.
+//
+// #drafting.inline-note()[The intention eventually is that for areas where both the national @DEM:pla and the @PC:pla disagree significantly, we also re-extract a @DTM from scratch using the most recent point cloud; we've not done that yet]
+//
+//
+// #drafting.inline-note()[The final version of this chapter will contain more quality ensurance/checking. The pipeline currently is not fully automated and this will be changed for the final version. ]
 
-In the pipeline, the point clouds are used as an additional step to assess the agreement between two different national datasets. Converting the point clouds to the same @CRS and subsequently performing registration allows to obtain better estimates of planimetric and vertical accuracy. The pseudocode describing the general principles is presented below; more elaborate description follows.
+== Water Mask Processing
 
-#[
-  #show figure: set align(left)
+An expected limitation of the pipeline is retaining the errors introduced by water body interpolation. The solution to this problem is to exclude the subset of points which fall within the river area from the error analysis.
 
-  #figure(
-    align(left)[
-      #pseudocode-list(
-        booktabs: true,
-        booktabs-stroke: 1pt,
-        line-number-supplement: "line",
-        title: [#smallcaps[*Point Cloud Registration*]],
-      )[
-        + *Input:* a set of point clouds of country A $scr(a) in scr(A)$; a set of point clouds of country B $scr(b) in scr(B)$ \
-          *Output:* a set of translation vectors $scr(T)$ obtained from registering $scr(a) in scr(A)$ against $scr(b) in scr(B)$
-        + *for* every $scr(a)_i in scr(A) inter scr(b)_j in scr(B) != emptyset$ *do:*
-          + perform registration of $scr(a)_i$ against $scr(b)_j$
-          + $A_(i j) arrow.l$ affine transform from registration
-          + $bold(p)^T = mat(x, y, z) arrow.l$ a point in $scr(a)_i$
-          + $bold(p)_t arrow.l A_(i j) bold(p)$ \// _apply affine transform to point_
-          + $bold(t)_(i j) arrow.l bold(p)_t - bold(p)$ \// _find pure translation from initial point to transform_
-          + append $bold(t)_(i j) "to" scr(T)$
-      ]
-    ],
-    kind: "algorithm",
-    supplement: [Algorithm],
-    caption: [Point Cloud Registration],
-  ) <alg-point-cloud-registration>
-]
-
-Due to computational limitations, the comparison is done between tiles rather than between full national datasets.
-The downside of this approach is that the registration is likely to be less accurate overall as it relies on relatively fewer points; the upside is that it may be more informative in regards to small-scale changes at the border.
-
-Another decision made to reduce computational costs is to use the extent of a point cloud as provided in the header when finding pairs of intersections instead of a convex, concave, or an #sym.alpha\-hull.
-This may result in false positives among intersection pairs and thus an incorrect assessment of the accuracy.
-In these cases, cross-referencing with a raster is advised #highlight(fill: none, stroke: red)[but currently not implemented].
-
-The registration is performed using the @ICP algorithm of the `open3D` python library --- equivalent functionality exists in @PDAL #highlight(fill: none, stroke: red)[(which we might switch to for the final processing)].
-Notably, the registration produces a full affine transform $A = mat(R, bold(t))$ --- as the point clouds can be far from the origin, even a small rotational component has a large influence on the transformation and needs to be compensated with a large translation vector.
-To evaluate the accuracy, pure translation is needed. It is obtained by applying the full affine transform $A$ to a point from the dataset $bold(p)$ and subtracting the transformed coordinates from coordinates of the initial point.
-
-#drafting.inline-note()[The intention eventually is that for areas where both the national @DEM:pla and the @PC:pla disagree significantly, we also re-extract a @DTM from scratch using the most recent point cloud; we've not done that yet]
-
-
-#drafting.inline-note()[The final version of this chapter will contain more quality ensurance/checking. The pipeline currently is not fully automated and this will be changed for the final version. ]
-
-== River mask processing
-One expected limitation of the pipeline is the errors introduced by water body interpolation. The solution to this problem is to exclude the subset of points which fall within the river area from the error analysis.
-
-This mask could be identified from the classified point clouds. However, the reprocessing of the DEM using point clouds is out of the scope for this project. Therefore, we can only rely on the DEM data for segmentation. While river/lake masks do exist, they either provide global low resolution vector data @HydroATLAS, or low resolution raster data @SDG.
+This mask could be identified using the classified point clouds. However, the re-extraction of a DEM from point clouds is out of the scope for this project. Therefore, we can only rely on the DEM data for segmentation. While river/lake masks do exist, they either offer provide global low resolution vector data @HydroATLAS, or low resolution raster data @SDG#drafting.margin-note()[TODO relink].
 
 In order to create a high quality water mask, the SDG mask was used as an input. The SDG mask contains a value 1, 2, or 3 to describe the certainty of the underlying value being water. The mask is filtered to only use certainty 2 and 3 values to ensure high confidence. The mask is then transformed to a binary format.
 
@@ -249,7 +266,7 @@ The next step in the analysis process is to calculate the elevation differences 
 
 Another way to analyse these systematic errors is through coregistration. This is a function in XDEM which performs an affine transform, through solving of a cosine equation @tc-5-271-2011, which assures best alignment in $x$, $y$ and $z$ directions of the @DTM. Using both the coregistered and raw @DTM:pls, we can calculate statistics such as the @RMSE, @STD, mean, median, min, max, etc. By comparing the results we can determine the effect of misaligned @DTM:pls is, and how it affects true outliers in the difference. Another analysis element we can perform using this coregistration is determining random errors throughout the overlap. These represent likely measurement errors, or errors caused by light bounce during laser scanning.
 
-An important element specified in @sec:inspire-quality, is the compliance with the INSPIRE resolution standard. To analyse this, two seperate raster approaches are used. The first evaluates on a cell by cell size if a cell does, or does not comply with the threshold. The output of this is the $italic("exceeds_threshold")$ mask. This looks at the error per cell and the INSPIRE threshold #drafting.inline-note("explain why INSPIRE was chosen as the treshold"). The second approach uses a course grid which evaluates for a given cell size if sections of the @DTM comply with the standard.
+An important element specified in @sec:inspire-quality, is the compliance with the INSPIRE resolution standard. To analyse this, two seperate raster approaches are used. The first evaluates on a cell by cell size if a cell does, or does not comply with the threshold. The output of this is the $italic("exceeds_threshold")$ mask. This looks at the error per cell and the INSPIRE threshold #drafting.margin-note("explain why INSPIRE was chosen as the treshold"). The second approach uses a course grid which evaluates for a given cell size if sections of the @DTM comply with the standard.
 
 We can also analyze the correlation between the similarity of nearby and far away points. For cases where there is little correlation between errors, it is expected that most errors are caused by random noise. In case the graph goes towards zero at any given distance, we can consider interpolation artifacts or ground filtering as a possible cause. Lastly, in case the graph does not plateau at zero, it is possible there might be a more systematic error at play. Therefore, by analyzing the correlation, it can point us in the direction of potential errors for the entire @DTM comparison.
 
@@ -258,3 +275,21 @@ Another metric that is evaluated, is the difference in aspect between the two @D
 Aside from random noise and systematic errors, other elements such as slope can affect the error of a @LiDAR derived @DTM:pls. By taking the errors in 5 degree angle bins, we can calculate the RMSE in slope ranges. Due to slope, a small horizontal displacement in sample location, can greatly affect the vertical position of the sample point. Therefore, evaluating this statistic helps us understand when errors are the result of steep slopes. It is expected that highly sloped areas suffer most from this kind of error.
 
 The last element that is evaluated is the distance from the border. Since there exists overlap between countries, we can evaluate if points further outside of the administrative borders of either region affect the quality of the data and the elevation difference. A similar approach to the slope RMSE is used. By taking the distance of a point from a provided border vector and dividing the distance into bins, we can evaluate at various distances from the border if there is a relation between the distance and the RMSE.
+
+== Technical Details
+
+The pipeline is split into two stages: processing and comparison.
+Both stages take a `JSON` file as input and write the intermediate and final results to it.
+The comparison stage reads and evaluates data completed during processing.
+The user is not expected to interact or pass arguments directly to the pipeline --- instead, they fill in the `JSON` with input data.
+
+The global settings influence both the final product and the performance of the pipeline.
+The key raster settings include the target @CRS and resolution, region extent, interpolation settings, and path where the output raster should be written to.
+The performance settings govern the maximum number of threads which can be used for processing or the number of regions which can be processed at once.
+
+The region settings include the path to vector and raw raster data, information about regions @CRS and @VCRS in case they are not specified within metadata, and whether interpolation is needed --- currently, only Dutch @DTM needs interpolation.
+Additionally, a water mask is passed for the river detection part of the algorithm.
+
+For the comparison stage, the settings include the threshold for error detection as a fraction of the resolution, whether to perform kriging, and the region's river mask.
+
+Full breakdown of all settings can be found in `README.md` (see #drafting.margin-note()[TODO link to appendix]).

@@ -170,7 +170,19 @@ Compared to the reference (column a), @MSF (b) can introduce noise, @PMF (c) and
 
 Point distribution and interpolation methods can introduce further discrepancies between the raster products from different data providers.
 It is expected that these discrepancies are minimal for flatter areas or regions with high point density, and higher for steep slopes or regions with high point density.
-We expect that the documentation of the interpolation methods is primarily available in the national language of each data provider, therefore investigating it was deemed to be out of scope of the project.
+It is also expected that the documentation of the interpolation methods is primarily available in the national language of each data provider, if at all, therefore investigating it was deemed to be out of scope of the project.
+
+== Interpolation Methods <sec:theory-interpolate>
+
+Some elevation datasets --- within study area, Dutch @AHN is the only such dataset --- are supplied with "gaps" of NoData, which warrants filling those gaps.
+There are several papers @Chen2014, @Gradka2018, @hu2013, @Raza2023, comparing different interpolation methods for terrain modelling.
+The methods compared include @IDW, @RBF, @NNI, and kriging.
+The first three methods are deterministic as the results are strictly based on the input data and parameters of the function; kriging is stochastic and also requires assumptions about the statistical properties of the dataset.
+All authors agree that @IDW produces less accurate results than @IDW produces less accurate results than the alternatives: #cite(<Chen2014>, form: "author") and #cite(<Gradka2018>, form: "author") find that kriging is most accurate; #cite(<hu2013>, form: "author") does not evaluate kriging but recommends that an implementation of @RBF produces best result --- these findings are partly corroborated by #cite(<Gradka2018>, form: "author") who claim that results obtained with @RBF and kriging closely match; and #cite(<Raza2023>, form: "author") finds that @NNI works best for their dataset.
+However #cite(<Gradka2018>, form: "author") note that @IDW is less computationally expensive than @RBF and especially kriging.
+
+For this project, we chose @IDW as the interpolation method as it requires minimal tuning compared to the alternatives; it is computationally cheaper; and a ready implementation is available in @GDAL.
+Given only a small part of the study region requires interpolation, the compromise is deemed acceptable as interpolation is not the primary focus of the project.
 
 == River Elevation Data <sec:river-elevation>
 
