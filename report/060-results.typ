@@ -501,7 +501,71 @@ For this border comparison, the @INSPIRE target is not met. The amount of points
 === Germany - France
 
 === Germany - Netherlands
+==== Netherlands -- NRW
+The border between the Netherlands and @NRW is approximately 50 kilometers long, is mainly flat, but also contains large hills. The main error found within this region is unfortunately a byproduct of our attempt to interpolate the non-interpolated regions of the Netherlands (@fig:Netherlands-NRW-border). These errors are found primarily in the form of extrapolation errors found at various positions along the border. This is a discrepancy caused by differences in the specified borders for the Netherlands within the interpolation algorithm. However, since these areas are trimmed from the final @DTM, it is not a issue which will be fixed during this project.
 
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/Netherlands-NRW-borderdifferenceAHN.png", width: 100%)
+      #align(center)[(Netherlands)]
+    ],
+
+    [
+      #image("assets/Netherlands-NRW-borderdifferenceDH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption: "Border artifact",
+)
+<fig:Netherlands-NRW-border>
+
+Other errors within this region include both small and large scale earth works. Examples include the "Steenfabriek de Bijland", which also includes swampy areas, which are not caught by the river mask (@fig:Netherlands-NRW-Lworks). Another example includes storage of manure and dirt at farms scattered throughout the border area (@fig:Netherlands-NRW-Sworks).
+
+For this border area in particular, there is a strong effect of waterbodies on the difference. The RMSE increases by 10% if the waterbodies are included, compared to the case without. This is likely due to the attempt at interpolating the river areas, which will differ from the approach taken in the german region, which most often involves triangulation of the water surface. 
+
+There are no significant differences that have an effect on the creation of the final catchment @DTM, and with more time the existing extrapolation error would also be fixable.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/Netherlands-NRW-StoneSwampGoogle.png", width: 100%)
+      #align(center)[(Google Maps)]
+    ],
+
+    [
+      #image("assets/Netherlands-NRW-StoneSwampDH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption: "Large earthworks example",
+)
+<fig:Netherlands-NRW-Lworks>
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/Netherlands-NRW-FarmsGoogle.png", width: 100%)
+      #align(center)[(Google Maps)]
+    ],
+
+    [
+      #image("assets/Netherlands-NRW-FarmsDH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption: "Small earthworks example",
+)
+<fig:Netherlands-NRW-Sworks>
 == Observations
 
 
