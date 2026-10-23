@@ -1,0 +1,17 @@
+<PAMDataset>
+  <Metadata>
+    <MDI key="PREPARATION">Average-resampled to target grid; valid cells inside pixel-centre AOI mask</MDI>
+    <MDI key="VERTICAL_DATUM_NOTE">AHN heights remain NAP. Filled cells are terrain estimates, including over water; no vertical datum transformation.</MDI>
+  </Metadata>
+  <PAMRasterBand band="1">
+    <UnitType>m</UnitType>
+    <Metadata>
+      <MDI key="STATISTICS_APPROXIMATE">YES</MDI>
+      <MDI key="STATISTICS_MAXIMUM">102.91572570801</MDI>
+      <MDI key="STATISTICS_MEAN">5.7128631673669</MDI>
+      <MDI key="STATISTICS_MINIMUM">-6.5065488815308</MDI>
+      <MDI key="STATISTICS_STDDEV">13.656441110325</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">50.76</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>

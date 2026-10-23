@@ -495,6 +495,12 @@ For this border comparison, the @INSPIRE target is not met. The amount of points
 
 
 === Luxembourg - Germany - France
+==== Luxembourg - France
+The border area between Luxembourg and France is only 6 kilometers long and is generally hilly. Because the border is short, it is highly influenced by differences. 
+
+--> the main difference is due to very narrow rivers underneath trees, small differences at the river and steep cliffs.
+
+==== Luxembourg - 
 
 === Switzerland - Germany - France
 
