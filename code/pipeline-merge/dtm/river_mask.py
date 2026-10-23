@@ -107,8 +107,10 @@ def river_mask_on_grid(mask_path, reference, buffer_pixels=0):
     with gdal.Warp("", mask_path, options=gdal.WarpOptions(
             format="MEM", dstSRS=reference.crs.to_wkt(), outputBounds=(left, bottom, right, top),
             width=reference.shape[1], height=reference.shape[0], resampleAlg="near",
-            outputType=gdal.GDT_Float32, dstNodata=0)) as river:
-        mask = river.GetRasterBand(1).ReadAsArray() > 0  # region ids > 0; nodata (-1 / outside) = not river
+            outputType=gdal.GDT_Int32, dstNodata=-1)) as river:
+        # Ids > 0 = water. 0 (land) stays 0: with -1 as NoData, GDAL has no reason to nudge real
+        # zeros (which a NoData of 0 makes it do, turning land into tiny positive values).
+        mask = river.GetRasterBand(1).ReadAsArray() > 0
     if buffer_pixels:
         mask = ndimage.binary_dilation(
             mask, structure=np.ones((3, 3), dtype=bool), iterations=buffer_pixels

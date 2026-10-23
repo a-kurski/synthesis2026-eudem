@@ -20,7 +20,7 @@ from osgeo import gdal, ogr, osr
 
 from .geo import bounds, project, read_aoi, srs, valid_values, windows, write_json
 from .hole_filling import fill_holes
-from .process import OPTIONS, aoi_mask, create_raster, write_cog
+from .process import MASK_COG_OPTIONS, OPTIONS, aoi_mask, create_raster, write_cog
 
 LOG = logging.getLogger('dtm')
 
@@ -88,9 +88,15 @@ def vertical_shift(point, source_horizontal, source_vertical, target_horizontal,
         return ref
     x, y, _ = osr.CoordinateTransformation(crs(f'EPSG:{target_horizontal}'), crs(f'EPSG:{source_horizontal}')) \
         .TransformPoint(point.GetX(), point.GetY(), 0)
-    source = crs(crs_name(source_horizontal, source_vertical))
     target = crs(crs_name(target_horizontal, target_vertical))
-    return osr.CoordinateTransformation(source, target).TransformPoint(x, y, 0)[2]
+    try:
+        source = crs(crs_name(source_horizontal, source_vertical))
+        return osr.CoordinateTransformation(source, target).TransformPoint(x, y, 0)[2]
+    except RuntimeError:
+        # PROJ can't evaluate the full transformation at this point (typically a grid-based
+        # horizontal datum shift whose grid isn't installed): test the height part alone.
+        source = crs(crs_name(target_horizontal, source_vertical))
+        return osr.CoordinateTransformation(source, target).TransformPoint(point.GetX(), point.GetY(), 0)[2]
 
 
 def write_vector(geometry, path):
@@ -283,8 +289,16 @@ class Run:
         ellipsoidal = s['vertical_crs'] and r.get('geoid')  # ellipsoidal heights: geoid subtracted after the warp
         vertical = s['vertical_crs'] and r.get('vertical_crs') and not ellipsoidal
         if vertical and r['vertical_crs'] != s['vertical_crs']:
-            dz = vertical_shift(area.Centroid(), r['crs'], r['vertical_crs'], s['crs'], s['vertical_crs'])
-            if dz == 0:
+            try:  # a diagnostic only: never let it stop the run
+                dz = vertical_shift(area.Centroid(), r['crs'], r['vertical_crs'], s['crs'], s['vertical_crs'])
+            except RuntimeError as exc:
+                dz = None
+                LOG.warning('%s: could not test the EPSG:%s -> EPSG:%s height transformation at the region '
+                            'centre (%s); check the heights of this region after the warp', name,
+                            r['vertical_crs'], s['vertical_crs'], exc)
+            if dz is None:
+                pass
+            elif dz == 0:
                 LOG.warning('%s: PROJ has no EPSG:%s -> EPSG:%s transformation here; heights are NOT shifted '
                             '(install the grids or enable PROJ_NETWORK).', name, r['vertical_crs'], s['vertical_crs'])
             elif abs(dz) > s['max_vertical_shift_m']:
@@ -420,6 +434,52 @@ class Run:
         work.unlink()
         self.cfg['product'] = self.rel(product)
         LOG.info('Product: %s', product)
+        self.save()
+        self.assemble_rivers([x0, res, 0, y1, 0, -res], round((x1 - x0) / res), round((y1 - y0) / res))
+
+    def assemble_rivers(self, geotransform, cols, rows):
+        """Binary river mask on the product grid: 1 = water, 0 = land, 255 = NoData (outside the
+        extent, or a region without a river mask). Like the DTM, each region's mask is used
+        inside its own outline only; water body ids are dropped."""
+        s = self.s
+        masks = [(r['river_mask'], r['vector']) for r in self.active.values() if self.exists('river_mask', r)]
+        missing = [name for name, r in self.active.items() if not self.exists('river_mask', r)]
+        if not masks:
+            LOG.info('No river masks recorded; merged river mask skipped')
+            return
+        if missing:
+            LOG.warning('No river mask for %s; NoData there in the merged river mask', ', '.join(missing))
+        product = self.out / s['product_name']
+        out = product.with_name(product.stem + '_river_mask.tif')
+        ids, binary = out.with_name(out.stem + '_ids.tif'), out.with_name(out.stem + '_work.tif')
+        options = ['TILED=YES', 'COMPRESS=DEFLATE', 'BIGTIFF=YES']
+        start = time.perf_counter()
+        # 1. Region masks (ids; -1 = no data) painted into one grid, each clipped to its outline.
+        ds = gdal.GetDriverByName('GTiff').Create(str(ids), cols, rows, 1, gdal.GDT_Int32, options)
+        ds.SetGeoTransform(geotransform)
+        ds.SetSpatialRef(srs(s['crs']))
+        ds.GetRasterBand(1).SetNoDataValue(-1)
+        for i, (mask, cutline) in enumerate(masks, 1):
+            gdal.Warp(ds, str(self.abs(mask)), options=gdal.WarpOptions(
+                cutlineDSName=str(self.abs(cutline)), resampleAlg='near', srcNodata=-1, **self.warp_all))
+            LOG.info('River mask %d/%d stitched: %s', i, len(masks), mask)
+        gdal.Rasterize(ds, str(self.out / 'extent.gpkg'), options=gdal.RasterizeOptions(burnValues=[-1], inverse=True))
+        # 2. Ids -> binary Byte, blockwise.
+        dst = gdal.GetDriverByName('GTiff').Create(str(binary), cols, rows, 1, gdal.GDT_Byte, options)
+        dst.SetGeoTransform(geotransform)
+        dst.SetSpatialRef(srs(s['crs']))
+        dst.GetRasterBand(1).SetNoDataValue(255)
+        dst.SetMetadataItem('DESCRIPTION', '1 = water, 0 = land, 255 = NoData')
+        source, target = ds.GetRasterBand(1), dst.GetRasterBand(1)
+        for win in windows(ds, 2048):
+            values = source.ReadAsArray(*win)
+            target.WriteArray(np.where(values < 0, 255, values > 0).astype('uint8'), win[0], win[1])
+        ds = dst = source = target = None
+        write_cog(binary, out, MASK_COG_OPTIONS)
+        ids.unlink()
+        binary.unlink()
+        self.cfg['river_product'] = self.rel(out)
+        LOG.info('River mask product: %s (%s)', out, elapsed(start))
 
 
 def main(argv=None):
