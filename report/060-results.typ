@@ -237,7 +237,7 @@ The only notable outlier within the data is the convergence of error similarity 
 <fig:RLP-BW-TileOffset>
 
 #pagebreak()
-==== Hessen - BW
+==== Hessen -- BW
 
 The border between Hessen and @BW one of the shorter borders, coming in at roughly $33"km"$. It does however contain some interesting elements such as an exclave of Hessen inside of @BW. This exclave does however not appear to contain any notable differences. Furthermore, the elevations in this region range from $90$ meters in the large and relatively flat valley, to nearly $550$ meters in the hills (@fig:Hessen-BW-overview).
 
@@ -494,19 +494,88 @@ For this border comparison, the @INSPIRE target is not met. The amount of points
 
 
 
-=== Luxembourg - Germany - France
-==== Luxembourg - France
-The border area between Luxembourg and France is only 6 kilometers long and is generally hilly. Because the border is short, it is highly influenced by differences. 
+=== Luxembourg -- Germany -- France
+==== Luxembourg -- France
+The border area between Luxembourg and France is only 6 kilometers long and is generally hilly. Because the border is short, it is highly influenced by differences. This border includes several steep cliffs in both the east and west of the area. These regions are shown as the elongated red flagged regions in the west, and the majority of regions in the east in @fig:Lux_Fra_border.
 
---> the main difference is due to very narrow rivers underneath trees, small differences at the river and steep cliffs.
 
-==== Luxembourg - 
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
 
-=== Switzerland - Germany - France
+    [
+      #image("assets/Lux-Fra-border.png", width: 100%)
+      #align(center)[(DH)]
+    ],
 
-=== Germany - France
+    [
+      #image("assets/Lux-Fra-borderIssues.png", width: 100%)
+      #align(center)[(Flagged Differences)]
+    ],
 
-=== Germany - Netherlands
+    [
+      #image("assets/Lux-Fra-borderOSM.png", width: 100%)
+      #align(center)[(OSM)]
+    ],
+  ),
+  caption: "Difference overview",
+)
+<fig:Lux_Fra_border>
+
+The remainder of the errors are in a region overlapping with the Saarland border, which includes the hydro electric plant discribed in that analysis. Furthermore, the town located next to the powerplant contains several building interpolation differences as shown in 
+
+#figure(
+  image("assets/Lux-Fra-buildings.png",width:50%),
+  caption:"Building roofs flagged as differences due to interpolation differences"
+)
+
+Despite the strong influence of the various differences, the map falls within the @INSPIRE threshold. The observed differences are known limitations of the border overlap due to differences in ground filtering, handling of overpasses, river mask limitations, steep slopes and interpolation differences.
+
+==== Luxembourg -- RLP
+The Luxembourg -- @RLP border is roughly 80 kilometers long, and with that is the longest border that is evaluated for the catchment area. On the east side of the overlapping area there is the Our river. Observing the overlap map shows that the rivermask was not succesful at filtering out the waterbodies entirely for the region. This is a known artifact known to be caused by narrow waterbodies. Furthermore, these river areas have been flagged as noticable differences and due count towards the difference at the border.
+
+Other differences in this region are in line with the other borders surrounding Luxembourg, such as river ports with piled resources, steep cliffs, construction areas and building interpolation differences. The only real artifact that shows up on the histogram, is a singular secondary peak. Observing the difference @DTM, shows that this is caused by a lake, which was missed by the river mask. This is illustrated in @fig:Lux-rlp-peak as a peak starting at 700 meters. The border effect graph also clearly illustrates the difference at the border river.
+
+#figure(
+  image("assets/border_effect_germany_rlp_luxembourg.png"),
+  caption:"River differences (0m), lake river mask failure (700 – 1200m)"
+)
+<fig:Lux-rlp-peak>
+
+==== Luxembourg -- Saarland
+The border area between Luxembourg and Saarland is roughly 11 kilometers and like @RLP -- @BW, is entirely bisected by a river, that being the Mosel in this particular case. The borde area consists of flat areas around the river and consists of hills and cliffs on the west side.
+
+This region contains several of the more common differences encountered in other regions can also be found here. This includes harbor loading areas for sand, steep cliffs, construction sites, waterbodies not entirely caught by the river mask, and roof interpolation differences.
+
+The only unique error found around this area is the inclusion of hydro electric powerplants. While this difference can really be attributed to the limits of the river mask, it is an interesting feature within the water which could pose a challenge to solve, were improving the river mask to be attempted, as the water here does not follow the the smooth water hypothesis. Furthermore, the decision would need to be made if the plant should be removed entirely. This depends on wether all countries model this feature in their @DTM, or simply classify it as part of the river, removing it from the @DTM entirely.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/Lux-Saarland-HydroGoogle.png", width: 100%)
+      #align(center)[(Google maps)]
+    ],
+
+    [
+      #image("assets/Lux-Saarland-HydroDH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption: "Hydro electric powerplant example",
+)
+<fig:Lux-Saarland-Hydro>
+
+For this region, the percentage of points above the @INSPIRE threshold, is around $1%$. While above average, this is caused by the fact that it is a small region, where the spatial dimensions of the differences remain consistent with differences found in other regions. Nevertheless, the difference @DTM falls well within the @INSPIRE target threshold, and contains no significant errors such as border extrapolation, misaligned tiles or inexplicable differences.
+
+=== Switzerland -- Germany -- France
+
+=== Germany -- France
+
+=== Germany -- Netherlands
 ==== Netherlands -- NRW
 The border between the Netherlands and @NRW is approximately 50 kilometers long, is mainly flat, but also contains large hills. The main error found within this region is unfortunately a byproduct of our attempt to interpolate the non-interpolated regions of the Netherlands (@fig:Netherlands-NRW-border). These errors are found primarily in the form of extrapolation errors found at various positions along the border. This is a discrepancy caused by differences in the specified borders for the Netherlands within the interpolation algorithm. However, since these areas are trimmed from the final @DTM, it is not a issue which will be fixed during this project.
 
