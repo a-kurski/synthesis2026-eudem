@@ -4,9 +4,13 @@
 
 = Methodology <chap:method>
 
+// [X]
+
 This chapter describes the harmonisation pipeline, providing both a general overview and specifics of the approach to processing heterogeneous elevation data and subsequent evaluation of the results.
 
 == Pipeline Overview
+
+// [X]
 
 Within this project, we create a fully automated pipeline for processing and harmonising heterogeneous gridded elevation data.
 Raster processing has been chosen as the focus of the project as re-extracting a @DTM from scratch is computationally expensive and is deemed unnecessary, and it is assumed that the national @DTM:pla are sufficiently accurate to allow near-seamless integration --- this assumption is tested in @chap:results.
@@ -26,180 +30,174 @@ Point cloud processing has been excluded from the pipeline due to the limited ti
     node-inset: 6pt,
 
     // ── DEM A branch ──────────────────────────────
-    boxed((0, 0), [@DEM A]),
+    boxed((0, 0), [@DEM A tiles]),
     boxed((0, 1), [Reproject]),
     boxed((0, 2), [Resample]),
-    boxed((0, 3), [Interpolate]),
-    boxed((1, 5), [Stitch]),
-
+    boxed((0, 3), [Aggregate]),
+    boxed((0, 4), [Interpolate]),
+    boxed((0, 5), [Extract River Mask]),
     // DEM B branch
-    boxed((2, 0), [@DEM B]),
+    boxed((2, 0), [@DEM B tiles]),
     boxed((2, 1), [Reproject]),
     boxed((2, 2), [Resample]),
-    boxed((2, 3), [Interpolate]),
+    boxed((2, 3), [Aggregate]),
+    boxed((2, 4), [Interpolate]),
+    boxed((2, 5), [Extract River Mask]),
+
+
+    boxed((1, 7), [Assemble]),
 
     edge((0, 0), (0, 1), "-|>"),
     edge((0, 1), (0, 2), "-|>"),
     edge((0, 2), (0, 3), "-|>"),
-    // edge((0, 3), (0, 4), "-|>"),
+    edge((0, 3), (0, 4), "-|>"),
+    edge((0, 4), (0, 5), "-|>"),
     //
     edge((2, 0), (2, 1), "-|>"),
     edge((2, 1), (2, 2), "-|>"),
     edge((2, 2), (2, 3), "-|>"),
+    edge((2, 3), (2, 4), "-|>"),
+    edge((2, 4), (2, 5), "-|>"),
 
     // Side branch: DEM -> compare
-    boxed((1, 4), [Resolve conflicts]),
-    edge((0, 3), (.9, 3), (.9, 4), "-|>"),
-    edge((2, 3), (1.1, 3), (1.1, 4), "-|>"),
-    edge((1, 4), (1, 5), "-|>"),
+    boxed((1, 6), [Resolve conflicts]),
+    edge((0, 4), (.9, 4), (.9, 6), "-|>"),
+    edge((2, 4), (1.1, 4), (1.1, 6), "-|>"),
+    edge((1, 6), (1, 7), "-|>"),
   ),
-  caption: [Pipeline flowchart]
+  caption: [Processing flowchart]
 )
 
-=== Input Handling
+The pipeline is split into two stages: processing and comparison --- the above flowchart only shows the processing stage; comparison is described below.
+Both stages take a `.json` file as input and write the intermediate and final results to it.
+The comparison stage reads and evaluates data completed during processing.
+The user is not expected to interact or pass arguments directly to the pipeline --- instead, they fill in the `.json` with input data.
+
+The global settings influence both the final product and the performance of the pipeline.
+The key raster settings include the target @CRS and resolution, region extent, interpolation settings, and path where the output raster should be written to.
+The performance settings govern the maximum number of threads which can be used for processing or the number of regions which can be processed at once.
+
+The region settings include the path to vector and raw raster data, information about regions @CRS and @VCRS in case they are not specified within metadata, and whether interpolation is needed --- currently, only Dutch @DTM needs interpolation.
+Additionally, a water mask is passed for the river detection part of the algorithm.
+
+For the comparison stage, the settings include the threshold for error detection as a fraction of the resolution, whether to perform kriging, and the region's river mask.
+
+Full breakdown of all settings can be found in `README.md` (see #drafting.margin-note()[TODO link to appendix]).
+
+=== Data Acquisition & Pre-processing
+
+Data acquisition is a crucial step which enables the rest of the workflow despite technically being outside of the fully automated part of the pipeline.
+National and regional data providers offer different download options: the Netherlands and @NRW offer a @WCS server for access/download; Bavaria and France offer tiled raster data in a binary (`.xyz` and `.asc` respectively) format; Luxembourg offers a single untiled @COG; the remaining datasets are available as GeoTIFF (`.tif`) tiles from a catalogue or a download portal.
+Some providers (Hessen, France) bundle the tiles into zip-archives by administrative subdivision.
+
+The downloads are handled automatically but each region essentially requires a bespoke solution due to the differences in the data portals and the catalogues.
+
+For each region, the data is queried within a specified @AOI (here: the intersection of the region's extent and the Rhine catchment area); where possible, the tiles are downloaded in parallel; where necessary, the downloaded are recursively unzipped.
+The downloaded data is then validated and checked against a catalogue.
 
 === Reprojection & Resampling
 
-=== Gap Filling
+This is the first step in the raster processing pipeline.
 
-// [X]
+First, all regions without a processed @DEM are listed and a queue is built from largest (processed first) to smallest (processed last) region.
+The regions can be processed in parallel and a queue like this helps avoid a situation when one process is performing the reprojection while the remaining processes are sitting idle.
 
-If required, gap filling is applied after resampling using @IDW interpolation with a specified maximum search distance and no smoothing.
+For each region, all tiles are first aggregated into a virtual mosaic (`.vrt`).
+Each tile is assigned the region's @CRS as specified in the `.json` file --- this behaviour is necessary as parts of regional datasets (most notably subdivisions of Hessen and @RLP) have their @CRS either missing or incorrectly specified within the tile's metadata; and is placed into the mosaic according to that @CRS.
+No region has been found to have a mixed @CRS; we note, however, that this approach may cause issues if that is the case.
+
+Similarly, for certain regions, a NoData value needs to be specified.
+Parts of @BW and Hessen, again, record NoData as 0 but do not state this in metadata, which warrants forcing a NoData value.
+
+The output grid is established based on the resolution supplied in the `.json`.
+The grid is identical for all regions.
+For the product described in this report, the grid is in EPSG:3035 and at 5m resolution; the vertical @CRS is @EVRF\2007 (EPSG:5621) as the PROJ library does not yet natively support transformation to @EVRF\2019.
+
+Then, the rasters are warped (using @GDAL's warp) to the common grid.
+At this step, the data is transformed from the source @CRS to target @CRS both horizontally and vertically.
+After that, the data is resampled to the target grid.
+By default, the chosen resampling method is averaging all the valid (i.e. not NoData) sample points located in the given grid cell, but bilinear interpolation is also possible.
+A brief comparison of interpolation methods is included in @chap:results.
+
+The resampled raster is written to file, without cropping, with a NoData value of -9999.
+
+=== Filling Gaps
+
+If specified by a region's setting in the `.json`, gap filling is applied after resampling using @IDW interpolation with a specified maximum search distance and no smoothing.
 This order targets gaps remaining in the final-resolution surface and preserves all already valid target elevations.
 Valid surrounding terrain may supply interpolation donors outside the @AOI.
-The unfilled surface and a binary interpolation mask are retained to distinguish unchanged cells from interpolated cells.
+Alongside the interpolated surface, a binary interpolation mask are written to file to distinguish unchanged cells from interpolated cells.
 
-=== Common preparation
+=== Resolving Conflicts and Assembling the Output
 
+At this step, we need to decide which data to write to the output @DEM where @DEM:pla of several regions overlap.
+Several approaches were considered, such as evaluating for best temporal match or data quality.
+The former is not guaranteed by raster metadata --- referring to the GPS time of the corresponding point cloud was considered but ruled out due to storage requirements --- and the latter is difficult to infer from raster elevation data alone.
+Instead, we simply write each region's data within its boundaries (as determined by a vector file of that region).
 
+However for regions where interpolation was performed, we decide to overwrite the interpolated grid cells with non-interpolated data from the neighbouring region if that data is available.
+If the agreement between regions is high --- like it is in our case, see @chap:results --- this approach produces fewer and smaller artefacts than accepting interpolation results.
 
-The pipeline first validates the inputs and defines a target grid with a cell size of 5 m in @ETRS89-LAEA (EPSG:3035). Fixing cell placement before processing ensures that cells align where outputs overlap. This is done to ensure cell-by-cell comparison is possible. Output extents follow the @AOI, so separate runs do not necessarily produce rasters with identical dimensions.
+The resulting elevation data is written to an output GeoTIFF, cropped to the specified region extents.
 
-The required native-resolution terrain rasters are then acquired or reused from validated downloads. A surrounding margin is included to retain terrain contributing to boundary cells and, where applicable, nearby interpolation donors. Invalid elevations are converted to a common NoData value before averaging, preventing them from affecting the resulting elevations. The cleaned rasters are mosaicked at their native resolution so that subsequent processing can use neighbouring terrain across source-tile boundaries.
-
-=== Transformation and aggregation
-
-For @AHN, the 0.5 m terrain in Amersfoort / RD New (@EPSG:s code 28992) is reprojected and averaged directly onto the 5 m target grid in a single operation. Combining these steps avoids repeated resampling. For @NRW, the 1 m terrain already uses @EPSG:s code 25832. After verifying that its cells nest within the target grid, each 5 m elevation is calculated as the mean of valid elevations in the corresponding $5 times 5$ block. No terrain reprojection is required for @NRW.
-
-The @DTM is also vertically transformed. This is done through the XDEM @API. Not all @DTM:pls have an included @VCRS, there is an included fallback which infers the source @VCRS from the file name. All rasters are transformed to the @EVRF2019.
-
-Both paths exclude invalid values from averaging. Cells without valid contributors remain NoData, while partially observed cells receive the mean of their valid contributors. Averaging reduces data volume but can suppress narrow terrain features and local extremes. Remaining cells with invalid elevation values are set to the common NoData value of -9999
-
-=== Gap filling and final outputs
-
-For @AHN, gap filling is applied after resampling, using inverse-distance interpolation with a maximum search distance of 20 m and no smoothing. This order targets gaps remaining in the final-resolution surface and preserves all already valid target elevations. Valid surrounding terrain may supply interpolation donors outside the @AOI. The interpolation method will be updated to bilinear interpolation in following iterations. The unfilled surface and a binary status raster are retained to distinguish unchanged cells from interpolated cells. @NRW receives no additional gap filling.
-
-After processing, temporary margins are removed and the original @AOI is applied. Applying this mask at this stage retains neighbouring terrain needed during averaging and interpolation. The pipeline then creates output tiles and stitches them into a common grid without resampling. Pixel equality is verified, and processing settings, source records and coverage information are saved for reproducibility.
-
-Harmonisation currently covers horizontal coordinates, cell size and grid placement. @AHN retains @NAP heights and @NRW retains @DHHN2016 / @NHN heights. Vertical-datum differences must therefore be addressed before interpreting cross-source elevation differences. Gap filling estimates missing elevations and does not establish their accuracy.
-
-=== Processing algorithm
-
-@alg-dtm-preparation summarises the shared workflow and its source-specific branches. $G$ denotes the final grid and $G_e$ a temporary extension retaining interpolation context. When enabled, @AHN gap filling operates on this extended grid before final cropping and masking.
-
-#[
-#show figure: set align(left)
-#figure(
-  align(left)[
-    #pseudocode-list(
-      booktabs: true,
-      booktabs-stroke: 1pt,
-      line-number-supplement: "line",
-      title: [#smallcaps[*@DTM Acquisition and Harmonisation*]],
-    )[
-      + *Input:* @AOI $A$, source $S$, processing settings $P$
-      + *Output:* @DTM $H$; optional baseline $B$ and fill status $F$
-      + Validate inputs and select supported source rules
-      + Define grid $G$ on the 5 m @EPSG:s code 25832 lattice
-      + Extend acquisition area for cell footprints and filling context
-      + Acquire or reuse native rasters; validate and record sources
-      + Clean invalid elevations and mosaic at native resolution
-      + *if* $S$ is @AHN *then*
-        + $G_e arrow.l G$; extend it if filling is enabled
-        + $B arrow.l$ reproject and average the mosaic directly onto $G_e$
-        + $H arrow.l B$
-        + *if* filling is enabled *then*
-          + $(H, F) arrow.l$ fill remaining gaps in $B$ within $A$ and record fill status
-        + *end*
-        + Crop $H$ and retained $B, F$ to $G$ without resampling
-      + *else if* $S$ is @NRW *then*
-        + Verify that the native 1 m cells nest within $G$
-        + $H arrow.l$ valid-sample mean of each $5 times 5$ block
-        + Retain NoData where no valid contributors exist
-      + *end*
-      + Apply the original @AOI mask to all retained products
-      + Verify grid geometry and nonempty valid @AOI coverage
-      + Create output tiles and stitch them without resampling
-      + Verify stitched geometry and pixel equality with $H$
-      + Save stitched @DTM, setting, and coverage counts
-    ]
-  ],
-  kind: "algorithm",
-  supplement: [Algorithm],
-  caption: [@DTM acquisition and horizontal harmonisation.],
-) <alg-dtm-preparation>
- ]
-
-
-// == Harmonisation with Point Clouds
+// === Processing algorithm
 //
-// In the pipeline, the point clouds are used as an additional step to assess the agreement between two different national datasets. Converting the point clouds to the same @CRS and subsequently performing registration allows to obtain better estimates of planimetric and vertical accuracy. The pseudocode describing the general principles is presented below; more elaborate description follows.
+// @alg-dtm-preparation summarises the shared workflow and its source-specific branches. $G$ denotes the final grid and $G_e$ a temporary extension retaining interpolation context. When enabled, @AHN gap filling operates on this extended grid before final cropping and masking.
 //
 // #[
-//   #show figure: set align(left)
-//
-//   #figure(
-//     align(left)[
-//       #pseudocode-list(
-//         booktabs: true,
-//         booktabs-stroke: 1pt,
-//         line-number-supplement: "line",
-//         title: [#smallcaps[*Point Cloud Registration*]],
-//       )[
-//         + *Input:* a set of point clouds of country A $scr(a) in scr(A)$; a set of point clouds of country B $scr(b) in scr(B)$ \
-//           *Output:* a set of translation vectors $scr(T)$ obtained from registering $scr(a) in scr(A)$ against $scr(b) in scr(B)$
-//         + *for* every $scr(a)_i in scr(A) inter scr(b)_j in scr(B) != emptyset$ *do:*
-//           + perform registration of $scr(a)_i$ against $scr(b)_j$
-//           + $A_(i j) arrow.l$ affine transform from registration
-//           + $bold(p)^T = mat(x, y, z) arrow.l$ a point in $scr(a)_i$
-//           + $bold(p)_t arrow.l A_(i j) bold(p)$ \// _apply affine transform to point_
-//           + $bold(t)_(i j) arrow.l bold(p)_t - bold(p)$ \// _find pure translation from initial point to transform_
-//           + append $bold(t)_(i j) "to" scr(T)$
-//       ]
-//     ],
-//     kind: "algorithm",
-//     supplement: [Algorithm],
-//     caption: [Point Cloud Registration],
-//   ) <alg-point-cloud-registration>
-// ]
-//
-// Due to computational limitations, the comparison is done between tiles rather than between full national datasets.
-// The downside of this approach is that the registration is likely to be less accurate overall as it relies on relatively fewer points; the upside is that it may be more informative in regards to small-scale changes at the border.
-//
-// Another decision made to reduce computational costs is to use the extent of a point cloud as provided in the header when finding pairs of intersections instead of a convex, concave, or an #sym.alpha\-hull.
-// This may result in false positives among intersection pairs and thus an incorrect assessment of the accuracy.
-// In these cases, cross-referencing with a raster is advised #highlight(fill: none, stroke: red)[but currently not implemented].
-//
-// The registration is performed using the @ICP algorithm of the `open3D` python library --- equivalent functionality exists in @PDAL #highlight(fill: none, stroke: red)[(which we might switch to for the final processing)].
-// Notably, the registration produces a full affine transform $A = mat(R, bold(t))$ --- as the point clouds can be far from the origin, even a small rotational component has a large influence on the transformation and needs to be compensated with a large translation vector.
-// To evaluate the accuracy, pure translation is needed. It is obtained by applying the full affine transform $A$ to a point from the dataset $bold(p)$ and subtracting the transformed coordinates from coordinates of the initial point.
-//
-// #drafting.inline-note()[The intention eventually is that for areas where both the national @DEM:pla and the @PC:pla disagree significantly, we also re-extract a @DTM from scratch using the most recent point cloud; we've not done that yet]
-//
-//
-// #drafting.inline-note()[The final version of this chapter will contain more quality ensurance/checking. The pipeline currently is not fully automated and this will be changed for the final version. ]
+// #show figure: set align(left)
+// #figure(
+//   align(left)[
+//     #pseudocode-list(
+//       booktabs: true,
+//       booktabs-stroke: 1pt,
+//       line-number-supplement: "line",
+//       title: [#smallcaps[*@DTM Acquisition and Harmonisation*]],
+//     )[
+//       + *Input:* @AOI $A$, source $S$, processing settings $P$
+//       + *Output:* @DTM $H$; optional baseline $B$ and fill status $F$
+//       + Validate inputs and select supported source rules
+//       + Define grid $G$ on the 5 m @EPSG:s code 25832 lattice
+//       + Extend acquisition area for cell footprints and filling context
+//       + Acquire or reuse native rasters; validate and record sources
+//       + Clean invalid elevations and mosaic at native resolution
+//       + *if* $S$ is @AHN *then*
+//         + $G_e arrow.l G$; extend it if filling is enabled
+//         + $B arrow.l$ reproject and average the mosaic directly onto $G_e$
+//         + $H arrow.l B$
+//         + *if* filling is enabled *then*
+//           + $(H, F) arrow.l$ fill remaining gaps in $B$ within $A$ and record fill status
+//         + *end*
+//         + Crop $H$ and retained $B, F$ to $G$ without resampling
+//       + *else if* $S$ is @NRW *then*
+//         + Verify that the native 1 m cells nest within $G$
+//         + $H arrow.l$ valid-sample mean of each $5 times 5$ block
+//         + Retain NoData where no valid contributors exist
+//       + *end*
+//       + Apply the original @AOI mask to all retained products
+//       + Verify grid geometry and nonempty valid @AOI coverage
+//       + Create output tiles and stitch them without resampling
+//       + Verify stitched geometry and pixel equality with $H$
+//       + Save stitched @DTM, setting, and coverage counts
+//     ]
+//   ],
+//   kind: "algorithm",
+//   supplement: [Algorithm],
+//   caption: [@DTM acquisition and horizontal harmonisation.],
+// ) <alg-dtm-preparation>
+//  ]
 
 == Water Mask Processing
 
 An expected limitation of the pipeline is retaining the errors introduced by water body interpolation. The solution to this problem is to exclude the subset of points which fall within the river area from the error analysis.
 
-This mask could be identified using the classified point clouds. However, the re-extraction of a DEM from point clouds is out of the scope for this project. Therefore, we can only rely on the DEM data for segmentation. While river/lake masks do exist, they either offer provide global low resolution vector data @HydroATLAS, or low resolution raster data @SDG#drafting.margin-note()[TODO relink].
+This mask could be identified using the classified point clouds. However, the re-extraction of a DEM from point clouds is out of the scope for this project. Therefore, we can only rely on the DEM data for segmentation. While river/lake masks do exist, they either offer provide global low resolution vector data @HydroATLAS, or low resolution raster data @unep_fee.
 
-In order to create a high quality water mask, the SDG mask was used as an input. The SDG mask contains a value 1, 2, or 3 to describe the certainty of the underlying value being water. The mask is filtered to only use certainty 2 and 3 values to ensure high confidence. The mask is then transformed to a binary format.
+In order to create a high quality water mask, the UNEP @FEE mask was used as an input. The @FEE mask contains a value 1, 2, or 3 to describe the certainty of the underlying value being water --- corresponding to "no water", "seasonal water", and "permanent water" --- based on historical remote sensing data. The mask is filtered to only use values of 2 and 3. The mask is then transformed to a binary format.
 
-However, the SDG mask is not fine enough to be applied to the elevation map. Instead, we can use the SDG mask as seed points in a region growing algorithm. Since rivers and waterbodies are known to be relatively flat, a low threshold can be set for the region growing, such that the elevation jump at the shore is registered as the boundary of the water body.
+However, the @FEE mask is not fine enough to be applied to the elevation map. Instead, we can use the @FEE mask as seed points in a region growing algorithm. Since rivers and waterbodies are known to be relatively flat, a low elevation difference threshold is set for the region growing, such that the elevation jump at the shore is registered as the boundary of the water body.
 
-Each mask cell is transformed to the elevation map resolution, @CRS and grid. By applying this mask to the elevation map, it is essentially clipped to contain only heigh values that fall within the SDG mask. Each cell in this clipped DTM is taken as a seed point for a region growing algorithm. These seed points are added to the region growing queue. Each entry has eight neighbors and for each the height difference with the seed is calculated. When these differences are smaller than the set threshold, the neighboring point is added to the end of the queue. The result is a breadth first search which incrementally classifies cells as a water body. The end result is a binary mask, where cell values of one denote the existence of a water body.
+Each mask cell is transformed to the elevation map resolution, @CRS and grid. By applying this mask to the elevation map, it is essentially clipped to contain only heigh values that fall within the @FEE mask. Each cell in this clipped DTM is taken as a seed point for a region growing algorithm. These seed points are added to the region growing queue. Each entry has eight neighbors and for each the height difference with the seed is calculated. When these differences are smaller than the set threshold, the neighboring point is added to the end of the queue. The result is a breadth first search which incrementally classifies cells as a water body. The end result is a mask with region IDs, where cell values above 0 denote the existence of a water body.
 
 #[
 #show figure: set align(left)
@@ -211,35 +209,26 @@ Each mask cell is transformed to the elevation map resolution, @CRS and grid. By
       line-number-supplement: "line",
       title: [#smallcaps[*River Mask Generation*]],
     )[
-      + *Input:* @DTM $D$, water probability raster $C$, growth tolerance $T$
-      + *Output:* Binary river mask $R$
-      + Load @DTM $D$
-      + Determine the corresponding country classification raster $C$
-      + Reproject $C$ onto the grid of $D$
-      + Create initial water mask $W$
-      + Assign cells with class value $2$ or $3$ in $C$ to water
-      + Restrict $W$ to valid @DTM cells
-      + Initialise region-growing seeds $S arrow.l W$
-      + For every seed cell in $S$
-        + Compute seed elevation value
-      + Initialise empty region mask $G$
-      + Add all accepted seeds to a processing queue
-      + *while* the queue is not empty *do*
-        + Remove the next cell $p$ from the queue
-        + For each 8-connected neighbour $n$ of $p$
-          + *if* $n$ lies within the valid @DTM domain and has not been visited *then*
-            + Compute the elevation value of $n$
-            + *if* the difference between the elevation values of $p$ and $n$ is less than or equal to $T$ *then*
-              + Add $n$ to $G$
-              + Add $n$ to the queue
-            + *end*
-          + *end*
-        + *end*
-      + *end*
-      + Initialise binary river mask $R$ with value $0$
-      + Assign river value $1$ to all cells contained in $G$
-      + Assign NoData value to invalid @DTM cells
-      + Save $R$
+      + *Input:* @DTM $D$ with valid cells $V$, extent $E$, water probability raster $C$, seed values $S$, vertical tolerance $Delta_z$ \  *Output:* River mask $R$
+      + $M <- $ empty boolean grid on the grid of $D$
+      + *for each* grid cell $c in C$ within extents of $D$ where $C[c] in S$ *do:*
+        + transform grid point of $c$ to target CRS
+        + $M[c] <- 1$
+      + $M <- M inter P inter V$ #h(1fr) _discard seeds outside the region or without DEM data_
+      + $R <- 0$ everywhere; $r <- 0$
+      + *for each* seed $s$ in $M$, in row-major order *do*
+        + *if* $L[s] != 0$ *do:*
+          +  *continue* #h(1fr) _already part of an earlier water body_
+        + $r <- r + 1$; $R[s] <- r$
+        + $Q <- [s]$ #h(1fr) _FIFO queue: breadth-first growth_
+        +       + *while* $Q$ is not empty *do*
+          + $c <- $ pop front of $Q$
+          + *for each* of the 8 neighbours $n$ of $c$ inside the grid *do*
+            + *if* $n in V$ *and* $L[n] = 0$ *and* $|E[n] - E[c]| <= Delta_z$ *then*
+              + $L[n] <- r$
+              + push $n$ onto $Q$
+        + $R[not V] <- -1$
+        + *return* $L$
     ]
   ],
   kind: "algorithm",
@@ -256,13 +245,17 @@ Each mask cell is transformed to the elevation map resolution, @CRS and grid. By
 
 The final step of the pipeline is to pairwise compare neighboring datasets, and evaluate the results. The first step in this process is analysing which regions overlap. It is followed by calculating the height difference, coregistration, INSPIRE resolution threshold analysis for a course grid, error threshold analysis for identifying problem areas, height difference @STD:asf, aspect difference, error due to slope, error due to distance from the border,
 
-The final step of the pipeline is to pairwise compare neighboring datasets, and to evaluate the results. The first step in this process is to identify which @DTM:pls neighbor one another. In order to determine wether overlap exists, the maximum and minimum $x$ and $y$ coordinates of each country's @DTM are stored. The following logic is applied to see if the bounding boxes overlap:
+The final step of the pipeline is to pairwise compare neighboring datasets, and to evaluate the results. The first step in this process is to identify which @DTM:pla neighbor one another. In order to determine wether overlap exists, the maximum and minimum $x$ and $y$ coordinates of each country's @DTM are stored. The following logic is applied to see if the bounding boxes overlap:
 
 $max(x_("region_1_min"),x_("region_2_min")) < min(x_("region_1_max"),x_("region_2_max")) and max(y_("region_1_min"),y_("region_2_min")) < min(y_("region_1_max"),y_("region_2_max"))$
 
-This is not a perfect method as regions which do not cover the entire bounding box may not overlap. Therefore, another check is done by cropping the @DTM of one country to the other. However, this is a computationally heavier operation and can therefore be avoided if no overlap is known to exist.
+This is not a perfect method as regions which do not cover the entire bounding box may not overlap. Therefore, another check is done by cropping the @DTM of one country to the other. However, this is a computationally expensive operation and can therefore be avoided if no overlap is known to exist.
 
-The next step in the analysis process is to calculate the elevation differences between the two maps. @GDAL allows for this process to be simplified to a subtraction operation. The raw difference does however not tell the full story. Systematic errors may offset an entire DTM, and are a potential limitation of the vertical transform. Therefore, a @STD raster is also produced to highlight stark deviations in height between the @DTM:pls. An additional element in this analysis is the construction of polygons for all @DTM deviations greater than a set threshold. Nearby small polygons are merged into one larger polygon when within a set distance from one another. The purpose of this element is to highlight where errors to be analyzed can be located in a quick maner. Lastly, a histogram is constructed of all the elevation differences to evaluate the frequency of errors.
+The next step in the analysis process is to calculate the elevation differences between the two maps. @GDAL allows for this process to be simplified to a subtraction operation.
+However, difference along is not a sufficient metric.
+Systematic errors may offset an entire DTM, and are a potential limitation of the vertical transform. Therefore, a @STD raster is also produced to highlight stark deviations in height between the @DTM:pls.
+
+An additional element in this analysis is the construction of polygons for all @DTM deviations greater than a set threshold. Nearby small polygons are merged into one larger polygon when within a set distance from one another. The purpose of this step is to highlight where errors to be analyzed can be located in a quick manner. Lastly, a histogram is constructed of all the elevation differences to evaluate the frequency of errors.
 
 Another way to analyse these systematic errors is through coregistration. This is a function in XDEM which performs an affine transform, through solving of a cosine equation @tc-5-271-2011, which assures best alignment in $x$, $y$ and $z$ directions of the @DTM. Using both the coregistered and raw @DTM:pls, we can calculate statistics such as the @RMSE, @STD, mean, median, min, max, etc. By comparing the results we can determine the effect of misaligned @DTM:pls is, and how it affects true outliers in the difference. Another analysis element we can perform using this coregistration is determining random errors throughout the overlap. These represent likely measurement errors, or errors caused by light bounce during laser scanning.
 
@@ -275,21 +268,3 @@ Another metric that is evaluated, is the difference in aspect between the two @D
 Aside from random noise and systematic errors, other elements such as slope can affect the error of a @LiDAR derived @DTM:pls. By taking the errors in 5 degree angle bins, we can calculate the RMSE in slope ranges. Due to slope, a small horizontal displacement in sample location, can greatly affect the vertical position of the sample point. Therefore, evaluating this statistic helps us understand when errors are the result of steep slopes. It is expected that highly sloped areas suffer most from this kind of error.
 
 The last element that is evaluated is the distance from the border. Since there exists overlap between countries, we can evaluate if points further outside of the administrative borders of either region affect the quality of the data and the elevation difference. A similar approach to the slope RMSE is used. By taking the distance of a point from a provided border vector and dividing the distance into bins, we can evaluate at various distances from the border if there is a relation between the distance and the RMSE.
-
-== Technical Details
-
-The pipeline is split into two stages: processing and comparison.
-Both stages take a `JSON` file as input and write the intermediate and final results to it.
-The comparison stage reads and evaluates data completed during processing.
-The user is not expected to interact or pass arguments directly to the pipeline --- instead, they fill in the `JSON` with input data.
-
-The global settings influence both the final product and the performance of the pipeline.
-The key raster settings include the target @CRS and resolution, region extent, interpolation settings, and path where the output raster should be written to.
-The performance settings govern the maximum number of threads which can be used for processing or the number of regions which can be processed at once.
-
-The region settings include the path to vector and raw raster data, information about regions @CRS and @VCRS in case they are not specified within metadata, and whether interpolation is needed --- currently, only Dutch @DTM needs interpolation.
-Additionally, a water mask is passed for the river detection part of the algorithm.
-
-For the comparison stage, the settings include the threshold for error detection as a fraction of the resolution, whether to perform kriging, and the region's river mask.
-
-Full breakdown of all settings can be found in `README.md` (see #drafting.margin-note()[TODO link to appendix]).

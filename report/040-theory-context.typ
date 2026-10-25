@@ -22,8 +22,9 @@ Another possible definition can be found on Wikimedia (see @fig:rhine-defs), and
 
 For this project, the Rhine river definition comes from HydroBASINS @Lehner2013, derived from a global elevation model. The Meuse and Ijssel are excluded from the main catchment area of the Rhine in this case; their exclusion has been discussed with the client and was deemed appropriate as the automated pipeline supports expanding the geographic extent of the dataset. @fig:rhine-catchment-regions shows the map of the area used in the project, coloured by elevation data provider.
 
-The Rhine catchment area covers (parts of) Switzerland, Liechtenstein, Austria, Italy, Germany, France, Luxembourg, Belgium, and The Netherlands.
-Within the scope of the project, Italy, Austria and Belgium were excluded due to poor availability of the elevation data.
+The Rhine catchment area nominally covers (parts of) Switzerland, Liechtenstein, Austria, Italy, Germany, France, Luxembourg, Belgium, and The Netherlands.
+The following regions are explicitly defined to be within the scope of the project: Switzerland, Liechtenstein, France, Luxembourg, Germany --- specifically, states of Bavaria, @BW, Hessen, @NRW, @RLP, and Saarland --- and the Netherlands.
+Austria, Italy, and Belgium are excluded due to poor availability of data; Germany's Thüringen has been excluded as only a small part of the state falls within the borders of the catchment area.
 
 #drafting.inline-note()[TODO: update the map?]
 
