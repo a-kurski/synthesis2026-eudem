@@ -523,7 +523,7 @@ The border area between Luxembourg and France is only 6 kilometers long and is g
 )
 <fig:Lux_Fra_border>
 
-The remainder of the errors are in a region overlapping with the Saarland border, which includes the hydro electric plant discribed in that analysis. Furthermore, the town located next to the powerplant contains several building interpolation differences as shown in 
+The remainder of the errors are in a region overlapping with the Saarland border, which includes the hydro electric plant discribed in that analysis. Furthermore, the town located next to the powerplant contains several building interpolation differences as shown in
 
 #figure(
   image("assets/Lux-Fra-buildings.png",width:50%),
@@ -574,6 +574,79 @@ For this region, the percentage of points above the @INSPIRE threshold, is aroun
 === Switzerland -- Germany -- France
 
 === Germany -- France
+==== Saarland -- France <sec:saarland-france>
+
+The approximately 157 km border between Saarland and France crosses rolling hills, forested slopes and river valleys, with sections following the Saar and Blies rivers. Across the compared overlap, the two DTMs generally agree closely: the mean elevation difference is +0.035 m and the median is −0.020 m, where positive differences indicate higher elevations in Saarland. Half of the absolute differences are below 0.163 m, and 90% are below 0.981 m. Nevertheless, the RMSE reaches 1.213 m, reflecting substantial discrepancies at particular locations.
+
+These discrepancies are concentrated rather than evenly distributed. Only 5.81% of the compared area exceeds the 1.667 m comparison threshold, yet this portion contributes approximately 90% of the total squared elevation difference. Differences greater than 5 m occupy just 1.27% of the area but contribute about 63% of that total. The distribution therefore has a narrow centre and long tails, with extremes from approximately −22 m to +33 m. Neighbouring positive and negative differences partly cancel, so the small mean understates the local disagreement.
+
+The Google Earth inspections and corresponding difference maps place these results in their terrain context. In @fig:saarland-france-region1, the long dark blue difference pattern in panel (b) corresponds to a cliff identified in the Google Earth terrain view in panel (a). The pronounced discrepancies follow this abrupt terrain edge, with additional patches within the surrounding woodland. In @fig:saarland-france-region2, the largest differences in panel (b) coincide with an apparent valley-like terrain feature visible in panel (a). These selected examples illustrate recurring settings of disagreement rather than representing every location along the border.
+
+// Equal panel frames preserve the complete images without stretching or cropping.
+#let saarland-france-panel(path, panel-caption) = block(
+  width: 100%,
+  breakable: false,
+)[
+  #image(path, width: 100%, height: 43mm, fit: "contain")
+  #v(3pt)
+  #align(center)[#text(size: 9pt)[#panel-caption]]
+]
+
+#block(breakable: false)[
+  #figure(
+    grid(
+      columns: (1fr, 1fr),
+      column-gutter: 8pt,
+      saarland-france-panel("assets/region1_bare.png", [(a) Google Earth terrain view]),
+      saarland-france-panel("assets/region1_dtm.png", [(b) Elevation-difference overlay]),
+    ),
+    caption: [*Forested escarpment beside water bodies.*],
+  ) <fig:saarland-france-region1>
+]
+
+#block(breakable: false)[
+  #figure(
+    grid(
+      columns: (1fr, 1fr),
+      column-gutter: 8pt,
+      saarland-france-panel("assets/region2_bare.png", [(a) Google Earth terrain view]),
+      saarland-france-panel("assets/region2_dtm.png", [(b) Elevation-difference overlay]),
+    ),
+    caption: [*Wooded slopes and abrupt terrain changes.*],
+  ) <fig:saarland-france-region2>
+]
+
+Terrain steepness is the strongest quantified association. RMSE rises from approximately 0.8 m on slopes of 0–5° to 2.7 m at 20–25° and 5.6 m at 45–50°. This supports the visual observation that steep slopes and rapidly changing relief are particularly problematic. Forest cover is a recurring characteristic of the inspected hotspots, although its contribution has not been quantified separately from slope. Differences in ground filtering beneath canopy and restricted ground observations in narrow valleys are possible contributors. In @fig:saarland-france-region3, the largest differences, shown as dark blue patches, coincide with forested areas identified during the visual inspection. Nearby patches of contrasting differences further illustrate how substantial local mismatches can cancel in the regional mean.
+
+#block(breakable: false)[
+  #align(center)[
+    #figure(
+      image("assets/region3_dtm.png", width: 76%),
+      caption: [*Clustered differences in a third inspected area.*],
+    ) <fig:saarland-france-region3>
+  ]
+]
+
+Differences in DTM acquisition dates may also introduce temporal artefacts. The datasets may capture different stages of excavation, earthworks or vegetation clearance, while seasonal differences may affect the vegetation conditions under which the ground surface was estimated. Recently cleared areas identified during the Google Earth inspection suggest a possible influence of acquisition timing, particularly if an older surface retains residual vegetation effects. Some discrepancies may therefore reflect genuine terrain changes between surveys or changes in residual vegetation influence. The individual contributions of these processes have not been established from the selected examples.
+
+The quarry in @fig:saarland-france-quarry provides a clear setting in which acquisition timing may matter. Strong differences trace excavation faces and terraced edges. If the DTMs were acquired at different times, excavation or material deposition between surveys could have changed the height and position of these features. The discrepancies may therefore partly reflect different stages of quarry development, alongside differences in how the DTMs represent steep faces and sharp terrain edges.
+
+#block(breakable: false)[
+  #figure(
+    grid(
+      columns: (1fr, 1fr),
+      column-gutter: 8pt,
+      saarland-france-panel("assets/quary_bare.png", [(a) Quarry imagery]),
+      saarland-france-panel("assets/quary_dtm.png", [(b) Elevation-difference overlay]),
+    ),
+    caption: [*Quarry morphology and possible temporal differences.*],
+  ) <fig:saarland-france-quarry>
+]
+
+The regional RMSE is driven primarily by a limited set of pronounced local mismatches. Steep and complex terrain provides the clearest quantitative association, while the inspected images highlight forest cover, exposed escarpments and excavation features as recurring settings. Differences in acquisition timing are an additional possible contributor where the landscape has changed between surveys. Most of the overlap agrees much more closely than the overall RMSE suggests.
+
+==== RLP -- France
+==== BW -- France
 
 === Germany -- Netherlands
 ==== Netherlands -- NRW
@@ -600,7 +673,7 @@ The border between the Netherlands and @NRW is approximately 50 kilometers long,
 
 Other errors within this region include both small and large scale earth works. Examples include the "Steenfabriek de Bijland", which also includes swampy areas, which are not caught by the river mask (@fig:Netherlands-NRW-Lworks). Another example includes storage of manure and dirt at farms scattered throughout the border area (@fig:Netherlands-NRW-Sworks).
 
-For this border area in particular, there is a strong effect of waterbodies on the difference. The RMSE increases by 10% if the waterbodies are included, compared to the case without. This is likely due to the attempt at interpolating the river areas, which will differ from the approach taken in the german region, which most often involves triangulation of the water surface. 
+For this border area in particular, there is a strong effect of waterbodies on the difference. The RMSE increases by 10% if the waterbodies are included, compared to the case without. This is likely due to the attempt at interpolating the river areas, which will differ from the approach taken in the german region, which most often involves triangulation of the water surface.
 
 There are no significant differences that have an effect on the creation of the final catchment @DTM, and with more time the existing extrapolation error would also be fixable.
 
