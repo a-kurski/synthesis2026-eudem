@@ -7,7 +7,7 @@ This chapter discusses the results of the data scraping, the pipeline, analysis 
 
 
 
-== Data scraping
+== Data Acquisition <sec:results-acquisition>
 The data scraping is not considered a part of the processing pipeline. However, due to its relevance to the challenges of creating a @DEM of the Rhine catchment area, it has been included in this chapter. Currently, all data labeled as a must in @Moscow_Prioritization is implemented within the scraping software.
 
 #drafting.inline-note("TODO: arda write about this section here")

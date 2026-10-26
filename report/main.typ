@@ -72,7 +72,7 @@
 
 #bibliography(
   "references.bib",
-  style: "apa",
+  style: "harvard-cite-them-right",
   title: [References],
 )
 

@@ -243,30 +243,31 @@ Each mask cell is transformed to the elevation map resolution, @CRS and grid. By
 
 == Border Analysis <sec:border-analysis>
 
-The final step of the pipeline is to pairwise compare neighboring datasets, and evaluate the results. The first step in this process is analysing which regions overlap. It is followed by calculating the height difference, coregistration, INSPIRE resolution threshold analysis for a course grid, error threshold analysis for identifying problem areas, height difference @STD:asf, aspect difference, error due to slope, error due to distance from the border,
+The final stage of the project is to pairwise compare neighboring datasets and evaluate the results. The first step in this process is finding out which regions overlap. It is followed by calculating the height difference, performing coregistration, and analysing aspects of said difference such as correlation between error magnitude and slope or the rate of @INSPIRE compliance.
 
-The final step of the pipeline is to pairwise compare neighboring datasets, and to evaluate the results. The first step in this process is to identify which @DTM:pla neighbor one another. In order to determine wether overlap exists, the maximum and minimum $x$ and $y$ coordinates of each country's @DTM are stored. The following logic is applied to see if the bounding boxes overlap:
+To determine which @DTM:pla overlap one another, we first compute the bounding boxes of each @DTM and their overlap is checked:
 
 $max(x_("region_1_min"),x_("region_2_min")) < min(x_("region_1_max"),x_("region_2_max")) and max(y_("region_1_min"),y_("region_2_min")) < min(y_("region_1_max"),y_("region_2_max"))$
 
-This is not a perfect method as regions which do not cover the entire bounding box may not overlap. Therefore, another check is done by cropping the @DTM of one country to the other. However, this is a computationally expensive operation and can therefore be avoided if no overlap is known to exist.
+This is not a perfect method as the bounding boxes may overlap even when the datasets do not. Therefore, another check is done by cropping the @DTM of one country with the other and checking if the cropped dataset is not empty. However, this is a computationally expensive operation and is thus only performed if an overlap between the bounding boxes is found.
 
-The next step in the analysis process is to calculate the elevation differences between the two maps. @GDAL allows for this process to be simplified to a subtraction operation.
-However, difference along is not a sufficient metric.
-Systematic errors may offset an entire DTM, and are a potential limitation of the vertical transform. Therefore, a @STD raster is also produced to highlight stark deviations in height between the @DTM:pls.
+The next step in the analysis process is to calculate the elevation differences between the two maps.
+@GDAL allows for this process to be simplified to a subtraction operation.
 
-An additional element in this analysis is the construction of polygons for all @DTM deviations greater than a set threshold. Nearby small polygons are merged into one larger polygon when within a set distance from one another. The purpose of this step is to highlight where errors to be analyzed can be located in a quick manner. Lastly, a histogram is constructed of all the elevation differences to evaluate the frequency of errors.
+Based on this difference, We construct polygons to highlight errors greater than a set threshold. Nearby polygons are merged into one which allows to essentially detect _areas_ with high error rates rather than just count individual point samples.
+We selected the threshold to match the ratio between resolution and vertical @RMSE --- at 5m, that threshold is 1.67m. This threshold is a little lower than Copernicus's 2m @LE90 benchmark.
+For the analysis, the number of cells where the error rate exceeds the threshold is also presented.
 
-Another way to analyse these systematic errors is through coregistration. This is a function in XDEM which performs an affine transform @tc-5-271-2011, which enssures best alignment in $x$, $y$ and $z$ directions of the @DTM. Using both the coregistered and non-coregistered @DTM:pls, we calculate statistics such as the @RMSE, @STD, mean, median, min, max, etc. By comparing the results we can determine the effect of misaligned @DTM:pls is, and how it affects true outliers in the difference. Another analysis element we can perform using this coregistration is determining random errors throughout the overlap. These represent likely measurement errors, or errors caused by light bounce during laser scanning.
+We can also analyze the spatial correlation of the errors.
+Overall, it is expected that Tobler's #cite(<Tobler1970>, form: "year") first law of geography will hold: the close errors will have a higher correlation than far-away ones.
+It is further expected that stochastic errors are uncorrelated, and a high correlation of far away errors likely indicates a systematic error instead.
+However, the correlation does not account for error magnitude --- a small systematic error will result in a higher correlation rate than a large stochastic one.
 
-An important element specified in @sec:inspire-quality is the compliance with the INSPIRE resolution standard. To analyse this, two separate approaches are used. The first evaluates on a cell by cell size if a cell does or does not comply with the threshold. The output of this is the $italic("exceeds_threshold")$ mask. This looks at the error per cell and the INSPIRE threshold #drafting.margin-note("explain why INSPIRE was chosen as the treshold"). The second approach uses a course grid which evaluates for a given cell size if sections of the @DTM comply with the standard.
+Another way to evaluate systematic errors is through coregistration. This is a function in XDEM which performs an affine transform @tc-5-271-2011, which ensures best alignment of the @DTM:pla in $x$, $y$ and $z$ directions. The statistics (@RMSE, @LE90, mean error etc) are calculated for the border region before and after coregistration. A small affine transform with a high @RMSE would indicate stochastic errors.
 
-// exclude next para?
-
-We can also analyze the correlation between the similarity of nearby and far away points. For cases where there is little correlation between errors, it is expected that most errors are caused by random noise. In case the graph goes towards zero at any given distance, we can consider interpolation artifacts or ground filtering as a possible cause. Lastly, in case the graph does not plateau at zero, it is possible there might be a more systematic error at play. Therefore, by analyzing the correlation, it can point us in the direction of potential errors for the entire @DTM comparison.
-
-Another metric that is evaluated, is the difference in aspect between the two @DTM:pls. By looking at this metric we can see how the aspect of slopes is maintained between two seperate datasets. Analyzing the aspect is very sensitive to small changes in elevation as this can change the aspect angle drastically.
-
-Aside from random noise and systematic errors, other elements such as slope can affect the error of a @LiDAR derived @DTM:pls. By taking the errors in 5 degree angle bins, we can calculate the RMSE in slope ranges. Due to slope, a small horizontal displacement in sample location, can greatly affect the vertical position of the sample point. Therefore, evaluating this statistic helps us understand when errors are the result of steep slopes. It is expected that highly sloped areas suffer most from this kind of error.
-
-The last element that is evaluated is the distance from the border. Since there exists overlap between countries, we can evaluate if points further outside of the administrative borders of either region affect the quality of the data and the elevation difference. A similar approach to the slope RMSE is used. By taking the distance of a point from a provided border vector and dividing the distance into bins, we can evaluate at various distances from the border if there is a relation between the distance and the RMSE.
+We also produce several graphs to aid with the analysis.
+First one is a histogram of the error magnitudes for a given border pair.
+The second is a graph of the error rates relative to the slope angle --- here, expressed as @RMSE for a given 5-degree bin of slope angle.
+@INSPIRE suggests different relationships for horizontal resolution and vertical accuracy depending on slope angle; we therefore expect the slope angle to have an effect on the magnitude of the error.
+Another graph shows the errors relative to the distance from the border (again, @RMSE for a given 50-meter bin).
+This "border effect" graph can, for instance, help detect errors due to extrapolation at the edge of a dataset, but it can also be sensitive to a single large error.
