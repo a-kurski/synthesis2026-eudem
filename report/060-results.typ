@@ -618,8 +618,8 @@ The Google Earth inspections and corresponding difference maps place these resul
 
 Terrain steepness is the strongest quantified association. RMSE rises from approximately 0.8 m on slopes of 0–5° to 2.7 m at 20–25° and 5.6 m at 45–50°. This supports the visual observation that steep slopes and rapidly changing relief are particularly problematic. Forest cover is a recurring characteristic of the inspected hotspots, although its contribution has not been quantified separately from slope. Differences in ground filtering beneath canopy and restricted ground observations in narrow valleys are possible contributors. In @fig:saarland-france-region3, the largest differences, shown as dark blue patches, coincide with forested areas identified during the visual inspection. Nearby patches of contrasting differences further illustrate how substantial local mismatches can cancel in the regional mean.
 
-#block(breakable: false)[
-  #align(center)[
+#align(center)[
+  #block(breakable: false)[
     #figure(
       image("assets/region3_dtm.png", width: 76%),
       caption: [*Clustered differences in a third inspected area.*],
@@ -639,7 +639,7 @@ The quarry in @fig:saarland-france-quarry provides a clear setting in which acqu
       saarland-france-panel("assets/quary_bare.png", [(a) Quarry imagery]),
       saarland-france-panel("assets/quary_dtm.png", [(b) Elevation-difference overlay]),
     ),
-    caption: [*Quarry morphology and possible temporal differences.*],
+    caption: [*Imagery corresponding to a quarry and its difference raster.*],
   ) <fig:saarland-france-quarry>
 ]
 
@@ -705,7 +705,46 @@ Different treatment of ruins and exposed rock during ground classification, foll
 
 These results quantify agreement between the two DTMs, not their absolute accuracy. Neither surface is independent ground truth, and a small difference can conceal errors shared by both datasets. The selected photographs do not validate all affected cells or establish which provider is more accurate. The principal priorities are therefore the western concentration of large differences, the isolated extremes at complex rock-and-ruin sites, and the flight line patterns.
 
-==== BW -- France
+==== BW -- France <sec:bw-france>
+
+The Baden-Württemberg (BW)–France comparison shows close agreement across much of the Rhine corridor, interrupted by pronounced local discrepancies and coherent spatial patterns. Across 166.52 km² of valid overlap at 5 m resolution, the mean elevation difference is +0.034 m and the median is +0.058 m, where positive values mean that BW is higher than France. The RMSE of 0.730 m is considerably larger than the NMAD of 0.153 m, indicating that large local differences have a strong influence on the overall result. Numerical results refer to differences before alignment, and 1.667 m is the pipeline's screening threshold. These measures describe agreement between the two DTMs; independent ground control would be needed to establish their absolute accuracy.
+
+The difference distribution has a narrow centre and long tails. Half of the absolute differences are below 0.117 m, 90% below 0.508 m, and 95% below 1.059 m. Only 2.744% of compared cells exceed the configured 1.667 m threshold, but these cells occupy 4.57 km² and contribute 82.73% of the total squared difference. Differences larger than 5 m occupy just 0.397% of the area yet contribute 47.62% of squared difference. Positive and negative discrepancies partly cancel in the regional mean, which therefore understates their local importance. The observed extremes range from −25.96 m to +46.72 m.
+
+@fig:bw-france-north-south shows the strongest regional contrast, between the southern overlap and the remainder of the corridor. An exploratory division at EPSG:3035 northing 2,760,000 m, selected after examining the 10 km bands, isolates a southern segment covering 26.89 km², or 16.15% of compared area. This segment contains 89.82% of all threshold-exceeding cells and 85.53% of total squared difference. Its RMSE is 1.680 m, compared with 0.303 m in the remaining northern segment; exceedance rates are 15.26% and 0.333%, respectively. NMAD also rises from 0.132 m in the north to 0.661 m in the south, showing that the southern disagreement affects the broader distribution as well as its most extreme values.
+
+#block(breakable: false)[
+  #figure(
+    image("assets/bw_france_north_south_profile.png", width: 100%),
+    caption: [*Regional variation in the BW–France comparison.* RMSE, threshold exceedances and compared area in 10 km northing bands. The southern bands have substantially larger differences despite containing less compared area than several northern bands. Coverage refers to the available overlap.],
+  ) <fig:bw-france-north-south>
+]
+
+
+Visual inspection identifies earthworks and quarries along the Rhine as the setting of many problematic regions. Excavation faces, embankments, terraces and material deposits can change substantially between surveys, producing adjacent positive and negative elevation differences. Consequently, some discrepancies may represent genuine terrain change between acquisition dates, alongside differences in how steep faces and sharp terrain edges are represented. Matching acquisition dates and historical imagery is necessary to separate these contributions. The ten largest supplied problem regions contain 58.38% of all flagged area and contribute 61.96% of total squared difference, making them useful priorities for targeted inspection.
+
+Region 2 is particularly important because it contains both global extremes, only 148 m apart, near 7.530° E, 47.663° N. Its footprint RMSE is 4.30 m. Region 1, the largest by flagged area, contains 0.682 km² of exceedances and is predominantly negative, with a footprint mean of −2.42 m. These coherent, metre-scale discrepancies require local investigation of terrain history and surface representation before any correction is selected.
+
+Slope is also relevant. The saved slope–RMSE curve rises from approximately 0.60 m at 0–5° to 1.47 m at 20–25°, 3.41 m at 35–40°, and 6.90 m at 45–50°. This association is consistent with larger differences around excavation faces, embankments and other abrupt changes in relief. However, these values are visual readings from the saved plot; bin counts are unavailable, and slope has not been separated statistically from the southern concentration or land-use setting. Steepness therefore helps identify sensitive locations but does not establish the cause of each discrepancy.
+
+Alongside these large local differences, @fig:bw-france-patterns shows flight-line-like bands similar to those in the RLP–France comparison (@fig:rlp-france-patterns). The comparative visual inspection identifies bands running in the same direction and matching exactly with the RLP–France patterns. Because the French DTM is common to both comparisons, this correspondence strongly suggests an origin in the French acquisition and the relative alignment or adjustment of its flight paths. The spatially varying bands are consistent with residual differences between flight strips that persist across the two regional comparisons. Flight-line footprints and adjustment records would allow this interpretation to be tested directly and help distinguish acquisition effects from later processing.
+
+#align(center)[
+  #block(breakable: false)[
+    #figure(
+      image("assets/bw_france_patterns.png", width: 68%),
+      caption: [*Flight-line-like patterns in the BW–France difference overlay.* Coherent bands and sharper local features along the Rhine. The bands match the direction and continuity of those in @fig:rlp-france-patterns. The embedded legend describes the selected display, not the full regional range of differences.],
+    ) <fig:bw-france-patterns>
+  ]
+]
+
+
+The most useful follow-up actions are:
+
+- Investigate the southern hotspots first, particularly regions 2 and 1, using matching source DTMs, acquisition dates and historical imagery to distinguish earthworks and quarry development from processing differences.
+- Check French flight-strip alignment, comparing strip footprints and adjustment records with the bands shared by BW–France and RLP–France. Test any correction on stable terrain and verify it across both comparisons.
+- Analyse slope and border distance within geographic subsets, with sample counts and land-use context, before attributing the pooled patterns to one mechanism.
+- Recalculate inconsistent polygon areas and refit the uncertainty model, preserving the empirical variogram, fitted parameters, masks and processing provenance needed to validate the results.
 
 === Germany -- Netherlands
 ==== Netherlands -- NRW
