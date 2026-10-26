@@ -237,9 +237,16 @@ Each mask cell is transformed to the elevation map resolution, @CRS and grid. By
 ) <alg-river-mask>
 ]
 
-#drafting.inline-note("Add a nice image that shows the river mask for the entire rhine catchment area and another for a local area")
 
+#figure(
+  image("assets/rivermask-local.png", width:70%),
+  caption:[Rhine catchment area river mask of the area surrounding Cologne]
+)
 
+#figure(
+  image("assets/rhinecatchment-full.png", width:70%),
+  caption:[Rhine catchment area river mask of the full catchment area]
+)
 
 == Border Analysis <sec:border-analysis>
 
