@@ -135,7 +135,7 @@ Several approaches were considered, such as evaluating for best temporal match o
 The former is not guaranteed by raster metadata --- referring to the GPS time of the corresponding point cloud was considered but ruled out due to storage requirements --- and the latter is difficult to infer from raster elevation data alone.
 Instead, we simply write each region's data within its boundaries (as determined by a vector file of that region).
 
-However for regions where interpolation was performed, we decide to overwrite the interpolated grid cells with non-interpolated data from the neighbouring region if that data is available.
+However for regions where interpolation was performed during our processing, we decide to overwrite the interpolated grid cells with non-interpolated data from the neighbouring region if that data is available.
 If the agreement between regions is high --- like it is in our case, see @chap:results --- this approach produces fewer and smaller artefacts than accepting interpolation results.
 
 The resulting elevation data is written to an output GeoTIFF, cropped to the specified region extents.
