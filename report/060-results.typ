@@ -1,7 +1,7 @@
 #import "@preview/drafting:0.2.2"
 = Results <chap:results>
 
-This chapter discusses the results of the data acquisition, the pipeline, analysis of the border-pairs and general findings about the @DTMs. The first section describes the challenges encountered while aquiring the data. Section 2 describes the results of the reprojection, resampling, regridding and interpolation. After, the analysis of the process is discussed, specifically analyzing the effect of various factors on the observed border errors. Lastly, any additional observations that do not fall within these categories will be discussed.
+This chapter discusses the results of the data acquisition, the pipeline, analysis of the border-pairs and general findings about the @DTM:pls. The first section describes the challenges encountered while aquiring the data. Section 2 describes the results of the reprojection, resampling, regridding and interpolation. After, the analysis of the process is discussed, specifically analyzing the effect of various factors on the observed border errors. Lastly, any additional observations that do not fall within these categories will be discussed.
 #drafting.inline-note(
 "At current stage, only some intermediate results are available.")
 
