@@ -29,44 +29,64 @@
   )
 }
 
+#let status(value) = {
+  let color = if value == "Not done" {
+    rgb("#ed7e7e")
+  } else if value == "In progress" {
+    rgb("#f1ac6f")
+  } else if value == "Done" {
+    rgb("#b3ef88")
+  } else {
+    none
+  }
+
+  box(
+    fill: color,
+    inset: 4pt,
+    width: 100%,
+    align(center)[#value]
+  )
+
+}
+
 #figure(
   caption: [Prioritisation of data requirements using @MoSCoW],
   table(
-    columns: (auto,auto, auto),
+    columns: (auto,auto, auto,100pt),
     inset: 4pt,
     stroke: (x: none),
     align: horizon,
-    table.header([Req ID],[Description], [@MoSCoW:s]),
-    [DT-01],[Global / @EU:s @DEM:s], moscow("Must"),
-    [DT-02],[Rhine Watershed Mask], moscow("Must"),
-    [DT-03],[Rhine Bathymetry], moscow("Will not have"),
-    [DT-04], [National/regional @PC:s], moscow("Must"),
-    [DT-05], [National/regional @DTM:s], moscow("Must"),
-    [DT-06], [National/regional @DSM:s], moscow("Should"),
-    [DT-07], [National/regional topographic map], moscow("Could"),
+    table.header([Req ID],[Description], [@MoSCoW:s], [Status]),
+    [DT-01],[Global / @EU:s @DEM:s], moscow("Must"),status("Done"),
+    [DT-02],[Rhine Watershed Mask], moscow("Must"),status("Done"),
+    [DT-03],[Rhine Bathymetry], moscow("Will not have"),status("Not done"),
+    [DT-04], [National/regional @PC:s], moscow("Must"),status("In progress"),
+    [DT-05], [National/regional @DTM:s], moscow("Must"),status("Done"),
+    [DT-06], [National/regional @DSM:s], moscow("Should"),status("Not done"),
+    [DT-07], [National/regional topographic map], moscow("Could"),status("Not done"),
     table.hline(stroke: 2pt),
-    [CT-01],[The Netherlands is included], moscow("Must"),
-    [CT-02],[Germany is included], moscow("Must"),
-    [CT-03],[Belgium is included], moscow("Should"),
-    [CT-04],[Switzerland is included], moscow("Must"),
-    [CT-05],[France is included], moscow("Must"),
-    [CT-06],[Luxembourg is included], moscow("Must"),
-    [CT-07],[Austria is included], moscow("Should"),
-    [CT-08],[Liechtenstein is included], moscow("Must"),
-    [CT-09],[Italy is included], moscow("Will not have"),
+    [CT-01],[The Netherlands is included], moscow("Must"),status("Done"),
+    [CT-02],[Germany is included], moscow("Must"),status("Done"),
+    [CT-03],[Belgium is included], moscow("Should"),status("Not done"),
+    [CT-04],[Switzerland is included], moscow("Must"),status("In progress"),
+    [CT-05],[France is included], moscow("Must"),status("In progress"),
+    [CT-06],[Luxembourg is included], moscow("Must"),status("In progress"),
+    [CT-07],[Austria is included], moscow("Should"),status("Not done"),
+    [CT-08],[Liechtenstein is included], moscow("Must"),status("In progress"),
+    [CT-09],[Italy is included], moscow("Will not have"),status("Not done"),
     table.hline(stroke: 2pt),
-    [MP-01],[@DSM:s raster], moscow("Must"),
-    [MP-02],[@DTM:s raster], moscow("Should"),
-    [MP-04],[Auxiliary masks and maps], moscow("Should"), //what is a bathymetry mask? is it just water/no water?
+    [MP-01],[@DTM:s raster], moscow("Must"),status("Done"),
+    [MP-02],[@DSM:s raster], moscow("Should"),status("Not done"),
+    [MP-04],[Auxiliary masks and maps], moscow("Should"),status("Done"), //what is a bathymetry mask? is it just water/no water?
     table.hline(stroke: 2pt),
-    [TC-01],[Workflow is fully automated], moscow("Must"),
-    [TC-02],[Workflow is efficient], moscow("Should"),
-    [TC-03],[Workflow is reproducible], moscow("Must"),
+    [TC-01],[Workflow is fully automated], moscow("Must"),status("Done"),
+    [TC-02],[Workflow is efficient], moscow("Should"),status("Done"),
+    [TC-03],[Workflow is reproducible], moscow("Must"),status("Done"),
     table.hline(stroke: 2pt),
-    [RP-01],[Report on findings], moscow("Must"),
-    [RP-02],[Report details the workflow], moscow("Must"),
-    [RP-03],[Report details the issues with cross-border data], moscow("Must"),
-    [RP-04],[Report details the limitations of the workflow], moscow("Must")
+    [RP-01],[Report on findings], moscow("Must"),status("In progress"),
+    [RP-02],[Report details the workflow], moscow("Must"),status("Done"),
+    [RP-03],[Report details the issues with cross-border data], moscow("Must"),status("In progress"),
+    [RP-04],[Report details the limitations of the workflow], moscow("Must"),status("In progress")
   )
 ) <Moscow_Prioritization>
 
