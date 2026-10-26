@@ -28,6 +28,7 @@
   ("EVRF", "European Vertical Reference Frame"),
   ("EVRF2019", "European Vertical Reference Frame (2019)"),
   ("EVRS", "European Vertical Reference System"),
+  ("FEE", "Freshwater Ecosystems Explorer"),
   ("GDAL", "Geospatial Data Abstraction Library"),
   ("GDEM", "Global Digital Elevation Model", "Global Digital Elevation Models"),
   ("GRS80", "Geodetic Reference System 1980"),
@@ -64,6 +65,7 @@
   ("TIN", "Triangulated Irregular Network", "Triangulated Irregular Networks"),
   ("UTM", "Universal Transverse Mercator"),
   ("VCRS", "Vertical Coordinate Reference System"),
+  ("WCS", "Web Coverage Service"),
   ("WLS", "Weighted Linear Least Squares"),
   ("XML", "Extensible Markup Language"),
 )

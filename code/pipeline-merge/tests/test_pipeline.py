@@ -180,6 +180,47 @@ class RiverMask(unittest.TestCase):
             self.assertTrue((mask[:, 5:] == 0).all() and (mask[:, :2] == 0).all())  # outside seed ignored
 
 
+@unittest.skipUnless(importlib.util.find_spec('xdem'), 'river masks need xdem')
+class RiverProduct(unittest.TestCase):
+    def test_binary_river_mask_on_product_grid(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            x0, y0, mid, x1, y1 = 300000, 5600000, 302000, 304000, 5602000
+            write_vector(box(x0, y0, mid, y1), root / 'a.gpkg')
+            write_vector(box(mid, y0, x1, y1), root / 'b.gpkg')
+            write_vector(box(x0, y0, x1 - 500, y1), root / 'basin.gpkg')  # cuts off the east of b
+            dem = np.full((800, 1200), 100, 'float32')
+            dem[400:420, :] = 95                       # an east-west channel across both regions
+            seeds = np.ones((800, 1200), 'float32')
+            seeds[410, ::50] = 2                       # seeds along the channel
+            for name, x in (('a', x0 - 1000), ('b', mid - 1000)):
+                (root / name).mkdir()
+                tile(root / f'{name}/t.tif', x, y1 + 1000, dem)
+                tile(root / f'{name}_seeds.tif', x, y1 + 1000, seeds)
+            region = {'crs': 25832, 'interpolate': False}
+            config = {'settings': {'crs': 25832, 'resolution': 5, 'extent': 'basin.gpkg', 'output_dir': 'out',
+                                   'threads': 2},
+                      'regions': {n: {**region, 'vector': f'{n}.gpkg', 'raster': f'{n}/*.tif',
+                                      'river_seeds': f'{n}_seeds.tif'} for n in 'ab'}}
+            path = root / 'pipeline.json'
+            path.write_text(json.dumps(config))
+            main([str(path)])
+            result = json.loads(path.read_text())
+            self.assertTrue(result['river_product'].endswith('merged_dtm_river_mask.tif'))
+            with gdal.Open(str(root / result['river_product'])) as ds:
+                self.assertEqual(gdal.GetDataTypeName(ds.GetRasterBand(1).DataType), 'Byte')
+                self.assertEqual(ds.GetMetadataItem('LAYOUT', 'IMAGE_STRUCTURE'), 'COG')
+                mask = ds.ReadAsArray()
+            at = lambda x, y: mask[int((y1 - y) / 5), int((x - x0) / 5)]
+            channel_y = y1 + 1000 - 410 * 2.5
+            self.assertEqual(at(x0 + 500, channel_y), 1)      # water in a
+            self.assertEqual(at(mid + 500, channel_y), 1)     # water in b
+            self.assertEqual(at(x0 + 500, y1 - 500), 0)       # land
+            self.assertEqual(at(x0 + 500, y0 + 300), 255)     # no DEM there (tiles end at y1 - 1000)
+            self.assertEqual(set(np.unique(mask)) - {0, 1, 255}, set())
+            self.assertEqual(mask.shape[1], (x1 - 500 - x0) // 5)   # product grid follows the extent
+
+
 @unittest.skipUnless(importlib.util.find_spec('xdem'), 'comparison needs xdem')
 class ComparisonStatistics(unittest.TestCase):
     def test_threshold_counts(self):

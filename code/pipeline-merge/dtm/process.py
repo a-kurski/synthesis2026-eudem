@@ -9,6 +9,8 @@ from .progress import gdal_progress
 OPTIONS = ['TILED=YES', 'COMPRESS=DEFLATE', 'PREDICTOR=3', 'BIGTIFF=YES']
 COG_OPTIONS = ['COMPRESS=DEFLATE', 'PREDICTOR=FLOATING_POINT', 'BIGTIFF=YES', 'BLOCKSIZE=512',
                'OVERVIEWS=IGNORE_EXISTING', 'OVERVIEW_RESAMPLING=AVERAGE']  # threads: GDAL_NUM_THREADS
+MASK_COG_OPTIONS = ['COMPRESS=DEFLATE', 'PREDICTOR=YES', 'BIGTIFF=YES', 'BLOCKSIZE=512',
+                    'OVERVIEWS=IGNORE_EXISTING', 'OVERVIEW_RESAMPLING=NEAREST']  # categorical masks
 VERTICAL_NOTE = 'Heights transformed to the pipeline vertical CRS where both source and target vertical CRS are configured.'
 
 
@@ -39,15 +41,15 @@ def aoi_mask(geometry, reference, path, epsg):
     return ds
 
 
-def write_cog(source, destination):
-    """Publish lossless Float32 terrain as a COG with internal overviews; replace only on success."""
+def write_cog(source, destination, options=COG_OPTIONS):
+    """Publish a raster (by default lossless Float32 terrain) as a COG with internal overviews; replace only on success."""
     destination = Path(destination)
     temporary = destination.with_suffix('.cog.part.tif')
     if gdal.GetDriverByName('COG') is None:
         raise RuntimeError('This GDAL installation does not provide the COG driver.')
     with gdal_progress('Writing COG ' + destination.name) as callback:
         with gdal.Translate(str(temporary), str(source), format='COG',
-                            creationOptions=COG_OPTIONS, callback=callback):
+                            creationOptions=options, callback=callback):
             pass
     with gdal.Open(str(temporary)) as check:
         if check.GetMetadataItem('LAYOUT', 'IMAGE_STRUCTURE') != 'COG':
