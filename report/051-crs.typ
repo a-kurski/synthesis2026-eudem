@@ -25,8 +25,8 @@ The preservation of the angles --- which is named among the key reasons to use g
 A qualitative analysis of Tissot indicatrices (@fig:tissot) shows that the distortions in the Rhine catchment area are relatively minimal with @ETRS89-LAEA, whereas @ETRS89-GRS80 noticeably distorts shape and @ETRS89-LCC distorts area.
 
 Additionally, the use of Equi7Grid was considered.
-Equi7Grid has been developed by Vienna University of Technology specifically to support high-resolution raster data by minimising data loss and data inflation #drafting.margin-note()[TODO cite].
-#drafting.margin-note()[TODO: ref figure] shows the distortion caused by using the Europe subgrid.
+Equi7Grid has been developed by Vienna University of Technology specifically to support high-resolution raster data by minimising data loss and data inflation @tuwgeo_equi7.
+@fig:tissot shows the distortion caused by using the Europe subgrid.
 The use of a @CRS other than one derived from @ETRS89 is explicitly disallowed by the @INSPIRE specification, which excludes Equi7Grid from the candidate @CRS:pla for this project.
 However, we recognise that in other cases, a different @CRS may be advantageous.
 Therefore, the pipeline is designed to support selection of a user-specified target @CRS by its @EPSG code.
