@@ -647,11 +647,11 @@ The regional RMSE is driven primarily by a limited set of pronounced local misma
 
 ==== RLP -- France <sec:rlp-france>
 
-The border between Rhineland-Palatinate (RLP) and France is approximately 112 km long and crosses predominantly hilly, forested terrain, particularly through the Pfälzerwald, which continues into France as the Northern Vosges. The Rhine does not form the main boundary: only the easternmost section approaches the Upper Rhine, while much of the border runs over land and partly follows smaller watercourses such as the Lauter. Castle ruins and distinctive rock formations are also characteristic features of this region.
+The border between RLP and France is approximately 112 km long and crosses predominantly hilly, forested terrain, particularly through the Pfälzerwald, which continues into France as the Northern Vosges. The Rhine does not form the main boundary, only the easternmost section approaches the Upper Rhine, while much of the border runs over land and partly follows smaller watercourses such as the Lauter. Castle ruins and distinctive rock formations are also characteristic features of this region.
 
 Elevation differences are defined as RLP minus France, so positive values indicate a higher RLP surface. The mean difference is −0.033 m and the median is −0.032 m. Half of the absolute differences are below 0.079 m and 90% are below 0.225 m. The RMSE of 0.260 m, compared with an NMAD of 0.113 m, indicates that a relatively small number of large discrepancies strongly influence the overall result.
 
-@fig:rlp-france-distribution shows the narrow central distribution and the much longer tails. Only 0.237% of the compared area, equivalent to 0.670 km², exceeds the 1.667 m comparison threshold, yet these cells contribute 60.4% of the total squared elevation difference. Differences greater than 5 m occupy just 0.044% of the area but contribute 36.3% of that total. Most of the overlap therefore agrees closely, while a small number of locations require separate investigation.
+@fig:rlp-france-distribution shows the narrow central distribution and the longer tails. Only 0.237% of the compared area, equivalent to 0.670 km², exceeds the 1.667 m comparison threshold, yet these cells contribute 60.4% of the total squared elevation difference. Differences greater than 5 m occupy just 0.044% of the area but contribute 36.3% of that total. Most of the overlap therefore agrees closely, while a small number of locations require separate investigation.
 
 #block(breakable: false)[
   #figure(
@@ -660,17 +660,17 @@ Elevation differences are defined as RLP minus France, so positive values indica
   ) <fig:rlp-france-distribution>
 ]
 
-The spatial overview in @fig:rlp-france-spatial distinguishes broad patterns of signed difference from concentrated large discrepancies. The ten largest problem regions lie at the western end of the overlap and contain 73.7% of all area above the threshold; the first five, numbered in the figure, contain 60.0%. Elsewhere, isolated anomalies occur within a predominantly low-RMSE corridor. The strongest individual differences are not in the largest-area clusters. The three panels also show why a small regional mean is insufficient: nearby positive and negative differences can cancel while local RMSE remains high.
+The spatial overview in @fig:rlp-france-spatial distinguishes broad patterns of signed difference from concentrated large discrepancies. The ten largest problem regions lie at the western end of the overlap and contain 73.7% of all area above the threshold. The first five of those regions are shown in @fig:rlp-france-spatial and contain 60.0%. However, the strongest individual differences are not in the regions with the biggest concentration of high difference. The locaitons of the largest individual differences are shown in @fig:rlp-france-extremes.
 
 #block(breakable: false)[
   #figure(
     image("assets/rlp_france_spatial.png", width: 100%),
-    caption: [*RLP minus France: saved elevation differences.* From top to bottom: mean signed difference, RMSE, and percentage of compared area exceeding 1.667 m, aggregated into 100 m display blocks from the original 5 m cells. Numbers identify the five largest supplied problem regions. White indicates no compared data. The colour scales saturate at the displayed limits; extreme values exceed those limits.],
+    caption: [*RLP minus France: saved elevation differences.* From top to bottom: mean signed difference, RMSE, and percentage of compared area exceeding 1.667 m. Numbers identify the five largest supplied problem regions. Extreme values go over the displayed limits by the colour scheme.],
   ) <fig:rlp-france-spatial>
 ]
 
 #block(breakable: false)[
-The inspected locations in @fig:rlp-france-extremes place the largest differences in their physical setting. The minimum of −30.37 m occurs at Fleckenstein Castle (7.772331° E, 49.044892° N), where the French DTM is higher. The maximum of +34.54 m occurs at the Klein Arsberg ruins (7.690392° E, 49.038642° N), where the RLP DTM is higher. Another pronounced positive difference was identified at the nearby rock opening (7.693148° E, 49.039210° N). These photographs show steep rock faces, masonry and, in the third example, overhanging rock. They provide terrain context rather than a direct measurement of DTM error.
+The inspected locations in @fig:rlp-france-extremes place the largest differences in their physical setting. The minimum of −30.37 m occurs at Fleckenstein Castle (7.772331° E, 49.044892° N), where the French DTM is higher. The maximum of +34.54 m occurs at the Klein Arsberg ruins (7.690392° E, 49.038642° N), where the RLP DTM is higher. Another pronounced positive difference was identified at the nearby rock opening (7.693148° E, 49.039210° N). These photographs were taken from public contributions found in Google Maps, and they provide terrain context rather than a direct measurement of DTM error.
 ]
 
 #let rlp-france-panel(path, panel-caption) = block(width: 100%, breakable: false)[
@@ -688,22 +688,22 @@ The inspected locations in @fig:rlp-france-extremes place the largest difference
       rlp-france-panel("assets/rlp_france_klein_arsberg.png", [(b) Klein Arsberg ruins]),
       rlp-france-panel("assets/rlp_france_rock_opening.png", [(c) Nearby rock opening]),
     ),
-    caption: [*Terrain settings of selected large differences.* Panels (a) and (b) correspond to the most negative and most positive cells, respectively; panel (c) illustrates another positive discrepancy. Google Maps photographs supplied with the visual inspection; site identifications follow the accompanying inspection notes.],
+    caption: [*Terrain settings of selected large differences.* (a) and (b) correspond to the most negative and most positive cells, respectively. (c) illustrates another positive discrepancy. Google Maps photographs supplied with the visual inspection.],
   ) <fig:rlp-france-extremes>
 ]
 
-Different treatment of ruins and exposed rock during ground classification, followed by interpolation across removed or sparsely sampled features, could produce these local discrepancies. Forest canopy may further limit ground observations around the sites. A raster DTM stores one elevation per horizontal cell and cannot explicitly represent both the top and underside of an overhang; the 5 m grid also smooths narrow rock edges. Consequently, disagreement at these locations may reflect different representations of complex terrain as well as processing errors. Verification requires the original classified point clouds and source-resolution DTMs, cross-sections through the exact cells, and an independent survey or reliable terrain reference. Acquisition dates and processing specifications are needed to distinguish temporal change from classification and interpolation effects.
+Different treatment of ruins and exposed rock during ground classification, followed by interpolation across removed or sparsely sampled features, could produce these local discrepancies. Forest canopy may further limit ground observations around the sites. A raster DTM stores one elevation per horizontal cell and cannot explicitly represent both the top and underside of an overhang. The 5 m grid also smooths narrow rock edges. Consequently, disagreement at these locations may reflect different representations of complex terrain as well as processing errors. Verification requires the original classified point clouds and source-resolution DTMs, cross-sections through the exact cells, and an independent survey or reliable terrain reference. Acquisition dates and processing specifications are needed to distinguish temporal change from classification and interpolation effects.
 
-@fig:rlp-france-patterns shows a different type of discrepancy: broad, approximately parallel bands extending across multiple fields and woodland areas. Their continuity suggests a systematic acquisition or processing component rather than only isolated terrain features. They resemble flight-strip patterns, but the image alone does not establish that origin. Survey trajectories and strip identifiers should be compared with the bands, and overlapping point-cloud strips examined separately. Comparing the pattern with source-tile boundaries and individual DTMs would also help distinguish strip-related effects from mosaicking, resampling or broad surface trends.
+@fig:rlp-france-patterns shows a different type of discrepancy: broad, approximately parallel bands extending across multiple fields and woodland areas. This pattern suggests an acquisition or processing component rather than terrain features. They resemble artefacts originating from flight line patterns. Survey trajectories and strip identifiers should be compared with the bands, and overlapping point-cloud strips examined separately.
 
 #block(breakable: false)[
   #figure(
     image("assets/rlp_france_patterns.png", width: 100%),
-    caption: [*Broad bands in the elevation-difference overlay.* The supplied image shows coherent contrasting bands across the eastern part of the overlap. Their resemblance to flight strips is a hypothesis requiring survey metadata. No numerical colour legend accompanies this screenshot, so its colours are interpreted qualitatively.],
+    caption: [*Broad bands in the elevation-difference overlay.* The image shows broad parallel bands extending across the region.],
   ) <fig:rlp-france-patterns>
 ]
 
-These results quantify agreement between the two DTMs, not their absolute accuracy. Neither surface is independent ground truth, and a small difference can conceal errors shared by both datasets. The selected photographs do not validate all affected cells or establish which provider is more accurate. The comparison applies only to the valid overlap and its exclusions; its 1.667 m threshold is a screening criterion rather than proof of formal accuracy compliance. Source dates, water masks and the actual vertical-reference transformations must be checked against the processing records. The principal priorities are therefore the western concentration of large differences, the isolated extremes at complex rock-and-ruin sites, and the origin of the broad banded pattern.
+These results quantify agreement between the two DTMs, not their absolute accuracy. Neither surface is independent ground truth, and a small difference can conceal errors shared by both datasets. The selected photographs do not validate all affected cells or establish which provider is more accurate. The principal priorities are therefore the western concentration of large differences, the isolated extremes at complex rock-and-ruin sites, and the flight line patterns.
 
 ==== BW -- France
 
