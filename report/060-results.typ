@@ -1,14 +1,19 @@
 #import "@preview/drafting:0.2.2"
 = Results <chap:results>
 
-This chapter discusses the results of the data scraping, the pipeline, analysis and our findings. The first section describes the challenges encountered while aquiring the data. Section 2 describes the results of the reprojection, resampling, regridding and interpolation. After, the analysis of the process is discussed, specifically analyzing the effect of various factors on the observed border errors. Lastly, any additional observations that do not fall within these categories will be discussed.
+This chapter discusses the results of the data acquisition, the pipeline, analysis of the border-pairs and general findings about the @DTMs. The first section describes the challenges encountered while aquiring the data. Section 2 describes the results of the reprojection, resampling, regridding and interpolation. After, the analysis of the process is discussed, specifically analyzing the effect of various factors on the observed border errors. Lastly, any additional observations that do not fall within these categories will be discussed.
 #drafting.inline-note(
 "At current stage, only some intermediate results are available.")
 
 
 
 == Data Acquisition <sec:results-acquisition>
-The data scraping is not considered a part of the processing pipeline. However, due to its relevance to the challenges of creating a @DEM of the Rhine catchment area, it has been included in this chapter. Currently, all data labeled as a must in @Moscow_Prioritization is implemented within the scraping software.
+The data scraping is not considered a part of the processing pipeline due to the variations in scraping methods, accessing differences, and computation time. However, due to its relevance to the challenges of creating a @DEM of the Rhine catchment area, it has been included in this chapter. The pipeline assumes all data is available in their raw formats that is, individual @DTM tiles in most of the cases. In case the requested data is not available, the pipeline proceeds to download it from the specified source. Currently, all acquisition of data labeled as a must in @Moscow_Prioritization is implemented within the scraping software.
+
+The pipeline acquires elevation data from 11 regions within 6 countries. The data comes in different formats, availability, @CRS, nodata specification, and resolution. The table below summarizes the characteristics of the data.
+
+#include "elevation_data_characteristics.typ"
+
 
 #drafting.inline-note("TODO: arda write about this section here")
 
