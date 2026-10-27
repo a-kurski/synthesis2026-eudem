@@ -13,8 +13,6 @@ The data scraping is not considered a part of the processing pipeline due to the
 The pipeline acquires elevation data from 11 regions within 6 countries. The data comes in different formats, availability, @CRS, nodata specification, and resolution. The table below summarizes the characteristics of the data.
 
 #include "elevation_data_characteristics.typ"
-
-
 #drafting.inline-note("TODO: arda write about this section here")
 
 == Pipeline <chap:Pipeline>
@@ -32,7 +30,20 @@ For this process nearest inverse distance weighing is used. This does not catch 
 The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
 == Analysis
 #drafting.inline-note("Explain what we see in the comparisons")
+#include "061-artifact_table.typ"
 
+=== Tile artifacts
+
+=== Watermask artifacts
+
+=== Interpolation artifacts
+
+=== Ground filtering artifacts
+
+=== Temporal artifacts
+
+=== Border artifacts
+#drafting.inline-note("Move all this to the appendix")
 #pagebreak()
 === Regions of Germany
 
