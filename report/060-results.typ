@@ -401,7 +401,51 @@ The last artifact appears most frequently within the French region of the mask. 
 
 === Ground filtering artifacts
 
+
+
 === Temporal artifacts
+
+Temporal artifacts rank third as the most common cause of artifacts. This is due to the fact the aquisition time between two regional or national @DTM:pls can differ in the order of years.
+
+There does appear to be a surprising commonality in the specific causes of these differences. The most common cause are construction sites. These include everything from the construction of new buildings, demolishing of buildings, or the construction of windmills.
+
+However, a more interesting type of temporal difference is found in the area surrounding Luxembourg. These are stockpiles of coal and sand at river ports (@fig:Coal). Due to the classification in the point cloud, these are not classified as buildings and are included in the ground filtering. Therefore, as ships are loaded and the distribution changes, the elevation change does appear in the comparison.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/RLP-BW-CoalESRI.png", width: 80%)
+      #align(center)[(ESRI)]
+    ],
+
+    [
+      #image("assets/RLP-BW-CoalDH.png", width: 80%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption: "Example of coal storage",
+)
+<fig:Coal>
+
+There is one even more unique difference which only occurs once to our knowledge within the border comparisons. This is the inclusion of snow which has affected the elevation in the @DTM, which was determined through point cloud evaluation (@fig:snow).
+
+#figure(
+  grid(
+    columns: (1fr, 1fr, 2fr),
+    column-gutter: 5pt,
+    [#image("assets/nrw-hessen-snow-satellite.png")],
+    [#image("assets/nrw-hessen-snow.png")],
+    [#image("assets/nrw-hessen-snow.jpeg", width: 85%)]
+  ),
+  caption: [Example of snow affecting the comparison]
+)<fig:snow>
+
+These differences can be resolved by comparing the point clouds of the neighboring regions. For the interest of temporal accuracy, it is most favorable to take the data from the latest aquisition time to have the most recent data. However, this does possibly cause a noticable seam at the edge of the overlapping area without any smoothing. As discussed in ... , smoothing dilutes the elevation data captured between regions and is undesirable. Furthermore, static features such as hills should not be affected by temporal aspects, and may require a different approach to be rectified. Solving this challenge is not within the boundaries of this project, but could be the focus of a followup project. 
+
+#drafting.inline-note("do make sure we compare our product to Mapterhorn")
 
 === Border artifacts
 #drafting.inline-note("Move all this to the appendix")
