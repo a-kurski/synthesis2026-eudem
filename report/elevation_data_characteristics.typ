@@ -32,14 +32,17 @@
   [Netherlands],
   [Switzerland],
 )
-
-#table(
-  columns: (1fr,) * fields.len(),
-  rows: (auto,) + (11mm,) * 11,
-  inset: 5pt,
-  align: left + horizon,
-  stroke: 0.5pt + rgb("aab2bb"),
-  fill: (x, y) => if y == 0 { rgb("e9eef3") },
-  table.header(..fields.map(field => strong(field))),
-  ..regions.map(region => (region,) + ([],) * (fields.len() - 1)).flatten(),
-)
+#place(center + horizon)[
+#figure(
+  table(
+    columns: (1fr,) * fields.len(),
+    rows: (auto,) + (11mm,) * 11,
+    inset: 5pt,
+    align: left + horizon,
+    stroke: 0.5pt + rgb("aab2bb"),
+    fill: (x, y) => if y == 0 { rgb("e9eef3") },
+    table.header(..fields.map(field => strong(field))),
+    ..regions.map(region => (region,) + ([],) * (fields.len() - 1)).flatten(),
+  ),
+  caption:[Dataset specifications]
+)]
