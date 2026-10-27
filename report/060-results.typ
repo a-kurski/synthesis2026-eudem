@@ -1,7 +1,8 @@
 #import "@preview/drafting:0.2.2"
 = Results <chap:results>
 
-This chapter discusses the results of the data acquisition, the pipeline, analysis of the border-pairs and general findings about the @DTM:pls. The first section describes the challenges encountered while aquiring the data. Section 2 describes the results of the reprojection, resampling, regridding and interpolation. After, the analysis of the process is discussed, specifically analyzing the effect of various factors on the observed border errors. Lastly, any additional observations that do not fall within these categories will be discussed.
+This chapter discusses the results of the data acquisition, the pipeline, analysis of the border-pairs and general findings about the @DTM's. The first section describes the challenges encountered while aquiring the data. Section 2 describes the results of the reprojection, resampling, regridding and interpolation. After, the analysis of the process is discussed, specifically analyzing the effect of various factors on the observed border errors. Lastly, any additional observations that do not fall within these categories will be discussed.
+
 #drafting.inline-note(
 "At current stage, only some intermediate results are available.")
 
@@ -10,10 +11,10 @@ This chapter discusses the results of the data acquisition, the pipeline, analys
 == Data Acquisition <sec:results-acquisition>
 The data scraping is not considered a part of the processing pipeline due to the variations in scraping methods, accessing differences, and computation time. However, due to its relevance to the challenges of creating a @DEM of the Rhine catchment area, it has been included in this chapter. The pipeline assumes all data is available in their raw formats that is, individual @DTM tiles in most of the cases. In case the requested data is not available, the pipeline proceeds to download it from the specified source. Currently, all acquisition of data labeled as a must in @Moscow_Prioritization is implemented within the scraping software.
 
-The pipeline acquires elevation data from 11 regions within 6 countries. The data comes in different formats, availability, @CRS, nodata specification, and resolution. The table below summarizes the characteristics of the data.
+The pipeline acquires elevation data from 11 regions within 6 countries. The data comes in different formats, availability, @CRS, nodata specification, and resolution. @tab:elevation-data below the characteristics of the input data.
 
 #include "elevation_data_characteristics.typ"
-#drafting.inline-note("TODO: arda write about this section here")
+
 
 == Pipeline <chap:Pipeline>
 #drafting.inline-note("Go over the pipeline shortcomings in accordance with the subquestion")
@@ -261,6 +262,7 @@ Tile artifacts are one of the least common types of artifacts. However, often th
 
 === Border artifacts
 #drafting.inline-note("Move all this to the appendix")
+
 #pagebreak()
 === Regions of Germany
 
@@ -582,7 +584,6 @@ An interesting artefact is a 0.6m-tall "mound" between Wallau and Bad Laasphe.
   ),
   caption: [Ground and building filtering differences between NRW and Hessen]
 )<fig:nrw-hessen-ground>
-
 ==== Hessen -- Bavaria
 
 The statistics of the errors along Hessen--Bavaria border are similar to those of Hessen--NRW border, but their sources appear to be somewhat different.
@@ -650,61 +651,8 @@ Bavaria instead uses Delaunay triangulation, seemingly based on the lowest point
   caption: [Differences in water processing between Bavaria and Hessen]
 )<fig:bavaria-hessen-water>
 
-==== Hessen -- RLP
-
-The border between Hessen and @RLP largely follows the Rhine.
-Compared to the borders between German states, it has the second-highest @RMSE at 1.30m and the highest @LE90 at 0.19m. It also has the second-highest absolute error at -61.59m.
-High @RMSE can largely be attributed to errors due to processing in one particular tile; high @LE90 is a symptom of systematic errors.
-
-One of the tiles Hessen includes in its elevation dataset is almost entirely interpolated --- seemingly using two interpolation methods: linear interpolation on a TIN where sample points are available; and another method where data was not available.
-Hessen does not publish the point cloud data, yet having observed raster elevation data, we believe that the entire tile was cropped out from the point cloud survey as it only contained partial data.
-A small part of Hessen still falls within that tile; and it was re-included by Hessen during the raster processing phase, interpolated based on the ground points from the neighbouring tiles.
-It is unclear what the elevation of the southwest extreme point is based on.
-
-#figure(
-  grid(
-    columns: (1fr, 1fr, 1fr, 1fr),
-    column-gutter: 5pt,
-    [#image("assets/hessen-rlp-artefact-satellite.png")],
-    [#image("assets/hessen-rlp-artefact-hessen.png") Hessen],
-    [#image("assets/hessen-rlp-artefact-rlp.png") RLP],
-    [#image("assets/hessen-rlp-artefact.png")],
-  ),
-  caption: [Interpolation artefact by Hessen]
-)
-
-Systematic errors can be observed throughout the region where, especially on hilly terrain, there is a relatively consistent 5--20cm difference between the two @DTM:pla.
-There are several visible borders between in the difference map where two tiles meet, which likely point at either a different ground filtering algorithm or a misalignment between two different surveys carried out by the same provider.
-The hilly terrain makes it impossible to confidently conclude which of the data providers is responsible for this error based on raster data alone.
-
-#figure(
-  grid(
-    columns: (1fr, 1fr, 1fr, 1fr),
-    column-gutter: 5pt,
-    [#image("assets/hessen-rlp-tiling-satellite.png")],
-    [#image("assets/hessen-rlp-tiling-hessen.png") Hessen],
-    [#image("assets/hessen-rlp-tiling-rlp.png") RLP],
-    [#image("assets/hessen-rlp-tiling.png")],
-  ),
-  caption: [Example of systematic error between Hessen and RLP]
-)
-
-Smaller errors are also visible in building footprints, where both providers are performing linear interpolation on a TIN but based on somewhat different set of points.
-
-#figure(
-  grid(
-    columns: (1fr, 1fr, 1fr, 1fr),
-    column-gutter: 5pt,
-    [#image("assets/hessen-rlp-buildings-satellite.png")],
-    [#image("assets/hessen-rlp-buildings-hessen.png") Hessen],
-    [#image("assets/hessen-rlp-buildings-rlp.png") RLP],
-    [#image("assets/hessen-rlp-buildings.png")],
-  ),
-  caption: [Temporal differences between Switzerland and BW]
-)
-
 ==== BW -- Bavaria
-The @BW -- Bavaria border is similar to the @NRW -- Hessen border, as it is split in two sections due to the catchment area shape. For this region Bavaria provides point cloud data, whereas @BW does not. This means that point cloud comparisons will not be possible for this border region.
+The @BW -- Bavaria border to the @NRW -- Hessen border, as it is split in two sections due to the catchment area shape. For this region Bavaria provides point cloud data, whereas @BW does not. This means that point cloud comparisons will not be possible for this border region.
 
 #figure(
   image("assets/BW-Bavaria-Border.png",width:40%),
@@ -775,7 +723,7 @@ The second artifact within this border comparison is similar to the one encounte
 
 Several other errors exist within the border comparison. These are in line with the errors encountered at other borders. These include interpolation errors, differences in ground filtering (differences in overpass handling), temporal changes (mostly due to quarries or construction areas), differnces due to watermask shortcomings (including small pools, small lakes, creaks), steep slopes
 
-For this border comparison, the @INSPIRE target is not met. The amount of points above the threshold is only $0.14%$. However, the total @RMSE is 5.36m --- a factor $3.2$ greater than what it is allowed to be for the $5$ meter resolution. These results are not acceptable for the final map. However, solving this problem does not fall within the scope or time constraints of this project, and is primarily a challenge created due to available input data and not by the processing pipeline.
+For this border comparison, the @INSPIRE target is not met. The amount of points above the threshold is only $0.14%$. However, the total @RMSE is a factor $3.2$ greater than what it is allowed to be for the $5$ meter resolution. These results are not acceptable for the final map. However, solving this problem does not fall within the scope or time constraints of this project, and is primarily a challenge created due to available input data and not by the processing pipeline.
 
 #pagebreak()
 
@@ -783,29 +731,8 @@ For this border comparison, the @INSPIRE target is not met. The amount of points
 
 === Luxembourg -- Germany -- France
 ==== Luxembourg -- France
+The border area between Luxembourg and France is only 6 kilometers long and is generally hilly. Because the border is short, it is highly influenced by differences. This border includes several steep cliffs in both the east and west of the area. These regions are shown as the elongated red flagged regions in the west, and the majority of regions in the east in @fig:Lux_Fra_border.
 
-The border area between Luxembourg and france is roughly $50"km"$ long and consists of more even terrain in the east and increasingly hilly terrain in the west with deviations of over 100 meters at relatively short distances. As can be seen in @fig:Lux_Fra_border, most of the western region of the border is flagged as having a deviation greater than the resolution-RMSE ratio.
-
-#figure(
-  grid(
-    columns: 2,
-    gutter: 5pt,
-
-    [
-      #image("assets/France-Lux-borderarea.png", width: 100%)
-      #align(center)[(DH)]
-    ],
-
-    [
-      #image("assets/France-Lux-borderarea-issues.png", width: 100%)
-      #align(center)[(Flagged Differences)]
-    ],
-  ),
-  caption: "Difference overview",
-)
-<fig:Lux_Fra_border>
-
-As a primary example of this phenomenon the area around Rumelange was more closely evaluated. Unlike most border regions, the differences are not limited to isolated artifacts, but affect most of the border area. A prominent example is the area around Rumelange. Evaluating the elevation map and Google Earth, shows that the area is populated with steep slopes, valley sides, ridges and cliff faces (@fig:Lux_Fra_Rumelange).
 
 #figure(
   grid(
@@ -813,54 +740,32 @@ As a primary example of this phenomenon the area around Rumelange was more close
     gutter: 5pt,
 
     [
-      #image("assets/France-Lux-Rumelange.png", width: 100%)
-      #align(center)[(Flagged Differences)]
-    ],
-
-    [
-      #image("assets/France-Lux-Rumelange-elevation.png", width: 100%)
-      #align(center)[(DTM)]
-    ],
-
-    [
-      #image("assets/France-Lux-Rumelange-contour.png", width: 100%)
-      #align(center)[(DTM)]
-    ],
-  ),
-  caption: "Rumelange difference overview",
-)
-<fig:Lux_Fra_Rumelange>
-
-Further examining the uncertainty pattern of the border region further supports these observations (@fig:Lux_Fra_Rumelange_uncertainty). Areas with high uncertainty (shown in red), represent elevation differences due to random errors of $1.6$ meters, while low uncertainty regions (in blue), correspond with the regions of small differences in the elevation difference map. Due to the respective national @DTM:pls being generated from @LiDAR data, small differences in sample point locations can create large differences in the elevation of a point. This effect becomes more pronounced due to the 5 meter resolution of the French @DTM and the 0.5 meter resolution of the Luxembourg @DTM.
-
-#figure(
-  grid(
-    columns: 2,
-    gutter: 5pt,
-
-    [
-      #image("assets/France-Lux-Rumelange-DH.png", width: 100%)
+      #image("assets/Lux-Fra-border.png", width: 100%)
       #align(center)[(DH)]
     ],
 
     [
-      #image("assets/France-Lux-Rumelange-uncertainty.png", width: 100%)
-      #align(center)[(Uncertainty)]
+      #image("assets/Lux-Fra-borderIssues.png", width: 100%)
+      #align(center)[(Flagged Differences)]
+    ],
+
+    [
+      #image("assets/Lux-Fra-borderOSM.png", width: 100%)
+      #align(center)[(OSM)]
     ],
   ),
-  caption: "Random error effects due to sloped terrain",
+  caption: "Difference overview",
 )
-<fig:Lux_Fra_Rumelange_uncertainty>
+<fig:Lux_Fra_border>
 
-Influence of the slope on the can also be observed directly from the @RMSE analysis (@fig:Lux_Fra_Rumelange_slope). Areas with a slope above 5 degrees have a @RMSE surpassing 4 meters. This behavior deviates from most other border regions where the RMSE gradually increases with slope. The result suggests that the steep terrain is one of the dominant causes of disagreement between the two @DTM:pls.
+The remainder of the errors are in a region overlapping with the Saarland border, which includes the hydro electric plant discribed in that analysis. Furthermore, the town located next to the powerplant contains several building interpolation differences as shown in
 
 #figure(
-  image("assets/slope_rmse_france_luxembourg.png",width:60%),
-  caption:[RMSE grows strongly due to the effects of terrain slope, up to 5.5 meters at 40 degrees]
+  image("assets/Lux-Fra-buildings.png",width:50%),
+  caption:"Building roofs flagged as differences due to interpolation differences"
 )
-<fig:Lux_Fra_Rumelange_slope>
 
-Further artifacts within the region do more closely correspond with the rest of Luxembourg and the border regions in general. These include building interpolation differences, narrow streams not captured by the river mask, and isolated quarry or construction areas. This region does not comply with the thresholds set within @chap:method, with 23% of all points surpassing the threshold. Furthermore, the resolution would need to be increased by over 80% to nearly 10 meters for compliance with the @INSPIRE target. As eluded to earlier, this difference may be a byproduct of the low resolution @DTM compared to the fine resolution of the Luxembourg @DTM, which has introduced resampling differences. While outside of the time constraint of the project, evaluating the results of the comparison against the higher resolution French @DTM could result in better alignment. Alternatively, reextraction from the national point clouds could also be a way to rectify these differences.
+Despite the strong influence of the various differences, the map falls within the @INSPIRE threshold. The observed differences are known limitations of the border overlap due to differences in ground filtering, handling of overpasses, river mask limitations, steep slopes and interpolation differences.
 
 ==== Luxembourg -- RLP
 The Luxembourg -- @RLP border is roughly 80 kilometers long, and with that is the longest border that is evaluated for the catchment area. On the east side of the overlapping area there is the Our river. Observing the overlap map shows that the rivermask was not succesful at filtering out the waterbodies entirely for the region. This is a known artifact known to be caused by narrow waterbodies. Furthermore, these river areas have been flagged as noticable differences and due count towards the difference at the border.
@@ -900,6 +805,8 @@ The only unique error found around this area is the inclusion of hydro electric 
 <fig:Lux-Saarland-Hydro>
 
 For this region, the percentage of points above the @INSPIRE threshold, is around $1%$. While above average, this is caused by the fact that it is a small region, where the spatial dimensions of the differences remain consistent with differences found in other regions. Nevertheless, the difference @DTM falls well within the @INSPIRE target threshold, and contains no significant errors such as border extrapolation, misaligned tiles or inexplicable differences.
+
+=== Switzerland -- Germany -- France
 
 === Germany -- France
 ==== Saarland -- France <sec:saarland-france>
@@ -1066,7 +973,6 @@ Alongside these large local differences, @fig:bw-france-patterns shows flight-li
   ]
 ]
 
-// below: this ChatGPT?
 
 The most useful follow-up actions are:
 
@@ -1075,96 +981,7 @@ The most useful follow-up actions are:
 - Analyse slope and border distance within geographic subsets, with sample counts and land-use context, before attributing the pooled patterns to one mechanism.
 - Recalculate inconsistent polygon areas and refit the uncertainty model, preserving the empirical variogram, fitted parameters, masks and processing provenance needed to validate the results.
 
-=== Switzerland -- Germany & France
-
-==== Switzerland -- France
-
-Overall, the border between France and Switzerland contains errors similar to those found on the French--German border.
-These include one instance of striping, most visible in the suburbs of Basel.
-The stripe appears to follow the edge of the French @DTM, which further points towards it being caused by poorly aligned flight-paths.
-
-#figure(
-  image("assets/fr-ch-flightpath.png", width: 40%),
-  caption: [Flight-path artefacts between France and Switzerland]
-)
-
-There is also a large artefact in the forested region near Pfetterhouse.
-In the French @DTM, the elevation of peaks appears to be underestimated while the elevation of valleys is overestimated --- essentially, the @DTM is over-smoothed.
-We speculate that regions like this come from a different survey with different approach to ground filtering (perhaps ground is estimated with a global interpolation function) but we have not been able to verify or falsify this hypothesis.
-
-#figure(
-  grid(
-    columns: (1fr, 1fr, 1fr),
-    column-gutter: 5pt,
-    [#image("assets/fr-ch-forest-ch.png") Switzerland],
-    [#image("assets/fr-ch-forest-fr.png") France],
-    [#image("assets/fr-ch-forest.png")],
-  ),
-  caption: [Ground filtering differences between Switzerland and France]
-)
-
-==== Switzerland -- BW
-
-The border between Switzerland and @BW largely follows the Rhine between Konstanz and Basel and notably includes Büsingen, an exclave of BW within Switzerland.
-The regions are overall well-aligned with @LE90 of only 0.12m but a high @RMSE of 0.4m.
-
-The largest errors are best explained by temporal differences --- like in other areas examined above, there are several quarries present near the border. The largest of them is located northeast of Schaffhausen and is responsible for the largest differences in elevation, up to 30m.
-
-#figure(
-  grid(
-    columns: (1fr, 1fr, 1fr, 1fr),
-    column-gutter: 5pt,
-    [#image("assets/ch-bw-quarry-satellite.png")],
-    [#image("assets/ch-bw-quarry-ch.png") Switzerland],
-    [#image("assets/ch-bw-quarry-bw.png") BW],
-    [#image("assets/ch-bw-quarry.png")],
-  ),
-  caption: [Temporal differences between Switzerland and BW]
-)
-
-A more unique error is due to ground filtering, as can be observed with the industrial complex north of Stein, where differences between the different ground filtering/interpolation methods can exceed 3m. As is evident from the difference mask, both data providers use TIN to interpolate the terrain but a different set of points for constructing said TIN. A likely misclassification of the ground, perhaps due to shadowing or multipath errors, causes the error in the elevation of ground points and therefore the error in the TIN.
-
-#figure(
-  grid(
-    columns: (1fr, 1fr, 1fr, 1fr),
-    column-gutter: 5pt,
-    [#image("assets/ch-bw-buildings-satellite.png")],
-    [#image("assets/ch-bw-buildings-ch.png") Switzerland],
-    [#image("assets/ch-bw-buildings-bw.png") BW],
-    [#image("assets/ch-bw-buildings.png")],
-  ),
-  caption: [Differences in building processing between Switzerland and BW]
-)
-
-Ground and vegetation filtering also have an effect on forested slopes between Hallau and Eggingen where minor striping can be observed. The stripes appear to be running perpendicular to the slope and, we speculate, can be symptomatic of either differences in ground processing by data providers; or they could be a resampling artefact. We recommend performing point cloud analysis to validate either of these hypotheses, which was skipped due to time constraints of the project.
-
-#figure(
-  grid(
-    columns: (1fr, 1fr, 1fr),
-    column-gutter: 5pt,
-    [#image("assets/ch-bw-forest-satellite.png")],
-    [#image("assets/ch-bw-forest-elev.png")],
-    [#image("assets/ch-bw-forest.png")]
-  ),
-  caption: [Differences in ground processing between Switzerland and BW]
-)
-
-Similarly to the building interpolation, there is also an observable difference in the water surface. Switzerland appears to be using a hydro-flattening approach whereas @BW is instead using linear interpolation on a TIN.
-
-#figure(
-  grid(
-    columns: (1fr, 1fr, 1fr, 1fr),
-    column-gutter: 5pt,
-    [#image("assets/ch-bw-water-satellite.png")],
-    [#image("assets/ch-bw-water-ch.png") Switzerland],
-    [#image("assets/ch-bw-water-bw.png") BW],
-    [#image("assets/ch-bw-water.png")],
-  ),
-  caption: [Differences in water processing between Switzerland and BW]
-)
-
 === Germany -- Netherlands
-
 ==== Netherlands -- NRW
 The border between the Netherlands and @NRW is approximately 50 kilometers long, is mainly flat, but also contains large hills. The main error found within this region is unfortunately a byproduct of our attempt to interpolate the non-interpolated regions of the Netherlands (@fig:Netherlands-NRW-border). These errors are found primarily in the form of extrapolation errors found at various positions along the border. This is a discrepancy caused by differences in the specified borders for the Netherlands within the interpolation algorithm. However, since these areas are trimmed from the final @DTM, it is not a issue which will be fixed during this project.
 
