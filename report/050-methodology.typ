@@ -187,7 +187,7 @@ The resulting elevation data is written to an output GeoTIFF, cropped to the spe
 // ) <alg-dtm-preparation>
 //  ]
 
-== Water Mask Processing
+== Water Mask Processing <sec:Water_mask_processing>
 
 An expected limitation of the pipeline is retaining the errors introduced by water body interpolation. The solution to this problem is to exclude the subset of points which fall within the river area from the error analysis.
 
