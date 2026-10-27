@@ -478,3 +478,6 @@ caption:[Gantt chart]
   ),
   caption:[Dataset availability]
 )
+
+= Border pair analysis
+#include "992-borderpairs.typ"
