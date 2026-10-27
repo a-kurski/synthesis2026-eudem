@@ -119,5 +119,5 @@
     caption: [
       Overview of border region artifacts encountered in valid coutry pairs
     ]
-  )
+  )<tab:artifacts_table>
 ]

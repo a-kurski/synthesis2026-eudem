@@ -29,6 +29,140 @@ For this process nearest inverse distance weighing is used. This does not catch 
 
 The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
 == Analysis
+
+As described in @sec:border-analysis, the analysis step is where we evaluate the border differences between two neighboring regions. A variety of statistics were evaluated, some of which proved more informative than others. Within this section we will describe which statistics proved most useful for the analysis, primary differences that were encountered, and suggestions on how to rectify, or minimize the border differences between regions.
+
+The primary, and most informative metric to evaluate is the elevation difference raster. In order to best evaluate this metric various gradients were used. However, those provided by default in @QGIS:asf, are not sufficiently illustrative for both the visuals and the analysis. Therefore, `fusion` was instead used as the primary gradient for elevation difference visuals (@fig:crm_fusion)(@cmr_fusion). Using this gradient allows for the clear illustration of difference extremes, as shown in @fig:dif_ex.
+
+#figure(
+  image("assets/cmr_fusion.png", width:50%),
+  caption:[fusion gradient @cmr_fusion]
+)
+<fig:crm_fusion>
+
+#figure(
+  image("assets/difference_map_illustration.png", width:50%),
+  caption:[Difference DTM example]
+)
+<fig:dif_ex>
+
+It is often possible to infer the cause for differences by comparing against @OSM, Google Maps, ESRI image, or by comparing the national @DTM:pls. Nevertheless, sometimes more data is required. For this the `RMSE vs Slope` graph can prove useful (@fig:slope_ex). The expected behavior of this graph is a steadily increasing @RMSE for greater slope angles. Deviations from this trend can point towards differences which may be related to ground filtering, or sample point differences due to steep elevations. However, it may also point to temporal differences, for example due to quarries.
+
+#figure(
+  image("assets/slope_rmse_germany_nrw_germany_rlp.png", width:50%),
+  caption:[Typical slope plot example]
+)
+<fig:slope_ex>
+
+The histogram is another method of looking at the differences. The plots follow a logarithmic scale as to be more informative. The expected visual is a sharp peak at 0 elevation difference, with a decreasing amount of points as the absolute difference grows. Should the mean of this graph lie elsewhere, there is the possibility of errorous vertical transformations. Secondary peaks on the other hand may represent larger artifacts that are shifted up or down, for example due to extrapolation artifacts.
+
+#figure(
+  image("assets/histogram_germany_rlp_france.png", width:60%),
+  caption:[Typical histogram example]
+)
+<fig:hist_ex>
+
+The third most commonly used tool is the generated analysis `.csv` file. Although the difference @DTM is the main way of identifying differences locally, an additional global set of statistics can provide a clear summary of the differences. The mean and median describe the systematic errors of the border region, while the @STD, @RMSE, @MAE, and @NMAD describe the magnitude of the outliers (@tab:general_metrics). The minimum and maximum values indicate the greatest disagreements between the nations. Furthermore, the "`above threshold`" statistic describes the amount of cells that do not meet the resolution requirement from @sec:inspire-quality, while the "`percentage above threshold`" describes what the percentage of cells is compared the total amount of cells which do not comply (@tab:accuracy_metrics). 
+
+The remaining attributes are mainly used to determine the reliability of the comparison, and the effectiveness of the coregistration (@tab:coreg_metrics). The `mean sigma `$delta$`h` represents the average uncertainty associated with the elevation differences, while `n effective` reflects the number of independent observations after accounting for spatial correlation. The `mean `$sigma$`h/`$sigma$ metric describes the magnitude of the differences, relative to the expected random error. Furthermore, the `error correlation at 1 km` provides an indication of the spatial correlation of the errors, with larger values suggesting that neighbouring cells exhibit similar error behaviour. Finally, the estimated `shift x`, `shift y`, and `shift z` values quantify the horizontal and vertical corrections determined during coregistration and can help identify systematic offsets between neighbouring datasets. Small values of this shift indicate that the vertical and horizontal @CRS transformations already properly align the two @DTM:pls.
+
+#let headerfill = rgb("e9eef3")
+#let gridcolor = rgb("aab2bb")
+
+#figure(
+table(
+  columns: 7,
+
+  inset: 3pt,
+  align: center + horizon,
+  stroke: 0.5pt + gridcolor,
+
+  fill: (x, y) => if y == 0 { headerfill },
+
+  table.header(
+    [*Stage*],
+    [*Subset*],
+    [*Valid cells*],
+    [*Mean*],
+    [*Median*],
+    [*Std*],
+    [*RMSE*],
+  ),
+
+  [Before], [All],      [11,282,135], [-0.0328], [-0.0324], [0.2574], [0.2595],
+  [Before], [Measured], [11,282,135], [-0.0328], [-0.0324], [0.2574], [0.2595],
+
+  [After],  [All],      [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
+  [After],  [Measured], [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
+),caption:[General metrics])
+<tab:general_metrics>
+#figure(
+table(
+  columns: 9,
+
+  inset: 3pt,
+  align: center + horizon,
+  stroke: 0.5pt + gridcolor,
+
+  fill: (x, y) => if y == 0 { headerfill },
+
+  table.header(
+    [*Stage*],
+    [*Subset*],
+    [*MAE*],
+    [*NMAD*],
+    [*LE90*],
+    [*Min*],
+    [*Max*],
+    [*Above thr.*],
+    [*% Above*],
+  ),
+
+  [Before], [All],      [0.1176], [0.1129], [0.2255], [-30.37], [34.54], [26,792], [0.237],
+  [Before], [Measured], [0.1176], [0.1129], [0.2255], [-30.37], [34.54], [26,792], [0.237],
+
+  [After],  [All],      [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
+  [After],  [Measured], [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
+), caption:[Accuracy and threshold metrics])
+<tab:accuracy_metrics>
+#figure(
+  table(
+  columns: 8,
+
+  inset: 3pt,
+  align: center + horizon,
+  stroke: 0.5pt + gridcolor,
+
+  fill: (x, y) => if y == 0 { headerfill },
+
+  table.header(
+    [*Stage*],
+    [*Mean σΔh*],
+    [*Nₑff*],
+    [*Mean Δh/σ*],
+    [*ρ₁km*],
+    [*ΔX (m)*],
+    [*ΔY (m)*],
+    [*ΔZ (m)*],
+  ),
+
+  [Before], [0.1075], [4.567], [0.0503], [0.2353], [-],        [-],        [-],
+  [After],  [0.1075], [4.567], [0.0503], [0.2353], [-0.0056], [0.2830], [-0.0286],
+),
+caption:[Coregistration metrics]
+)
+<tab:coreg_metrics>
+Based on these and other less common metrics, we have identified six categories for common artifacts within the border comparisons. These are further divided into several sub-categories, which detail exactly the type of artifact encountered within a region. These six main categories are:
+
+- Tile artifacts;
+- Watermask failures;
+- Interpolation artifacts;
+- Ground filtering artifacts;
+- Temporal artifacts;
+- Border artifacts.
+
+A complete overview of the specific border pairs and their corresponding artifacts can be found in @tab:artifacts_table. Each category and the subcategories will be discussed in the remainder of this chapter. The full pairwise analysis for all valid country pairs, can be found in ...
+#drafting.inline-note("refer to the appendix with all the pairwise comparisons")
 #drafting.inline-note("Explain what we see in the comparisons")
 #include "061-artifact_table.typ"
 
