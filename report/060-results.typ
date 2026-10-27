@@ -501,8 +501,29 @@ For this border comparison, the @INSPIRE target is not met. The amount of points
 
 === Luxembourg -- Germany -- France
 ==== Luxembourg -- France
-The border area between Luxembourg and France is only 6 kilometers long and is generally hilly. Because the border is short, it is highly influenced by differences. This border includes several steep cliffs in both the east and west of the area. These regions are shown as the elongated red flagged regions in the west, and the majority of regions in the east in @fig:Lux_Fra_border.
 
+The border area between Luxembourg and france is roughly $50"km"$ long and consists of more even terrain in the east and increasingly hilly terrain in the west with deviations of over 100 meters at relatively short distances. As can be seen in @fig:Lux_Fra_border, most of the western region of the border is flagged as having a deviation greater than the resolution-RMSE ratio.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/France-Lux-borderarea.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+
+    [
+      #image("assets/France-Lux-borderarea-issues.png", width: 100%)
+      #align(center)[(Flagged Differences)]
+    ],
+  ),
+  caption: "Difference overview",
+)
+<fig:Lux_Fra_border>
+
+As a primary example of this phenomenon the area around Rumelange was more closely evaluated. Unlike most border regions, the differences are not limited to isolated artifacts, but affect most of the border area. A prominent example is the area around Rumelange. Evaluating the elevation map and Google Earth, shows that the area is populated with steep slopes, valley sides, ridges and cliff faces (@fig:Lux_Fra_Rumelange).
 
 #figure(
   grid(
@@ -510,32 +531,54 @@ The border area between Luxembourg and France is only 6 kilometers long and is g
     gutter: 5pt,
 
     [
-      #image("assets/Lux-Fra-border.png", width: 100%)
-      #align(center)[(DH)]
-    ],
-
-    [
-      #image("assets/Lux-Fra-borderIssues.png", width: 100%)
+      #image("assets/France-Lux-Rumelange.png", width: 100%)
       #align(center)[(Flagged Differences)]
     ],
 
     [
-      #image("assets/Lux-Fra-borderOSM.png", width: 100%)
-      #align(center)[(OSM)]
+      #image("assets/France-Lux-Rumelange-elevation.png", width: 100%)
+      #align(center)[(DTM)]
+    ],
+
+    [
+      #image("assets/France-Lux-Rumelange-contour.png", width: 100%)
+      #align(center)[(DTM)]
     ],
   ),
-  caption: "Difference overview",
+  caption: "Rumelange difference overview",
 )
-<fig:Lux_Fra_border>
+<fig:Lux_Fra_Rumelange>
 
-The remainder of the errors are in a region overlapping with the Saarland border, which includes the hydro electric plant discribed in that analysis. Furthermore, the town located next to the powerplant contains several building interpolation differences as shown in
+Further examining the uncertainty pattern of the border region further supports these observations (@fig:Lux_Fra_Rumelange_uncertainty). Areas with high uncertainty (shown in red), represent elevation differences due to random errors of $1.6$ meters, while low uncertainty regions (in blue), correspond with the regions of small differences in the elevation difference map. Due to the respective national @DTM:pls being generated from @LiDAR data, small differences in sample point locations can create large differences in the elevation of a point. This effect becomes more pronounced due to the 5 meter resolution of the French @DTM and the 0.5 meter resolution of the Luxembourg @DTM.
 
 #figure(
-  image("assets/Lux-Fra-buildings.png",width:50%),
-  caption:"Building roofs flagged as differences due to interpolation differences"
-)
+  grid(
+    columns: 2,
+    gutter: 5pt,
 
-Despite the strong influence of the various differences, the map falls within the @INSPIRE threshold. The observed differences are known limitations of the border overlap due to differences in ground filtering, handling of overpasses, river mask limitations, steep slopes and interpolation differences.
+    [
+      #image("assets/France-Lux-Rumelange-DH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+
+    [
+      #image("assets/France-Lux-Rumelange-uncertainty.png", width: 100%)
+      #align(center)[(Uncertainty)]
+    ],
+  ),
+  caption: "Random error effects due to sloped terrain",
+)
+<fig:Lux_Fra_Rumelange_uncertainty>
+
+Influence of the slope on the can also be observed directly from the @RMSE analysis (@fig:Lux_Fra_Rumelange_slope). Areas with a slope above 5 degrees have a @RMSE surpassing 4 meters. This behavior deviates from most other border regions where the RMSE gradually increases with slope. The result suggests that the steep terrain is one of the dominant causes of disagreement between the two @DTM:pls.
+
+#figure(
+  image("assets/slope_rmse_france_luxembourg.png",width:60%),
+  caption:[RMSE grows strongly due to the effects of terrain slope, up to 5.5 meters at 40 degrees]
+)
+<fig:Lux_Fra_Rumelange_slope>
+
+Further artifacts within the region do more closely correspond with the rest of Luxembourg and the border regions in general. These include building interpolation differences, narrow streams not captured by the river mask, and isolated quarry or construction areas. This region does not comply with the thresholds set within @chap:method, with 23% of all points surpassing the threshold. Furthermore, the resolution would need to be increased by over 80% to nearly 10 meters for compliance with the @INSPIRE target. As eluded to earlier, this difference may be a byproduct of the low resolution @DTM compared to the fine resolution of the Luxembourg @DTM, which has introduced resampling differences. While outside of the time constraint of the project, evaluating the results of the comparison against the higher resolution French @DTM could result in better alignment. Alternatively, reextraction from the national point clouds could also be a way to rectify these differences.
 
 ==== Luxembourg -- RLP
 The Luxembourg -- @RLP border is roughly 80 kilometers long, and with that is the longest border that is evaluated for the catchment area. On the east side of the overlapping area there is the Our river. Observing the overlap map shows that the rivermask was not succesful at filtering out the waterbodies entirely for the region. This is a known artifact known to be caused by narrow waterbodies. Furthermore, these river areas have been flagged as noticable differences and due count towards the difference at the border.
