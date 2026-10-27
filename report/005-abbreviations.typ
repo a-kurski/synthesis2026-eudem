@@ -10,6 +10,7 @@
   ("BSc", "Bachelor of Science"),
   ("COG", "Cloud-Optimized GeoTIFF"),
   ("COPC", "Cloud-Optimized Point Cloud"),
+  ("CRF", "Coordinate Reference Frame"),
   ("CRS", "Coordinate Reference System", "Coordinate Reference Systems"),
   ("CSF", "Cloth Simulation Filtering"),
   ("DEM", "Digital Elevation Model", "Digital Elevation Models"),

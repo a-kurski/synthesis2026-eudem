@@ -252,12 +252,152 @@ Tile artifacts are one of the least common types of artifacts. However, these ar
 
 The first artifact in this category is aquisition striping. One common trend among the datasets within the Rhine catchment area, is that the elevation data is derived from the @LiDAR point clouds of the region. These are primarily aerial laser scans, which perform a straight line scanning pattern. The width of the bands that this creates are determined by the @FOV of the scanner.
 
-Small deviations in the elevation of each scanning pass can create a striping effect.
+Small deviations in the elevation of each scanning pass can create a striping effect if not corrected for. This is most often observed as bands of similar vertical differences on the difference @DEM, as shown in @fig:Striping_example. To solve this, each band would need to be identified to be offset. Alternatively, the offset would need to be dependent on @LiDAR aquisition time.
+
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/Striping example.png", height: 4cm, fit: "contain")
+      #align(center)[(Example 1)]
+    ],
+
+    [
+      #image("assets/bw_france_patterns.png", height: 4cm, fit: "contain")
+      #align(center)[(Example 2)]
+    ],
+
+    [
+      #image("assets/rlp_france_patterns.png", height: 4cm, fit: "contain")
+      #align(center)[(Example 3)]
+    ],
+  ),
+  caption: "Example of LiDAR band-like striping",
+) <fig:Striping_example>
+
+The second artifact in this category is singular tiles, or sections of tiles that have different vertical offsets compared to the rest of a national @DTM. This appears as visible seamlines on the difference @DEM. These differences however, become less clear when looking at the national @DTM. This happens for example at the @NRW – @RLP border, and more prominently at the @BW – Bavaria border (@fig:Tileoffset_example). While the cause for this artifact is not known for certain, it is possible that this data was captured at a different time, or with a different instrument. This hypothesis can be confirmed by comparing the @LiDAR aquisition time of tiles with such a seam to their neighbors. This is however still a byproduct of inaccurate vertical alignment with a @DTM, in such a manner that it does not correspond with the rest of the @CRF. To solve this difference, the offending tiles would need to be reextracted, and coregistered to the neighboring tiles.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/BW-Bavaria-DiscreteDH.png", height: 5cm, fit: "contain")
+      #align(center)[(Example 1)]
+    ],
+
+    [
+      #image("assets/NRW-RLP-nonalignment.png", height: 5cm, fit: "contain")
+      #align(center)[(Example 2)]
+    ],
+  ),
+  caption: "Example of tile seams due to vertically offset tiles",
+) <fig:Tileoffset_example>
 
 
 === Watermask artifacts
+Watermask artifacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness. 
+
+The region growing algorithm relies on the assumption that the watersurface is smooth. However, this is not always the case. The first example of this fact is found in @fig:River_mask_manmade. Here a hydro electric power plant causes a deviation in the elevation. The rough watermask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the watermask, and the area surrounding the plant such the left secondary channel, is not modeled.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/Lux-Saarland-HydroGoogle.png", width: 80%)
+      #align(center)[(Google maps)]
+    ],
+
+    [
+      #image("assets/Lux-Saarland-HydroDH.png", width: 80%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption:[Rivermask failure due to man-made objects]
+)<fig:River_mask_manmade>
+
+Another common shortcoming which is similar to the previous, is that the @FEE mask is incomplete. Not all lakes have valid seed points contained within. Furthermore, the reprojection of @FEE cell centers onto the empty mask, due to invalid row and/or column values as a result of division by 0 errors. These are known limitations of the river mask which could be solved by extracting the mask from the national point clouds of the respective regions.
+
+#drafting.inline-note("Issue with seed point projection.")
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/France-missing-lakes-Maps.png", width: 80%)
+      #align(center)[(Google maps)]
+    ],
+
+    [
+      #image("assets/France-missing-lakes.png",width:80%)
+      #align(center)[(Mask refined)]
+    ],
+
+    [
+      #image("assets/France-missing-lakes-FEE.png",width:80%)
+      #align(center)[(Mask FEE)]
+    ],
+  ),
+  caption:[Rivermask failure due missing input raster for region growing]
+)<fig:River_mask_missinglakes>
+
+Other issues include areas that are marked as neither lake or river by @FEE. Examples include swampy areas on the Netherlands – @NRW border. This difference is illustrated in @fig:getoutofmyswamp.
+
+#figure(grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/Netherlands-NRW-StoneSwampGoogle.png", width: 80%)
+      #align(center)[(Google Maps)]
+    ],
+
+    [
+      #image("assets/Netherlands-NRW-StoneSwampDH.png", width: 80%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption: [Omission of swamp-like areas from the watermask prevents ommision from difference comparison])
+<fig:getoutofmyswamp>
+
+The last artifact appears most frequently within the French region of the mask. This does not affect the border area as the masks of both regions overlap here. However, this appears to be caused by the @TIN approximation of the water surface. This causes shard-like sections of discoloration in the @DTM. Unlike other artifacts this does not strongly affect the border areas. However, it does mean it cannot be used as a true harmonisation step for the Rhine @DTM.
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/France-ommision-riverfail-Maps.png", width: 100%)
+      #align(center)[(Google maps)]
+    ],
+
+    [
+      #image("assets/France-ommision-riverfail.png",width:100%)
+      #align(center)[(Mask failure)]
+    ],
+
+    [
+      #image("assets/France-ommision-riverfail-TIN.png",width:100%)
+      #align(center)[(TIN artifacts on DTM)]
+    ],
+  ),
+  caption:[Rivermask failure due missing input raster for region growing]
+)<fig:River_mask_TIN>
+
+
 
 === Interpolation artifacts
+
+
 
 === Ground filtering artifacts
 
