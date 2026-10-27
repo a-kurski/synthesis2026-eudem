@@ -29,6 +29,7 @@
   ("EVRF2019", "European Vertical Reference Frame (2019)"),
   ("EVRS", "European Vertical Reference System"),
   ("FEE", "Freshwater Ecosystems Explorer"),
+  ("FOV", "Field Of View"),
   ("GDAL", "Geospatial Data Abstraction Library"),
   ("GDEM", "Global Digital Elevation Model", "Global Digital Elevation Models"),
   ("GRS80", "Geodetic Reference System 1980"),

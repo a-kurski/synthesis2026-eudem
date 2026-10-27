@@ -248,7 +248,11 @@ country pairs can be found in ...
 #include "061-artifact_table.typ"
 
 === Tile artifacts
-Tile artifacts are one of the least common types of artifacts. However, often these artifacts
+Tile artifacts are one of the least common types of artifacts. However, these artifacts often have a notable effect on the total difference statistic for a border pair. These differences can be divided into two categories.
+
+The first artifact in this category is aquisition striping. One common trend among the datasets within the Rhine catchment area, is that the elevation data is derived from the @LiDAR point clouds of the region. These are primarily aerial laser scans, which perform a straight line scanning pattern. The width of the bands that this creates are determined by the @FOV of the scanner.
+
+Small deviations in the elevation of each scanning pass can create a striping effect.
 
 
 === Watermask artifacts
