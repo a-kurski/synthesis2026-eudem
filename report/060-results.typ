@@ -28,6 +28,8 @@ For this process nearest inverse distance weighing is used. This does not catch 
 ...
 
 The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
+
+#pagebreak()
 == Analysis
 
 As described in @sec:border-analysis, the analysis step is where we evaluate the border differences between two neighboring regions. A variety of statistics were evaluated, some of which proved more informative than others. Within this section we will describe which statistics proved most useful for the analysis, primary differences that were encountered, and suggestions on how to rectify, or minimize the border differences between regions.
@@ -62,7 +64,7 @@ The histogram is another method of looking at the differences. The plots follow 
 )
 <fig:hist_ex>
 
-The third most commonly used tool is the generated analysis `.csv` file. Although the difference @DTM is the main way of identifying differences locally, an additional global set of statistics can provide a clear summary of the differences. The mean and median describe the systematic errors of the border region, while the @STD, @RMSE, @MAE, and @NMAD describe the magnitude of the outliers (@tab:general_metrics). The minimum and maximum values indicate the greatest disagreements between the nations. Furthermore, the "`above threshold`" statistic describes the amount of cells that do not meet the resolution requirement from @sec:inspire-quality, while the "`percentage above threshold`" describes what the percentage of cells is compared the total amount of cells which do not comply (@tab:accuracy_metrics). 
+The third most commonly used tool is the generated analysis `.csv` file. Although the difference @DTM is the main way of identifying differences locally, an additional global set of statistics can provide a clear summary of the differences. The before and after describe the differences before and after coregistration. Since we will not transform our national @DTM:pls based on the affine transform, the before rows are more interesting. However, the after section does show the effect of vertical transform errors on the total difference. The subset refers to the cells with and without the interpolated values, which may be the same number if no interpolation was applied, both numbers already include the removed river mask. The mean and median describe the systematic errors of the border region, while the @STD, @RMSE, @MAE, and @NMAD describe the magnitude of the outliers (@tab:general_metrics). The minimum and maximum values indicate the greatest disagreements between the nations. Furthermore, the "`above threshold`" statistic describes the amount of cells that do not meet the resolution requirement from @sec:inspire-quality, while the "`percentage above threshold`" describes what the percentage of cells is compared the total amount of cells which do not comply (@tab:accuracy_metrics). 
 
 The remaining attributes are mainly used to determine the reliability of the comparison, and the effectiveness of the coregistration (@tab:coreg_metrics). The `mean sigma `$delta$`h` represents the average uncertainty associated with the elevation differences, while `n effective` reflects the number of independent observations after accounting for spatial correlation. The `mean `$sigma$`h/`$sigma$ metric describes the magnitude of the differences, relative to the expected random error. Furthermore, the `error correlation at 1 km` provides an indication of the spatial correlation of the errors, with larger values suggesting that neighbouring cells exhibit similar error behaviour. Finally, the estimated `shift x`, `shift y`, and `shift z` values quantify the horizontal and vertical corrections determined during coregistration and can help identify systematic offsets between neighbouring datasets. Small values of this shift indicate that the vertical and horizontal @CRS transformations already properly align the two @DTM:pls.
 
@@ -152,7 +154,10 @@ table(
 caption:[Coregistration metrics]
 )
 <tab:coreg_metrics>
-Based on these and other less common metrics, we have identified six categories for common artifacts within the border comparisons. These are further divided into several sub-categories, which detail exactly the type of artifact encountered within a region. These six main categories are:
+Based on these and other less common metrics, six recurring categories of
+artifacts were identified within the border comparisons. Each category is
+further divided into several subcategories that describe the specific source
+of the observed discrepancies. The identified categories are:
 
 - Tile artifacts;
 - Watermask failures;
@@ -161,12 +166,90 @@ Based on these and other less common metrics, we have identified six categories 
 - Temporal artifacts;
 - Border artifacts.
 
-A complete overview of the specific border pairs and their corresponding artifacts can be found in @tab:artifacts_table. Each category and the subcategories will be discussed in the remainder of this chapter. The full pairwise analysis for all valid country pairs, can be found in ...
+A complete overview of the identified artifacts for each border pair is
+presented in @tab:artifacts_table. To provide a higher-level overview,
+@tab:artifact_subcategory_prevalence summarizes the frequency of occurance for the subcategories, while @tab:artifact_prevalence summarizes the frequency with which the different artifact categories occur across all evaluated borders. In the latter table, a category is counted at most once per border pair, irrespective of the number of subcategories that are present. This prevents categories with many subcategories from dominating the statistics and provides a better indication of how widespread a category is throughout the study area.
+
+#figure(
+  table(
+    columns: 4,
+
+    inset: 3pt,
+    align: center + horizon,
+    stroke: 0.5pt + rgb("aab2bb"),
+
+    fill: (x, y) => if y == 0 { rgb("e9eef3") },
+
+    table.header(
+      [*Subcategory*],
+      [*Border pairs*],
+      [*Percentage*],
+      [*Rank*],
+    ),
+
+    [Interpolation differences], [17], [94%], [1],
+    [River mask failure], [13], [72%], [2],
+    [Construction], [11], [61%], [3],
+    [Slopes], [10], [56%], [4],
+    [Quarry], [10], [56%], [4],
+    [Ground filtering], [6], [33%], [6],
+    [Water handling], [5], [28%], [7],
+    [Overpass], [5], [28%], [7],
+    [Storage], [5], [28%], [7],
+    [Border artifacts], [5], [28%], [7],
+    [Acquisition striping], [4], [22%], [11],
+    [Extrapolation], [4], [22%], [11],
+    [Tile differences], [4], [22%], [13],
+    [Snow], [1], [6%], [14],
+  ),
+  caption: [
+    Prevalence of identified artifact subcategories.
+  ]
+)
+<tab:artifact_subcategory_prevalence>
+
+#figure(
+  table(
+    columns: 4,
+
+    inset: 3pt,
+    align: center + horizon,
+    stroke: 0.5pt + rgb("aab2bb"),
+
+    fill: (x, y) => if y == 0 { rgb("e9eef3") },
+
+    table.header(
+      [*Category*],
+      [*Border pairs*],
+      [*Percentage*],
+      [*Rank*],
+    ),
+
+    [Interpolation], [17], [94%], [1],
+    [Ground filtering], [15], [83%], [2],
+    [Temporal], [14], [78%], [3],
+    [Watermask], [13], [72%], [4],
+    [Border], [7], [39%], [5],
+    [Tile artifacts], [7], [39%], [6],
+  ),
+  caption: [
+    Prevalence of artifact categories.
+  ]
+)
+<tab:artifact_prevalence>
+
+The individual categories and their associated subcategories are discussed in
+the remainder of this chapter. The complete pairwise analysis for all valid
+country pairs can be found in ...
+
+
 #drafting.inline-note("refer to the appendix with all the pairwise comparisons")
 #drafting.inline-note("Explain what we see in the comparisons")
 #include "061-artifact_table.typ"
 
 === Tile artifacts
+Tile artifacts are one of the least common types of artifacts. However, often these artifacts
+
 
 === Watermask artifacts
 
