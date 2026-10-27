@@ -354,6 +354,7 @@ An interesting artefact is a 0.6m-tall "mound" between Wallau and Bad Laasphe.
   ),
   caption: [Ground and building filtering differences between NRW and Hessen]
 )<fig:nrw-hessen-ground>
+
 ==== Hessen -- Bavaria
 
 The statistics of the errors along Hessen--Bavaria border are similar to those of Hessen--NRW border, but their sources appear to be somewhat different.
@@ -421,8 +422,61 @@ Bavaria instead uses Delaunay triangulation, seemingly based on the lowest point
   caption: [Differences in water processing between Bavaria and Hessen]
 )<fig:bavaria-hessen-water>
 
+==== Hessen -- RLP
+
+The border between Hessen and @RLP largely follows the Rhine.
+Compared to the borders between German states, it has the second-highest @RMSE at 1.30m and the highest @LE90 at 0.19m. It also has the second-highest absolute error at -61.59m.
+High @RMSE can largely be attributed to errors due to processing in one particular tile; high @LE90 is a symptom of systematic errors.
+
+One of the tiles Hessen includes in its elevation dataset is almost entirely interpolated --- seemingly using two interpolation methods: linear interpolation on a TIN where sample points are available; and another method where data was not available.
+Hessen does not publish the point cloud data, yet having observed raster elevation data, we believe that the entire tile was cropped out from the point cloud survey as it only contained partial data.
+A small part of Hessen still falls within that tile; and it was re-included by Hessen during the raster processing phase, interpolated based on the ground points from the neighbouring tiles.
+It is unclear what the elevation of the southwest extreme point is based on.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/hessen-rlp-artefact-satellite.png")],
+    [#image("assets/hessen-rlp-artefact-hessen.png") Hessen],
+    [#image("assets/hessen-rlp-artefact-rlp.png") RLP],
+    [#image("assets/hessen-rlp-artefact.png")],
+  ),
+  caption: [Interpolation artefact by Hessen]
+)
+
+Systematic errors can be observed throughout the region where, especially on hilly terrain, there is a relatively consistent 5--20cm difference between the two @DTM:pla.
+There are several visible borders between in the difference map where two tiles meet, which likely point at either a different ground filtering algorithm or a misalignment between two different surveys carried out by the same provider.
+The hilly terrain makes it impossible to confidently conclude which of the data providers is responsible for this error based on raster data alone.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/hessen-rlp-tiling-satellite.png")],
+    [#image("assets/hessen-rlp-tiling-hessen.png") Hessen],
+    [#image("assets/hessen-rlp-tiling-rlp.png") RLP],
+    [#image("assets/hessen-rlp-tiling.png")],
+  ),
+  caption: [Example of systematic error between Hessen and RLP]
+)
+
+Smaller errors are also visible in building footprints, where both providers are performing linear interpolation on a TIN but based on somewhat different set of points.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/hessen-rlp-buildings-satellite.png")],
+    [#image("assets/hessen-rlp-buildings-hessen.png") Hessen],
+    [#image("assets/hessen-rlp-buildings-rlp.png") RLP],
+    [#image("assets/hessen-rlp-buildings.png")],
+  ),
+  caption: [Temporal differences between Switzerland and BW]
+)
+
 ==== BW -- Bavaria
-The @BW -- Bavaria border to the @NRW -- Hessen border, as it is split in two sections due to the catchment area shape. For this region Bavaria provides point cloud data, whereas @BW does not. This means that point cloud comparisons will not be possible for this border region.
+The @BW -- Bavaria border is similar to the @NRW -- Hessen border, as it is split in two sections due to the catchment area shape. For this region Bavaria provides point cloud data, whereas @BW does not. This means that point cloud comparisons will not be possible for this border region.
 
 #figure(
   image("assets/BW-Bavaria-Border.png",width:40%),
@@ -493,7 +547,7 @@ The second artifact within this border comparison is similar to the one encounte
 
 Several other errors exist within the border comparison. These are in line with the errors encountered at other borders. These include interpolation errors, differences in ground filtering (differences in overpass handling), temporal changes (mostly due to quarries or construction areas), differnces due to watermask shortcomings (including small pools, small lakes, creaks), steep slopes
 
-For this border comparison, the @INSPIRE target is not met. The amount of points above the threshold is only $0.14%$. However, the total @RMSE is a factor $3.2$ greater than what it is allowed to be for the $5$ meter resolution. These results are not acceptable for the final map. However, solving this problem does not fall within the scope or time constraints of this project, and is primarily a challenge created due to available input data and not by the processing pipeline.
+For this border comparison, the @INSPIRE target is not met. The amount of points above the threshold is only $0.14%$. However, the total @RMSE is 5.36m --- a factor $3.2$ greater than what it is allowed to be for the $5$ meter resolution. These results are not acceptable for the final map. However, solving this problem does not fall within the scope or time constraints of this project, and is primarily a challenge created due to available input data and not by the processing pipeline.
 
 #pagebreak()
 
@@ -837,7 +891,7 @@ The largest errors are best explained by temporal differences --- like in other 
     [#image("assets/ch-bw-quarry-bw.png") BW],
     [#image("assets/ch-bw-quarry.png")],
   ),
-  caption: [Temporal differences Switzerland and BW]
+  caption: [Temporal differences between Switzerland and BW]
 )
 
 A more unique error is due to ground filtering, as can be observed with the industrial complex north of Stein, where differences between the different ground filtering/interpolation methods can exceed 3m. As is evident from the difference mask, both data providers use TIN to interpolate the terrain but a different set of points for constructing said TIN. A likely misclassification of the ground, perhaps due to shadowing or multipath errors, causes the error in the elevation of ground points and therefore the error in the TIN.
@@ -882,6 +936,7 @@ Similarly to the building interpolation, there is also an observable difference 
 )
 
 === Germany -- Netherlands
+
 ==== Netherlands -- NRW
 The border between the Netherlands and @NRW is approximately 50 kilometers long, is mainly flat, but also contains large hills. The main error found within this region is unfortunately a byproduct of our attempt to interpolate the non-interpolated regions of the Netherlands (@fig:Netherlands-NRW-border). These errors are found primarily in the form of extrapolation errors found at various positions along the border. This is a discrepancy caused by differences in the specified borders for the Netherlands within the interpolation algorithm. However, since these areas are trimmed from the final @DTM, it is not a issue which will be fixed during this project.
 
