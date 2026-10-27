@@ -576,8 +576,6 @@ The only unique error found around this area is the inclusion of hydro electric 
 
 For this region, the percentage of points above the @INSPIRE threshold, is around $1%$. While above average, this is caused by the fact that it is a small region, where the spatial dimensions of the differences remain consistent with differences found in other regions. Nevertheless, the difference @DTM falls well within the @INSPIRE target threshold, and contains no significant errors such as border extrapolation, misaligned tiles or inexplicable differences.
 
-=== Switzerland -- Germany -- France
-
 === Germany -- France
 ==== Saarland -- France <sec:saarland-france>
 
@@ -750,6 +748,71 @@ The most useful follow-up actions are:
 - Check French flight-strip alignment, comparing strip footprints and adjustment records with the bands shared by BW–France and RLP–France. Test any correction on stable terrain and verify it across both comparisons.
 - Analyse slope and border distance within geographic subsets, with sample counts and land-use context, before attributing the pooled patterns to one mechanism.
 - Recalculate inconsistent polygon areas and refit the uncertainty model, preserving the empirical variogram, fitted parameters, masks and processing provenance needed to validate the results.
+
+=== Switzerland -- Germany & France
+
+==== Switzerland -- France
+
+
+==== Switzerland -- BW
+
+The border between Switzerland and @BW largely follows the Rhine between Konstanz and Basel and notably includes Büsingen, an exclave of BW within Switzerland.
+The regions are overall well-aligned with @LE90 of only 0.12m but a high @RMSE of 0.4m.
+
+The largest errors are best explained by temporal differences --- like in other areas examined above, there are several quarries present near the border. The largest of them is located northeast of Schaffhausen and is responsible for the largest differences in elevation, up to 30m.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/ch-bw-quarry-satellite.png")],
+    [#image("assets/ch-bw-quarry-ch.png") Switzerland],
+    [#image("assets/ch-bw-quarry-bw.png") BW],
+    [#image("assets/ch-bw-quarry.png")],
+  ),
+  caption: [Temporal differences Switzerland and BW]
+)
+
+A more unique error is due to ground filtering, as can be observed with the industrial complex north of Stein, where differences between the different ground filtering/interpolation methods can exceed 3m. As is evident from the difference mask, both data providers use TIN to interpolate the terrain but a different set of points for constructing said TIN. A likely misclassification of the ground, perhaps due to shadowing or multipath errors, causes the error in the elevation of ground points and therefore the error in the TIN.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/ch-bw-buildings-satellite.png")],
+    [#image("assets/ch-bw-buildings-ch.png") Switzerland],
+    [#image("assets/ch-bw-buildings-bw.png") BW],
+    [#image("assets/ch-bw-buildings.png")],
+  ),
+  caption: [Differences in building processing between Switzerland and BW]
+)
+
+Ground and vegetation filtering also have an effect on forested slopes between Hallau and Eggingen where minor striping can be observed. The stripes appear to be running perpendicular to the slope and, we speculate, can be symptomatic of either differences in ground processing by data providers; or they could be a resampling artefact. We recommend performing point cloud analysis to validate either of these hypotheses, which was skipped due to time constraints of the project.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/ch-bw-forest-satellite.png")],
+    [#image("assets/ch-bw-forest-elev.png")],
+    [#image("assets/ch-bw-forest.png")]
+  ),
+  caption: [Differences in ground processing between Switzerland and BW]
+)
+
+Similarly to the building interpolation, there is also an observable difference in the water surface. Switzerland appears to be using a hydro-flattening approach whereas @BW is instead using linear interpolation on a TIN.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/ch-bw-water-satellite.png")],
+    [#image("assets/ch-bw-water-ch.png") Switzerland],
+    [#image("assets/ch-bw-water-bw.png") BW],
+    [#image("assets/ch-bw-water.png")],
+  ),
+  caption: [Differences in water processing between Switzerland and BW]
+)
 
 === Germany -- Netherlands
 ==== Netherlands -- NRW
