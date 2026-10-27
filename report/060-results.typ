@@ -784,6 +784,7 @@ Alongside these large local differences, @fig:bw-france-patterns shows flight-li
   ]
 ]
 
+// below: this ChatGPT?
 
 The most useful follow-up actions are:
 
@@ -796,6 +797,29 @@ The most useful follow-up actions are:
 
 ==== Switzerland -- France
 
+Overall, the border between France and Switzerland contains errors similar to those found on the French--German border.
+These include one instance of striping, most visible in the suburbs of Basel.
+The stripe appears to follow the edge of the French @DTM, which further points towards it being caused by poorly aligned flight-paths.
+
+#figure(
+  image("assets/fr-ch-flightpath.png", width: 40%),
+  caption: [Flight-path artefacts between France and Switzerland]
+)
+
+There is also a large artefact in the forested region near Pfetterhouse.
+In the French @DTM, the elevation of peaks appears to be underestimated while the elevation of valleys is overestimated --- essentially, the @DTM is over-smoothed.
+We speculate that regions like this come from a different survey with different approach to ground filtering (perhaps ground is estimated with a global interpolation function) but we have not been able to verify or falsify this hypothesis.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/fr-ch-forest-ch.png") Switzerland],
+    [#image("assets/fr-ch-forest-fr.png") France],
+    [#image("assets/fr-ch-forest.png")],
+  ),
+  caption: [Ground filtering differences between Switzerland and France]
+)
 
 ==== Switzerland -- BW
 
