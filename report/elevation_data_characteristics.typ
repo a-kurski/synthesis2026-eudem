@@ -1,9 +1,9 @@
-// Evidence and full source links: elevation_data_characteristics_sources.md
-// Includes source data, not the common 5 m processed output.
-// No page settings: inherits portrait/layout from the containing document.
-#block[
-  #set text(size: 7pt, hyphenate: false)
-  #set par(justify: false, leading: 0.5em)
+// Source-data characteristics: one header row and eleven named region rows.
+// Acquisition years refer to surveying, not download dates.
+// Report vertical accuracy with its metric (e.g. RMSE) and units.
+// Coverage refers to the study area; distinguish source gaps from later filling.
+#set page(paper: "a4", flipped: true, margin: 12mm)
+#set text(size: 8pt)
 
   #let fields = (
     [Region], [Dataset / provider], [Source format], [Survey method],
