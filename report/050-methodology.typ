@@ -252,9 +252,15 @@ Each mask cell is transformed to the elevation map resolution, @CRS and grid. By
 
 The final stage of the project is to pairwise compare neighboring datasets and evaluate the results. The first step in this process is finding out which regions overlap. It is followed by calculating the height difference, performing coregistration, and analysing aspects of said difference such as correlation between error magnitude and slope or the rate of @INSPIRE compliance.
 
-To determine which @DTM:pla overlap one another, we first compute the bounding boxes of each @DTM and their overlap is checked:
+To determine which @DTM:pla overlap one another, we first compute the bounding boxes of each @DTM and their overlap is checked in@eq:border-overlap
 
-$max(x_("region_1_min"),x_("region_2_min")) < min(x_("region_1_max"),x_("region_2_max")) and max(y_("region_1_min"),y_("region_2_min")) < min(y_("region_1_max"),y_("region_2_max"))$
+
+#set math.equation(numbering: "(1)")
+
+$
+  & max(x_"region_1_min", x_"region_2_min") < min(x_"region_1_max", x_"region_2_max") \
+  & quad and max(y_"region_1_min", y_"region_2_min") < min(y_"region_1_max", y_"region_2_max")
+$ <eq:border-overlap>
 
 This is not a perfect method as the bounding boxes may overlap even when the datasets do not. Therefore, another check is done by cropping the @DTM of one country with the other and checking if the cropped dataset is not empty. However, this is a computationally expensive operation and is thus only performed if an overlap between the bounding boxes is found.
 
@@ -278,3 +284,126 @@ The second is a graph of the error rates relative to the slope angle --- here, e
 @INSPIRE suggests different relationships for horizontal resolution and vertical accuracy depending on slope angle; we therefore expect the slope angle to have an effect on the magnitude of the error.
 Another graph shows the errors relative to the distance from the border (again, @RMSE for a given 50-meter bin).
 This "border effect" graph can, for instance, help detect errors due to extrapolation at the edge of a dataset, but it can also be sensitive to a single large error.
+
+#drafting.inline-note("work next section into report")
+
+The primary, and most informative metric to evaluate is the elevation difference raster. In order to best evaluate this metric various gradients were used. However, those provided by default in @QGIS:asf, are not sufficiently illustrative for both the visuals and the analysis. Therefore, `fusion` was instead used as the primary gradient for elevation difference visuals (@fig:crm_fusion)(@cmr_fusion). Using this gradient allows for the clear illustration of difference extremes, as shown in @fig:dif_ex.
+
+#figure(
+  image("assets/cmr_fusion.png", width:50%),
+  caption:[fusion gradient @cmr_fusion]
+)
+<fig:crm_fusion>
+
+#figure(
+  image("assets/difference_map_illustration.png", width:50%),
+  caption:[Difference DTM example]
+)
+<fig:dif_ex>
+
+It is often possible to infer the cause for differences by comparing against @OSM, Google Maps, ESRI image, or by comparing the national @DTM:pls. Nevertheless, sometimes more data is required. For this the `RMSE vs Slope` graph can prove useful (@fig:slope_ex). The expected behavior of this graph is a steadily increasing @RMSE for greater slope angles. Deviations from this trend can point towards differences which may be related to ground filtering, or sample point differences due to steep elevations. However, it may also point to temporal differences, for example due to quarries.
+
+#figure(
+  image("assets/slope_rmse_germany_nrw_germany_rlp.png", width:50%),
+  caption:[Typical slope plot example]
+)
+<fig:slope_ex>
+
+The histogram is another method of looking at the differences. The plots follow a logarithmic scale as to be more informative. The expected visual is a sharp peak at 0 elevation difference, with a decreasing amount of points as the absolute difference grows. Should the mean of this graph lie elsewhere, there is the possibility of errorous vertical transformations. Secondary peaks on the other hand may represent larger artifacts that are shifted up or down, for example due to extrapolation artifacts.
+
+#figure(
+  image("assets/histogram_germany_rlp_france.png", width:60%),
+  caption:[Typical histogram example]
+)
+<fig:hist_ex>
+
+The third most commonly used tool is the generated analysis `.csv` file. Although the difference @DTM is the main way of identifying differences locally, an additional global set of statistics can provide a clear summary of the differences. The before and after describe the differences before and after coregistration. Since we will not transform our national @DTM:pls based on the affine transform, the before rows are more interesting. However, the after section does show the effect of vertical transform errors on the total difference. The subset refers to the cells with and without the interpolated values, which may be the same number if no interpolation was applied, both numbers already include the removed river mask. The mean and median describe the systematic errors of the border region, while the @STD, @RMSE, @MAE, and @NMAD describe the magnitude of the outliers (@tab:general_metrics). The minimum and maximum values indicate the greatest disagreements between the nations. Furthermore, the "`above threshold`" statistic describes the amount of cells that do not meet the resolution requirement from @sec:inspire-quality, while the "`percentage above threshold`" describes what the percentage of cells is compared the total amount of cells which do not comply (@tab:accuracy_metrics). 
+
+The remaining attributes are mainly used to determine the reliability of the comparison, and the effectiveness of the coregistration (@tab:coreg_metrics). The `mean sigma `$delta$`h` represents the average uncertainty associated with the elevation differences, while `n effective` reflects the number of independent observations after accounting for spatial correlation. The `mean `$sigma$`h/`$sigma$ metric describes the magnitude of the differences, relative to the expected random error. Furthermore, the `error correlation at 1 km` provides an indication of the spatial correlation of the errors, with larger values suggesting that neighbouring cells exhibit similar error behaviour. Finally, the estimated `shift x`, `shift y`, and `shift z` values quantify the horizontal and vertical corrections determined during coregistration and can help identify systematic offsets between neighbouring datasets. Small values of this shift indicate that the vertical and horizontal @CRS transformations already properly align the two @DTM:pls.
+
+#let headerfill = rgb("e9eef3")
+#let gridcolor = rgb("aab2bb")
+
+#figure(
+table(
+  columns: 7,
+
+  inset: 3pt,
+  align: center + horizon,
+  stroke: 0.5pt + gridcolor,
+
+  fill: (x, y) => if y == 0 { headerfill },
+
+  table.header(
+    [*Stage*],
+    [*Subset*],
+    [*Valid cells*],
+    [*Mean*],
+    [*Median*],
+    [*Std*],
+    [*RMSE*],
+  ),
+
+  [Before], [All],      [11,282,135], [-0.0328], [-0.0324], [0.2574], [0.2595],
+  [Before], [Measured], [11,282,135], [-0.0328], [-0.0324], [0.2574], [0.2595],
+
+  [After],  [All],      [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
+  [After],  [Measured], [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
+),caption:[General metrics])
+<tab:general_metrics>
+#figure(
+table(
+  columns: 9,
+
+  inset: 3pt,
+  align: center + horizon,
+  stroke: 0.5pt + gridcolor,
+
+  fill: (x, y) => if y == 0 { headerfill },
+
+  table.header(
+    [*Stage*],
+    [*Subset*],
+    [*MAE*],
+    [*NMAD*],
+    [*LE90*],
+    [*Min*],
+    [*Max*],
+    [*Above thr.*],
+    [*% Above*],
+  ),
+
+  [Before], [All],      [0.1176], [0.1129], [0.2255], [-30.37], [34.54], [26,792], [0.237],
+  [Before], [Measured], [0.1176], [0.1129], [0.2255], [-30.37], [34.54], [26,792], [0.237],
+
+  [After],  [All],      [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
+  [After],  [Measured], [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
+), caption:[Accuracy and threshold metrics])
+<tab:accuracy_metrics>
+#figure(
+  table(
+  columns: 8,
+
+  inset: 3pt,
+  align: center + horizon,
+  stroke: 0.5pt + gridcolor,
+
+  fill: (x, y) => if y == 0 { headerfill },
+
+  table.header(
+    [*Stage*],
+    [*Mean σΔh*],
+    [*Nₑff*],
+    [*Mean Δh/σ*],
+    [*ρ₁km*],
+    [*ΔX (m)*],
+    [*ΔY (m)*],
+    [*ΔZ (m)*],
+  ),
+
+  [Before], [0.1075], [4.567], [0.0503], [0.2353], [-],        [-],        [-],
+  [After],  [0.1075], [4.567], [0.0503], [0.2353], [-0.0056], [0.2830], [-0.0286],
+),
+caption:[Coregistration metrics]
+)
+<tab:coreg_metrics>
