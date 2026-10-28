@@ -24,23 +24,43 @@
   )
 
 
+
   #show figure.where(kind: table): set figure.caption(position: top)
   #show figure.caption.where(position: top): set text(size: 9pt)
-
   #figure(
     placement: auto,
-    table(
-      columns: (2.6fr, 2.1fr, 1.5fr, 1fr, 0.85fr, 1fr, 1.65fr),
-      inset: (x: 2pt, y: 5pt),
-      align: left + horizon,
-      stroke: 0.35pt + rgb("bcc3cb"),
-      fill: (x, y) => if y == 0 { rgb("edf0f3") },
-      table.header(..fields.map(field => strong(field))),
-      ..rows.flatten(),
-    ),
-    gap: 15pt,
-    caption: [Characteristics of the source elevation datasets used in the study.],
+    kind: table,
     supplement: [Table],
+    caption: [Characteristics of the source elevation datasets used in the study.],
+    gap: 15pt,
+    [
+      #table(
+        columns: (2.6fr, 2.1fr, 1.5fr, 1fr, 0.85fr, 1fr, 1.65fr),
+        inset: (x: 2pt, y: 5pt),
+        align: left + horizon,
+        stroke: 0.35pt + rgb("bcc3cb"),
+        fill: (x, y) => if y == 0 { rgb("edf0f3") },
+        table.header(..fields.map(field => strong(field))),
+        ..rows.flatten(),
+      )
+
+      #v(5pt)
+      #set text(size: 7.5pt)
+      #set par(justify: false)
+      #align(left)[
+        #super[1] IGN uses ALS in flood-prone areas, coastal zones
+        and large forests combined with radar in mountainous areas
+        (Alps, Pyrenees, Cévennes and Corsica), and aerial image
+        correlation elsewhere. In some areas processed by image
+        correlation, older elevation data fill gaps where vegetation
+        or other surface objects prevent ground measurements.
+
+        #super[2] swissALTI3D combines airborne laser scanning with
+        aerial photogrammetry, including automatic stereo correlation
+        and manual stereoscopic measurements. The source methods
+        vary spatially.
+      ]
+    ],
   ) <tab:elevation-data>
 
   #v(5pt)

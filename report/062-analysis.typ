@@ -107,25 +107,29 @@ Small deviations in the elevation of each scanning pass can create a striping ef
 
 #figure(
   grid(
-    columns: 3,
+    columns: 2,
     gutter: 5pt,
+    row-gutter: 10pt,
 
     [
-      #image("assets/Striping example.png", height: 4cm, fit: "contain")
-      #align(center)[(Example 1)]
+      #image("assets/Striping example.png", height: 6cm, fit: "contain")
+      #align(center)[(a)]
     ],
 
     [
-      #image("assets/bw_france_patterns.png", height: 4cm, fit: "contain")
-      #align(center)[(Example 2)]
+      #image("assets/bw_france_patterns.png", height: 6cm, fit: "contain")
+      #align(center)[(b)]
     ],
 
-    [
-      #image("assets/rlp_france_patterns.png", height: 4cm, fit: "contain")
-      #align(center)[(Example 3)]
-    ],
+    grid.cell(
+      colspan: 2,
+      align(center)[
+        #image("assets/rlp_france_patterns.png", height: 4cm, fit: "contain")
+        #align(center)[(c)]
+      ],
+    ),
   ),
-  caption: "Example of LiDAR band-like striping",
+  caption: "Examples of LiDAR band-like striping",
 ) <fig:Striping_example>
 
 The second artifact in this category is singular tiles, or sections of tiles that have different vertical offsets compared to the rest of a national @DTM. This appears as visible seamlines on the difference @DEM. These differences however, become less clear when looking at the national @DTM. This happens for example at the @NRW – @RLP border, and more prominently at the @BW – Bavaria border (@fig:Tileoffset_example). While the cause for this artifact is not known for certain, it is possible that this data was captured at a different time, or with a different instrument. This hypothesis can be confirmed by comparing the @LiDAR aquisition time of tiles with such a seam to their neighbors. This is however still a byproduct of inaccurate vertical alignment with a @DTM, in such a manner that it does not correspond with the rest of the @CRF. To solve this difference, the offending tiles would need to be reextracted, and coregistered to the neighboring tiles.
@@ -137,12 +141,12 @@ The second artifact in this category is singular tiles, or sections of tiles tha
 
     [
       #image("assets/BW-Bavaria-DiscreteDH.png", height: 5cm, fit: "contain")
-      #align(center)[(Example 1)]
+      #align(center)[(a)]
     ],
 
     [
       #image("assets/NRW-RLP-nonalignment.png", height: 5cm, fit: "contain")
-      #align(center)[(Example 2)]
+      #align(center)[(b)]
     ],
   ),
   caption: "Example of tile seams due to vertically offset tiles",
