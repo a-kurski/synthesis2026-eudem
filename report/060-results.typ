@@ -127,3 +127,5 @@ The last artifact appears most frequently within the French region of the mask. 
   caption:[Rivermask failure due missing input raster for region growing]
 )<fig:River_mask_TIN>
 #pagebreak()
+
+#include "062-analysis.typ"
