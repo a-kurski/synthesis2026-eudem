@@ -76,25 +76,29 @@ Small deviations in the elevation of each scanning pass can create a striping ef
 
 #figure(
   grid(
-    columns: 3,
+    columns: 2,
     gutter: 5pt,
+    row-gutter: 10pt,
 
     [
-      #image("assets/Striping example.png", height: 4cm, fit: "contain")
-      #align(center)[(Example 1)]
+      #image("assets/Striping example.png", height: 6cm, fit: "contain")
+      #align(center)[(a)]
     ],
 
     [
-      #image("assets/bw_france_patterns.png", height: 4cm, fit: "contain")
-      #align(center)[(Example 2)]
+      #image("assets/bw_france_patterns.png", height: 6cm, fit: "contain")
+      #align(center)[(b)]
     ],
 
-    [
-      #image("assets/rlp_france_patterns.png", height: 4cm, fit: "contain")
-      #align(center)[(Example 3)]
-    ],
+    grid.cell(
+      colspan: 2,
+      align(center)[
+        #image("assets/rlp_france_patterns.png", height: 4cm, fit: "contain")
+        #align(center)[(c)]
+      ],
+    ),
   ),
-  caption: "Example of LiDAR band-like striping",
+  caption: "Examples of LiDAR band-like striping",
 ) <fig:Striping_example>
 
 The second artifact in this category is singular tiles, or sections of tiles that have different vertical offsets compared to the rest of a national @DTM. This appears as visible seamlines on the difference @DEM. These differences however, become less clear when looking at the national @DTM. This happens for example at the @NRW – @RLP border, and more prominently at the @BW – Bavaria border (@fig:Tileoffset_example). While the cause for this artifact is not known for certain, it is possible that this data was captured at a different time, or with a different instrument. This hypothesis can be confirmed by comparing the @LiDAR aquisition time of tiles with such a seam to their neighbors. This is however still a byproduct of inaccurate vertical alignment with a @DTM, in such a manner that it does not correspond with the rest of the @CRF. To solve this difference, the offending tiles would need to be reextracted, and coregistered to the neighboring tiles.
@@ -204,7 +208,7 @@ There is one even more unique difference which only occurs once to our knowledge
   caption: [Example of snow affecting the comparison]
 )<fig:snow>
 
-These differences can be resolved by comparing the point clouds of the neighboring regions. For the interest of temporal accuracy, it is most favorable to take the data from the latest aquisition time to have the most recent data. However, this does possibly cause a noticable seam at the edge of the overlapping area without any smoothing. As discussed in ... , smoothing dilutes the elevation data captured between regions and is undesirable. Furthermore, static features such as hills should not be affected by temporal aspects, and may require a different approach to be rectified. Solving this challenge is not within the boundaries of this project, but could be the focus of a followup project. 
+These differences can be resolved by comparing the point clouds of the neighboring regions. For the interest of temporal accuracy, it is most favorable to take the data from the latest aquisition time to have the most recent data. However, this does possibly cause a noticable seam at the edge of the overlapping area without any smoothing. As discussed in ... , smoothing dilutes the elevation data captured between regions and is undesirable. Furthermore, static features such as hills should not be affected by temporal aspects, and may require a different approach to be rectified. Solving this challenge is not within the boundaries of this project, but could be the focus of a followup project.
 
 #drafting.inline-note("do make sure we compare our product to Mapterhorn")
 

@@ -84,7 +84,7 @@ For the comparison stage, the settings include the threshold for error detection
 
 Full breakdown of all settings can be found in `README.md` (see #drafting.margin-note()[TODO link to appendix]).
 
-=== Data Acquisition & Pre-processing
+=== Data Acquisition
 
 Data acquisition is a crucial step which enables the rest of the workflow despite technically being outside of the fully automated part of the pipeline.
 National and regional data providers offer different download options: the Netherlands and @NRW offer a @WCS server for access/download; Bavaria and France offer tiled raster data in a binary (`.xyz` and `.asc` respectively) format; Luxembourg offers a single untiled @COG; the remaining datasets are available as GeoTIFF (`.tif`) tiles from a catalogue or a download portal.
