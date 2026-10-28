@@ -5,8 +5,6 @@ This chapter discusses the results of the data acquisition, the pipeline, analys
 #drafting.inline-note(
 "At current stage, only some intermediate results are available.")
 
-
-
 == Data Acquisition <sec:results-acquisition>
 The data scraping is not considered a part of the processing pipeline due to the variations in scraping methods, accessing differences, and computation time. However, due to its relevance to the challenges of creating a @DEM of the Rhine catchment area, it has been included in this chapter. The pipeline assumes all data is available in their raw formats that is, individual @DTM tiles in most of the cases. In case the requested data is not available, the pipeline proceeds to download it from the specified source. Currently, all acquisition of data labeled as a must in @Moscow_Prioritization is implemented within the scraping software.
 
@@ -16,20 +14,23 @@ The pipeline acquires elevation data from 11 regions within 6 countries. The dat
 #drafting.inline-note("TODO: arda write about this section here")
 
 == Pipeline <chap:Pipeline>
-#drafting.inline-note("Go over the pipeline shortcomings in accordance with the subquestion")
-harmonizing nodata -> reprojection -> regridding -> resampling -> interpolation (Netherlands)
 
+#include "065-results-pipeline.typ"
 
-...
-The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated @DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated nodata cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still necessary.
-
-For this process nearest inverse distance weighing is used. This does not catch all nodata values. In case it does not, nearest neighbor interpolation is used to supplement to fill the remaining holes. However, due to the range set for nearest neighbor, not all nodata cells are interpolated. Increasing the radius would likely solve this issue, but would also significantly increase processing time. Therefore, the interpolation limitations of the Netherlands have had to be excepted as a shortcoming of the pipeline, caused by the available data.
-
-...
-
-The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
-
-#pagebreak()
+// #drafting.inline-note("Go over the pipeline shortcomings in accordance with the subquestion")
+// harmonizing nodata -> reprojection -> regridding -> resampling -> interpolation (Netherlands)
+//
+//
+// ...
+// The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated @DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated nodata cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still necessary.
+//
+// For this process nearest inverse distance weighing is used. This does not catch all nodata values. In case it does not, nearest neighbor interpolation is used to supplement to fill the remaining holes. However, due to the range set for nearest neighbor, not all nodata cells are interpolated. Increasing the radius would likely solve this issue, but would also significantly increase processing time. Therefore, the interpolation limitations of the Netherlands have had to be excepted as a shortcoming of the pipeline, caused by the available data.
+//
+// ...
+//
+// The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
+//
+// #pagebreak()
 == Analysis
 
 As described in @sec:border-analysis, the analysis step is where we evaluate the border differences between two neighboring regions. A variety of statistics were evaluated, some of which proved more informative than others. Within this section we will describe which statistics proved most useful for the analysis, primary differences that were encountered, and suggestions on how to rectify, or minimize the border differences between regions.
@@ -64,7 +65,7 @@ The histogram is another method of looking at the differences. The plots follow 
 )
 <fig:hist_ex>
 
-The third most commonly used tool is the generated analysis `.csv` file. Although the difference @DTM is the main way of identifying differences locally, an additional global set of statistics can provide a clear summary of the differences. The before and after describe the differences before and after coregistration. Since we will not transform our national @DTM:pls based on the affine transform, the before rows are more interesting. However, the after section does show the effect of vertical transform errors on the total difference. The subset refers to the cells with and without the interpolated values, which may be the same number if no interpolation was applied, both numbers already include the removed river mask. The mean and median describe the systematic errors of the border region, while the @STD, @RMSE, @MAE, and @NMAD describe the magnitude of the outliers (@tab:general_metrics). The minimum and maximum values indicate the greatest disagreements between the nations. Furthermore, the "`above threshold`" statistic describes the amount of cells that do not meet the resolution requirement from @sec:inspire-quality, while the "`percentage above threshold`" describes what the percentage of cells is compared the total amount of cells which do not comply (@tab:accuracy_metrics). 
+The third most commonly used tool is the generated analysis `.csv` file. Although the difference @DTM is the main way of identifying differences locally, an additional global set of statistics can provide a clear summary of the differences. The before and after describe the differences before and after coregistration. Since we will not transform our national @DTM:pls based on the affine transform, the before rows are more interesting. However, the after section does show the effect of vertical transform errors on the total difference. The subset refers to the cells with and without the interpolated values, which may be the same number if no interpolation was applied, both numbers already include the removed river mask. The mean and median describe the systematic errors of the border region, while the @STD, @RMSE, @MAE, and @NMAD describe the magnitude of the outliers (@tab:general_metrics). The minimum and maximum values indicate the greatest disagreements between the nations. Furthermore, the "`above threshold`" statistic describes the amount of cells that do not meet the resolution requirement from @sec:inspire-quality, while the "`percentage above threshold`" describes what the percentage of cells is compared the total amount of cells which do not comply (@tab:accuracy_metrics).
 
 The remaining attributes are mainly used to determine the reliability of the comparison, and the effectiveness of the coregistration (@tab:coreg_metrics). The `mean sigma `$delta$`h` represents the average uncertainty associated with the elevation differences, while `n effective` reflects the number of independent observations after accounting for spatial correlation. The `mean `$sigma$`h/`$sigma$ metric describes the magnitude of the differences, relative to the expected random error. Furthermore, the `error correlation at 1 km` provides an indication of the spatial correlation of the errors, with larger values suggesting that neighbouring cells exhibit similar error behaviour. Finally, the estimated `shift x`, `shift y`, and `shift z` values quantify the horizontal and vertical corrections determined during coregistration and can help identify systematic offsets between neighbouring datasets. Small values of this shift indicate that the vertical and horizontal @CRS transformations already properly align the two @DTM:pls.
 
@@ -300,7 +301,7 @@ The second artifact in this category is singular tiles, or sections of tiles tha
 
 
 === Watermask artifacts
-Watermask artifacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness. 
+Watermask artifacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
 
 The region growing algorithm relies on the assumption that the watersurface is smooth. However, this is not always the case. The first example of this fact is found in @fig:River_mask_manmade. Here a hydro electric power plant causes a deviation in the elevation. The rough watermask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the watermask, and the area surrounding the plant such the left secondary channel, is not modeled.
 
@@ -443,7 +444,6 @@ There is one even more unique difference which only occurs once to our knowledge
   caption: [Example of snow affecting the comparison]
 )<fig:snow>
 
-These differences can be resolved by comparing the point clouds of the neighboring regions. For the interest of temporal accuracy, it is most favorable to take the data from the latest aquisition time to have the most recent data. However, this does possibly cause a noticable seam at the edge of the overlapping area without any smoothing. As discussed in ... , smoothing dilutes the elevation data captured between regions and is undesirable. Furthermore, static features such as hills should not be affected by temporal aspects, and may require a different approach to be rectified. Solving this challenge is not within the boundaries of this project, but could be the focus of a followup project. 
+These differences can be resolved by comparing the point clouds of the neighboring regions. For the interest of temporal accuracy, it is most favorable to take the data from the latest aquisition time to have the most recent data. However, this does possibly cause a noticable seam at the edge of the overlapping area without any smoothing. As discussed in ... , smoothing dilutes the elevation data captured between regions and is undesirable. Furthermore, static features such as hills should not be affected by temporal aspects, and may require a different approach to be rectified. Solving this challenge is not within the boundaries of this project, but could be the focus of a followup project.
 
 #drafting.inline-note("do make sure we compare our product to Mapterhorn")
-
