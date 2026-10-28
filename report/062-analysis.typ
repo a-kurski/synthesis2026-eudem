@@ -1,5 +1,5 @@
 #import "@preview/drafting:0.2.2"
-== Analysis
+== Cross-Border DTM Analysis <sec:DTManalysis>
 
 As described in @sec:border-analysis, the analysis step is where we evaluate the border differences between two neighboring regions. A variety of statistics were evaluated, some of which proved more informative than others. Within this section we will describe which statistics proved most useful for the analysis, primary differences that were encountered, and suggestions on how to rectify, or minimize the border differences between regions.
 
@@ -198,7 +198,6 @@ There is one even more unique difference which only occurs once to our knowledge
   caption: [Example of snow affecting the comparison]
 )<fig:snow>
 
-These differences can be resolved by comparing the point clouds of the neighboring regions. For the interest of temporal accuracy, it is most favorable to take the data from the latest aquisition time to have the most recent data. However, this does possibly cause a noticable seam at the edge of the overlapping area without any smoothing. As discussed in ... , smoothing dilutes the elevation data captured between regions and is undesirable. Furthermore, static features such as hills should not be affected by temporal aspects, and may require a different approach to be rectified. Solving this challenge is not within the boundaries of this project, but could be the focus of a followup project. 
+These differences can be resolved by comparing the point clouds of the neighboring regions. For the interest of temporal accuracy, it is most favorable to take the data from the latest aquisition time to have the most recent data. However, this does possibly cause a noticable seam at the edge of the overlapping area without any smoothing. As discussed in ... , smoothing dilutes the elevation data captured between regions and is undesirable. Furthermore, static features such as hills should not be affected by temporal aspects, and may require a different approach to be rectified. Solving this challenge is not within the boundaries of this project, but could be the focus of a followup project.
 
 #drafting.inline-note("do make sure we compare our product to Mapterhorn")
-

@@ -2,7 +2,6 @@
 // Acquisition years refer to surveying, not download dates.
 // Report vertical accuracy with its metric (e.g. RMSE) and units.
 // Coverage refers to the study area; distinguish source gaps from later filling.
-#set page(paper: "a4", flipped: true, margin: 12mm)
 #set text(size: 8pt)
 
   #let fields = (
@@ -18,10 +17,10 @@
     ([North Rhine-#linebreak()Westphalia (DE)], [DGM1 / Geobasis NRW], [GeoTIFF], [ALS], [1], [25832], [DHHN2016 / NHN]),
     ([Rhineland-#linebreak()Palatinate (DE)], [DGM1 / LVermGeo], [GeoTIFF], [ALS], [1], [25832], [DHHN2016 / NHN]),
     ([Saarland (DE)], [DGM1 / LVGL], [GeoTIFF], [ALS], [1], [25832], [DHHN2016 / NHN]),
-    ([France], [RGE ALTI 5 m / IGN], [ASCII Grid], [Mixed], [5], [2154], [IGN69]),
+    ([France], [RGE ALTI 5 m / IGN], [ASCII Grid], [Mixed#super[1]], [5], [2154], [IGN69]),
     ([Luxembourg], [LiDAR 2024 MNT / ACT], [GeoTIFF], [ALS], [0.5], [2169], [n/a]),
-    ([Liechtenstein], [swissALTI3D / swisstopo], [GeoTIFF], [Mixed], [2], [2056], [LN02]),
-    ([Switzerland], [swissALTI3D / swisstopo], [GeoTIFF], [Mixed], [2], [2056], [LN02]),
+    ([Liechtenstein], [swissALTI3D / swisstopo], [GeoTIFF], [Mixed#super[2]], [2], [2056], [LN02]),
+    ([Switzerland], [swissALTI3D / swisstopo], [GeoTIFF], [Mixed#super[2]], [2], [2056], [LN02]),
   )
 
 
@@ -29,6 +28,7 @@
   #show figure.caption.where(position: top): set text(size: 9pt)
 
   #figure(
+    placement: auto,
     table(
       columns: (2.6fr, 2.1fr, 1.5fr, 1fr, 0.85fr, 1fr, 1.65fr),
       inset: (x: 2pt, y: 5pt),
@@ -45,5 +45,3 @@
 
   #v(5pt)
   #set text(size: 7.5pt)
-  CHECK survey method for BW Saarland France Liechtenstein Switzerlan
-]

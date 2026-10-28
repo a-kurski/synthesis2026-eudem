@@ -24,7 +24,7 @@ $italic("statistics_germany_nrw_germany_rlp.csv")$ confirms these findings. It l
 )
 <fig:NRW-RLP-nonalignment>
 
-Lastly, as described in @chap:Pipeline, small water bodies such as narrow rivers, or small lakes are not filtered out and are therefore counted towards the differences in the comparison. This is however, a small contribution and does not appear disproportionally represented in the calculated problem areas.
+Lastly, as described in @sec:pipeline, small water bodies such as narrow rivers, or small lakes are not filtered out and are therefore counted towards the differences in the comparison. This is however, a small contribution and does not appear disproportionally represented in the calculated problem areas.
 
 There do appear to be several differences which are likely related to @LiDAR sensing limitations or subsequent processing steps. Examples include interpolation errors for buildings (@fig:NRW-RLP-roofinter), ground filtering discrepancies (@fig:NRW-RLP-overpass), temporal changes (@fig:NRW-RLP-quarry)(verified using Google Earth), and steep slopes (@fig:NRW-RLP-slope).
 

@@ -1,21 +1,15 @@
 #import "@preview/drafting:0.2.2"
 = Results <chap:results>
-
-This chapter discusses the results of the data acquisition, the pipeline, analysis of the border-pairs and general findings about the @DTM:pls. The first section describes the challenges encountered while aquiring the data. Section 2 describes the results of the reprojection, resampling, regridding and interpolation. After, the analysis of the process is discussed, specifically analyzing the effect of various factors on the observed border errors. Lastly, any additional observations that do not fall within these categories will be discussed.
-#drafting.inline-note(
-"At current stage, only some intermediate results are available.")
-
-
+This chapter presents the results of data acquisition, the processing pipeline, and the analysis of border-pair differences. @sec:results-acquisition discusses the differences and the characteristics of the source data across regions. @sec:pipeline presents the results of the pipeline operations inclusning reprojection, resampling, regridding, and interpolation. @sec:DTManalysis analyses the elevation differences observed along national borders and investigate the factors contributing to these differences. Finally, additional findings concerning the @DTM:pls are discussed.
 
 == Data Acquisition <sec:results-acquisition>
 The data scraping is not considered a part of the processing pipeline due to the variations in scraping methods, accessing differences, and computation time. However, due to its relevance to the challenges of creating a @DEM of the Rhine catchment area, it has been included in this chapter. The pipeline assumes all data is available in their raw formats that is, individual @DTM tiles in most of the cases. In case the requested data is not available, the pipeline proceeds to download it from the specified source. Currently, all acquisition of data labeled as a must in @Moscow_Prioritization is implemented within the scraping software.
 
-The pipeline acquires elevation data from 11 regions within 6 countries. The data comes in different formats, availability, @CRS, nodata specification, and resolution. The table below summarizes the characteristics of the data.
+The pipeline acquires elevation data from 11 regions within 6 countries. The data comes in different formats, availability, @CRS, nodata specification, and resolution. @tab:elevation-data summarizes the characteristics of the data.
 
 #include "elevation_data_characteristics.typ"
-#drafting.inline-note("TODO: arda write about this section here")
 
-== Pipeline <chap:Pipeline>
+== Pipeline <sec:pipeline>
 
 
 #drafting.inline-note("Go over the pipeline shortcomings in accordance with the subquestion")
@@ -33,7 +27,7 @@ The river mask is limited by the quality of the course resolution of the SDG mas
 
 
 === Watermask artifacts
-Watermask artifacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness. 
+Watermask artifacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
 
 The region growing algorithm relies on the assumption that the watersurface is smooth. However, this is not always the case. The first example of this fact is found in @fig:River_mask_manmade. Here a hydro electric power plant causes a deviation in the elevation. The rough watermask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the watermask, and the area surrounding the plant such the left secondary channel, is not modeled.
 
