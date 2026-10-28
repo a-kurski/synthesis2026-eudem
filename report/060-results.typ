@@ -16,6 +16,8 @@ The pipeline acquires elevation data from 11 regions within 6 countries. The dat
 #drafting.inline-note("TODO: arda write about this section here")
 
 == Pipeline <chap:Pipeline>
+
+
 #drafting.inline-note("Go over the pipeline shortcomings in accordance with the subquestion")
 harmonizing nodata -> reprojection -> regridding -> resampling -> interpolation (Netherlands)
 
@@ -29,131 +31,106 @@ For this process nearest inverse distance weighing is used. This does not catch 
 
 The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
 
+
+=== Watermask artifacts
+Watermask artifacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness. 
+
+The region growing algorithm relies on the assumption that the watersurface is smooth. However, this is not always the case. The first example of this fact is found in @fig:River_mask_manmade. Here a hydro electric power plant causes a deviation in the elevation. The rough watermask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the watermask, and the area surrounding the plant such the left secondary channel, is not modeled.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/Lux-Saarland-HydroGoogle.png", width: 80%)
+      #align(center)[(Google maps)]
+    ],
+
+    [
+      #image("assets/Lux-Saarland-HydroDH.png", width: 80%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption:[Rivermask failure due to man-made objects]
+)<fig:River_mask_manmade>
+
+Another common shortcoming which is similar to the previous, is that the @FEE mask is incomplete. Not all lakes have valid seed points contained within. Furthermore, the reprojection of @FEE cell centers onto the empty mask, due to invalid row and/or column values as a result of division by 0 errors. These are known limitations of the river mask which could be solved by extracting the mask from the national point clouds of the respective regions.
+
+#drafting.inline-note("Issue with seed point projection.")
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/France-missing-lakes-Maps.png", width: 80%)
+      #align(center)[(Google maps)]
+    ],
+
+    [
+      #image("assets/France-missing-lakes.png",width:80%)
+      #align(center)[(Mask refined)]
+    ],
+
+    [
+      #image("assets/France-missing-lakes-FEE.png",width:80%)
+      #align(center)[(Mask FEE)]
+    ],
+  ),
+  caption:[Rivermask failure due missing input raster for region growing]
+)<fig:River_mask_missinglakes>
+
+Other issues include areas that are marked as neither lake or river by @FEE. Examples include swampy areas on the Netherlands – @NRW border. This difference is illustrated in @fig:getoutofmyswamp.
+
+#figure(grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/Netherlands-NRW-StoneSwampGoogle.png", width: 80%)
+      #align(center)[(Google Maps)]
+    ],
+
+    [
+      #image("assets/Netherlands-NRW-StoneSwampDH.png", width: 80%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption: [Omission of swamp-like areas from the watermask prevents ommision from difference comparison])
+<fig:getoutofmyswamp>
+
+The last artifact appears most frequently within the French region of the mask. This does not affect the border area as the masks of both regions overlap here. However, this appears to be caused by the @TIN approximation of the water surface. This causes shard-like sections of discoloration in the @DTM. Unlike other artifacts this does not strongly affect the border areas. However, it does mean it cannot be used as a true harmonisation step for the Rhine @DTM.
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/France-ommision-riverfail-Maps.png", width: 100%)
+      #align(center)[(Google maps)]
+    ],
+
+    [
+      #image("assets/France-ommision-riverfail.png",width:100%)
+      #align(center)[(Mask failure)]
+    ],
+
+    [
+      #image("assets/France-ommision-riverfail-TIN.png",width:100%)
+      #align(center)[(TIN artifacts on DTM)]
+    ],
+  ),
+  caption:[Rivermask failure due missing input raster for region growing]
+)<fig:River_mask_TIN>
 #pagebreak()
 == Analysis
 
 As described in @sec:border-analysis, the analysis step is where we evaluate the border differences between two neighboring regions. A variety of statistics were evaluated, some of which proved more informative than others. Within this section we will describe which statistics proved most useful for the analysis, primary differences that were encountered, and suggestions on how to rectify, or minimize the border differences between regions.
 
-The primary, and most informative metric to evaluate is the elevation difference raster. In order to best evaluate this metric various gradients were used. However, those provided by default in @QGIS:asf, are not sufficiently illustrative for both the visuals and the analysis. Therefore, `fusion` was instead used as the primary gradient for elevation difference visuals (@fig:crm_fusion)(@cmr_fusion). Using this gradient allows for the clear illustration of difference extremes, as shown in @fig:dif_ex.
-
-#figure(
-  image("assets/cmr_fusion.png", width:50%),
-  caption:[fusion gradient @cmr_fusion]
-)
-<fig:crm_fusion>
-
-#figure(
-  image("assets/difference_map_illustration.png", width:50%),
-  caption:[Difference DTM example]
-)
-<fig:dif_ex>
-
-It is often possible to infer the cause for differences by comparing against @OSM, Google Maps, ESRI image, or by comparing the national @DTM:pls. Nevertheless, sometimes more data is required. For this the `RMSE vs Slope` graph can prove useful (@fig:slope_ex). The expected behavior of this graph is a steadily increasing @RMSE for greater slope angles. Deviations from this trend can point towards differences which may be related to ground filtering, or sample point differences due to steep elevations. However, it may also point to temporal differences, for example due to quarries.
-
-#figure(
-  image("assets/slope_rmse_germany_nrw_germany_rlp.png", width:50%),
-  caption:[Typical slope plot example]
-)
-<fig:slope_ex>
-
-The histogram is another method of looking at the differences. The plots follow a logarithmic scale as to be more informative. The expected visual is a sharp peak at 0 elevation difference, with a decreasing amount of points as the absolute difference grows. Should the mean of this graph lie elsewhere, there is the possibility of errorous vertical transformations. Secondary peaks on the other hand may represent larger artifacts that are shifted up or down, for example due to extrapolation artifacts.
-
-#figure(
-  image("assets/histogram_germany_rlp_france.png", width:60%),
-  caption:[Typical histogram example]
-)
-<fig:hist_ex>
-
-The third most commonly used tool is the generated analysis `.csv` file. Although the difference @DTM is the main way of identifying differences locally, an additional global set of statistics can provide a clear summary of the differences. The before and after describe the differences before and after coregistration. Since we will not transform our national @DTM:pls based on the affine transform, the before rows are more interesting. However, the after section does show the effect of vertical transform errors on the total difference. The subset refers to the cells with and without the interpolated values, which may be the same number if no interpolation was applied, both numbers already include the removed river mask. The mean and median describe the systematic errors of the border region, while the @STD, @RMSE, @MAE, and @NMAD describe the magnitude of the outliers (@tab:general_metrics). The minimum and maximum values indicate the greatest disagreements between the nations. Furthermore, the "`above threshold`" statistic describes the amount of cells that do not meet the resolution requirement from @sec:inspire-quality, while the "`percentage above threshold`" describes what the percentage of cells is compared the total amount of cells which do not comply (@tab:accuracy_metrics). 
-
-The remaining attributes are mainly used to determine the reliability of the comparison, and the effectiveness of the coregistration (@tab:coreg_metrics). The `mean sigma `$delta$`h` represents the average uncertainty associated with the elevation differences, while `n effective` reflects the number of independent observations after accounting for spatial correlation. The `mean `$sigma$`h/`$sigma$ metric describes the magnitude of the differences, relative to the expected random error. Furthermore, the `error correlation at 1 km` provides an indication of the spatial correlation of the errors, with larger values suggesting that neighbouring cells exhibit similar error behaviour. Finally, the estimated `shift x`, `shift y`, and `shift z` values quantify the horizontal and vertical corrections determined during coregistration and can help identify systematic offsets between neighbouring datasets. Small values of this shift indicate that the vertical and horizontal @CRS transformations already properly align the two @DTM:pls.
-
-#let headerfill = rgb("e9eef3")
-#let gridcolor = rgb("aab2bb")
-
-#figure(
-table(
-  columns: 7,
-
-  inset: 3pt,
-  align: center + horizon,
-  stroke: 0.5pt + gridcolor,
-
-  fill: (x, y) => if y == 0 { headerfill },
-
-  table.header(
-    [*Stage*],
-    [*Subset*],
-    [*Valid cells*],
-    [*Mean*],
-    [*Median*],
-    [*Std*],
-    [*RMSE*],
-  ),
-
-  [Before], [All],      [11,282,135], [-0.0328], [-0.0324], [0.2574], [0.2595],
-  [Before], [Measured], [11,282,135], [-0.0328], [-0.0324], [0.2574], [0.2595],
-
-  [After],  [All],      [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
-  [After],  [Measured], [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
-),caption:[General metrics])
-<tab:general_metrics>
-#figure(
-table(
-  columns: 9,
-
-  inset: 3pt,
-  align: center + horizon,
-  stroke: 0.5pt + gridcolor,
-
-  fill: (x, y) => if y == 0 { headerfill },
-
-  table.header(
-    [*Stage*],
-    [*Subset*],
-    [*MAE*],
-    [*NMAD*],
-    [*LE90*],
-    [*Min*],
-    [*Max*],
-    [*Above thr.*],
-    [*% Above*],
-  ),
-
-  [Before], [All],      [0.1176], [0.1129], [0.2255], [-30.37], [34.54], [26,792], [0.237],
-  [Before], [Measured], [0.1176], [0.1129], [0.2255], [-30.37], [34.54], [26,792], [0.237],
-
-  [After],  [All],      [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
-  [After],  [Measured], [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
-), caption:[Accuracy and threshold metrics])
-<tab:accuracy_metrics>
-#figure(
-  table(
-  columns: 8,
-
-  inset: 3pt,
-  align: center + horizon,
-  stroke: 0.5pt + gridcolor,
-
-  fill: (x, y) => if y == 0 { headerfill },
-
-  table.header(
-    [*Stage*],
-    [*Mean σΔh*],
-    [*Nₑff*],
-    [*Mean Δh/σ*],
-    [*ρ₁km*],
-    [*ΔX (m)*],
-    [*ΔY (m)*],
-    [*ΔZ (m)*],
-  ),
-
-  [Before], [0.1075], [4.567], [0.0503], [0.2353], [-],        [-],        [-],
-  [After],  [0.1075], [4.567], [0.0503], [0.2353], [-0.0056], [0.2830], [-0.0286],
-),
-caption:[Coregistration metrics]
-)
-<tab:coreg_metrics>
+#drafting.inline-note("fix intro section")
 Based on these and other less common metrics, six recurring categories of
 artifacts were identified within the border comparisons. Each category is
 further divided into several subcategories that describe the specific source
@@ -297,101 +274,6 @@ The second artifact in this category is singular tiles, or sections of tiles tha
   ),
   caption: "Example of tile seams due to vertically offset tiles",
 ) <fig:Tileoffset_example>
-
-
-=== Watermask artifacts
-Watermask artifacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness. 
-
-The region growing algorithm relies on the assumption that the watersurface is smooth. However, this is not always the case. The first example of this fact is found in @fig:River_mask_manmade. Here a hydro electric power plant causes a deviation in the elevation. The rough watermask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the watermask, and the area surrounding the plant such the left secondary channel, is not modeled.
-
-#figure(
-  grid(
-    columns: 2,
-    gutter: 5pt,
-
-    [
-      #image("assets/Lux-Saarland-HydroGoogle.png", width: 80%)
-      #align(center)[(Google maps)]
-    ],
-
-    [
-      #image("assets/Lux-Saarland-HydroDH.png", width: 80%)
-      #align(center)[(DH)]
-    ],
-  ),
-  caption:[Rivermask failure due to man-made objects]
-)<fig:River_mask_manmade>
-
-Another common shortcoming which is similar to the previous, is that the @FEE mask is incomplete. Not all lakes have valid seed points contained within. Furthermore, the reprojection of @FEE cell centers onto the empty mask, due to invalid row and/or column values as a result of division by 0 errors. These are known limitations of the river mask which could be solved by extracting the mask from the national point clouds of the respective regions.
-
-#drafting.inline-note("Issue with seed point projection.")
-
-#figure(
-  grid(
-    columns: 3,
-    gutter: 5pt,
-
-    [
-      #image("assets/France-missing-lakes-Maps.png", width: 80%)
-      #align(center)[(Google maps)]
-    ],
-
-    [
-      #image("assets/France-missing-lakes.png",width:80%)
-      #align(center)[(Mask refined)]
-    ],
-
-    [
-      #image("assets/France-missing-lakes-FEE.png",width:80%)
-      #align(center)[(Mask FEE)]
-    ],
-  ),
-  caption:[Rivermask failure due missing input raster for region growing]
-)<fig:River_mask_missinglakes>
-
-Other issues include areas that are marked as neither lake or river by @FEE. Examples include swampy areas on the Netherlands – @NRW border. This difference is illustrated in @fig:getoutofmyswamp.
-
-#figure(grid(
-    columns: 2,
-    gutter: 5pt,
-
-    [
-      #image("assets/Netherlands-NRW-StoneSwampGoogle.png", width: 80%)
-      #align(center)[(Google Maps)]
-    ],
-
-    [
-      #image("assets/Netherlands-NRW-StoneSwampDH.png", width: 80%)
-      #align(center)[(DH)]
-    ],
-  ),
-  caption: [Omission of swamp-like areas from the watermask prevents ommision from difference comparison])
-<fig:getoutofmyswamp>
-
-The last artifact appears most frequently within the French region of the mask. This does not affect the border area as the masks of both regions overlap here. However, this appears to be caused by the @TIN approximation of the water surface. This causes shard-like sections of discoloration in the @DTM. Unlike other artifacts this does not strongly affect the border areas. However, it does mean it cannot be used as a true harmonisation step for the Rhine @DTM.
-
-#figure(
-  grid(
-    columns: 3,
-    gutter: 5pt,
-
-    [
-      #image("assets/France-ommision-riverfail-Maps.png", width: 100%)
-      #align(center)[(Google maps)]
-    ],
-
-    [
-      #image("assets/France-ommision-riverfail.png",width:100%)
-      #align(center)[(Mask failure)]
-    ],
-
-    [
-      #image("assets/France-ommision-riverfail-TIN.png",width:100%)
-      #align(center)[(TIN artifacts on DTM)]
-    ],
-  ),
-  caption:[Rivermask failure due missing input raster for region growing]
-)<fig:River_mask_TIN>
 
 
 
