@@ -187,7 +187,8 @@ Given only a small part of the study region requires interpolation, the compromi
 
 == River Elevation Data <sec:river-elevation>
 
-The way different @DEM:pla treat water body surfaces can further influence the differences between products:
-- Currently, the Netherlands assigns a `NoData` value to the water bodies without efforts to estimate either the elevation of the water surface or the bathymetry.
-- All other countries in the region perform hydro-flattening as described by #cite(<zheng2019>, form: "prose") which estimates a flat across-channel surface and a continuous along-channel slope. Similar approaches have been trialed for the Dutch elevation model @keurentjes2020ahn3 but are currently not included in the official product. Hydro-flattening may introduce artefacts due to temporal differences between different Lidar surveys, which are analysed in @chap:results.
-- A third approach is to estimate the riverbed as proposed by #cite(<dysarz2018>, form: "prose") which would allow for a mixed elevation/bathymetry model. No national product currently uses this approach; and estimating river elevation was deemed to be out of scope for this project.
+The way different @DEM:pla treat water body surfaces can further influence the differences between products.
+
+Currently, the Netherlands assigns a `NoData` value to the water bodies without efforts to estimate either the elevation of the water surface or the bathymetry. All other countries in the region either perform hydro-flattening as described by #cite(<zheng2019>, form: "prose") which estimates a flat across-channel surface and a continuous along-channel slope; or interpolate the shoreline. Similar approaches have been trialed for the Dutch elevation model @keurentjes2020ahn3 but are currently not included in the official product. Hydro-flattening may introduce artefacts due to temporal differences between different lidar surveys, which are presented in @chap:results.
+
+A third approach is to estimate the riverbed as proposed by #cite(<dysarz2018>, form: "prose") which would allow for a mixed elevation/bathymetry model. No national product currently uses this approach; and estimating river elevation was deemed to be out of scope for this project.
