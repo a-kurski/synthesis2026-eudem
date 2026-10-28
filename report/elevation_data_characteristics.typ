@@ -46,4 +46,4 @@
   #v(5pt)
   #set text(size: 7.5pt)
   CHECK survey method for BW Saarland France Liechtenstein Switzerlan
-]
+
