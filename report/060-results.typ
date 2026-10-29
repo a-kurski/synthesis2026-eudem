@@ -32,9 +32,10 @@ For this process nearest inverse distance weighing is used. This does not catch 
 The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
 
 
-=== Watermask artifacts <Watermask_artifacts>
-Watermask artifacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
->>>>>>> 384cf5fce26c7f26787176b3ffc98e7477df7a41
+// === Watermask artifacts <Watermask_artifacts>
+// Watermask artifacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
+
+// >>>>>>> 384cf5fce26c7f26787176b3ffc98e7477df7a41
 
 
 // ...
@@ -50,9 +51,9 @@ Watermask artifacts are related to the watermask extraction as described in @sec
 
 === Water Mask artifacts <Watermask_artifacts>
 
-Water mask artifacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the water mask of course, is to filter out all water bodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
+Water mask artifacts are related to the water mask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the water mask of course, is to filter out all water bodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
 
-The region growing algorithm relies on the assumption that the water surface is smooth. However, this is not always the case. The first example of this fact is found in @fig:River_mask_manmade. Here a hydro electric power plant causes a deviation in the elevation. The rough water mask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the water mask, and the area surrounding the plant such the left secondary channel, is not modeled.
+The region growing algorithm relies on the assumption that the water surface is smooth. However, this is not always the case. The first example of this fact is found in @fig:River_mask_manmade. Here a hydro electric power plant causes a deviation in the elevation. The rough water mask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the water mask, and the area surrounding the plant such as the left secondary channel, is not modeled.
 
 #figure(
   grid(
