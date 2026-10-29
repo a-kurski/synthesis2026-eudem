@@ -39,3 +39,10 @@ The fix we adopted was setting the VCRS for affected regions to `null` such that
   ),
   caption: [Issues diagnosed with earlier runs of the pipeline: incorrect NoData value for Hessen (left) and missing parts of France (right)]
 )
+
+INCLUDE: writing about final DTM?
+
+#figure(
+  image("assets/whole_dtm_with_legend.png", width:85%),
+  caption:[Final Catchment-Wide DTM.]
+)
