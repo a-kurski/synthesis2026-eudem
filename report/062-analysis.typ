@@ -36,13 +36,12 @@ These artifacts can be divided into six primary categories representing overarch
     ..sub("Interpolation differences", 17, "94%"),
 
     ..cat("Ground filtering", 15, "83%", 2),
-    ..sub("Slopes", 10, "56%"),
-    ..sub("Quarry", 10, "56%"),
-    ..sub("Ground filtering", 6, "33%"),
+    ..sub("Slopes", 13, "72%"),
     ..sub("Overpass", 5, "28%"),
 
     ..cat("Temporal", 14, "78%", 3),
     ..sub("Construction", 11, "61%"),
+    ..sub("Quarry", 10, "56%"),
     ..sub("Storage", 5, "28%"),
     ..sub("Snow", 1, "6%"),
 
@@ -165,7 +164,105 @@ One important note is that interpolation is not always at fault for differences 
 #pagebreak()
 === Ground filtering artifacts
 
+Ground filtering is the second most common artifact encountered for the border pairs. For this category we consider steep slopes (cliffs, valleys), and disagreements caused by overpass handling. Out of these subcategories, steep slopes are both the most common and most severe, while overpasses only create small, local disagreements.
 
+Overpasses can only be found in roughly a quarter of all cases. However, this does not mean they do not exist within other border pairs, but simply do not create elevation differences. The severity of the difference depends on the height of the overpass, though generally exceed the resolution threshold. @fig:NRW-RLP-overpass-example shows and example where the area which exceeds the resolution threshold is highlighted in red, while the NRW and RLP images show the elevation.
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/NRW-RLP-overpass.png", width: 100%)
+      #align(center)[(ESRI)]
+    ],
+
+    [
+      #image("assets/NRW-RLP-overpassNRW.png", width: 100%)
+      #align(center)[(NRW)]
+    ],
+
+    [
+      #image("assets/NRW-RLP-overpassRLP.png", width: 100%)
+      #align(center)[(RLP)]
+    ],
+  ),
+  caption: "Example of an overpass artifact caused by a difference in ground filtering between NRW and RLP",
+)
+<fig:NRW-RLP-overpass-example>
+
+The two main types of slope disagreement are cliffs and valleys/hills. These artifacts can be recognized by a discrete drop in the @DTM or a thin and long artifact on the difference @DEM. An example of this type of artifact can be seen in @fig:Hessen-BW-clearing-example. Due to the steepness of the cliff small horizontal differences between sample points in the @DTM can create large vertical differences as measurements may lie at the top or bottom of the cliff. Alternatively, this can be a byproduct of differnces in ground filtering methods such as cloth simulation, progressive TIN densification, or @SMRF.
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/Hessen-BW-clearingESRI.png", height: 5cm, fit: "contain")
+      #align(center)[(ESRI)]
+    ],
+
+    [
+      #image("assets/Hessen-BW-clearingDH.png", height: 5cm, fit: "contain")
+      #align(center)[(DH)]
+    ],
+
+    [
+      #image("assets/Hessen-BW-clearingSV.png", height: 5cm, fit: "contain")
+      #align(center)[(Google Street View (49.4762, 8.4208))]
+    ],
+  ),
+  caption: "Example of a cliff artifact flagged as a resolution threshold exceeding disagreement",
+)
+<fig:Hessen-BW-clearing-example>
+
+The second type of slope disagreement can be found primarily in regions which constain deep valleys such as the France – Luxembourg border. The cause for this disagreement is the same as for steep cliffs. However, unlike cliffs, this type of artifact can cause large sections of disagreement between @DTM:pls (@fig:Lux_Fra_border-example). @fig:Lux_Fra_Rumelange_example shows the region around the city of Rumelange, which is located within a valley. The difference in @DTM elevations can increase up to differences of 25 meters in both positive and negative directions. The best way to resolve these sorts of discrepancies would be to reextract the @DTM for the border region through the point cloud, as smoothing the terrain such as Mapterhorn does, deviates far from the actual elevation of the region (@wipfli2026mapterhorn).
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/France-Lux-borderarea.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+
+    [
+      #image("assets/France-Lux-borderarea-issues.png", width: 100%)
+      #align(center)[(Flagged Differences)]
+    ],
+  ),
+  caption: "Example of large regions of disagreement, flagged differences in red exceed 1.6 meters of difference at the France – Luxembourg border",
+)
+<fig:Lux_Fra_border-example>
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/France-Lux-Rumelange-DH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+
+    [
+      #image("assets/France-Lux-Rumelange-elevation.png", width: 100%)
+      #align(center)[(DTM)]
+    ],
+  
+
+    [
+        #image("assets/France-Lux-Rumelange-contour.png", width: 100%)
+        #align(center)[(Contours)]
+    ],
+  ),
+  caption: "Example of Rumelange where disagreements can increase up to 25 meters.",
+)
+<fig:Lux_Fra_Rumelange_example>
 
 #pagebreak()
 === Temporal artifacts
@@ -209,8 +306,6 @@ There is one even more unique difference which only occurs once to our knowledge
 )<fig:snow>
 
 These differences can be resolved by comparing the point clouds of the neighboring regions. For the interest of temporal accuracy, it is most favorable to take the data from the latest aquisition time to have the most recent data. However, this does possibly cause a noticable seam at the edge of the overlapping area without any smoothing. As discussed in ... , smoothing dilutes the elevation data captured between regions and is undesirable. Furthermore, static features such as hills should not be affected by temporal aspects, and may require a different approach to be rectified. Solving this challenge is not within the boundaries of this project, but could be the focus of a followup project.
-
-#drafting.inline-note("do make sure we compare our product to Mapterhorn")
 
 === Border artifacts
 

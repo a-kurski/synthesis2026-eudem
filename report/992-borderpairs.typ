@@ -325,6 +325,8 @@ An interesting artefact is a 0.6m-tall "mound" between Wallau and Bad Laasphe.
   caption: [Ground and building filtering differences between NRW and Hessen]
 )<fig:nrw-hessen-ground>
 
+
+
 ==== Hessen -- Bavaria
 
 The statistics of the errors along Hessen--Bavaria border are similar to those of Hessen--NRW border, but their sources appear to be somewhat different.
