@@ -479,5 +479,5 @@ caption:[Gantt chart]
   caption:[Dataset availability]
 )
 
-= Border pair analysis
+= Border pair analysis <sec:border_pairs>
 #include "992-borderpairs.typ"

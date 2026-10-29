@@ -149,12 +149,17 @@ All in all, despite issues with the source data, the quality of the @DTM is not 
 
 #figure(
   grid(
-    columns: 2,
+    columns: 3,
     gutter: 5pt,
 
     [
-      #image("assets/RLP-Saarland-Extrapolation2Both.png", width: 100%)
-      #align(center)[(RLP + Saarland)]
+      #image("assets/RLP-Saarland-Extrapolation2RLP.png", width: 100%)
+      #align(center)[(RLP)]
+    ],
+
+    [
+      #image("assets/RLP-Saarland-Extrapolation2Saar.png", width: 100%)
+      #align(center)[(Saarland)]
     ],
 
     [
