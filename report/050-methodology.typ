@@ -197,7 +197,7 @@ In order to create a high quality water mask, the UNEP @FEE mask was used as an 
 
 However, the @FEE mask is not fine enough to be applied to the elevation map. Instead, we can use the @FEE mask as seed points in a region growing algorithm. Since rivers and waterbodies are known to be relatively flat, a low elevation difference threshold is set for the region growing, such that the elevation jump at the shore is registered as the boundary of the water body.
 
-Each mask cell is transformed to the elevation map resolution, @CRS and grid. By applying this mask to the elevation map, it is essentially clipped to contain only heigh values that fall within the @FEE mask. Each cell in this clipped DTM is taken as a seed point for a region growing algorithm. These seed points are added to the region growing queue. Each entry has eight neighbors and for each the height difference with the seed is calculated. When these differences are smaller than the set threshold, the neighboring point is added to the end of the queue. The result is a breadth first search which incrementally classifies cells as a water body. The end result is a mask with region IDs, where cell values above 0 denote the existence of a water body.
+Each mask cell is transformed to the elevation map resolution, @CRS and grid. By applying this mask to the elevation map, it is essentially clipped to contain only heigh values that fall within the @FEE mask. Each cell in this clipped DTM is taken as a seed point for a region growing algorithm. These seed points are added to the region growing queue. Each entry has eight neighbors and for each the height difference with the seed is calculated. When these differences are smaller than the set threshold, the neighboring point is added to the end of the queue. The result is a breadth first search which incrementally classifies cells as a water body. The end result is a mask with region IDs, where cell values above 0 denote the existence of a water body. This process can be found as pseudo code in @alg-river-mask, which described the code which performs the operation in plain text.
 
 #[
 #show figure: set align(left)
@@ -252,7 +252,7 @@ Each mask cell is transformed to the elevation map resolution, @CRS and grid. By
 
 The final stage of the project is to pairwise compare neighboring datasets and evaluate the results. The first step in this process is finding out which regions overlap. It is followed by calculating the height difference, performing coregistration, and analysing aspects of said difference such as correlation between error magnitude and slope or the rate of @INSPIRE compliance.
 
-To determine which @DTM:pla overlap one another, we first compute the bounding boxes of each @DTM and their overlap is checked in@eq:border-overlap
+To determine which @DTM:pla overlap one another, we first compute the bounding boxes of each @DTM and their overlap is checked using the @AABB method as shown in @eq:border-overlap @AABB_source.
 
 
 #set math.equation(numbering: "(1)")
@@ -262,16 +262,16 @@ $
   & quad and max(y_"region_1_min", y_"region_2_min") < min(y_"region_1_max", y_"region_2_max")
 $ <eq:border-overlap>
 
-This is not a perfect method as the bounding boxes may overlap even when the datasets do not. Therefore, another check is done by cropping the @DTM of one country with the other and checking if the cropped dataset is not empty. However, this is a computationally expensive operation and is thus only performed if an overlap between the bounding boxes is found.
+This is a primary step in evaluating wether overlap exists, but needs to be supplemented with an additional step to confirm overlap. Therefore, another check is done by cropping the @DTM of one country with the other and checking if the cropped dataset is not empty. However, this is a computationally expensive operation and is thus only performed if an overlap between the bounding boxes is found.
 
-The next step in the analysis process is to calculate the elevation differences between the two maps.
+If a valid overlap is found, the next step is to calculate the elevation differences between the two maps. By taking the difference we can identify both the location, area and magnitude of disagreements between @DTM:pls.
 @GDAL allows for this process to be simplified to a subtraction operation.
 
 Based on this difference, We construct polygons to highlight errors greater than a set threshold. Nearby polygons are merged into one which allows to essentially detect _areas_ with high error rates rather than just count individual point samples.
 We selected the threshold to match the ratio between resolution and vertical @RMSE --- at 5m, that threshold is 1.67m. This threshold is a little lower than Copernicus's 2m @LE90 benchmark.
 For the analysis, the number of cells where the error rate exceeds the threshold is also presented.
 
-We can also analyze the spatial correlation of the errors.
+Another metric to analyze is the spatial correlation of the errors.
 Overall, it is expected that Tobler's #cite(<Tobler1970>, form: "year") first law of geography will hold: the close errors will have a higher correlation than far-away ones.
 It is further expected that stochastic errors are uncorrelated, and a high correlation of far away errors likely indicates a systematic error instead.
 However, the correlation does not account for error magnitude --- a small systematic error will result in a higher correlation rate than a large stochastic one.
