@@ -138,6 +138,14 @@ An aggregate elevation model serves as an alternative to the conventional @GDEM.
 
 There are several shortcomings with current implementation of Mapterhorn. The first one is that it is neither a @DTM nor a @DSM: Copernicus DEM is a _surface_ model, and national products can be both a _terrain_ and a _surface_ model --- therefore, Mapterhorn's elevation data is a mix of both. The second one is the approach to resolving elevation conflicts at the border. Mapterhorn uses a Gaussian blur to blend the elevation data where two datasets overlap, which may introduce elevation points which may not be representative of reality for those point samples. Lastly, Mapterhorn enforces that the @CRS transform is only horizontal, explicitly ruling out vertical transform.
 
+#figure(
+  image(
+    "assets/mapterhorn-artefact.png",
+    width: 50%
+  ),
+  caption: [Example of smoothing at the border in Mapterhorn]
+)
+
 A similar approach was described by #cite(<Noardo2016>, form: "prose") who report on harmonisation of the @CRS, orthrophoto, semantic information, and the @DEM and #cite(<biagi_interpolation>, form: "prose") who focus on @DEM harmonisation specifically.
 The papers try and harmonise Italian elevation data with France and Switzerland respectively, focusing on the mountainous regions.
 Both demonstrate presence of errors of high magnitude, exceeding 100m.
