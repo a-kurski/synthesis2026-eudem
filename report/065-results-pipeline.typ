@@ -29,3 +29,13 @@ We determined that this issue stems from a missing VCRS transform.
 Previously, a warning was issued and the pipeline continued with no VCRS transform applied, but during the later runs, warping some of the tiles was skipped.
 We believe this to be a change on the server of the PROJ library, likely following the PHP vulnerability of October 20; however, a definitive diagnostic was not performed.
 The fix we adopted was setting the VCRS for affected regions to `null` such that no transform is attempted, which allows the pipeline to be executed.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/dtm-hessen.png")],
+    [#image("assets/dtm-missing-france.png")]
+  ),
+  caption: [Issues diagnosed with earlier runs of the pipeline: incorrect NoData value for Hessen (left) and missing parts of France (right)]
+)
