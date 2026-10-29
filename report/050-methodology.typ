@@ -304,15 +304,15 @@ The primary, and most informative metric to evaluate is the elevation difference
 It is often possible to infer the cause for differences by comparing against @OSM, Google Maps, ESRI world imagery, Google Earth, or by comparing the national @DTM:pls. Nevertheless, sometimes more data is required. For this, the `RMSE vs Slope` graph can prove useful. @fig:slope_ex shows a typical example of such a plot. The expected behavior of this plot is a steadily increasing @RMSE for greater slope angles. Deviations from this trend can point towards differences which may be related to ground filtering, or sample point differences due to steep elevations. However, it may also point to temporal differences, for example due abrupt terrain changes caused for example by quarries.
 
 #figure(
-  image("assets/slope_rmse_germany_nrw_germany_rlp.png", width:50%),
+  image("assets/slope_rmse_germany_nrw_germany_rlp.png", width:70%),
   caption:[Typical slope plot example]
 )
 <fig:slope_ex>
 
-The histogram is another method of looking at the differences. The plots follow a logarithmic scale as to be more informative. The expected visual is a sharp peak at 0 elevation difference, with a decreasing amount of points as the absolute difference grows. Should the mean of this graph lie elsewhere, there is the possibility of errorous vertical transformations. Secondary peaks on the other hand may represent larger artifacts that are shifted up or down, for example due to extrapolation artifacts.
+The elevation difference histogram is another method used for analysis, an example is shown in @fig:hist_ex. The vertical axis follows a logarithmic scale to be more informative. The expected visual is a sharp peak around 0 elevation difference, with a decreasing amount of bins as the difference magnitude grows. The fact that the mean of the histogram is not located around 0 difference would indicate the possibility of errorous vertical transformations. Secondary peaks on the other hand may represent larger artifacts that are shifted up or down, for example due to extrapolation artifacts.
 
 #figure(
-  image("assets/histogram_germany_rlp_france.png", width:60%),
+  image("assets/histogram_germany_rlp_france.png", width:70%),
   caption:[Typical histogram example]
 )
 <fig:hist_ex>
