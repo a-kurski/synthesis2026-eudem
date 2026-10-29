@@ -16,12 +16,10 @@ The selection of RGE ALTI in France represented the clearest trade-off between d
 
 
 #drafting.inline-note("Go over the pipeline shortcomings in accordance with the subquestion")
-harmonizing nodata -> reprojection -> regridding -> resampling -> interpolation (Netherlands)
->>>>>>> 13cbfa95ef3c47a0b26cf6521c947d483c39434d
 
 #include "065-results-pipeline.typ"
 
-=======
+== Temp
 ...
 The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated @DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated nodata cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still necessary.
 
@@ -30,7 +28,6 @@ For this process nearest inverse distance weighing is used. This does not catch 
 ...
 
 The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
->>>>>>> 13cbfa95ef3c47a0b26cf6521c947d483c39434d
 
 
 === Watermask artifacts <Watermask_artifacts>
