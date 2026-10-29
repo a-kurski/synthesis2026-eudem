@@ -6,7 +6,7 @@
 
 // [X]
 
-This chapter describes the harmonisation pipeline, providing both a general overview and specifics of the approach to processing heterogeneous elevation data and subsequent evaluation of the results.
+This chapter describes the methodology used in the DTM harmonisation pipeline. It provides both a general overview and specifics of the approach to processing heterogeneous elevation data and subsequent analysis of the results. The additional methodological aspects discussed in this chapter include the water mask generation, and the description of the visualization and comparison methods employed.
 
 == Pipeline Overview
 
@@ -248,13 +248,11 @@ Each mask cell is transformed to the elevation map resolution, @CRS and grid. By
   caption:[Rhine catchment area river mask of the full catchment area]
 )
 
-== Border Analysis <sec:border-analysis>
+== Cross-Border DTM Analysis <sec:border-analysis>
 
-The final stage of the project is to pairwise compare neighboring datasets and evaluate the results. The first step in this process is finding out which regions overlap. It is followed by calculating the height difference, performing coregistration, and analysing aspects of said difference such as correlation between error magnitude and slope or the rate of @INSPIRE compliance.
+Once all harmonising steps are complete, the next step is to pairwise compare neighboring datasets and evaluate the results. This is first done by determining which regions share borders and have overlaping elevation products. This is followed by computing the elevation difference rasters, performing coregistration, and analysing statistical aspects of said difference such as correlation between error magnitude and slope, or the rate of @INSPIRE compliance.
 
-To determine which @DTM:pla overlap one another, we first compute the bounding boxes of each @DTM and their overlap is checked in@eq:border-overlap
-
-
+To determine which @DTM:pla overlap one another, we first compute the bounding boxes of each @DTM and their overlap is checked in @eq:border-overlap.
 #set math.equation(numbering: "(1)")
 
 $
@@ -264,44 +262,19 @@ $ <eq:border-overlap>
 
 This is not a perfect method as the bounding boxes may overlap even when the datasets do not. Therefore, another check is done by cropping the @DTM of one country with the other and checking if the cropped dataset is not empty. However, this is a computationally expensive operation and is thus only performed if an overlap between the bounding boxes is found.
 
-The next step in the analysis process is to calculate the elevation differences between the two maps.
-@GDAL allows for this process to be simplified to a subtraction operation.
+The next step in the analysis process is to calculate the elevation differences between the @DTM pairs in the overlaping border regions. @GDAL allows for this process to be simplified to a subtraction operation. The resulting elevation difference rasters contain the cellwise elevation difference in the region, and constitute the core of the conducted analysis. They provide a first glance into how much disagreement there is between two regions' elevation products.
 
-Based on this difference, We construct polygons to highlight errors greater than a set threshold. Nearby polygons are merged into one which allows to essentially detect _areas_ with high error rates rather than just count individual point samples.
-We selected the threshold to match the ratio between resolution and vertical @RMSE --- at 5m, that threshold is 1.67m. This threshold is a little lower than Copernicus's 2m @LE90 benchmark.
-For the analysis, the number of cells where the error rate exceeds the threshold is also presented.
+Based on this difference, we construct polygons to highlight errors greater than a set threshold. Nearby polygons are merged into one which allows to highlight potential areas with high concentration of disagreements rather than just count individual point samples.
+We selected the threshold to match the ratio between resolution and vertical @RMSE --- at 5m, that threshold is 1.67m. This threshold is a little lower than Copernicus's 2m @LE90 benchmark. For the analysis, the number of cells where the error rate exceeds the threshold is also presented.
 
-We can also analyze the spatial correlation of the errors.
-Overall, it is expected that Tobler's #cite(<Tobler1970>, form: "year") first law of geography will hold: the close errors will have a higher correlation than far-away ones.
-It is further expected that stochastic errors are uncorrelated, and a high correlation of far away errors likely indicates a systematic error instead.
-However, the correlation does not account for error magnitude --- a small systematic error will result in a higher correlation rate than a large stochastic one.
+The spatial correlation of the elevation diffeernces is also analyzed. Overall, it is expected that Tobler's #cite(<Tobler1970>, form: "year") first law of geography will hold: the close errors will have a higher correlation than far-away ones.
+It is further expected that stochastic errors are uncorrelated, and a high correlation of far away errors likely indicates a systematic error instead. However, the correlation does not account for error magnitude --- a small systematic error will result in a higher correlation rate than a large stochastic one.
 
 Another way to evaluate systematic errors is through coregistration. This is a function in XDEM which performs an affine transform @tc-5-271-2011, which ensures best alignment of the @DTM:pla in $x$, $y$ and $z$ directions. The statistics (@RMSE, @LE90, mean error etc) are calculated for the border region before and after coregistration. A small affine transform with a high @RMSE would indicate stochastic errors.
 
-We also produce several graphs to aid with the analysis.
-First one is a histogram of the error magnitudes for a given border pair.
-The second is a graph of the error rates relative to the slope angle --- here, expressed as @RMSE for a given 5-degree bin of slope angle.
-@INSPIRE suggests different relationships for horizontal resolution and vertical accuracy depending on slope angle; we therefore expect the slope angle to have an effect on the magnitude of the error.
-Another graph shows the errors relative to the distance from the border (again, @RMSE for a given 50-meter bin).
-This "border effect" graph can, for instance, help detect errors due to extrapolation at the edge of a dataset, but it can also be sensitive to a single large error.
+Several graphs are also produced to aid with the analysis. First one is a histogram of the error magnitudes for a given border pair. Another is a graph of the elevation differences relative to the slope angle --- here, expressed as @RMSE for a given 5-degree bin of slope angle. @INSPIRE suggests different relationships for horizontal resolution and vertical accuracy depending on slope angle. We therefore expect the slope angle to have an effect on the magnitude of the error. Another graph shows the errors relative to the distance from the border (again, @RMSE for a given 50-meter bin). This "border effect" graph can, for instance, help detect errors due to extrapolation at the edge of a dataset, but it can also be sensitive to a single large error.
 
-#drafting.inline-note("work next section into report")
-
-The primary, and most informative metric to evaluate is the elevation difference raster. In order to best evaluate this metric various gradients were used. However, those provided by default in @QGIS:asf, are not sufficiently illustrative for both the visuals and the analysis. Therefore, `fusion` was instead used as the primary gradient for elevation difference visuals (@fig:crm_fusion)(@cmr_fusion). Using this gradient allows for the clear illustration of difference extremes, as shown in @fig:dif_ex.
-
-#figure(
-  image("assets/cmr_fusion.png", width:50%),
-  caption:[fusion gradient @cmr_fusion]
-)
-<fig:crm_fusion>
-
-#figure(
-  image("assets/difference_map_illustration.png", width:50%),
-  caption:[Difference DTM example]
-)
-<fig:dif_ex>
-
-It is often possible to infer the cause for differences by comparing against @OSM, Google Maps, ESRI world imagery, Google Earth, or by comparing the national @DTM:pls. Nevertheless, sometimes more data is required. For this, the `RMSE vs Slope` graph can prove useful. @fig:slope_ex shows a typical example of such a plot. The expected behavior of this plot is a steadily increasing @RMSE for greater slope angles. Deviations from this trend can point towards differences which may be related to ground filtering, or sample point differences due to steep elevations. However, it may also point to temporal differences, for example due abrupt terrain changes caused for example by quarries.
+It is often possible to infer the cause for differences by inspecting satellite imagery from Google Maps, ESRI World Imagery, Google Earth, or images @OSM. Another useful method is to visually inspect the temporal change in a location in Google Earth. Nevertheless, sometimes more data is required, which is where the graphs described above become useful @fig:slope_ex shows a typical example of the `RMSE vs Slope` plot. The expected behavior of this plot is a steadily increasing @RMSE for greater slope angles. Deviations from this trend can point towards differences which may be related to ground filtering, or sample point differences due to steep elevations. However, it may also point to temporal differences, for example due abrupt terrain changes caused for example by quarries.
 
 #figure(
   image("assets/slope_rmse_germany_nrw_germany_rlp.png", width:70%),
@@ -309,7 +282,7 @@ It is often possible to infer the cause for differences by comparing against @OS
 )
 <fig:slope_ex>
 
-The elevation difference histogram is another method used for analysis, an example is shown in @fig:hist_ex. The vertical axis follows a logarithmic scale to be more informative. The expected visual is a sharp peak around 0 elevation difference, with a decreasing amount of bins as the difference magnitude grows. The fact that the mean of the histogram is not located around 0 difference would indicate the possibility of errorous vertical transformations. Secondary peaks on the other hand may represent larger artifacts that are shifted up or down, for example due to extrapolation artifacts.
+@fig:hist_ex shows an example of a typical elevation difference histogram. The vertical axis follows a logarithmic scale to be more informative. The expected visual is a sharp peak around 0 elevation difference, with a decreasing amount of bins as the difference magnitude grows. The fact that the mean of the histogram is not located around 0 difference would indicate the possibility of errorous vertical transformations. Secondary peaks on the other hand may represent larger artifacts that are shifted up or down, for example due to extrapolation artifacts.
 
 #figure(
   image("assets/histogram_germany_rlp_france.png", width:70%),
@@ -407,3 +380,31 @@ table(
 caption:[Coregistration metrics]
 )
 <tab:coreg_metrics>
+
+== Visualization of DTMs
+
+Next to designing the pipeline and implementing analysis methods, an important aspect of this study was to decide on effective visualization methods and color schemes for the catchment-wide and analysis related @DTM:pls.
+
+The catchment-wide @DTM product contains elevation values ranging from -325m to 4272m. The @DTM also contains various terrain types from the Netherlands' low variation in elevation to the Swiss Alps where elevation changes by several thousands of meters. This made visualizing the catchment-wide @DTM challenging, as with most color maps used, the Netherlands appeared completely dark while Switzerland became very bright and saturated, or vice versa. The `pride` color map resulted in a good balance between having an interpretable @DTM, including the extremes, and a visually striking product (@fig:cm_pride)(@cm_pride).
+
+#figure(
+  image("assets/cm_pride.png", width:50%),
+  caption:[fusion gradient @cm_pride]
+)
+<fig:cm_pride>
+
+The primary and most informative analysis tools are the elevation difference rasters obtained by subtracting two different @DTM:pls from each other after they have been projected onto the same grid. Various color gradients were tested to best evaluate the difference rasters. However, those provided by default in @QGIS:asf, were not satisfactory for both visualising and analysis purposes. Therefore, `fusion` was used as the primary gradient for elevation difference visuals (@fig:cm_fusion)(@cm_fusion). Using this gradient allows for the clear illustration of difference extremes, as shown in @fig:dif_ex.
+
+#figure(
+  image("assets/cm_fusion.png", width:50%),
+  caption:[fusion gradient @cm_fusion]
+)
+<fig:cm_fusion>
+
+#figure(
+  image("assets/difference_map_illustration.png", width:50%),
+  caption:[Difference DTM example]
+)
+<fig:dif_ex>
+
+In addition to the color gradients mentioned above, the Viridis and Spectral gradients were used in certain occasions, for example when discovering flight strip patterns or inspecting specific areas.
