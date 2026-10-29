@@ -5,24 +5,29 @@ As described in @sec:border-analysis, the analysis step is where we evaluate the
 These artifacts can be divided into six primary categories representing overarching themes. To further specify the type of artifact, each category is divided into subcategories which each represent an example of the artifact. These main artifacts are interpolation, ground filtering, temporal, watermask, and tile artifacts.
 
 
-@tab:artifact_prevalence gives an overview of these categories in grey, while the white subsections describe the subcategories. The percentage of border pairs describes in how many of the 18 evaluated border cases an artifact occurs. The bold category percentages detail in what percentage of all border pairs, at least one of the artifacts within the category occurs. As can be observed, the interpolation is the most frequently occuring artifact. However, @tab:artifact_prevalence does not signify the severity of each artifact, which will be further discussed in the remainder of this chapter. The only exception are the artifacts caused by shortcomings in the river mask, which are discussed in @sec:Watermask_artifacts.
+@tab:artifact_prevalence gives an overview of these categories in grey, while the white subsections describe the subcategories. The percentage of border pairs describes in how many of the 18 evaluated border cases an artifact occurs. The bold category percentages detail in what percentage of all border pairs, at least one of the artifacts within the category occurs. An important thing to note is that none of the categories add up to 100%, this is because the Swiss and Liechtenstein border is perfectly aligned, as the Swiss data collection includes Liechtenstein. As can be observed, the interpolation is the most frequently occuring artifact. However, in @tab:artifact_prevalence rank by occurance and severity are not the same, severity ranks the total observed displacement, whereas occurance only looks at how many pairs include the artifact. The only type of artifact which will not be discussed are the artifacts caused by shortcomings in the river mask, which are discussed in @sec:Watermask_artifacts.
 
  The full overview of each border pair and their corresponding artifacts can be found in @tab:artifacts_table. Furthermore, a pairwise analysis of all border pairs can be found in @sec:border_pairs, which contains additional visuals and a case-by-case evaluation of the differences.
 
-#let cat(name, n, pct, rank) = (
+#let cat(name, n, pct, rank_occ, rank_sev) = (
   table.cell(fill: rgb("e9eef3"))[*#name*],
   table.cell(fill: rgb("e9eef3"))[*#n*],
   table.cell(fill: rgb("e9eef3"))[*#pct*],
-  table.cell(fill: rgb("e9eef3"))[*#rank*],
+  table.cell(fill: rgb("e9eef3"))[*#rank_occ*],
+  table.cell(fill: rgb("e9eef3"))[*#rank_sev*],
 )
 
 #let sub(name, n, pct) = (
-  pad(left: 1em)[#name], [#n], [#pct], [],
+  pad(left: 1em)[#name],
+  [#n],
+  [#pct],
+  [],
+  [],
 )
 
 #figure(
   table(
-    columns: (auto, auto, auto, auto),
+    columns: (auto, auto, auto, 60pt, 60pt),
     inset: 3pt,
     align: (x, y) => if x == 0 { left + horizon } else { center + horizon },
     stroke: 0.5pt + rgb("aab2bb"),
@@ -31,31 +36,32 @@ These artifacts can be divided into six primary categories representing overarch
       [*Category / subcategory*],
       [*Border pairs*],
       [*Percentage of border pairs*],
-      [*Rank*],
+      [*Rank occurrence*],
+      [*Rank severity*],
     ),
 
-    ..cat("Interpolation", 17, "94%", 1),
+    ..cat("Interpolation", 17, "94%", 1, 5),
     ..sub("Interpolation differences", 17, "94%"),
 
-    ..cat("Ground filtering", 15, "83%", 2),
+    ..cat("Ground filtering", 15, "83%", 2, 2),
     ..sub("Slopes", 13, "72%"),
     ..sub("Overpass", 5, "28%"),
 
-    ..cat("Temporal", 14, "78%", 3),
+    ..cat("Temporal", 14, "78%", 3, 3),
     ..sub("Construction", 11, "61%"),
     ..sub("Quarry", 10, "56%"),
     ..sub("Storage", 5, "28%"),
     ..sub("Snow", 1, "6%"),
 
-    ..cat("Watermask", 13, "72%", 4),
+    ..cat("Watermask", 13, "72%", 4, 4),
     ..sub("River mask failure", 13, "72%"),
     ..sub("Water handling", 5, "28%"),
 
-    ..cat("Border", 7, "39%", 5),
+    ..cat("Border", 7, "39%", 5, 1),
     ..sub("Border artifacts", 5, "28%"),
     ..sub("Extrapolation", 4, "22%"),
 
-    ..cat("Tile artifacts", 7, "39%", 5),
+    ..cat("Tile artifacts", 7, "39%", 5, 6),
     ..sub("Tile differences", 4, "22%"),
     ..sub("Acquisition striping", 4, "22%"),
   ),
@@ -72,7 +78,7 @@ Tile artifacts are one of the least common types of artifacts. However, these ar
 
 The first artifact in this category is aquisition striping. One common trend among the datasets within the Rhine catchment area, is that the elevation data is derived from the @LiDAR point clouds of the region. These are primarily aerial laser scans, which perform a straight line scanning pattern. The width of the bands that this creates are determined by the @FOV of the scanner.
 
-Small deviations in the elevation of each scanning pass can create a striping effect if not corrected for. This is most often observed as bands of similar vertical differences on the difference @DEM, as shown in @fig:Striping_example. To solve this, each band would need to be identified to be offset. Alternatively, the offset would need to be dependent on @LiDAR aquisition time.
+Small deviations of several centimeters in the elevation of each scanning pass can create a striping effect if not corrected for. The severity of this artifact is minimal, however clearly noticable when observing difference @DEM:pls. This is most often observed as bands of similar vertical differences on the difference @DEM, as shown in @fig:Striping_example. To solve this, each band would need to be identified to be offset. Alternatively, the offset would need to be dependent on @LiDAR aquisition time.
 
 
 #figure(
@@ -102,7 +108,7 @@ Small deviations in the elevation of each scanning pass can create a striping ef
   caption: "Examples of LiDAR band-like striping",
 ) <fig:Striping_example>
 
-The second artifact in this category is singular tiles, or sections of tiles that have different vertical offsets compared to the rest of a national @DTM. This appears as visible seamlines on the difference @DEM. These differences however, become less clear when looking at the national @DTM. This happens for example at the @NRW – @RLP border, and more prominently at the @BW – Bavaria border (@fig:Tileoffset_example). While the cause for this artifact is not known for certain, it is possible that this data was captured at a different time, or with a different instrument. This hypothesis can be confirmed by comparing the @LiDAR aquisition time of tiles with such a seam to their neighbors. This is however still a byproduct of inaccurate vertical alignment with a @DTM, in such a manner that it does not correspond with the rest of the @CRF. To solve this difference, the offending tiles would need to be reextracted, and coregistered to the neighboring tiles.
+The second artifact in this category is singular tiles, or sections of tiles that have different vertical offsets compared to the rest of a national @DTM. This appears as visible seamlines on the difference @DEM. These differences however, become less clear when looking at the national @DTM. This happens for example at the @NRW – @RLP border, and more prominently at the @BW – Bavaria border (@fig:Tileoffset_example). While the cause for this artifact is not known for certain, it is possible that this data was captured at a different time, or with a different instrument. This hypothesis can be confirmed by comparing the @LiDAR aquisition time of tiles with such a seam to their neighbors. This is however still a byproduct of inaccurate vertical alignment with a @DTM, in such a manner that it does not correspond with the rest of the @CRF. To solve this difference, the offending tiles would need to be reextracted, and coregistered to the neighboring tiles. The magnitude of this artifact has been inconsistent, but for example 1 in @fig:Tileoffset_example, the maximum difference is 2.6 meters, while for example 2 the difference between tile elevation steps across the seam was 40 centimeters.
 
 #figure(
   grid(
