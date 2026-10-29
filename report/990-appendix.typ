@@ -7,7 +7,7 @@
 
 = Project Planning
 
-== Prioritisation
+== Prioritisation <sec:requirements>
 #let moscow(value) = {
   let color = if value == "Must" {
     rgb("#b3ef88")

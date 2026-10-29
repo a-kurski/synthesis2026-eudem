@@ -13,9 +13,13 @@ The pipeline acquires elevation data from 11 regions within 6 countries. The dat
 The selection of RGE ALTI in France represented the clearest trade-off between data quality and computational efficiency. For some regions, however, data acquisition and processing had already been implemented before the target grid resolution of 5 m was established. This was the case for the Netherlands, where the existing implementation using the 0.5 m AHN product was retained despite the availability of a 5 m product. For most German regions, the standard 1 m DTM products were used, with Bavaria being an exception where a 5 m product was available for download. In Baden-Württemberg, a 5 m product was also available, but required payment, so the openly available 1 m product was selected. For Switzerland and Liechtenstein, the nationwide 2 m product was resampled to the target grid. In Luxembourg, the more recent 0.5 m nationwide product was preferred over an older 5 m product, as the relatively small study area made processing the higher-resolution data feasible. Once the source data is acquired, it is then processed in the pipeline to match the specifications of the target grid.
 
 == Pipeline <sec:pipeline>
-#drafting.inline-note("Go over the pipeline shortcomings in accordance with the subquestion")
 
 #include "065-results-pipeline.typ"
+
+== DTM of the Rhine Catchment Area
+
+// #drafting.inline-note("Go over the pipeline shortcomings in accordance with the subquestion")
+
 
 == Temp
 ...
@@ -28,10 +32,28 @@ For this process nearest inverse distance weighing is used. This does not catch 
 The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
 
 
-=== Watermask artifacts <Watermask_artifacts>
-Watermask artifacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
+// === Watermask artifacts <Watermask_artifacts>
+// Watermask artifacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
 
-The region growing algorithm relies on the assumption that the watersurface is smooth. However, this is not always the case. The first example of this fact is found in @fig:River_mask_manmade. Here a hydro electric power plant causes a deviation in the elevation. The rough watermask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the watermask, and the area surrounding the plant such the left secondary channel, is not modeled.
+// >>>>>>> 384cf5fce26c7f26787176b3ffc98e7477df7a41
+
+
+// ...
+// The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated @DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated nodata cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still necessary.
+//
+// For this process nearest inverse distance weighing is used. This does not catch all nodata values. In case it does not, nearest neighbor interpolation is used to supplement to fill the remaining holes. However, due to the range set for nearest neighbor, not all nodata cells are interpolated. Increasing the radius would likely solve this issue, but would also significantly increase processing time. Therefore, the interpolation limitations of the Netherlands have had to be excepted as a shortcoming of the pipeline, caused by the available data.
+//
+// ...
+//
+// The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
+// >>>>>>> 13cbfa95ef3c47a0b26cf6521c947d483c39434d
+
+
+=== Water Mask artifacts <Watermask_artifacts>
+
+Water mask artifacts are related to the water mask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the water mask of course, is to filter out all water bodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
+
+The region growing algorithm relies on the assumption that the water surface is smooth. However, this is not always the case. The first example of this fact is found in @fig:River_mask_manmade. Here a hydro electric power plant causes a deviation in the elevation. The rough water mask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the water mask, and the area surrounding the plant such as the left secondary channel, is not modeled.
 
 #figure(
   grid(
@@ -119,7 +141,7 @@ The last artifact appears most frequently within the French region of the mask. 
       #align(center)[(TIN artifacts on DTM)]
     ],
   ),
-  caption:[Rivermask failure due missing input raster for region growing]
+  caption:[River mask failure due missing input raster for region growing]
 )<fig:River_mask_TIN>
 #pagebreak()
 

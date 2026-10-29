@@ -421,7 +421,8 @@ class Run:
         for i, (raster, cutline) in enumerate(patches, 1):
             start = time.perf_counter()
             gdal.Warp(ds, str(self.abs(raster)), options=gdal.WarpOptions(
-                cutlineDSName=str(self.abs(cutline)), resampleAlg='near', **self.warp_all))
+                cutlineDSName=str(self.abs(cutline)), resampleAlg='near', **self.warp_all,
+                options=['-novshift']))  # heights are already in the product's height system
             LOG.info('Assembled %d/%d: %s (%s)', i, len(patches), raster, elapsed(start))
         write_vector(basin, self.out / 'extent.gpkg')
         gdal.Rasterize(ds, str(self.out / 'extent.gpkg'), options=gdal.RasterizeOptions(
@@ -461,7 +462,8 @@ class Run:
         ds.GetRasterBand(1).SetNoDataValue(-1)
         for i, (mask, cutline) in enumerate(masks, 1):
             gdal.Warp(ds, str(self.abs(mask)), options=gdal.WarpOptions(
-                cutlineDSName=str(self.abs(cutline)), resampleAlg='near', srcNodata=-1, **self.warp_all))
+                cutlineDSName=str(self.abs(cutline)), resampleAlg='near', srcNodata=-1, **self.warp_all,
+                options=['-novshift']))  # ids, not heights
             LOG.info('River mask %d/%d stitched: %s', i, len(masks), mask)
         gdal.Rasterize(ds, str(self.out / 'extent.gpkg'), options=gdal.RasterizeOptions(burnValues=[-1], inverse=True))
         # 2. Ids -> binary Byte, blockwise.
