@@ -55,6 +55,4 @@ By the end of the project, the team expects to produce the following output:
 - *A @DEM* of the Rhine catchment area.
 - *This report* justifying the decisions made and describing the process.
 
-More detailed requirements for these deliverables are found in ....
-
-#drafting.inline-note()[Add appendix ref]
+More detailed requirements for these deliverables are found in @sec:requirements.
