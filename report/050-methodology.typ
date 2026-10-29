@@ -285,7 +285,19 @@ The second is a graph of the error rates relative to the slope angle --- here, e
 Another graph shows the errors relative to the distance from the border (again, @RMSE for a given 50-meter bin).
 This "border effect" graph can, for instance, help detect errors due to extrapolation at the edge of a dataset, but it can also be sensitive to a single large error.
 
-#drafting.inline-note("work next section into report")
+
+=== Analysis outputs and interpretation
+
+The border analysis workflow produces several complementary outputs that support the identification and interpretation of discrepancies between neighbouring DTMs. While the elevation difference raster forms the primary source of information, additional visualizations and summary statistics help distinguish between systematic and stochastic errors and provide context for the observed differences.
+
+The generated outputs consist of:
+- elevation difference maps,
+- RMSE versus slope plots,
+- elevation-difference histograms,
+- border-effect plots, and
+- summary statistics exported to a CSV file.
+
+In practice, to evaluate the data four main steps are performed for each border pair, which can be supplemented with other data. These are observing the difference @DEM, the slope plot, the histogram of the observed differences, and the statistics for the entire border region. These four steps visually illustrate where the differences occur, what effect the shape of the terrain has on the differences, what the distribution of difference magnitudes looks like, and what the general behavior throughout the border is.
 
 The primary, and most informative metric to evaluate is the elevation difference raster. In order to best evaluate this metric various gradients were used. However, those provided by default in @QGIS:asf, are not sufficiently illustrative for both the visuals and the analysis. Therefore, `fusion` was instead used as the primary gradient for elevation difference visuals (@fig:crm_fusion)(@cmr_fusion). Using this gradient allows for the clear illustration of difference extremes, as shown in @fig:dif_ex.
 
@@ -407,3 +419,5 @@ table(
 caption:[Coregistration metrics]
 )
 <tab:coreg_metrics>
+
+However, these four steps do not always provide all context as to why a difference occurs. For these cases different sources of data are selected from both the generated plots, and external data such as Google Earth aerial imagery. The application and use of this data is dependent on the artifact and is discussed on detail in @sec:border_pairs.
