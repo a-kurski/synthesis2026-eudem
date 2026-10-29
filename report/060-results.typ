@@ -13,8 +13,6 @@ The pipeline acquires elevation data from 11 regions within 6 countries. The dat
 The selection of RGE ALTI in France represented the clearest trade-off between data quality and computational efficiency. For some regions, however, data acquisition and processing had already been implemented before the target grid resolution of 5 m was established. This was the case for the Netherlands, where the existing implementation using the 0.5 m AHN product was retained despite the availability of a 5 m product. For most German regions, the standard 1 m DTM products were used, with Bavaria being an exception where a 5 m product was available for download. In Baden-Württemberg, a 5 m product was also available, but required payment, so the openly available 1 m product was selected. For Switzerland and Liechtenstein, the nationwide 2 m product was resampled to the target grid. In Luxembourg, the more recent 0.5 m nationwide product was preferred over an older 5 m product, as the relatively small study area made processing the higher-resolution data feasible. Once the source data is acquired, it is then processed in the pipeline to match the specifications of the target grid.
 
 == Pipeline <sec:pipeline>
-
-
 #drafting.inline-note("Go over the pipeline shortcomings in accordance with the subquestion")
 
 #include "065-results-pipeline.typ"
