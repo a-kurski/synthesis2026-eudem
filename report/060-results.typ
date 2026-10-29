@@ -49,9 +49,9 @@ The river mask is limited by the quality of the course resolution of the SDG mas
 // >>>>>>> 13cbfa95ef3c47a0b26cf6521c947d483c39434d
 
 
-=== Water Mask artifacts <Watermask_artifacts>
-
-Water mask artifacts are related to the water mask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the water mask of course, is to filter out all water bodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
+=== Water Mask <sec:Watermask_artifacts>
+ 
+The watermask was not an initially intended addition for the project. However, during analysis it was shown that including waterbodies showed large deviations in elevation between regions. Due to a lack of an existing high quality water mask, an existing mask was refined as detailed in @sec:Water_mask_processing. However, due to shortcomings of the mask and the applied algorithm, artifacts still occur, even if their impact on the analysis is minimized.
 
 The region growing algorithm relies on the assumption that the water surface is smooth. However, this is not always the case. The first example of this fact is found in @fig:River_mask_manmade. Here a hydro electric power plant causes a deviation in the elevation. The rough water mask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the water mask, and the area surrounding the plant such as the left secondary channel, is not modeled.
 

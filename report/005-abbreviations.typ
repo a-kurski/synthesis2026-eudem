@@ -2,6 +2,7 @@
 
 #abbr.list()
 #abbr.make(
+  ("AABB", "Axis-Aligned Bounding Boxes"),
   ("AHN", "Actueel Hoogtebestand Nederland"),
   ("ALOS", "Advanced Land Observing Satellite"),
   ("AOI", "Area of Interest", "Areas of Interest"),
