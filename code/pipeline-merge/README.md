@@ -27,7 +27,7 @@ Downloading data and point-cloud processing are out of scope: the pipeline start
 2. **`rasters`**: for each region, builds a virtual mosaic of its tiles and warps it in one step to the target CRS, height system and resolution. Each region's DEM keeps a `buffer_m` margin beyond its outline, so neighbouring DEMs overlap. Optional extras per region: subtracting a geoid for ellipsoidal heights, gap filling (with a mask of the filled cells) and cropping to the outline.
 3. **`rivers`**: for each region, grows a water mask over the DEM, starting from seed cells taken from a water raster. The comparison uses these masks to leave water surfaces out of the statistics.
 4. **`overlaps`**: where two regions overlap and one region's cell was interpolated (gap-filled) while the other has a measured value, the measured value replaces it. Nothing else is changed: no averaging, no feathering.
-5. **`assemble`**: writes each region's DEM inside its own outline, applies the overrides from the previous stage, masks everything outside the overall extent and writes the result as a Cloud Optimized GeoTIFF.
+5. **`assemble`**: writes each region's DEM inside its own outline, applies the overrides from the previous stage, masks everything outside the overall extent and writes the result as a Cloud Optimized GeoTIFF. It also stitches the regions' river masks the same way, each inside its own outline, into one binary river mask on the same grid (1 = water, 0 = land, 255 = NoData).
 
 The comparison (`python -m dtm.comparison`) is a separate step that runs on the region DEMs after the pipeline.
 
@@ -194,6 +194,7 @@ How the source data is handled:
 | `regions.<name>.fill_mask` | `rasters` | Mask of the gap-filled cells, or `null`. |
 | `regions.<name>.river_mask` | `rivers` | River mask of the region. |
 | `product` | `assemble` | Merged DTM. |
+| `river_product` | `assemble` | Merged binary river mask. |
 | `comparisons.<a>__<b>` | comparison | Statistics CSV of a finished pair. |
 
 Don't edit these by hand. To redo a region, delete its folder in `output_dir` (or its `dem` entry) and rerun. To redo a comparison pair, delete its `comparisons` entry or its statistics CSV.
@@ -205,6 +206,7 @@ Everything is written under `settings.output_dir`:
 ```
 <output_dir>/
 ├── <product_name>                     merged DTM (Cloud Optimized GeoTIFF)
+├── <product name>_river_mask.tif      merged river mask, Byte COG: 1 = water, 0 = land, 255 = NoData
 ├── extent.gpkg                        area covered by the merged DTM
 ├── pipeline.log                       log of all runs, appended
 ├── intersections/<a>__<b>.gpkg        buffered overlap of two regions
@@ -282,7 +284,7 @@ The Nuth & Kaab shift in the log is a quick diagnostic. A few centimetres is nor
 python -m unittest discover tests
 ```
 
-The tests run offline on small synthetic rasters. They cover the merge rules, a two-region run end to end, skipping and retrying missing regions, geoid conversion, river masks and the comparison statistics. The river-mask and comparison tests are skipped if xdem isn't installed.
+The tests run offline on small synthetic rasters. They cover the merge rules, a two-region run end to end, skipping and retrying missing regions, geoid conversion, river masks, the merged river mask and the comparison statistics. The river-mask and comparison tests are skipped if xdem isn't installed.
 
 ## Code layout
 

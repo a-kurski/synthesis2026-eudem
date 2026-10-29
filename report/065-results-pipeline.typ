@@ -40,9 +40,18 @@ The fix we adopted was setting the VCRS for affected regions to `null` such that
   caption: [Issues diagnosed with earlier runs of the pipeline: incorrect NoData value for Hessen (left) and missing parts of France (right)]
 )
 
-INCLUDE: writing about final DTM?
+An additional issue was observed during the border analysis stage.
+If the data provider cropped the dataset following the border and their definition of the border did not match the border dataset we used, there may be small gaps along the border.
+These issues are generally not observed within Germany where data providers use full tiles, but occurs along the borders with France and the Netherlands.
+This limitation stems from the coarse vector masks used. These were replaced with masks acquired from OpenStreetMap.
 
 #figure(
-  image("assets/whole_dtm_with_legend.png", width:85%),
-  caption:[Final Catchment-Wide DTM.]
+  grid(
+    columns: (1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/dtm-gaps-1.png")],
+    [#image("assets/dtm-gaps-2.png")],
+    [#image("assets/dtm-gaps-3.png")]
+  ),
+  caption: [Gaps on the France/Switzerland, France/Luxembourg, and Netherlands/NRW border]
 )
