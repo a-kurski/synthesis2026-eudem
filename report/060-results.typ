@@ -62,12 +62,12 @@ The watermask was not an initially intended addition for the project. However, d
 
     [
       #image("assets/rivermask-local.png", width: 100%)
-      #align(center)[(Google maps)]
+      #align(center)[(Cologne region mask)]
     ],
 
     [
       #image("assets/rhinecatchment-full.png", width: 100%)
-      #align(center)[(DH)]
+      #align(center)[(Full region mask)]
     ],
   ),
   caption:[Rhine catchment area river mask of the regions around Cologne, and the full catchment area]
