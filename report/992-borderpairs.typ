@@ -9,7 +9,7 @@ Loading in the $italic("dh_germany_nrw_germany_rlp.tif")$ @DTM, representing the
 
 #figure(
   image("assets/NRW-RLP-striping.png", width:40%),
-  caption:"Striping artifact on the border difference DTM"
+  caption:"LiDAR flight path artifact on the difference DEM, magnitude of differences up to 3cm"
 )
 <fig:NRW-RLP-striping>
 
@@ -20,7 +20,7 @@ $italic("statistics_germany_nrw_germany_rlp.csv")$ corroborates these findings. 
 
 #figure(
   image("assets/NRW-RLP-nonalignment.png",width:40%),
-  caption:"Tile vertical misalignment artifact on the border difference DTM"
+  caption:"Tile vertical misalignment artifact on the border difference DEM"
 )
 <fig:NRW-RLP-nonalignment>
 
@@ -55,7 +55,7 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
       #align(center)[(DH)]
     ]
   ),
-  caption: "Roof interpolation example",
+  caption: "Example of roof interpolation, marked as dark blue pock marks, with red polygons representing roofs exceeding 1.6 meters of difference",
 )
 <fig:NRW-RLP-roofinter>
 
@@ -79,7 +79,7 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
       #align(center)[(RLP)]
     ],
   ),
-  caption: "Overpass example",
+  caption: "Example of a highway overpass, where NRW prioritizes the highway as ground, while RLP prioritizes the road underneath",
 )
 <fig:NRW-RLP-overpass>
 
@@ -108,7 +108,7 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
       #align(center)[(DH)]
     ]
   ),
-  caption: "Quarry example",
+  caption: "Example of differences between the NRW and RLP DTMs, as result of temporal quarry changes",
 )
 <fig:NRW-RLP-quarry>
 
@@ -143,7 +143,7 @@ All in all, despite issues with the source data, the quality of the @DTM is not 
       #align(center)[(DH)]
     ],
   ),
-  caption: "Extrapolation example 1",
+  caption: "Extrapolation example 1, large negative difference accompanied by feathering of elevation values due to extrapolation",
 )
 <fig:Saarland-RLP-Extrapolation1>
 
@@ -167,13 +167,13 @@ All in all, despite issues with the source data, the quality of the @DTM is not 
       #align(center)[(DH)]
     ],
   ),
-  caption: "Extrapolation example 2",
+  caption: "Extrapolation example 2, large positive and negative differences accompanied by feathering of elevation values due to extrapolation",
 )
 <fig:Saarland-RLP-Extrapolation2>
 
 #figure(
   image("assets/histogram_germany_rlp_germany_saarland.png", width:80%),
-  caption:"Saarland-RLP Histogram"
+  caption:"Saarland-RLP Histogram, secondary peaks around the -30, -20, and 20 meter marks represent extrapolation artifacts"
 )
 <fig:Saarland-RLP-Histogram>
 
@@ -201,13 +201,13 @@ The only notable outlier within the data is the convergence of error similarity 
       #align(center)[(DH)]
     ],
   ),
-  caption: "Coal storage example",
+  caption: "Coal storage example, temporal changes have shifted the distribution of coal piles",
 )
 <fig:RLP-BW-Coal>
 
 #figure(
   image("assets/RLP-BW-TileoffsetDH.png"),
-  caption:"Tile offset example"
+  caption:"Tile offset example, as shown by the faint discoloration seam at the image center in the order of 10cm difference"
 )
 <fig:RLP-BW-TileOffset>
 
