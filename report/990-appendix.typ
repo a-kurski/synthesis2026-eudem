@@ -41,6 +41,11 @@ The code are available on GitHub at https://github.com/a-kurski/synthesis2026-eu
 The data is available from national providers, and can be acquired by executing corresponding parts of the code.
 The DTM, river mask, and analysis can be fully reproduced by executing the processing and analysis parts of the pipeline.
 
+
+#import "@preview/cmarker:0.1.5": render
+= pipeline README <sec:PipelineREADME>
+#render( read("../code/pipeline-merge/README.md") .split("\n") .slice(2) .join("\n") )
+
 #include "991-contributors.typ"
 
 = Project Planning
@@ -522,8 +527,3 @@ caption:[Gantt chart]
 = Border pair analysis <sec:border_pairs>
 #include "992-borderpairs.typ"
 
-#import "@preview/cmarker:0.1.5": render
-
-
-= pipeline README <sec:PipelineREADME>
-#render( read("../code/pipeline-merge/README.md") .split("\n") .slice(2) .join("\n") )
