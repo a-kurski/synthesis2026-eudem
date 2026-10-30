@@ -673,7 +673,7 @@ The Google Earth inspections and corresponding difference maps place these resul
       saarland-france-panel("assets/region1_bare.png", [(a) Google Earth terrain view]),
       saarland-france-panel("assets/region1_dtm.png", [(b) Elevation-difference overlay]),
     ),
-    caption: [*Forested escarpment beside water bodies.*],
+    caption: [Forested escarpment beside water bodies.],
   ) <fig:saarland-france-region1>
 ]
 
@@ -685,7 +685,7 @@ The Google Earth inspections and corresponding difference maps place these resul
       saarland-france-panel("assets/region2_bare.png", [(a) Google Earth terrain view]),
       saarland-france-panel("assets/region2_dtm.png", [(b) Elevation-difference overlay]),
     ),
-    caption: [*Wooded slopes and abrupt terrain changes.*],
+    caption: [Wooded slopes and abrupt terrain changes.],
   ) <fig:saarland-france-region2>
 ]
 
@@ -695,7 +695,7 @@ Terrain steepness is the strongest quantified association. RMSE rises from appro
   #block(breakable: false)[
     #figure(
       image("assets/region3_dtm.png", width: 76%),
-      caption: [*Clustered differences in a third inspected area.*],
+      caption: [Clustered differences in a third inspected area.],
     ) <fig:saarland-france-region3>
   ]
 ]
@@ -712,7 +712,7 @@ The quarry in @fig:saarland-france-quarry provides a clear setting in which acqu
       saarland-france-panel("assets/quary_bare.png", [(a) Quarry imagery]),
       saarland-france-panel("assets/quary_dtm.png", [(b) Elevation-difference overlay]),
     ),
-    caption: [*Imagery corresponding to a quarry and its difference raster.*],
+    caption: [Imagery corresponding to a quarry and its difference raster.],
   ) <fig:saarland-france-quarry>
 ]
 
@@ -729,7 +729,7 @@ Elevation differences are defined as RLP minus France, so positive values indica
 #block(breakable: false)[
   #figure(
     image("assets/rlp_france_distribution.png", width: 100%),
-    caption: [*Central distribution and full-distribution exceedance curve.* The left figure shows the distribution of the regional differences around the mean. Values outside ±0.6 m are not shown for visual simplicity. The right figure shows the percentage of all compared cells exceeding the absolute-difference threshold.],
+    caption: [Central distribution and full-distribution exceedance curve. The left figure shows the distribution of the regional differences around the mean. Values outside ±0.6 m are not shown for visual simplicity. The right figure shows the percentage of all compared cells exceeding the absolute-difference threshold.],
   ) <fig:rlp-france-distribution>
 ]
 
@@ -738,7 +738,7 @@ The spatial overview in @fig:rlp-france-spatial distinguishes broad patterns of 
 #block(breakable: false)[
   #figure(
     image("assets/rlp_france_spatial.png", width: 100%),
-    caption: [*RLP minus France: saved elevation differences.* From top to bottom: mean signed difference, RMSE, and percentage of compared area exceeding 1.667 m. Numbers identify the five largest supplied problem regions. Extreme values go over the displayed limits by the colour scheme.],
+    caption: [RLP minus France: saved elevation differences. From top to bottom: mean signed difference, RMSE, and percentage of compared area exceeding 1.667 m. Numbers identify the five largest supplied problem regions. Extreme values go over the displayed limits by the colour scheme.],
   ) <fig:rlp-france-spatial>
 ]
 
@@ -761,7 +761,7 @@ The inspected locations in @fig:rlp-france-extremes place the largest difference
       rlp-france-panel("assets/rlp_france_klein_arsberg.png", [(b) Klein Arsberg ruins]),
       rlp-france-panel("assets/rlp_france_rock_opening.png", [(c) Nearby rock opening]),
     ),
-    caption: [*Terrain settings of selected large differences.* (a) and (b) correspond to the most negative and most positive cells, respectively. (c) illustrates another positive discrepancy. Google Maps photographs supplied with the visual inspection.],
+    caption: [Terrain settings of selected large differences. (a) and (b) correspond to the most negative and most positive cells, respectively. (c) illustrates another positive discrepancy. Google Maps photographs supplied with the visual inspection.],
   ) <fig:rlp-france-extremes>
 ]
 
@@ -772,7 +772,7 @@ Different treatment of ruins and exposed rock during ground classification, foll
 #block(breakable: false)[
   #figure(
     image("assets/rlp_france_patterns.png", width: 100%),
-    caption: [*Broad bands in the elevation-difference overlay.* The image shows broad parallel bands extending across the region.],
+    caption: [Broad bands in the elevation-difference overlay. The image shows broad parallel bands extending across the region.],
   ) <fig:rlp-france-patterns>
 ]
 
@@ -789,7 +789,7 @@ The difference distribution has a narrow centre and long tails. Half of the abso
 #block(breakable: false)[
   #figure(
     image("assets/bw_france_north_south_profile.png", width: 100%),
-    caption: [*Regional variation in the BW–France comparison.* RMSE, threshold exceedances and compared area in 10 km northing bands. The southern bands have substantially larger differences despite containing less compared area than several northern bands. Coverage refers to the available overlap.],
+    caption: [Regional variation in the BW–France comparison. RMSE, threshold exceedances and compared area in 10 km northing bands. The southern bands have substantially larger differences despite containing less compared area than several northern bands. Coverage refers to the available overlap.],
   ) <fig:bw-france-north-south>
 ]
 
@@ -806,7 +806,7 @@ Alongside these large local differences, @fig:bw-france-patterns shows flight-li
   #block(breakable: false)[
     #figure(
       image("assets/bw_france_patterns.png", width: 68%),
-      caption: [*Flight-line-like patterns in the BW–France difference overlay.* Coherent bands and sharper local features along the Rhine. The bands match the direction and continuity of those in @fig:rlp-france-patterns. The embedded legend describes the selected display, not the full regional range of differences.],
+      caption: [Flight-line-like patterns in the BW–France difference overlay. Coherent bands and sharper local features along the Rhine. The bands match the direction and continuity of those in @fig:rlp-france-patterns. The embedded legend describes the selected display, not the full regional range of differences.],
     ) <fig:bw-france-patterns>
   ]
 ]
