@@ -82,7 +82,7 @@ Additionally, a water mask is passed for the river detection part of the algorit
 
 For the comparison stage, the settings include the threshold for error detection as a fraction of the resolution, whether to perform kriging, and the region's river mask.
 
-Full breakdown of all settings can be found in `README.md` (see #drafting.margin-note()[TODO link to appendix]).
+Full breakdown of all settings can be found in `README.md` (see @appx:code).
 
 === Data Acquisition
 

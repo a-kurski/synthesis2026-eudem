@@ -3,6 +3,44 @@
 #set heading(numbering: "A.1.1", supplement: [Appendix])
 #counter(heading).update(0)
 
+= Work Allocation & AI Statement
+
+RB is the primary author of the abstract.
+AB is the primary author of the introduction.
+AB, AK, and RV have collaborated on writing the project definition.
+
+AB, AK, and RV have all performed literature review.
+In the report, AK describes the INSPIRE specification on elevation, global elevation models, and the Rhine catchment area definition.
+RB and AK both contribute to describing point cloud processing, interpolation, and river elevation.
+
+AB and AK have both performed data discovery.
+AB, AK, and RV have collectively designed the processing pipeline.
+AB has implemented data acquisition for all national and regional datasets alongside initial data harmonisation.
+RV has implemented the river mask generation and the analysis.
+AK has integrated all parts of the pipeline to produce the final DTM.
+AK describes the pipeline in the report; RV and AK both contribute to the description of the river mask.
+AB and RV describe the evaluation and visualisation.
+
+AB describes the results of the data acquisition.
+AK describes the results of running the pipeline.
+AB, AK, and RV have all performed the analysis of border regions, each focusing on a different set of border pairs.
+AB and RV present the aggregated description of issues found between bordering DTMs.
+
+AK presents the conclusions and recommendations.
+RB describes limitations.
+
+AB, AK, and RV have all used generative AI over the course of the project.
+AB has used ChatGPT 6 Astra to produce the code for data acquisition; help understand code produced by other group members; and as a proof-reading/editing aid.
+AK has used Claude Opus 5.5 to integrate different aspects of the pipeline --- AK is not sure he wrote a single line of code by hand during this project. AK refrains from using generative AI for writing in any capacity.
+RB has used Claude Opus 5.5. to perform bug-fixing and implement a small set of features in his code. He has also used Microsoft Copilot as a proof-reading/editing aid.
+
+= Data and Code <appx:code>
+
+The code are available on GitHub at https://github.com/a-kurski/synthesis2026-eudem.
+
+The data is available from national providers, and can be acquired by executing corresponding parts of the code.
+The DTM, river mask, and analysis can be fully reproduced by executing the processing and analysis parts of the pipeline.
+
 #include "991-contributors.typ"
 
 = Project Planning
@@ -481,3 +519,7 @@ caption:[Gantt chart]
 
 = Border pair analysis <sec:border_pairs>
 #include "992-borderpairs.typ"
+
+
+// #import "@preview/cmarker:0.1.5": render
+// #render(read("../code/pipeline-merge/README.md"))
