@@ -1,7 +1,7 @@
 #import "@preview/drafting:0.2.2"
-=== Regions of Germany
+== Regions of Germany
 
-==== NRW -- RLP
+=== NRW -- RLP
 
 @NRW:l, and @RLP both fall within the extent of Germany. The overlapping border area is hilly with few waterbodies spread throughout the landscape. As with all Germany @DTM data, the tiles are aligned to the same tile grid, and overlap by one or two tiles.
 
@@ -13,10 +13,10 @@ Loading in the $italic("dh_germany_nrw_germany_rlp.tif")$ @DTM, representing the
 )
 <fig:NRW-RLP-striping>
 
-Secondly, there appears to be misalignment between tiles within the @DTM. This is illustrated in @fig:NRW-RLP-nonalignment as the sharp transition between the four tiles. This transition is is however more drastic at a difference of $30"cm"$ in the difference @DTM. On close inspection of the @NRW and @RLP @DTM:pls, it appears that cells on the edge between tiles, the jump between neighboring cell values increased with $40"cm"$ more on the @NRW @DTM, compared to the @RLP @DTM. However, it is possible this effect occurs on both the @NRW and @RLP @DTM:pls. To verify this hypothesis, we compared the point clouds to determine where this effect is introduced.
-#drafting.inline-note("maybe pt would data would solve this.")
+Secondly, there appears to be misalignment between tiles within the @DTM. This is illustrated in @fig:NRW-RLP-nonalignment as the sharp transition between the four tiles. This transition is is however more drastic at a difference of $30"cm"$ in the difference @DTM. On close inspection of the @NRW and @RLP @DTM:pls, it appears that cells on the edge between tiles, the jump between neighboring cell values increased with $40"cm"$ more on the @NRW @DTM, compared to the @RLP @DTM. However, it is possible this effect occurs on both the @NRW and @RLP @DTM:pls. // To verify this hypothesis, we compared the point clouds to determine where this effect is introduced.
+// #drafting.inline-note("maybe pt would data would solve this.")
 
-$italic("statistics_germany_nrw_germany_rlp.csv")$ confirms these findings. It lists the similarity of errors within one kilometer to be $99.9%$. High correlation which is consistent throughout the correlation graph either points towards a tiling or vertical transform artifact. Since the median difference between the two tiles is $-2"cm"$, which also corresponds with the z-shift for the coregistration. Therefore, it can be concluded most errors within the border comparison are caused by this tiling artifact.
+$italic("statistics_germany_nrw_germany_rlp.csv")$ corroborates these findings. It lists the similarity of errors within one kilometer to be $99.9%$. High correlation which is consistent throughout the correlation graph either points towards a tiling or vertical transform artifact. Since the median difference between the two tiles is $-2"cm"$, which also corresponds with the z-shift for the coregistration. Therefore, it can be concluded most errors within the border comparison are caused by this tiling artifact.
 
 #figure(
   image("assets/NRW-RLP-nonalignment.png",width:40%),
@@ -119,7 +119,7 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
 <fig:NRW-RLP-slope>
 
 #pagebreak()
-==== Saarland -- RLP
+=== Saarland -- RLP
 https://www.welt.de/regionales/rheinland-pfalz-saarland/article205711099/Rheinland-pfaelzische-Landesgrenze-misst-1185-Kilometer.html
 
 The Saarland -- @RLP border is roughly $207$ kilometers long and consists of mostly hilly terrain. The amount of non-compliant pixels for this area appears slightly higher than that for other regions. However, at 0.15% it is still not a significant amount.
@@ -178,7 +178,7 @@ All in all, despite issues with the source data, the quality of the @DTM is not 
 <fig:Saarland-RLP-Histogram>
 
 #pagebreak()
-==== RLP -- BW
+=== RLP -- BW
 
 The @RLP -- @BW border is a very flat region, which is entirely bisected by the Rhine river. The border region is home to several ports, which also created the greatest source of discrepancy. These ports prominently contain piles of sand and coal. Because these sources shift during the loading and unloading of ships (@fig:RLP-BW-Coal).
 
@@ -273,7 +273,7 @@ A secondary source of differences appears to be the narrow clearings within wood
 Further artifacts include common elements throughout the catchment @DTM. These include building interpolation differences, quarries/construction sites, and lakes/rivers not caught by the river mask. These errors are expected and can likely only be fixed through the reextraction of the @DTM, by using both the Hessen and @BW point clouds. Nevertheless, the Hessen-@BW border falls well within the @INSPIRE threshold, with only 0.06% of points being non-compliant. The alignment of the two @DTM:pls also appears to be accurate, with the coregistration recommending a vertical transform of only $1" cm"$ in vertical direction for the best possible alignment.
 
 #pagebreak()
-==== NRW -- Hessen
+=== NRW -- Hessen
 
 Only 59 kilometres of @NRW -- Hessen border and 127 1km#sym.times\1km tiles fall into the study area.
 Due to the shape of the catchment area, the border is split in two --- a longer section in the South and a shorter, approx. 3-kilometre section in the North.
@@ -327,7 +327,7 @@ An interesting artefact is a 0.6m-tall "mound" between Wallau and Bad Laasphe.
 
 
 
-==== Hessen -- Bavaria
+=== Hessen -- Bavaria
 
 The statistics of the errors along Hessen--Bavaria border are similar to those of Hessen--NRW border, but their sources appear to be somewhat different.
 Between Hessen and Bavaria, @RMSE is 0.18m and the @LE90 is 0.10m; the minimum and the maximum errors are -18.35m and 19.07m respectively.
@@ -394,7 +394,7 @@ Bavaria instead uses Delaunay triangulation, seemingly based on the lowest point
   caption: [Differences in water processing between Bavaria and Hessen]
 )<fig:bavaria-hessen-water>
 
-==== Hessen -- RLP
+=== Hessen -- RLP
 
 The border between Hessen and @RLP largely follows the Rhine.
 Compared to the borders between German states, it has the second-highest @RMSE at 1.30m and the highest @LE90 at 0.19m. It also has the second-highest absolute error at -61.59m.
@@ -447,7 +447,7 @@ Smaller errors are also visible in building footprints, where both providers are
   caption: [Temporal differences between Switzerland and BW]
 )
 
-==== BW -- Bavaria
+=== BW -- Bavaria
 The @BW -- Bavaria border is similar to the @NRW -- Hessen border, as it is split in two sections due to the catchment area shape. For this region Bavaria provides point cloud data, whereas @BW does not. This means that point cloud comparisons will not be possible for this border region.
 
 #figure(
@@ -485,7 +485,7 @@ The border area appears to display two main artifacts. The first of these being 
 
 The second artifact within this border comparison is similar to the one encountered in @NRW -- @RLP section. In this instance, the effect clearly occurs in the Bavaria @DTM. @fig:BW-Bavaria-Discrete shows this effect. It appears as if these specific tiles are seperate from the the rest of the @DTM as it contains both positive and negative differences, meaning it cannot be the result of a vertical shift. Zooming in on the border confirms that these different tiles exist in the Bavaria, shown by the faint line at the same line as the DH @DTM. The cause for this can be that the tiles have either been collected at a different time, or that the aquisition was done through another method. This can be confirmed using the Bavaria point cloud...
 
-#drafting.inline-note("Look at the bavaria point cloud to see what the difference in aquisition time is between those tiles")
+// #drafting.inline-note("Look at the bavaria point cloud to see what the difference in aquisition time is between those tiles")
 
 #figure(
   image("assets/BW-Bavaria-DiscreteDH.png",width:60%),
@@ -525,8 +525,8 @@ For this border comparison, the @INSPIRE target is not met. The amount of points
 
 
 
-=== Luxembourg -- Germany -- France
-==== Luxembourg -- France
+== Luxembourg -- Germany -- France
+=== Luxembourg -- France
 
 The border area between Luxembourg and france is roughly $50"km"$ long and consists of more even terrain in the east and increasingly hilly terrain in the west with deviations of over 100 meters at relatively short distances. As can be seen in @fig:Lux_Fra_border, most of the western region of the border is flagged as having a deviation greater than the resolution-RMSE ratio.
 
@@ -606,7 +606,7 @@ Influence of the slope on the can also be observed directly from the @RMSE analy
 
 Further artifacts within the region do more closely correspond with the rest of Luxembourg and the border regions in general. These include building interpolation differences, narrow streams not captured by the river mask, and isolated quarry or construction areas. This region does not comply with the thresholds set within @chap:method, with 23% of all points surpassing the threshold. Furthermore, the resolution would need to be increased by over 80% to nearly 10 meters for compliance with the @INSPIRE target. As eluded to earlier, this difference may be a byproduct of the low resolution @DTM compared to the fine resolution of the Luxembourg @DTM, which has introduced resampling differences. While outside of the time constraint of the project, evaluating the results of the comparison against the higher resolution French @DTM could result in better alignment. Alternatively, reextraction from the national point clouds could also be a way to rectify these differences.
 
-==== Luxembourg -- RLP
+=== Luxembourg -- RLP
 The Luxembourg -- @RLP border is roughly 80 kilometers long, and with that is the longest border that is evaluated for the catchment area. On the east side of the overlapping area there is the Our river. Observing the overlap map shows that the rivermask was not succesful at filtering out the waterbodies entirely for the region. This is a known artifact known to be caused by narrow waterbodies. Furthermore, these river areas have been flagged as noticable differences and due count towards the difference at the border.
 
 Other differences in this region are in line with the other borders surrounding Luxembourg, such as river ports with piled resources, steep cliffs, construction areas and building interpolation differences. The only real artifact that shows up on the histogram, is a singular secondary peak. Observing the difference @DTM, shows that this is caused by a lake, which was missed by the river mask. This is illustrated in @fig:Lux-rlp-peak as a peak starting at 700 meters. The border effect graph also clearly illustrates the difference at the border river.
@@ -617,7 +617,7 @@ Other differences in this region are in line with the other borders surrounding 
 )
 <fig:Lux-rlp-peak>
 
-==== Luxembourg -- Saarland
+=== Luxembourg -- Saarland
 The border area between Luxembourg and Saarland is roughly 11 kilometers and like @RLP -- @BW, is entirely bisected by a river, that being the Mosel in this particular case. The borde area consists of flat areas around the river and consists of hills and cliffs on the west side.
 
 This region contains several of the more common differences encountered in other regions can also be found here. This includes harbor loading areas for sand, steep cliffs, construction sites, waterbodies not entirely caught by the river mask, and roof interpolation differences.
@@ -645,8 +645,9 @@ The only unique error found around this area is the inclusion of hydro electric 
 
 For this region, the percentage of points above the @INSPIRE threshold, is around $1%$. While above average, this is caused by the fact that it is a small region, where the spatial dimensions of the differences remain consistent with differences found in other regions. Nevertheless, the difference @DTM falls well within the @INSPIRE target threshold, and contains no significant errors such as border extrapolation, misaligned tiles or inexplicable differences.
 
-=== Germany -- France
-==== Saarland -- France <sec:saarland-france>
+== Germany -- France
+
+=== Saarland -- France <sec:saarland-france>
 
 The approximately 157 km border between Saarland and France crosses rolling hills, forested slopes and river valleys, with sections following the Saar and Blies rivers. Across the compared overlap, the two DTMs generally agree closely: the mean elevation difference is +0.035 m and the median is −0.020 m, where positive differences indicate higher elevations in Saarland. Half of the absolute differences are below 0.163 m, and 90% are below 0.981 m. Nevertheless, the RMSE reaches 1.213 m, reflecting substantial discrepancies at particular locations.
 
@@ -717,7 +718,7 @@ The quarry in @fig:saarland-france-quarry provides a clear setting in which acqu
 
 The regional RMSE is driven primarily by a limited set of pronounced local mismatches. Steep and complex terrain provides the clearest quantitative association, while the inspected images highlight forest cover, exposed escarpments and excavation features as recurring settings. Differences in acquisition timing are an additional possible contributor where the landscape has changed between surveys. Most of the overlap agrees much more closely than the overall RMSE suggests.
 
-==== RLP -- France <sec:rlp-france>
+=== RLP -- France <sec:rlp-france>
 
 The border between RLP and France is approximately 112 km long and crosses predominantly hilly, forested terrain, particularly through the Pfälzerwald, which continues into France as the Northern Vosges. The Rhine does not form the main boundary, only the easternmost section approaches the Upper Rhine, while much of the border runs over land and partly follows smaller watercourses such as the Lauter. Castle ruins and distinctive rock formations are also characteristic features of this region.
 
@@ -819,9 +820,9 @@ The most useful follow-up actions are:
 - Analyse slope and border distance within geographic subsets, with sample counts and land-use context, before attributing the pooled patterns to one mechanism.
 - Recalculate inconsistent polygon areas and refit the uncertainty model, preserving the empirical variogram, fitted parameters, masks and processing provenance needed to validate the results.
 
-=== Switzerland -- Germany & France
+== Switzerland -- Germany & France
 
-==== Switzerland -- France
+=== Switzerland -- France
 
 Overall, the border between France and Switzerland contains errors similar to those found on the French--German border.
 These include one instance of striping, most visible in the suburbs of Basel.
@@ -847,7 +848,7 @@ We speculate that regions like this come from a different survey with different 
   caption: [Ground filtering differences between Switzerland and France]
 )
 
-==== Switzerland -- BW
+=== Switzerland -- BW
 
 The border between Switzerland and @BW largely follows the Rhine between Konstanz and Basel and notably includes Büsingen, an exclave of BW within Switzerland.
 The regions are overall well-aligned with @LE90 of only 0.12m but a high @RMSE of 0.4m.
@@ -907,9 +908,9 @@ Similarly to the building interpolation, there is also an observable difference 
   caption: [Differences in water processing between Switzerland and BW]
 )
 
-=== Germany -- Netherlands
+== Germany -- Netherlands
 
-==== Netherlands -- NRW
+=== Netherlands -- NRW
 The border between the Netherlands and @NRW is approximately 50 kilometers long, is mainly flat, but also contains large hills. The main error found within this region is unfortunately a byproduct of our attempt to interpolate the non-interpolated regions of the Netherlands (@fig:Netherlands-NRW-border). These errors are found primarily in the form of extrapolation errors found at various positions along the border. This is a discrepancy caused by differences in the specified borders for the Netherlands within the interpolation algorithm. However, since these areas are trimmed from the final @DTM, it is not a issue which will be fixed during this project.
 
 #figure(
