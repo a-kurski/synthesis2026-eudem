@@ -10,7 +10,7 @@
 
 #v(1cm)
 
-Project Initiation Document
+MSc Geomatics Synthesis Project Report
 
 #v(4em)
 
