@@ -237,17 +237,6 @@ Each mask cell is transformed to the elevation map resolution, @CRS and grid. By
 ) <alg-river-mask>
 ]
 
-
-#figure(
-  image("assets/rivermask-local.png", width:70%),
-  caption:[Rhine catchment area river mask of the area surrounding Cologne]
-)
-
-#figure(
-  image("assets/rhinecatchment-full.png", width:70%),
-  caption:[Rhine catchment area river mask of the full catchment area]
-)
-
 == Cross-Border DTM Analysis <sec:border-analysis>
 
 Once all harmonising steps are complete, the next step is to pairwise compare neighboring datasets and evaluate the results. This is first done by determining which regions share borders and have overlaping elevation products. This is followed by computing the elevation difference rasters, performing coregistration, and analysing statistical aspects of said difference such as correlation between error magnitude and slope, or the rate of @INSPIRE compliance.

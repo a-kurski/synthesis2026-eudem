@@ -53,7 +53,25 @@ The selection of RGE ALTI in France represented the clearest trade-off between d
 
 === Water Mask <sec:Watermask_artifacts>
 
-The watermask was not an initially intended addition for the project. However, during analysis it was shown that including waterbodies showed large deviations in elevation between regions. Due to a lack of an existing high quality water mask, an existing mask was refined as detailed in @sec:Water_mask_processing. However, due to shortcomings of the mask and the applied algorithm, artifacts still occur, even if their impact on the analysis is minimized.
+The watermask was not an initially intended addition for the project. However, during analysis it was shown that including waterbodies showed large deviations in elevation between regions. Due to a lack of an existing high quality water mask, an existing mask was refined as detailed in @sec:Water_mask_processing. However, due to shortcomings of the mask and the applied algorithm, artifacts still occur, even if their impact on the analysis is minimized. The final result of the river mask can be observed in @fig:River_mask_final. 
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/rivermask-local.png", width: 100%)
+      #align(center)[(Google maps)]
+    ],
+
+    [
+      #image("assets/rhinecatchment-full.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption:[Rhine catchment area river mask of the regions around Cologne, and the full catchment area]
+)<fig:River_mask_final>
 
 The region growing algorithm relies on the assumption that the water surface is smooth. However, this is not always the case. The first example of this fact is found in @fig:River_mask_manmade. Here a hydro electric power plant causes a deviation in the elevation. The rough water mask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the water mask, and the area surrounding the plant such as the left secondary channel, is not modeled.
 
