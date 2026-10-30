@@ -247,7 +247,7 @@ A secondary source of differences appears to be the narrow clearings within wood
       #align(center)[(DH)]
     ],
   ),
-  caption: "Forest clearing",
+  caption: "Cliff face example, the red polygons show a difference above 1.6 meters on the ESRI aerial image",
 )
 <fig:Hessen-BW-clearing>
 
@@ -266,7 +266,7 @@ A secondary source of differences appears to be the narrow clearings within wood
       #align(center)[(Google Street View (49.4762, 8.4208))]
     ],
   ),
-  caption: "Forest clearing cause",
+  caption: "Cliff face example, random error inspection shows random errors in 3cm range which imply this is not the main cause, Google Street View confirms cliff hypothesis",
 )
 <fig:Hessen-BW-clearingEx>
 
@@ -452,7 +452,7 @@ The @BW -- Bavaria border is similar to the @NRW -- Hessen border, as it is spli
 
 #figure(
   image("assets/BW-Bavaria-Border.png",width:40%),
-  caption:"BW – Bavaria border"
+  caption:"BW – Bavaria border is divided into a northern and southern section in the catchment area"
 )
 <fig:BW-Bavaria-Border>
 
@@ -473,23 +473,23 @@ The border area appears to display two main artifacts. The first of these being 
       #align(center)[(DH)]
     ],
   ),
-  caption: "Border artifact",
+  caption: "Border artifact caused by BW using both a 0 and -9999 nodata value, while only declaring the -9999 value as nodata",
 )
 <fig:BW_Bavaria_BorderArtifact>
 
 #figure(
   image("assets/histogram_germany_bw_germany_bavaria.png",width:60%),
-  caption:"BW – Bavaria border"
+  caption:"BW – Bavaria border appears strongly affected by the edge artifacts cause by the effect of 0 nodata value and billinear interpolation during CRS transformation, with differences up to 1000 meters vertically"
 )
 <fig:BW-Bavaria-BorderArtifact-Histo>
 
-The second artifact within this border comparison is similar to the one encountered in @NRW -- @RLP section. In this instance, the effect clearly occurs in the Bavaria @DTM. @fig:BW-Bavaria-Discrete shows this effect. It appears as if these specific tiles are seperate from the the rest of the @DTM as it contains both positive and negative differences, meaning it cannot be the result of a vertical shift. Zooming in on the border confirms that these different tiles exist in the Bavaria, shown by the faint line at the same line as the DH @DTM. The cause for this can be that the tiles have either been collected at a different time, or that the aquisition was done through another method. This can be confirmed using the Bavaria point cloud...
+The second artifact within this border comparison is similar to the one encountered in @NRW -- @RLP section. In this instance, the effect clearly occurs in the Bavaria @DTM. @fig:BW-Bavaria-Discrete shows this effect. It appears as if these specific tiles are seperate from the the rest of the @DTM as it contains both positive and negative differences, meaning it cannot be the result of a vertical shift. Zooming in on the border confirms that these different tiles exist in the Bavaria, shown by the faint line at the same line as the DH @DTM. The cause for this can be that the tiles have either been collected at a different time, or that the aquisition was done through another method.
 
 // #drafting.inline-note("Look at the bavaria point cloud to see what the difference in aquisition time is between those tiles")
 
 #figure(
   image("assets/BW-Bavaria-DiscreteDH.png",width:60%),
-  caption:"Discrete tile step"
+  caption:"Discrete tile step, as shown by the tiles which deviate in difference range from the rest of the difference DEM, shown as pronounced red, white, blue sections"
 )
 <fig:BW-Bavaria-Discrete>
 
@@ -513,7 +513,7 @@ The second artifact within this border comparison is similar to the one encounte
       #align(center)[(BW)]
     ],
   ),
-  caption: "Discrete tile step zoomed",
+  caption: "Discrete tile step zoomed, shows Bavaria mirrors the tile step obserbed in the difference DEM",
 )
 <fig:BW_Bavaria_DiscreteZoom>
 
@@ -545,7 +545,7 @@ The border area between Luxembourg and france is roughly $50"km"$ long and consi
       #align(center)[(Flagged Differences)]
     ],
   ),
-  caption: "Difference overview",
+  caption: "Difference overview, showing the western section of the border almost entirely exceeding the 1.6 meter resolution threshold",
 )
 <fig:Lux_Fra_border>
 
@@ -571,7 +571,7 @@ As a primary example of this phenomenon the area around Rumelange was more close
       #align(center)[(DTM)]
     ],
   ),
-  caption: "Rumelange difference overview",
+  caption: "Rumelange difference overview, showing very hilly terrain at primary areas of disagreement",
 )
 <fig:Lux_Fra_Rumelange>
 
@@ -592,7 +592,7 @@ Further examining the uncertainty pattern of the border region further supports 
       #align(center)[(Uncertainty)]
     ],
   ),
-  caption: "Random error effects due to sloped terrain",
+  caption: "Random error effects due to sloped terrain appear increased (red) up to values of 5 meters on hilly terrain",
 )
 <fig:Lux_Fra_Rumelange_uncertainty>
 
@@ -600,7 +600,7 @@ Influence of the slope on the can also be observed directly from the @RMSE analy
 
 #figure(
   image("assets/slope_rmse_france_luxembourg.png",width:60%),
-  caption:[RMSE grows strongly due to the effects of terrain slope, up to 5.5 meters at 40 degrees]
+  caption:[RMSE grows strongly due to the effects of terrain slope, up to 5.5 meters at 40 degree slopes]
 )
 <fig:Lux_Fra_Rumelange_slope>
 
