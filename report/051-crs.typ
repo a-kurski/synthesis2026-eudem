@@ -2,7 +2,8 @@
 
 ==== Input CRS
 
-Most national data providers supply elevation coverage in the local @CRS, such as Amersfoort/RD New (@EPSG code 28992) for the Netherlands. The only exception to this rule is Germany as it uses @UTM zones #drafting.margin-note[TODO: cite]. We found that every dataset uses a national vertical reference system, such as @NAP for the Netherlands or @DHHN2016 for Germany. The full overview of the horizontal and vertical reference systems for each dataset can be found in #drafting.margin-note()[TODO: ref appx].
+Most national data providers supply elevation coverage in the local @CRS, such as Amersfoort/RD New (@EPSG code 28992) for the Netherlands. The only exception to this rule is Germany as it uses @UTM zones // #drafting.margin-note[TODO: cite].
+We found that every dataset uses a national vertical reference system, such as @NAP for the Netherlands or @DHHN2016 for Germany. For further description of input data, see @sec:results-acquisition.
 
 ==== Target CRS
 

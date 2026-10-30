@@ -26,7 +26,7 @@ The Rhine catchment area nominally covers (parts of) Switzerland, Liechtenstein,
 The following regions are explicitly defined to be within the scope of the project: Switzerland, Liechtenstein, France, Luxembourg, Germany --- specifically, states of Bavaria, @BW, Hessen, @NRW, @RLP, and Saarland --- and the Netherlands.
 Austria, Italy, and Belgium are excluded due to poor availability of data; Germany's Thüringen has been excluded as only a small part of the state falls within the borders of the catchment area.
 
-#drafting.inline-note()[TODO: update the map?]
+// #drafting.inline-note()[TODO: update the map?]
 
 #figure(
   image("assets/Catchment_map.png", width: 50%),
