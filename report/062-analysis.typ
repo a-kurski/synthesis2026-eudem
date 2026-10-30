@@ -1,6 +1,6 @@
 #import "@preview/drafting:0.2.2"
 == Analysis
-As described in @sec:border-analysis, the analysis step is where we evaluate the border differences between two neighboring regions. There are various metrics to evaluated on. However, the difference raster, RMSE – Slope plot, and difference historgram are among the most important as they give information about the general cases. Based this data, a pattern was found regarding the artifacts at the borders.
+As described in @sec:border-analysis, the analysis step is where we evaluate the border differences between two neighboring regions. There are various automatically generated metrics to evaluated on (@sec:border-analysis). However, the difference raster, RMSE – Slope plot, and difference historgram are among the most important as they give information about the general cases. Based this data, a pattern was found regarding the artifacts at the borders.
 
 These artifacts can be divided into six primary categories representing overarching themes. To further specify the type of artifact, each category is divided into subcategories which each represent an example of the artifact. These main artifacts are interpolation, ground filtering, temporal, watermask, and tile artifacts.
 
