@@ -88,7 +88,7 @@ The DTM, river mask, and analysis can be fully reproduced by executing the proce
 }
 
 #figure(
-  caption: [Prioritisation of data requirements using @MoSCoW],
+  caption: [Prioritisation of data requirements using MoSCoW],
   table(
     columns: (auto,auto, auto,100pt),
     inset: 4pt,
@@ -519,3 +519,7 @@ caption:[Gantt chart]
 
 = Border pair analysis <sec:border_pairs>
 #include "992-borderpairs.typ"
+
+
+#import "@preview/cmarker:0.1.5": render
+#render(read("../code/pipeline-merge/README.md"))

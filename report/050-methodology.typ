@@ -252,9 +252,7 @@ Each mask cell is transformed to the elevation map resolution, @CRS and grid. By
 
 Once all harmonising steps are complete, the next step is to pairwise compare neighboring datasets and evaluate the results. This is first done by determining which regions share borders and have overlaping elevation products. This is followed by computing the elevation difference rasters, performing coregistration, and analysing statistical aspects of said difference such as correlation between error magnitude and slope, or the rate of @INSPIRE compliance.
 
-To determine which @DTM:pla overlap one another, we first compute the bounding boxes of each @DTM and their overlap is checked using the @AABB method as shown in @eq:border-overlap @AABB_source.
-
-
+To determine which @DTM:pla overlap one another, we first compute the bounding boxes of each @DTM and their overlap is checked in @eq:border-overlap.
 #set math.equation(numbering: "(1)")
 
 $
@@ -262,23 +260,21 @@ $
   & quad and max(y_"region_1_min", y_"region_2_min") < min(y_"region_1_max", y_"region_2_max")
 $ <eq:border-overlap>
 
-This is a primary step in evaluating wether overlap exists, but needs to be supplemented with an additional step to confirm overlap. Therefore, another check is done by cropping the @DTM of one country with the other and checking if the cropped dataset is not empty. However, this is a computationally expensive operation and is thus only performed if an overlap between the bounding boxes is found.
+This is not a perfect method as the bounding boxes may overlap even when the datasets do not. Therefore, another check is done by cropping the @DTM of one country with the other and checking if the cropped dataset is not empty. However, this is a computationally expensive operation and is thus only performed if an overlap between the bounding boxes is found.
 
 The next step in the analysis process is to calculate the elevation differences between the @DTM pairs in the overlaping border regions. @GDAL allows for this process to be simplified to a subtraction operation. The resulting elevation difference rasters contain the cellwise elevation difference in the region, and constitute the core of the conducted analysis. They provide a first glance into how much disagreement there is between two regions' elevation products.
 
 Based on this difference, we construct polygons to highlight errors greater than a set threshold. Nearby polygons are merged into one which allows to highlight potential areas with high concentration of disagreements rather than just count individual point samples.
 We selected the threshold to match the ratio between resolution and vertical @RMSE --- at 5m, that threshold is 1.67m. This threshold is a little lower than Copernicus's 2m @LE90 benchmark. For the analysis, the number of cells where the error rate exceeds the threshold is also presented.
 
-Another metric to analyze is the spatial correlation of the errors.
-Overall, it is expected that Tobler's #cite(<Tobler1970>, form: "year") first law of geography will hold: the close errors will have a higher correlation than far-away ones.
-It is further expected that stochastic errors are uncorrelated, and a high correlation of far away errors likely indicates a systematic error instead.
-However, the correlation does not account for error magnitude --- a small systematic error will result in a higher correlation rate than a large stochastic one.
+The spatial correlation of the elevation diffeernces is also analyzed. Overall, it is expected that Tobler's #cite(<Tobler1970>, form: "year") first law of geography will hold: the close errors will have a higher correlation than far-away ones.
+It is further expected that stochastic errors are uncorrelated, and a high correlation of far away errors likely indicates a systematic error instead. However, the correlation does not account for error magnitude --- a small systematic error will result in a higher correlation rate than a large stochastic one.
 
 Another way to evaluate systematic errors is through coregistration. This is a function in XDEM which performs an affine transform @tc-5-271-2011, which ensures best alignment of the @DTM:pla in $x$, $y$ and $z$ directions. The statistics (@RMSE, @LE90, mean error etc) are calculated for the border region before and after coregistration. A small affine transform with a high @RMSE would indicate stochastic errors.
 
-Several graphs are also produced to aid with the analysis. First one is a histogram of the error magnitudes for a given border pair. Another is a graph of the elevation differences relative to the slope angle --- here, expressed as @RMSE for a given 5-degree bin of slope angle. @INSPIRE suggests different relationships for horizontal resolution and vertical accuracy depending on slope angle. We therefore expect the slope angle to have an effect on the magnitude of the error. Another graph shows the errors relative to the distance from the border (again, @RMSE for a given 50-meter bin). This "border effect" graph can, for instance, help detect errors due to extrapolation at the edge of a dataset, but it can also be sensitive to a single large error.
+Diagnostic plots are generated for each border pair: an elevation-difference histogram, an @RMSE versus slope plot using 5-degree slope bins, and a border-effect plot showing @RMSE in 50-meter distance bins. The slope plot examines the relationship between terrain slope and elevation differences, while the border-effect plot can help identify errors caused by extrapolation near dataset edges. The latter can also be sensitive to a single large error.
 
-It is often possible to infer the cause for differences by inspecting satellite imagery from Google Maps, ESRI World Imagery, Google Earth, or images @OSM. Another useful method is to visually inspect the temporal change in a location in Google Earth. Nevertheless, sometimes more data is required, which is where the graphs described above become useful @fig:slope_ex shows a typical example of the `RMSE vs Slope` plot. The expected behavior of this plot is a steadily increasing @RMSE for greater slope angles. Deviations from this trend can point towards differences which may be related to ground filtering, or sample point differences due to steep elevations. However, it may also point to temporal differences, for example due abrupt terrain changes caused for example by quarries.
+@INSPIRE suggests different relationships between horizontal resolution and vertical accuracy depending on slope angle. Accordingly, @fig:slope_ex illustrates the expected increase in @RMSE with slope. Deviations from this trend may indicate differences in ground filtering, sample locations on steep terrain, or temporal changes such as quarry excavation.
 
 #figure(
   image("assets/slope_rmse_germany_nrw_germany_rlp.png", width:70%),
@@ -286,7 +282,7 @@ It is often possible to infer the cause for differences by inspecting satellite 
 )
 <fig:slope_ex>
 
-@fig:hist_ex shows an example of a typical elevation difference histogram. The vertical axis follows a logarithmic scale to be more informative. The expected visual is a sharp peak around 0 elevation difference, with a decreasing amount of bins as the difference magnitude grows. The fact that the mean of the histogram is not located around 0 difference would indicate the possibility of errorous vertical transformations. Secondary peaks on the other hand may represent larger artifacts that are shifted up or down, for example due to extrapolation artifacts.
+@fig:hist_ex shows an example of a typical elevation difference histogram. The vertical axis follows a logarithmic scale to be more informative. A typical distribution has a sharp peak near zero, with fewer observations at larger difference magnitudes. A mean shifted away from zero may suggest a systematic vertical offset, while secondary peaks may indicate artefacts such as extrapolation errors.
 
 #figure(
   image("assets/histogram_germany_rlp_france.png", width:70%),
@@ -294,7 +290,11 @@ It is often possible to infer the cause for differences by inspecting satellite 
 )
 <fig:hist_ex>
 
-The third most commonly used tool is the generated analysis `.csv` file. Although the difference @DTM is the main way of identifying differences locally, an additional global set of statistics can provide a clear summary of the differences. The before and after describe the differences before and after coregistration. Since we will not transform our national @DTM:pls based on the affine transform, the before rows are more interesting. However, the after section does show the effect of vertical transform errors on the total difference. The subset refers to the cells with and without the interpolated values, which may be the same number if no interpolation was applied, both numbers already include the removed river mask. The mean and median describe the systematic errors of the border region, while the @STD, @RMSE, @MAE, and @NMAD describe the magnitude of the outliers (@tab:general_metrics). The minimum and maximum values indicate the greatest disagreements between the nations. Furthermore, the "`above threshold`" statistic describes the amount of cells that do not meet the resolution requirement from @sec:inspire-quality, while the "`percentage above threshold`" describes what the percentage of cells is compared the total amount of cells which do not comply (@tab:accuracy_metrics).
+Satellite imagery from Google Maps, ESRI World Imagery, Google Earth, or images @OSM can provide additional context for interpreting discrepancies. Historical imagery in Google Earth can also help identify changes over time.
+
+=== Analysis outputs and interpretation
+
+The generated analysis `.csv` file complements the spatial plots with summary statistics for the entire border region. The before and after describe the differences before and after coregistration. Since we will not transform our national @DTM:pls based on the affine transform, the before rows are more interesting. However, the after section does show the effect of vertical transform errors on the total difference. The subset refers to the cells with and without the interpolated values, which may be the same number if no interpolation was applied, both numbers already include the removed river mask. The mean and median describe the systematic errors of the border region, while the @STD, @RMSE, @MAE, and @NMAD describe the magnitude of the outliers (@tab:general_metrics). The minimum and maximum values indicate the greatest disagreements between the nations. Furthermore, the "`above threshold`" statistic describes the amount of cells that do not meet the resolution requirement from @sec:inspire-quality, while the "`percentage above threshold`" describes what the percentage of cells is compared the total amount of cells which do not comply (@tab:accuracy_metrics).
 
 The remaining attributes are mainly used to determine the reliability of the comparison, and the effectiveness of the coregistration (@tab:coreg_metrics). The `mean sigma `$delta$`h` represents the average uncertainty associated with the elevation differences, while `n effective` reflects the number of independent observations after accounting for spatial correlation. The `mean `$sigma$`h/`$sigma$ metric describes the magnitude of the differences, relative to the expected random error. Furthermore, the `error correlation at 1 km` provides an indication of the spatial correlation of the errors, with larger values suggesting that neighbouring cells exhibit similar error behaviour. Finally, the estimated `shift x`, `shift y`, and `shift z` values quantify the horizontal and vertical corrections determined during coregistration and can help identify systematic offsets between neighbouring datasets. Small values of this shift indicate that the vertical and horizontal @CRS transformations already properly align the two @DTM:pls.
 
@@ -385,7 +385,7 @@ caption:[Coregistration metrics]
 )
 <tab:coreg_metrics>
 
-== Visualization of DTMs
+== Visualizing the DTMs
 
 Next to designing the pipeline and implementing analysis methods, an important aspect of this study was to decide on effective visualization methods and color schemes for the catchment-wide and analysis related @DTM:pls.
 
@@ -397,18 +397,12 @@ The catchment-wide @DTM product contains elevation values ranging from -325m to 
 )
 <fig:cm_pride>
 
-The primary and most informative analysis tools are the elevation difference rasters obtained by subtracting two different @DTM:pls from each other after they have been projected onto the same grid. Various color gradients were tested to best evaluate the difference rasters. However, those provided by default in @QGIS:asf, were not satisfactory for both visualising and analysis purposes. Therefore, `fusion` was used as the primary gradient for elevation difference visuals (@fig:cm_fusion)(@cm_fusion). Using this gradient allows for the clear illustration of difference extremes, as shown in @fig:dif_ex.
+The primary and most informative analysis tools are the elevation difference rasters obtained by subtracting two different @DTM:pls from each other after they have been projected onto the same grid. Various color gradients were tested to best evaluate the difference rasters. However, those provided by default in @QGIS:asf, were not satisfactory for both visualising and analysis purposes. Therefore, `fusion` was used as the primary gradient for elevation difference visuals (@fig:cm_fusion)(@cm_fusion). Using this gradient allows for the clear illustration of difference extremes.
 
 #figure(
   image("assets/cm_fusion.png", width:50%),
   caption:[fusion gradient @cm_fusion]
 )
 <fig:cm_fusion>
-
-#figure(
-  image("assets/difference_map_illustration.png", width:50%),
-  caption:[Difference DTM example]
-)
-<fig:dif_ex>
 
 In addition to the color gradients mentioned above, the Viridis and Spectral gradients were used in certain occasions, for example when discovering flight strip patterns or inspecting specific areas.
