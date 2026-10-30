@@ -11,7 +11,7 @@
 )
 
 #image(
-  "MidtermCover.pdf",
+  "FinalCover.pdf",
   page: 1,
   width: 100%,
   height: 100%,
