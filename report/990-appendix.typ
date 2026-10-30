@@ -521,5 +521,5 @@ caption:[Gantt chart]
 #include "992-borderpairs.typ"
 
 
-#import "@preview/cmarker:0.1.5": render
-#render(read("../code/pipeline-merge/README.md"))
+// #import "@preview/cmarker:0.1.5": render
+// #render(read("../code/pipeline-merge/README.md"))
