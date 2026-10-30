@@ -48,6 +48,6 @@ Based on border region comparison alone, it is impossible to evaluate the exact 
 // [x] - What, if any, existing approaches are there to creating a harmonised @DEM from heterogeneous sources?
 // [x] - What are the existing @DEM:pla at different scales (regional, national, and global)?
 // [x] - What are the issues with cross-border data?
-// - What are the @INSPIRE requirements for @DEM:pla?
-- What are the limitations of an automated harmonisation pipeline?
+// [x] - What are the @INSPIRE requirements for @DEM:pla?
+// [x] - What are the limitations of an automated harmonisation pipeline?
 // [x] - How can the accuracy of a reconstructed cross-border @DEM be tested?
