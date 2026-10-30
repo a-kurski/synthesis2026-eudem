@@ -23,11 +23,17 @@ To further ensure better cross-border interoperability, we recommend the followi
 
 There are several areas of the project which warrant improvement.
 
+The evaluation of the results within this report focused on the agreement between national datasets due to absence of robust ground truth.
+We recommend that such a ground truth be obtained and results be compared against it.
+One such approach, as outlined in @sec:spaceborne-gdem, is evaluating the DTM against the national geodetic control networks.
+
 Although runoff modelling is the key use case of the @DTM produced within the project, the elevation raster is currently not optimised for it, and no runoff modelling was performed.
 We suggest that such optimisation and modelling can be performed for the given cross-border @DTM.
 
 The pipeline still struggles with some NoData values as seen with @BW elevation dataset. While a small change, a more robust way to handle NoData even where it is not encoded into the dataset is needed.
 The river mask is rather basic in its functionality and currently misses sections of the river; work can continue to develop a more robust water detection algorithm which can better handle the different methods used to extract the water surface.
+
+
 
 #drafting.inline-note()[anything else that kinda works but doesn't really?]
 
