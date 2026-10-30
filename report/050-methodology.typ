@@ -30,18 +30,18 @@ Point cloud processing has been excluded from the pipeline due to the limited ti
     node-inset: 6pt,
 
     // ── DEM A branch ──────────────────────────────
-    boxed((0, 0), [@DEM A tiles]),
+    boxed((0, 0), [Acquire @DEM A tiles]),
     boxed((0, 1), [Reproject]),
     boxed((0, 2), [Resample]),
     boxed((0, 3), [Aggregate]),
-    boxed((0, 4), [Interpolate]),
+    boxed((0, 4), [Fill Gaps]),
     boxed((0, 5), [Extract River Mask]),
     // DEM B branch
-    boxed((2, 0), [@DEM B tiles]),
+    boxed((2, 0), [Acquire @DEM B tiles]),
     boxed((2, 1), [Reproject]),
     boxed((2, 2), [Resample]),
     boxed((2, 3), [Aggregate]),
-    boxed((2, 4), [Interpolate]),
+    boxed((2, 4), [Fill Gaps]),
     boxed((2, 5), [Extract River Mask]),
 
 
