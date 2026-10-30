@@ -382,7 +382,7 @@ The catchment-wide @DTM product contains elevation values ranging from -325m to 
 
 #figure(
   image("assets/cm_pride.png", width:50%),
-  caption:[fusion gradient @cm_pride]
+  caption:[pride gradient @cm_pride]
 )
 <fig:cm_pride>
 
