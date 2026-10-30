@@ -50,7 +50,7 @@
 }
 
 #figure(
-  caption: [Prioritisation of data requirements using @MoSCoW],
+  caption: [Prioritisation of data requirements using MoSCoW],
   table(
     columns: (auto,auto, auto,100pt),
     inset: 4pt,
