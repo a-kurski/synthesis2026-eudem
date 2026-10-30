@@ -479,9 +479,13 @@ caption:[Gantt chart]
   caption:[Dataset availability]
 )
 
+
+
 = Border pair analysis <sec:border_pairs>
 #include "992-borderpairs.typ"
 
-
 #import "@preview/cmarker:0.1.5": render
-#render(read("../code/pipeline-merge/README.md"))
+
+
+= pipeline README <sec:PipelineREADME>
+#render( read("../code/pipeline-merge/README.md") .split("\n") .slice(2) .join("\n") )
