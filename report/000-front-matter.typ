@@ -24,15 +24,31 @@ MSc Geomatics Synthesis Project Report
 #v(2em)
 
 Supervised by
+
 #grid(
   columns: (4cm, 4cm, 4cm),
   gutter: 3pt,
-  [Gina Stavropoulou],[Maarten Pronk],[Daan van der Heide],
-  [TU Delft],[Deltares],[Rijkswaterstaat],
+  row-gutter: 10pt,
+
+  [Gina Stavropoulou],
+  [Maarten Pronk],
+  [Daan van der Heide],
+
+  [TU Delft],
+  [Deltares],
+  [Rijkswaterstaat],
 )
 
-#v(4em)
+#v(3em)
 
+#grid(
+  columns: (5cm, 5cm, 5cm),
+[#image("assets/tud3dgeoinfo.png", height: 1.5cm, fit: "contain")],
+[#image("assets/Deltares_logo.svg", height: 1.5cm, fit: "contain")],
+[#image("assets/RWS_logo.svg", height: 1.5cm, fit: "contain")],
+)
+
+#v(1fr)
 Delft University of Technology, \ Faculty of Architecture and the Built Environment, \ The Netherlands
 #v(4em)
 #datetime.today().display("[month repr:long] [day], [year]")
