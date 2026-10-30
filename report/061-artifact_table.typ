@@ -116,7 +116,7 @@
     ),
 
     caption: [
-      Overview of border region artifacts encountered in valid country pairs
+      Overview of border region artifacts encountered in valid country pairs. The top row shows the main categories, while the second row shows subcategories. Cells marked with #err imply the subcategory artifact occurs at the border pair.
     ]
   ) <tab:artifacts_table>
 ]

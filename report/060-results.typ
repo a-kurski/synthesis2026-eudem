@@ -72,7 +72,7 @@ The region growing algorithm relies on the assumption that the water surface is 
       #align(center)[(DH)]
     ],
   ),
-  caption:[Rivermask failure due to man-made objects]
+  caption:[Rivermask failure due to man-made objects, where the mask is not continuous due to a hydro electric power plant]
 )<fig:River_mask_manmade>
 
 Another common shortcoming which is similar to the previous, is that the @FEE mask is incomplete. Not all lakes have valid seed points contained within. Furthermore, the reprojection of @FEE cell centers onto the empty mask, due to invalid row and/or column values as a result of division by 0 errors. These are known limitations of the river mask which could be solved by extracting the mask from the national point clouds of the respective regions.
@@ -118,7 +118,7 @@ Other issues include areas that are marked as neither lake or river by @FEE. Exa
       #align(center)[(DH)]
     ],
   ),
-  caption: [Omission of swamp-like areas from the watermask prevents ommision from difference comparison])
+  caption: [Omission of swamp-like areas from the watermask prevents ommision from difference compariso. The marsh located between the upper lake and smaller patched lakes is not properly accounted for])
 <fig:getoutofmyswamp>
 
 The last artifact appears most frequently within the French region of the mask. This does not affect the border area as the masks of both regions overlap here. However, this appears to be caused by the @TIN approximation of the water surface. This causes shard-like sections of discoloration in the @DTM. Unlike other artifacts this does not strongly affect the border areas. However, it does mean it cannot be used as a true harmonisation step for the Rhine @DTM.
@@ -143,7 +143,7 @@ The last artifact appears most frequently within the French region of the mask. 
       #align(center)[(TIN artifacts on DTM)]
     ],
   ),
-  caption:[River mask failure due missing input raster for region growing]
+  caption:[River mask failure due to discrete water surface, caused by visual spikes in elevation data, caused by TIN approximation of the water surface]
 )<fig:River_mask_TIN>
 #pagebreak()
 
