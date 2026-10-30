@@ -62,12 +62,12 @@ The watermask was not an initially intended addition for the project. However, d
 
     [
       #image("assets/rivermask-local.png", width: 100%)
-      #align(center)[(Google maps)]
+      #align(center)[(Cologne region mask)]
     ],
 
     [
       #image("assets/rhinecatchment-full.png", width: 100%)
-      #align(center)[(DH)]
+      #align(center)[(Full region mask)]
     ],
   ),
   caption:[Rhine catchment area river mask of the regions around Cologne, and the full catchment area]
@@ -94,8 +94,6 @@ The region growing algorithm relies on the assumption that the water surface is 
 )<fig:River_mask_manmade>
 
 Another common shortcoming which is similar to the previous, is that the @FEE mask is incomplete. Not all lakes have valid seed points contained within. Furthermore, the reprojection of @FEE cell centers onto the empty mask, due to invalid row and/or column values as a result of division by 0 errors. These are known limitations of the river mask which could be solved by extracting the mask from the national point clouds of the respective regions.
-
-#drafting.inline-note("Issue with seed point projection.")
 
 #figure(
   grid(
