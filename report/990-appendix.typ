@@ -481,3 +481,7 @@ caption:[Gantt chart]
 
 = Border pair analysis <sec:border_pairs>
 #include "992-borderpairs.typ"
+
+
+#import "@preview/cmarker:0.1.5": render
+#render(read("../code/pipeline-merge/README.md"))
