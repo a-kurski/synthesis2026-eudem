@@ -1,7 +1,7 @@
 #import "@preview/drafting:0.2.2"
 = Abstract <chap:abstract>
 
-High-quality Digital Terrain Models (DTMs) are increasingly available across Europe through regional, and local mapping and research programmes. However, these datasets are created by many different organisations, resulting in differences in Coordinate Reference Systems (CRS), resolution, Vertical CRS (VCRS), data processing, and formats. These differences make it challenging to create one unified seamless raster across large cross-border regions.
+High-quality Digital Terrain Models (DTMs) are increasingly available across Europe through regional, and local mapping and research programmes. However, these datasets are created by many different organisations, resulting in differences in Coordinate Reference Systems (CRS), resolution, Vertical CRS (VCRS), data processing, and formats for each dataset. These differences make it challenging to create one unified seamless raster across large cross-border regions.
 
 This project aims to answer how a harmonized cross-border Digital Elevation Model (DEM) of the Rhine catchment area can be created in an automated manner. To achieve this, a pipeline has been developed which automatically handles data harmonisation, processing, and visualisation. The pipeline acquires, reprojects, vertically transforms, resamples, and aggregates DTM datasets into a common representation. Additional processing steps include interpolation of missing data, the generation of a rivermask, and semi-automated border analysis between neighboring datasets.
 
