@@ -157,7 +157,7 @@ The resulting elevation data is written to an output GeoTIFF, cropped to the spe
 //       + *Input:* @AOI $A$, source $S$, processing settings $P$
 //       + *Output:* @DTM $H$; optional baseline $B$ and fill status $F$
 //       + Validate inputs and select supported source rules
-//       + Define grid $G$ on the 5 m @EPSG:s code 25832 lattice
+//       + Define grid $G$ on the 5 m EPSG:s code 25832 lattice
 //       + Extend acquisition area for cell footprints and filling context
 //       + Acquire or reuse native rasters; validate and record sources
 //       + Clean invalid elevations and mosaic at native resolution
@@ -386,7 +386,7 @@ The catchment-wide @DTM product contains elevation values ranging from -325m to 
 )
 <fig:cm_pride>
 
-The primary and most informative analysis tools are the elevation difference rasters obtained by subtracting two different @DTM:pls from each other after they have been projected onto the same grid. Various color gradients were tested to best evaluate the difference rasters. However, those provided by default in @QGIS:asf, were not satisfactory for both visualising and analysis purposes. Therefore, `fusion` was used as the primary gradient for elevation difference visuals (@fig:cm_fusion)(@cm_fusion). Using this gradient allows for the clear illustration of difference extremes.
+The primary and most informative analysis tools are the elevation difference rasters obtained by subtracting two different @DTM:pls from each other after they have been projected onto the same grid. Various color gradients were tested to best evaluate the difference rasters. However, those provided by default in QGIS, were not satisfactory for both visualising and analysis purposes. Therefore, `fusion` was used as the primary gradient for elevation difference visuals (@fig:cm_fusion)(@cm_fusion). Using this gradient allows for the clear illustration of difference extremes.
 
 #figure(
   image("assets/cm_fusion.png", width:50%),
