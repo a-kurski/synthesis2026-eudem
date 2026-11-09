@@ -5,6 +5,7 @@
   ("AABB", "Axis-Aligned Bounding Boxes"),
   ("AHN", "Actueel Hoogtebestand Nederland"),
   ("ALOS", "Advanced Land Observing Satellite"),
+  ("ALS", "Aerial Laser Scanning")
   ("AOI", "Area of Interest", "Areas of Interest"),
   ("API", "Application Programming Interface"),
   ("BW","Baden-Württemberg"),

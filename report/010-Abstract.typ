@@ -8,7 +8,7 @@ These differences pose a challenge to creating one unified elevation dataset spa
 This project focuses on creating a harmonised cross-border DEM of the Rhine catchment area in an automated manner.
 Within this project, an automated pipeline has been developed which handles data harmonisation, processing, and visualisation.
 We acquire the datasets which are then reprojected, vertically transformed, resampled, and aggregated into a single DEM.
-Additionally, the pipeline supports interpolation of missing data, generating a high-resolution water mask, and a semi-automated border analysis for neighboring datasets.
+Additionally, the pipeline supports interpolation of missing data, generating a high-resolution water mask, and a semi-automated border analysis for neighbouring datasets.
 
 The resulting DTM covers Liechtenstein, Switzerland, France, Luxembourg, the Netherlands, and German states of Bavaria, Baden-Württemberg, Hessen, Rheinland-Pfalz, Saarland, and Nordrhein-Westfalen.
 To evaluate the quality of the harmonised dataset, neighboring DTMs are compared by performing a difference of elevation rasters, statistical analysis, co-registration, and creating a set of diagnostic plots and raster files which are then evaluated against the requirements set out in the INSPIRE specification on elevation.
