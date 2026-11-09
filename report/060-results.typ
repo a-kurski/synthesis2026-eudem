@@ -34,8 +34,8 @@ The selection of RGE ALTI in France represented the clearest trade-off between d
 // The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
 
 
-// === Watermask artifacts <Watermask_artifacts>
-// Watermask artifacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artifact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
+// === Watermask artefacts <Watermask_artefacts>
+// Watermask artefacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artefact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
 
 // >>>>>>> 384cf5fce26c7f26787176b3ffc98e7477df7a41
 
@@ -51,9 +51,9 @@ The selection of RGE ALTI in France represented the clearest trade-off between d
 // >>>>>>> 13cbfa95ef3c47a0b26cf6521c947d483c39434d
 
 
-=== Water Mask <sec:Watermask_artifacts>
+=== Water Mask <sec:Watermask_artefacts>
 
-The watermask was not an initially intended addition for the project. However, during analysis it was shown that including waterbodies showed large deviations in elevation between regions. Due to a lack of an existing high quality water mask, an existing mask was refined as detailed in @sec:Water_mask_processing. However, due to shortcomings of the mask and the applied algorithm, artifacts still occur, even if their impact on the analysis is minimized. The final result of the river mask can be observed in @fig:River_mask_final. 
+The watermask was not an initially intended addition for the project. However, during analysis it was shown that including waterbodies showed large deviations in elevation between regions. Due to a lack of an existing high quality water mask, an existing mask was refined as detailed in @sec:Water_mask_processing. However, due to shortcomings of the mask and the applied algorithm, artefacts still occur, even if their impact on the analysis is minimized. The final result of the river mask can be observed in @fig:River_mask_final.
 
 #figure(
   grid(
@@ -137,7 +137,7 @@ Other issues include areas that are marked as neither lake or river by @FEE. Exa
   caption: [Omission of swamp-like areas from the watermask prevents ommision from difference compariso. The marsh located between the upper lake and smaller patched lakes is not properly accounted for])
 <fig:getoutofmyswamp>
 
-The last artifact appears most frequently within the French region of the mask. This does not affect the border area as the masks of both regions overlap here. However, this appears to be caused by the @TIN approximation of the water surface. This causes shard-like sections of discoloration in the @DTM. Unlike other artifacts this does not strongly affect the border areas. However, it does mean it cannot be used as a true harmonisation step for the Rhine @DTM.
+The last artefact appears most frequently within the French region of the mask. This does not affect the border area as the masks of both regions overlap here. However, this appears to be caused by the @TIN approximation of the water surface. This causes shard-like sections of discoloration in the @DTM. Unlike other artefacts this does not strongly affect the border areas. However, it does mean it cannot be used as a true harmonisation step for the Rhine @DTM.
 
 #figure(
   grid(
@@ -156,7 +156,7 @@ The last artifact appears most frequently within the French region of the mask. 
 
     [
       #image("assets/France-ommision-riverfail-TIN.png",width:100%)
-      #align(center)[(TIN artifacts on DTM)]
+      #align(center)[(TIN artefacts on DTM)]
     ],
   ),
   caption:[River mask failure due to discrete water surface, caused by visual spikes in elevation data, caused by TIN approximation of the water surface]

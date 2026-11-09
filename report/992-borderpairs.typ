@@ -9,18 +9,18 @@ Loading in the $italic("dh_germany_nrw_germany_rlp.tif")$ @DTM, representing the
 
 #figure(
   image("assets/NRW-RLP-striping.png", width:40%),
-  caption:"LiDAR flight path artifact on the difference DEM, magnitude of differences up to 3cm"
+  caption:"LiDAR flight path artefact on the difference DEM, magnitude of differences up to 3cm"
 )
 <fig:NRW-RLP-striping>
 
 Secondly, there appears to be misalignment between tiles within the @DTM. This is illustrated in @fig:NRW-RLP-nonalignment as the sharp transition between the four tiles. This transition is is however more drastic at a difference of $30"cm"$ in the difference @DTM. On close inspection of the @NRW and @RLP @DTM:pls, it appears that cells on the edge between tiles, the jump between neighboring cell values increased with $40"cm"$ more on the @NRW @DTM, compared to the @RLP @DTM. However, it is possible this effect occurs on both the @NRW and @RLP @DTM:pls. // To verify this hypothesis, we compared the point clouds to determine where this effect is introduced.
 // #drafting.inline-note("maybe pt would data would solve this.")
 
-$italic("statistics_germany_nrw_germany_rlp.csv")$ corroborates these findings. It lists the similarity of errors within one kilometer to be $99.9%$. High correlation which is consistent throughout the correlation graph either points towards a tiling or vertical transform artifact. Since the median difference between the two tiles is $-2"cm"$, which also corresponds with the z-shift for the coregistration. Therefore, it can be concluded most errors within the border comparison are caused by this tiling artifact.
+$italic("statistics_germany_nrw_germany_rlp.csv")$ corroborates these findings. It lists the similarity of errors within one kilometer to be $99.9%$. High correlation which is consistent throughout the correlation graph either points towards a tiling or vertical transform artefact. Since the median difference between the two tiles is $-2"cm"$, which also corresponds with the z-shift for the coregistration. Therefore, it can be concluded most errors within the border comparison are caused by this tiling artefact.
 
 #figure(
   image("assets/NRW-RLP-nonalignment.png",width:40%),
-  caption:"Tile vertical misalignment artifact on the border difference DEM"
+  caption:"Tile vertical misalignment artefact on the border difference DEM"
 )
 <fig:NRW-RLP-nonalignment>
 
@@ -129,7 +129,7 @@ https://www.welt.de/regionales/rheinland-pfalz-saarland/article205711099/Rheinla
 
 The Saarland -- @RLP border is roughly $207$ kilometers long and consists of mostly hilly terrain. The amount of non-compliant pixels for this area appears slightly higher than that for other regions. However, at 0.15% it is still not a significant amount.
 
-Most errors within this region can be attributed to interpolation errors, temporal changes such as windmill construction or quarries, steep slopes, waterbodies missed by the mask, and border artifacts. The only notable difference between the Saarland and @RLP @DTM:pls, appears to be the inclusion of extrapolation artifacts at the borders, as seen in @fig:Saarland-RLP-Extrapolation1 and @fig:Saarland-RLP-Extrapolation2. These are only two out of several occurances. These large areas of similar errors do explain the secondary peaks seen within the difference histogram (@fig:Hessen-BW-BorderArtifact). Upon further inspection, there do also appear to be occurances of overpasses as discussed in @NRW -- @RLP, and cliffs as discussed in Hessen -- @BW.
+Most errors within this region can be attributed to interpolation errors, temporal changes such as windmill construction or quarries, steep slopes, waterbodies missed by the mask, and border artefacts. The only notable difference between the Saarland and @RLP @DTM:pls, appears to be the inclusion of extrapolation artefacts at the borders, as seen in @fig:Saarland-RLP-Extrapolation1 and @fig:Saarland-RLP-Extrapolation2. These are only two out of several occurances. These large areas of similar errors do explain the secondary peaks seen within the difference histogram (@fig:Hessen-BW-Borderartefact). Upon further inspection, there do also appear to be occurances of overpasses as discussed in @NRW -- @RLP, and cliffs as discussed in Hessen -- @BW.
 
 All in all, despite issues with the source data, the quality of the @DTM is not affected, due to the region cutoff at the border for the catchment @DTM.
 
@@ -178,7 +178,7 @@ All in all, despite issues with the source data, the quality of the @DTM is not 
 
 #figure(
   image("assets/histogram_germany_rlp_germany_saarland.png", width:80%),
-  caption:"Saarland-RLP Histogram, secondary peaks around the -30, -20, and 20 meter marks represent extrapolation artifacts"
+  caption:"Saarland-RLP Histogram, secondary peaks around the -30, -20, and 20 meter marks represent extrapolation artefacts"
 )
 <fig:Saarland-RLP-Histogram>
 
@@ -232,13 +232,13 @@ The border between Hessen and @BW one of the shorter borders, coming in at rough
 )
 <fig:Hessen-BW-overview>
 
-The first obvious difference is a bright highlight at the border of the @DTM (@fig:Hessen-BW-BorderArtifact). The effect. This artifact is a byproduct of the @BW dataset being cut differently compared to the Hessen dataset. Therefore, this difference is an artifact caused by the clipped dataset and not a real physical difference. This effect occurs on all difference analysis @DTM:pls, though it is not always as pronounced as within this comparison.
+The first obvious difference is a bright highlight at the border of the @DTM (@fig:Hessen-BW-Borderartefact). The effect. This artefact is a byproduct of the @BW dataset being cut differently compared to the Hessen dataset. Therefore, this difference is an artefact caused by the clipped dataset and not a real physical difference. This effect occurs on all difference analysis @DTM:pls, though it is not always as pronounced as within this comparison.
 
 #figure(
-  image("assets/Hessen-BW-BorderArtifact.png",width:40%),
-  caption:"Hessen-BW border artifact"
+  image("assets/Hessen-BW-Borderartifact.png",width:40%),
+  caption:"Hessen-BW border artefact"
 )
-<fig:Hessen-BW-BorderArtifact>
+<fig:Hessen-BW-Borderartefact>
 
 A secondary source of differences appears to be the narrow clearings within wooded areas (@fig:Hessen-BW-clearing). This occurs in several locations. It is unclear exactly why this happens. The uncertainty @DTM representing random error. It shows a very constant, yet small error of around $3"cm"$. This implies that the observed error is not simply consisting of noise. Observing the @BW @DTM, we see a steep drop in elevation. Streetview furthermore confirms that it is indeed a cliff face. The elevation difference is likely caused by ground filtering or different flight paths during @LiDAR scanning.
 
@@ -280,7 +280,7 @@ A secondary source of differences appears to be the narrow clearings within wood
 )
 <fig:Hessen-BW-clearingEx>
 
-Further artifacts include common elements throughout the catchment @DTM. These include building interpolation differences, quarries/construction sites, and lakes/rivers not caught by the river mask. These errors are expected and can likely only be fixed through the reextraction of the @DTM, by using both the Hessen and @BW point clouds. Nevertheless, the Hessen-@BW border falls well within the @INSPIRE threshold, with only 0.06% of points being non-compliant. The alignment of the two @DTM:pls also appears to be accurate, with the coregistration recommending a vertical transform of only $1" cm"$ in vertical direction for the best possible alignment.
+Further artefacts include common elements throughout the catchment @DTM. These include building interpolation differences, quarries/construction sites, and lakes/rivers not caught by the river mask. These errors are expected and can likely only be fixed through the reextraction of the @DTM, by using both the Hessen and @BW point clouds. Nevertheless, the Hessen-@BW border falls well within the @INSPIRE threshold, with only 0.06% of points being non-compliant. The alignment of the two @DTM:pls also appears to be accurate, with the coregistration recommending a vertical transform of only $1" cm"$ in vertical direction for the best possible alignment.
 
 #pagebreak()
 === NRW -- Hessen
@@ -466,7 +466,7 @@ The @BW -- Bavaria border is similar to the @NRW -- Hessen border, as it is spli
 )
 <fig:BW-Bavaria-Border>
 
-The border area appears to display two main artifacts. The first of these being a pronounced difference @DTM edge (@fig:BW_Bavaria_BorderArtifact). However, this effect only appears at the southern border, and appears abscent from the northern border. The cause of this artifact is that the @BW @DTM appears to have two nodata values. The metadata states that the nodata value is at $-9999$, while the value in the black area is 0 before the vertical transform. The code currently corrects for this artifact. However, the border edge still has traces of this effect due to the rotation applied during the horizontal transform, and the interpolation that occurs at that stage. These errors make up almost 25% of all designated problem areas. @fig:BW-Bavaria-BorderArtifact-Histo illustrates the effect this has on the total error distribution for the border comparison. Nearly all values below $-5$ meters can be attributed to this effect.
+The border area appears to display two main artefacts. The first of these being a pronounced difference @DTM edge (@fig:BW_Bavaria_Borderartefact). However, this effect only appears at the southern border, and appears abscent from the northern border. The cause of this artefact is that the @BW @DTM appears to have two nodata values. The metadata states that the nodata value is at $-9999$, while the value in the black area is 0 before the vertical transform. The code currently corrects for this artefact. However, the border edge still has traces of this effect due to the rotation applied during the horizontal transform, and the interpolation that occurs at that stage. These errors make up almost 25% of all designated problem areas. @fig:BW-Bavaria-Borderartefact-Histo illustrates the effect this has on the total error distribution for the border comparison. Nearly all values below $-5$ meters can be attributed to this effect.
 
 #figure(
   grid(
@@ -474,26 +474,26 @@ The border area appears to display two main artifacts. The first of these being 
     gutter: 5pt,
 
     [
-      #image("assets/BW-Bavaria-BorderArtifactBW.png", width: 100%)
+      #image("assets/BW-Bavaria-BorderartifactBW.png", width: 100%)
       #align(center)[(BW)]
     ],
 
     [
-      #image("assets/BW-Bavaria-BorderArtifactDH.png", width: 100%)
+      #image("assets/BW-Bavaria-BorderartifactDH.png", width: 100%)
       #align(center)[(DH)]
     ],
   ),
-  caption: "Border artifact caused by BW using both a 0 and -9999 nodata value, while only declaring the -9999 value as nodata",
+  caption: "Border artefact caused by BW using both a 0 and -9999 nodata value, while only declaring the -9999 value as nodata",
 )
-<fig:BW_Bavaria_BorderArtifact>
+<fig:BW_Bavaria_Borderartefact>
 
 #figure(
   image("assets/histogram_germany_bw_germany_bavaria.png",width:60%),
-  caption:"BW – Bavaria border appears strongly affected by the edge artifacts cause by the effect of 0 nodata value and billinear interpolation during CRS transformation, with differences up to 1000 meters vertically"
+  caption:"BW – Bavaria border appears strongly affected by the edge artefacts cause by the effect of 0 nodata value and billinear interpolation during CRS transformation, with differences up to 1000 meters vertically"
 )
-<fig:BW-Bavaria-BorderArtifact-Histo>
+<fig:BW-Bavaria-Borderartefact-Histo>
 
-The second artifact within this border comparison is similar to the one encountered in @NRW -- @RLP section. In this instance, the effect clearly occurs in the Bavaria @DTM. @fig:BW-Bavaria-Discrete shows this effect. It appears as if these specific tiles are seperate from the the rest of the @DTM as it contains both positive and negative differences, meaning it cannot be the result of a vertical shift. Zooming in on the border confirms that these different tiles exist in the Bavaria, shown by the faint line at the same line as the DH @DTM. The cause for this can be that the tiles have either been collected at a different time, or that the aquisition was done through another method.
+The second artefact within this border comparison is similar to the one encountered in @NRW -- @RLP section. In this instance, the effect clearly occurs in the Bavaria @DTM. @fig:BW-Bavaria-Discrete shows this effect. It appears as if these specific tiles are seperate from the the rest of the @DTM as it contains both positive and negative differences, meaning it cannot be the result of a vertical shift. Zooming in on the border confirms that these different tiles exist in the Bavaria, shown by the faint line at the same line as the DH @DTM. The cause for this can be that the tiles have either been collected at a different time, or that the aquisition was done through another method.
 
 // #drafting.inline-note("Look at the bavaria point cloud to see what the difference in aquisition time is between those tiles")
 
@@ -559,7 +559,7 @@ The border area between Luxembourg and france is roughly $50"km"$ long and consi
 )
 <fig:Lux_Fra_border>
 
-As a primary example of this phenomenon the area around Rumelange was more closely evaluated. Unlike most border regions, the differences are not limited to isolated artifacts, but affect most of the border area. A prominent example is the area around Rumelange. Evaluating the elevation map and Google Earth, shows that the area is populated with steep slopes, valley sides, ridges and cliff faces (@fig:Lux_Fra_Rumelange).
+As a primary example of this phenomenon the area around Rumelange was more closely evaluated. Unlike most border regions, the differences are not limited to isolated artefacts, but affect most of the border area. A prominent example is the area around Rumelange. Evaluating the elevation map and Google Earth, shows that the area is populated with steep slopes, valley sides, ridges and cliff faces (@fig:Lux_Fra_Rumelange).
 
 #figure(
   grid(
@@ -614,12 +614,12 @@ Influence of the slope on the can also be observed directly from the @RMSE analy
 )
 <fig:Lux_Fra_Rumelange_slope>
 
-Further artifacts within the region do more closely correspond with the rest of Luxembourg and the border regions in general. These include building interpolation differences, narrow streams not captured by the river mask, and isolated quarry or construction areas. This region does not comply with the thresholds set within @chap:method, with 23% of all points surpassing the threshold. Furthermore, the resolution would need to be increased by over 80% to nearly 10 meters for compliance with the @INSPIRE target. As eluded to earlier, this difference may be a byproduct of the low resolution @DTM compared to the fine resolution of the Luxembourg @DTM, which has introduced resampling differences. While outside of the time constraint of the project, evaluating the results of the comparison against the higher resolution French @DTM could result in better alignment. Alternatively, reextraction from the national point clouds could also be a way to rectify these differences.
+Further artefacts within the region do more closely correspond with the rest of Luxembourg and the border regions in general. These include building interpolation differences, narrow streams not captured by the river mask, and isolated quarry or construction areas. This region does not comply with the thresholds set within @chap:method, with 23% of all points surpassing the threshold. Furthermore, the resolution would need to be increased by over 80% to nearly 10 meters for compliance with the @INSPIRE target. As eluded to earlier, this difference may be a byproduct of the low resolution @DTM compared to the fine resolution of the Luxembourg @DTM, which has introduced resampling differences. While outside of the time constraint of the project, evaluating the results of the comparison against the higher resolution French @DTM could result in better alignment. Alternatively, reextraction from the national point clouds could also be a way to rectify these differences.
 
 === Luxembourg -- RLP
-The Luxembourg -- @RLP border is roughly 80 kilometers long, and with that is the longest border that is evaluated for the catchment area. On the east side of the overlapping area there is the Our river. Observing the overlap map shows that the rivermask was not succesful at filtering out the waterbodies entirely for the region. This is a known artifact known to be caused by narrow waterbodies. Furthermore, these river areas have been flagged as noticable differences and due count towards the difference at the border.
+The Luxembourg -- @RLP border is roughly 80 kilometers long, and with that is the longest border that is evaluated for the catchment area. On the east side of the overlapping area there is the Our river. Observing the overlap map shows that the rivermask was not succesful at filtering out the waterbodies entirely for the region. This is a known artefact known to be caused by narrow waterbodies. Furthermore, these river areas have been flagged as noticable differences and due count towards the difference at the border.
 
-Other differences in this region are in line with the other borders surrounding Luxembourg, such as river ports with piled resources, steep cliffs, construction areas and building interpolation differences. The only real artifact that shows up on the histogram, is a singular secondary peak. Observing the difference @DTM, shows that this is caused by a lake, which was missed by the river mask. This is illustrated in @fig:Lux-rlp-peak as a peak starting at 700 meters. The border effect graph also clearly illustrates the difference at the border river.
+Other differences in this region are in line with the other borders surrounding Luxembourg, such as river ports with piled resources, steep cliffs, construction areas and building interpolation differences. The only real artefact that shows up on the histogram, is a singular secondary peak. Observing the difference @DTM, shows that this is caused by a lake, which was missed by the river mask. This is illustrated in @fig:Lux-rlp-peak as a peak starting at 700 meters. The border effect graph also clearly illustrates the difference at the border river.
 
 #figure(
   image("assets/border_effect_germany_rlp_luxembourg.png"),
@@ -938,7 +938,7 @@ The border between the Netherlands and @NRW is approximately 50 kilometers long,
       #align(center)[(DH)]
     ],
   ),
-  caption: "Border artifact",
+  caption: "Border artefact",
 )
 <fig:Netherlands-NRW-border>
 

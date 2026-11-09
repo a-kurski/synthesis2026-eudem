@@ -275,7 +275,7 @@ Diagnostic plots are generated for each border pair: an elevation-difference his
 
 #figure(
   image("assets/histogram_germany_rlp_france.png", width:70%),
-  caption:[Typical histogram example, the plot shows a pronounced peak around low difference points, with increasingly smaller amounts of larger differences and strong isolated artifacts further out]
+  caption:[Typical histogram example, the plot shows a pronounced peak around low difference points, with increasingly smaller amounts of larger differences and strong isolated artefacts further out]
 )
 <fig:hist_ex>
 
