@@ -32,7 +32,7 @@
 
       table.cell(rowspan: 2)[*Region pair*],
 
-      table.cell(colspan: 2)[*Tile artifacts*],
+      table.cell(colspan: 2)[*Tile artefacts*],
       table.cell(colspan: 2)[*Watermask*],
       table.cell(colspan: 1)[*Interpolation*],
       table.cell(colspan: 2)[*Ground filtering*],
@@ -40,7 +40,7 @@
       table.cell(colspan: 2)[*Border*],
 
       // ============================================================
-      // ARTIFACT HEADER (ROTATED)
+      // artefact HEADER (ROTATED)
       // ============================================================
 
       [#vlabel([Acquisition striping])],
@@ -49,7 +49,7 @@
       [#vlabel([Water modelling mismatch])],
       [#vlabel([River mask failure])],
 
-      [#vlabel([Interpolation artifact])],
+      [#vlabel([Interpolation artefact])],
 
       [#vlabel([Overpass])],
       [#vlabel([Steep slopes])],
@@ -60,7 +60,7 @@
       [#vlabel([Construction activity])],
 
       [#vlabel([Extrapolation])],
-      [#vlabel([Border edge artifact])],
+      [#vlabel([Border edge artefact])],
 
       // ============================================================
       // SEPARATORS
@@ -116,7 +116,7 @@
     ),
 
     caption: [
-      Overview of border region artifacts encountered in valid country pairs. The top row shows the main categories, while the second row shows subcategories. Cells marked with #err imply the subcategory artifact occurs at the border pair.
+      Overview of border region artefacts encountered in valid country pairs. The top row shows the main categories, while the second row shows subcategories. Cells marked with #err imply the subcategory artefact occurs at the border pair.
     ]
-  ) <tab:artifacts_table>
+  ) <tab:artefacts_table>
 ]

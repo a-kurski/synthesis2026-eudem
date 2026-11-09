@@ -1,13 +1,13 @@
 #import "@preview/drafting:0.2.2"
 == Analysis
-As described in @sec:border-analysis, the analysis step is where we evaluate the border differences between two neighboring regions. There are various automatically generated metrics to evaluated on (@sec:border-analysis). However, the difference raster, RMSE – Slope plot, and difference historgram are among the most important as they give information about the general cases. Based this data, a pattern was found regarding the artifacts at the borders.
+As described in @sec:border-analysis, the analysis step is where we evaluate the border differences between two neighboring regions. There are various automatically generated metrics to evaluated on (@sec:border-analysis). However, the difference raster, RMSE – Slope plot, and difference historgram are among the most important as they give information about the general cases. Based this data, a pattern was found regarding the artefacts at the borders.
 
-These artifacts can be divided into six primary categories representing overarching themes. To further specify the type of artifact, each category is divided into subcategories which each represent an example of the artifact. These main artifacts are interpolation, ground filtering, temporal, watermask, and tile artifacts.
+These artefacts can be divided into six primary categories representing overarching themes. To further specify the type of artefact, each category is divided into subcategories which each represent an example of the artefact. These main artefacts are interpolation, ground filtering, temporal, watermask, and tile artefacts.
 
 
-@tab:artifact_prevalence gives an overview of these categories in grey, while the white subsections describe the subcategories. The percentage of border pairs describes in how many of the 18 evaluated border cases an artifact occurs. The bold category percentages detail in what percentage of all border pairs, at least one of the artifacts within the category occurs. An important thing to note is that none of the categories add up to 100%, this is because the Swiss and Liechtenstein border is perfectly aligned, as the Swiss data collection includes Liechtenstein. As can be observed, the interpolation is the most frequently occuring artifact. However, in @tab:artifact_prevalence rank by occurance and severity are not the same, severity ranks the total observed displacement, whereas occurance only looks at how many pairs include the artifact. The only type of artifact which will not be discussed are the artifacts caused by shortcomings in the river mask, which are discussed in @sec:Watermask_artifacts.
+@tab:artefact_prevalence gives an overview of these categories in grey, while the white subsections describe the subcategories. The percentage of border pairs describes in how many of the 18 evaluated border cases an artefact occurs. The bold category percentages detail in what percentage of all border pairs, at least one of the artefacts within the category occurs. An important thing to note is that none of the categories add up to 100%, this is because the Swiss and Liechtenstein border is perfectly aligned, as the Swiss data collection includes Liechtenstein. As can be observed, the interpolation is the most frequently occuring artefact. However, in @tab:artefact_prevalence rank by occurance and severity are not the same, severity ranks the total observed displacement, whereas occurance only looks at how many pairs include the artefact. The only type of artefact which will not be discussed are the artefacts caused by shortcomings in the river mask, which are discussed in @sec:Watermask_artefacts.
 
- The full overview of each border pair and their corresponding artifacts can be found in @tab:artifacts_table. Furthermore, a pairwise analysis of all border pairs can be found in @sec:border_pairs, which contains additional visuals and a case-by-case evaluation of the differences.
+ The full overview of each border pair and their corresponding artefacts can be found in @tab:artefacts_table. Furthermore, a pairwise analysis of all border pairs can be found in @sec:border_pairs, which contains additional visuals and a case-by-case evaluation of the differences.
 
 #let cat(name, n, pct, rank_occ, rank_sev) = (
   table.cell(fill: rgb("e9eef3"))[*#name*],
@@ -58,27 +58,27 @@ These artifacts can be divided into six primary categories representing overarch
     ..sub("Water handling", 5, "28%"),
 
     ..cat("Border", 7, "39%", 5, 1),
-    ..sub("Border artifacts", 5, "28%"),
+    ..sub("Border artefacts", 5, "28%"),
     ..sub("Extrapolation", 4, "22%"),
 
-    ..cat("Tile artifacts", 7, "39%", 5, 6),
+    ..cat("Tile artefacts", 7, "39%", 5, 6),
     ..sub("Tile differences", 4, "22%"),
     ..sub("Acquisition striping", 4, "22%"),
   ),
   caption: [
-    Prevalence of artifact categories and their subcategories.
+    Prevalence of artefact categories and their subcategories.
   ],
-) <tab:artifact_prevalence>
+) <tab:artefact_prevalence>
 
 
-#include "061-artifact_table.typ"
+#include "061-artefact_table.typ"
 
-=== Tile artifacts
-Tile artifacts are one of the least common types of artifacts. However, these artifacts often have a notable effect on the total difference statistic for a border pair. These differences can be divided into two categories.
+=== Tile artefacts
+Tile artefacts are one of the least common types of artefacts. However, these artefacts often have a notable effect on the total difference statistic for a border pair. These differences can be divided into two categories.
 
-The first artifact in this category is aquisition striping. One common trend among the datasets within the Rhine catchment area, is that the elevation data is derived from the @LiDAR point clouds of the region. These are primarily aerial laser scans, which perform a straight line scanning pattern. The width of the bands that this creates are determined by the @FOV of the scanner.
+The first artefact in this category is aquisition striping. One common trend among the datasets within the Rhine catchment area, is that the elevation data is derived from the @LiDAR point clouds of the region. These are primarily aerial laser scans, which perform a straight line scanning pattern. The width of the bands that this creates are determined by the @FOV of the scanner.
 
-Small deviations of several centimeters in the elevation of each scanning pass can create a striping effect if not corrected for. The severity of this artifact is minimal, however clearly noticable when observing difference @DEM:pls. This is most often observed as bands of similar vertical differences on the difference @DEM, as shown in @fig:Striping_example. To solve this, each band would need to be identified to be offset. Alternatively, the offset would need to be dependent on @LiDAR aquisition time.
+Small deviations of several centimeters in the elevation of each scanning pass can create a striping effect if not corrected for. The severity of this artefact is minimal, however clearly noticable when observing difference @DEM:pls. This is most often observed as bands of similar vertical differences on the difference @DEM, as shown in @fig:Striping_example. To solve this, each band would need to be identified to be offset. Alternatively, the offset would need to be dependent on @LiDAR aquisition time.
 
 
 #figure(
@@ -108,7 +108,7 @@ Small deviations of several centimeters in the elevation of each scanning pass c
   caption: "Examples of LiDAR band-like striping – for all examples the elevation range was set to -1, 1 meters to highlight the difference",
 ) <fig:Striping_example>
 
-The second artifact in this category is singular tiles, or sections of tiles that have different vertical offsets compared to the rest of a national @DTM. This appears as visible seamlines on the difference @DEM. These differences however, become less clear when looking at the national @DTM. This happens for example at the @NRW – @RLP border, and more prominently at the @BW – Bavaria border (@fig:Tileoffset_example). While the cause for this artifact is not known for certain, it is possible that this data was captured at a different time, or with a different instrument. This hypothesis can be confirmed by comparing the @LiDAR aquisition time of tiles with such a seam to their neighbors. This is however still a byproduct of inaccurate vertical alignment with a @DTM, in such a manner that it does not correspond with the rest of the @CRF. To solve this difference, the offending tiles would need to be reextracted, and coregistered to the neighboring tiles. The magnitude of this artifact has been inconsistent, but for example 1 in @fig:Tileoffset_example, the maximum difference is 2.6 meters, while for example 2 the difference between tile elevation steps across the seam was 40 centimeters.
+The second artefact in this category is singular tiles, or sections of tiles that have different vertical offsets compared to the rest of a national @DTM. This appears as visible seamlines on the difference @DEM. These differences however, become less clear when looking at the national @DTM. This happens for example at the @NRW – @RLP border, and more prominently at the @BW – Bavaria border (@fig:Tileoffset_example). While the cause for this artefact is not known for certain, it is possible that this data was captured at a different time, or with a different instrument. This hypothesis can be confirmed by comparing the @LiDAR aquisition time of tiles with such a seam to their neighbors. This is however still a byproduct of inaccurate vertical alignment with a @DTM, in such a manner that it does not correspond with the rest of the @CRF. To solve this difference, the offending tiles would need to be reextracted, and coregistered to the neighboring tiles. The magnitude of this artefact has been inconsistent, but for example 1 in @fig:Tileoffset_example, the maximum difference is 2.6 meters, while for example 2 the difference between tile elevation steps across the seam was 40 centimeters.
 
 #figure(
   grid(
@@ -130,9 +130,9 @@ The second artifact in this category is singular tiles, or sections of tiles tha
 
 
 #pagebreak()
-=== Interpolation artifacts
+=== Interpolation artefacts
 
-Interpolation disagreements occur in all border pairs (with the exception of Switzerland – Liechtenstein). This is because a @DTM does not include buildings or vegitation within the data, it only includes terrain. However, the source data for the @DTM:pls is the point cloud, which does include buildings and vegitation. There are various methods to filter out these features. Points in the point cloud classified as buildings can be filtered out before ground filtering, or retained during ground filtering, filtered out of the @DTM based on footprint, etc. 
+Interpolation disagreements occur in all border pairs (with the exception of Switzerland – Liechtenstein). This is because a @DTM does not include buildings or vegitation within the data, it only includes terrain. However, the source data for the @DTM:pls is the point cloud, which does include buildings and vegitation. There are various methods to filter out these features. Points in the point cloud classified as buildings can be filtered out before ground filtering, or retained during ground filtering, filtered out of the @DTM based on footprint, etc.
 
 All these different approaches produce slightly different elevations at the location of a building. The interpolation performed due to reprojection further complicates this. Most data providers do not describe the method through which this filtering and/or interpolation is performed. Therefore, it is hard to say wether differences occur as a result of differences in interpolation strategy, or due to another reasons such as temporal changes (without having the point cloud).
 
@@ -170,9 +170,9 @@ One important note is that interpolation is not always at fault for differences 
 )<fig:ground-building>
 
 #pagebreak()
-=== Ground filtering artifacts
+=== Ground filtering artefacts
 
-Ground filtering is the second most common artifact encountered for the border pairs. For this category we consider steep slopes (cliffs, valleys), and disagreements caused by overpass handling. Out of these subcategories, steep slopes are both the most common and most severe, while overpasses only create small, local disagreements.
+Ground filtering is the second most common artefact encountered for the border pairs. For this category we consider steep slopes (cliffs, valleys), and disagreements caused by overpass handling. Out of these subcategories, steep slopes are both the most common and most severe, while overpasses only create small, local disagreements.
 
 Overpasses can only be found in roughly a quarter of all cases. However, this does not mean they do not exist within other border pairs, but simply do not create elevation differences. The severity of the difference depends on the height of the overpass, though generally exceed the resolution threshold. @fig:NRW-RLP-overpass-example shows and example where the area which exceeds the resolution threshold is highlighted in red, while the NRW and RLP images show the elevation.
 
@@ -196,11 +196,11 @@ Overpasses can only be found in roughly a quarter of all cases. However, this do
       #align(center)[(RLP)]
     ],
   ),
-  caption: "Example of an overpass artifact caused by a difference in ground filtering between NRW and RLP",
+  caption: "Example of an overpass artefact caused by a difference in ground filtering between NRW and RLP",
 )
 <fig:NRW-RLP-overpass-example>
 
-The two main types of slope disagreement are cliffs and valleys/hills. These artifacts can be recognized by a discrete drop in the @DTM or a thin and long artifact on the difference @DEM. An example of this type of artifact can be seen in @fig:Hessen-BW-clearing-example. Due to the steepness of the cliff small horizontal differences between sample points in the @DTM can create large vertical differences as measurements may lie at the top or bottom of the cliff. Alternatively, this can be a byproduct of differnces in ground filtering methods such as cloth simulation, progressive TIN densification, or @SMRF.
+The two main types of slope disagreement are cliffs and valleys/hills. These artefacts can be recognized by a discrete drop in the @DTM or a thin and long artefact on the difference @DEM. An example of this type of artefact can be seen in @fig:Hessen-BW-clearing-example. Due to the steepness of the cliff small horizontal differences between sample points in the @DTM can create large vertical differences as measurements may lie at the top or bottom of the cliff. Alternatively, this can be a byproduct of differnces in ground filtering methods such as cloth simulation, progressive TIN densification, or @SMRF.
 
 #figure(
   grid(
@@ -222,11 +222,11 @@ The two main types of slope disagreement are cliffs and valleys/hills. These art
       #align(center)[(Google Street View (49.4762, 8.4208))]
     ],
   ),
-  caption: "Example of a cliff artifact flagged as a resolution threshold exceeding disagreement",
+  caption: "Example of a cliff artefact flagged as a resolution threshold exceeding disagreement",
 )
 <fig:Hessen-BW-clearing-example>
 
-The second type of slope disagreement can be found primarily in regions which constain deep valleys such as the France – Luxembourg border. The cause for this disagreement is the same as for steep cliffs. However, unlike cliffs, this type of artifact can cause large sections of disagreement between @DTM:pls (@fig:Lux_Fra_border-example). @fig:Lux_Fra_Rumelange_example shows the region around the city of Rumelange, which is located within a valley. The difference in @DTM elevations can increase up to differences of 25 meters in both positive and negative directions. The best way to resolve these sorts of discrepancies would be to reextract the @DTM for the border region through the point cloud, as smoothing the terrain such as Mapterhorn does, deviates far from the actual elevation of the region (@wipfli2026mapterhorn).
+The second type of slope disagreement can be found primarily in regions which constain deep valleys such as the France – Luxembourg border. The cause for this disagreement is the same as for steep cliffs. However, unlike cliffs, this type of artefact can cause large sections of disagreement between @DTM:pls (@fig:Lux_Fra_border-example). @fig:Lux_Fra_Rumelange_example shows the region around the city of Rumelange, which is located within a valley. The difference in @DTM elevations can increase up to differences of 25 meters in both positive and negative directions. The best way to resolve these sorts of discrepancies would be to reextract the @DTM for the border region through the point cloud, as smoothing the terrain such as Mapterhorn does, deviates far from the actual elevation of the region (@wipfli2026mapterhorn).
 
 #figure(
   grid(
@@ -261,7 +261,7 @@ The second type of slope disagreement can be found primarily in regions which co
       #image("assets/France-Lux-Rumelange-elevation.png", width: 100%)
       #align(center)[(DTM)]
     ],
-  
+
 
     [
         #image("assets/France-Lux-Rumelange-contour.png", width: 100%)
@@ -273,9 +273,9 @@ The second type of slope disagreement can be found primarily in regions which co
 <fig:Lux_Fra_Rumelange_example>
 
 #pagebreak()
-=== Temporal artifacts
+=== Temporal artefacts
 
-Temporal artifacts rank third as the most common cause of artifacts. This is due to the fact the aquisition time between two regional or national @DTM:pls can differ in the order of years.
+Temporal artefacts rank third as the most common cause of artefacts. This is due to the fact the aquisition time between two regional or national @DTM:pls can differ in the order of years.
 
 There does appear to be a surprising commonality in the specific causes of these differences. The most common cause are construction sites. These include everything from the construction of new buildings, demolishing of buildings, or the construction of windmills.
 
@@ -315,17 +315,17 @@ There is one even more unique difference which only occurs once to our knowledge
 
 These differences can be resolved by comparing the point clouds of the neighboring regions. For the interest of temporal accuracy, it is most favorable to take the data from the latest aquisition time to have the most recent data. However, this does possibly cause a noticable seam at the edge of the overlapping area without any smoothing. As discussed in ... , smoothing dilutes the elevation data captured between regions and is undesirable. Furthermore, static features such as hills should not be affected by temporal aspects, and may require a different approach to be rectified. Solving this challenge is not within the boundaries of this project, but could be the focus of a followup project.
 
-=== Border artifacts
+=== Border artefacts
 
-Border artifacts refer to wrongly interpolated @DTM edges and extrapolation of data to fill in missing data. The edge artifact is caused by reprojecting of a @DTM to a different @CRS as this uses iterpolation to determine the new elevation value at the new cell center. Since the point is located at the edge, the billinear interpolation can only be performed on a partial kernel. The magnitude of this difference varies between several milimeters to differences that exceed the resolution threshold (1.6 meters)(@fig:BorderArtifact). The solution to this is to clip the offending border pixels from the output @DTM. Because there exists an overlap between the regions, an empty cell should not create gaps within the @DTM, but instead these cells will be overwritten by the neighboring @DTM. However, within the current implementation of the pipeline, border harmonisation is achieved by clipping the @DTM:pls to the national or regional extent. Therefore, these artifacts do not make it into the catchment area @DTM as it is currently.
+Border artefacts refer to wrongly interpolated @DTM edges and extrapolation of data to fill in missing data. The edge artefact is caused by reprojecting of a @DTM to a different @CRS as this uses iterpolation to determine the new elevation value at the new cell center. Since the point is located at the edge, the billinear interpolation can only be performed on a partial kernel. The magnitude of this difference varies between several milimeters to differences that exceed the resolution threshold (1.6 meters)(@fig:Borderartefact). The solution to this is to clip the offending border pixels from the output @DTM. Because there exists an overlap between the regions, an empty cell should not create gaps within the @DTM, but instead these cells will be overwritten by the neighboring @DTM. However, within the current implementation of the pipeline, border harmonisation is achieved by clipping the @DTM:pls to the national or regional extent. Therefore, these artefacts do not make it into the catchment area @DTM as it is currently.
 
 #figure(
-  image("assets/Hessen-BW-BorderArtifact.png",width:40%),
+  image("assets/Hessen-BW-Borderartifact.png",width:40%),
   caption:"Example where a DTM edge difference exceeds the resolution threshold"
 )
-<fig:BorderArtifact>
+<fig:Borderartefact>
 
-The second type of artifact are border regions where some type of interpolation has occured to complete or modify the @DTM. The severity of this artifact is greater as it often covers a larger area, and is harder to filter out due to the diversity of how the artifact presents itself. The first of the ways in which it is presented, occurs at the Hessen – @RLP border. The method through which this artifact has been created is not entirely clear. It appears in the Hessen @DTM and appears to linearly stretch pixel values between two non-neighboring tiles, and also produces sharp geometric shapes. 
+The second type of artefact are border regions where some type of interpolation has occured to complete or modify the @DTM. The severity of this artefact is greater as it often covers a larger area, and is harder to filter out due to the diversity of how the artefact presents itself. The first of the ways in which it is presented, occurs at the Hessen – @RLP border. The method through which this artefact has been created is not entirely clear. It appears in the Hessen @DTM and appears to linearly stretch pixel values between two non-neighboring tiles, and also produces sharp geometric shapes.
 
 #figure(
   grid(
@@ -361,11 +361,11 @@ Another example of this occurs at the @RLP – Saarland border (@fig:Extrapolati
       #align(center)[(DH)]
     ],
   ),
-  caption: "Example of extrapolation artifact as smeared",
+  caption: "Example of extrapolation artefact as smeared",
 )
 <fig:Extrapolation2>
 
-The last example of this type of artifact is one which was introduced due to our own interpolation. In an effort to interpolate the Dutch @DTM nodata values, extrapolation has occured (@fig:Netherlands-border_example). This artifact is created by a disagreement between the border definitions in our Dutch mask and the actual dutch border as it has been clipped. As the mask is slightly expanded, several areas are extrapolated beyond the data available within the Dutch @DTM. Solving this disagreement is a matter up improving the Dutch mask. Furthermore, the availability of @AHN version 6 should eliminate this issue, as it will extend into Germany and beyond the current border mask.
+The last example of this type of artefact is one which was introduced due to our own interpolation. In an effort to interpolate the Dutch @DTM nodata values, extrapolation has occured (@fig:Netherlands-border_example). This artefact is created by a disagreement between the border definitions in our Dutch mask and the actual dutch border as it has been clipped. As the mask is slightly expanded, several areas are extrapolated beyond the data available within the Dutch @DTM. Solving this disagreement is a matter up improving the Dutch mask. Furthermore, the availability of @AHN version 6 should eliminate this issue, as it will extend into Germany and beyond the current border mask.
 
 #figure(
   grid(
@@ -382,6 +382,6 @@ The last example of this type of artifact is one which was introduced due to our
       #align(center)[(DH)]
     ],
   ),
-  caption: "Border artifact",
+  caption: "Border artefact",
 )
 <fig:Netherlands-border_example>
