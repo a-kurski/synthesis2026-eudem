@@ -3,14 +3,14 @@
 = Theory and Context <chap:theory>
 
 This chapter covers the reviewed literature.
-In it, we present the definition for the Rhine catchment area; the summary of the relevant aspects of @INSPIRE specification on elevation; existing cross-border digital elevation models; and aspects of processing which affect the agreement between elevation products from different providers.
+In it, we present the definition for the Rhine catchment area; the summary of the relevant aspects of @INSPIRE specification on elevation; existing cross-border digital elevation models; aspects of processing which affect the agreement between elevation products from different providers; and approaches to modelling water body elevation.
 
 == Rhine Catchment Area <sec:rhine>
 
 The first step of the project is determining the area on which the project is going to get carried out.
 For this, different extents of the Rhine catchment area were considered.
 One most commonly agreed upon comes from International Association of Waterworks in the Rhine Basin @iawr_rhine and @ICPR @ICPR2013. It excludes the upstream Meuse but includes the rest of the delta, e.g. Ijssel and Waal.
-Another possible definition can be found on Wikimedia (see @fig:rhine-defs), and it includes the Meuse.
+Another possible definition can be found on Wikimedia (see @fig:rhine-defs), and it also includes the Meuse.
 
 #figure(
   grid(
@@ -20,11 +20,11 @@ Another possible definition can be found on Wikimedia (see @fig:rhine-defs), and
   caption: [Maps of the Rhine catchment area from ICPR (left, from #cite(<iawr_home>, form: "prose")) and Wikimedia (right, from #cite(<wiki:rhine>, form: "prose"))]
 )<fig:rhine-defs>
 
-For this project, the Rhine river definition comes from HydroBASINS @Lehner2013, derived from a global elevation model. The Meuse and Ijssel are excluded from the main catchment area of the Rhine in this case; their exclusion has been discussed with the client and was deemed appropriate as the automated pipeline supports expanding the geographic extent of the dataset. @fig:rhine-catchment-regions shows the map of the area used in the project, coloured by elevation data provider.
+For this project, the Rhine river definition comes from HydroBASINS @Lehner2013, derived from a global elevation model. The Meuse and Ijssel are excluded from the main catchment area of the Rhine in this case~--- their exclusion has been discussed with the client and was deemed appropriate as the automated pipeline supports expanding the geographic extent of the @DEM. @fig:rhine-catchment-regions shows the map of the area used in the project, coloured by elevation data provider.
 
 The Rhine catchment area nominally covers (parts of) Switzerland, Liechtenstein, Austria, Italy, Germany, France, Luxembourg, Belgium, and The Netherlands.
 The following regions are explicitly defined to be within the scope of the project: Switzerland, Liechtenstein, France, Luxembourg, Germany --- specifically, states of Bavaria, @BW, Hessen, @NRW, @RLP, and Saarland --- and the Netherlands.
-Austria, Italy, and Belgium are excluded due to poor availability of data; Germany's Thüringen has been excluded as only a small part of the state falls within the borders of the catchment area.
+Austria, Italy, and Belgium are excluded due to poor availability of data @vanderheide2026pointcloud. Germany's Thüringen has been excluded as only a small part of the state falls within the borders of the catchment area.
 
 #figure(
   image("assets/rhine_catchment_map.png", width: 70%),
@@ -37,14 +37,14 @@ In the @EU, the @INSPIRE Directive @eu_inspire_directive_2007 governs the "shari
 @INSPIRE defines 34 spatial data themes; elevation data is one of those.
 Below is a summary of the data specification on elevation @inspire2024elevation, which can be considered the practical guidance on the theme.
 The specification contains necessary contextual information, requirements (as either general implementing rules or elevation-specific technical guidance), and recommendations.
-Certain implementation-specific details, such as the @XML schema or data structures and formats, are excluded from the summary below, while the conceptual details are retained.
+Certain implementation-specific details, such as the XML schema or data structures and formats, are excluded from the summary below, while the conceptual details are retained.
 
 === INSPIRE View on Elevation <sec:inspire-elevation>
 
-Within the scope of the specification, the elevation property --- either depth or height --- is understood the three-dimensional shape of the Earth's surface #cite(<inspire2024elevation>, supplement: [pp. 40--43]).
+Within the scope of the specification, the elevation property --- either depth or height --- is understood to be the three-dimensional shape of the Earth's surface #cite(<inspire2024elevation>, supplement: [pp. 40--43]).
 Generally, land-elevation and bathymetry are considered separately; for land-elevation, the elevation property is called height and its positive direction is "upwards", and for bathymetry, it is depth with positive direction pointing downward.
 The scope for bathymetry is specifically the sea, inland standing water bodies, and navigable rivers.
-The specification also considers an integrated land-sea model, where as measured from a given datum, the height is positive and the depth is _negative_.
+The specification also considers an integrated land-sea model, where as measured from a given datum, the height is positive and the depth is negative.
 
 The specification considers two possible "shapes" of the terrain #cite(<inspire2024elevation>, supplement: [pp. 43--44]):
 - a @DTM, which only represents the bare surface of the Earth;
