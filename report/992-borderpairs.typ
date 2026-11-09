@@ -602,7 +602,7 @@ Further examining the uncertainty pattern of the border region further supports 
       #align(center)[(Uncertainty)]
     ],
   ),
-  caption: "Random error effects due to sloped terrain appear increased (red) up to values of 5 meters on hilly terrain",
+  caption: "Random error effects due to sloped terrain appear increased (red) up to values of 5 meters on hilly terrain. The uncertainty map shows random errors and is set to a range of -1,5–1,5 meters, while the range of the difference raster is set to -2–2 meters to highlight the differences",
 )
 <fig:Lux_Fra_Rumelange_uncertainty>
 
@@ -782,7 +782,7 @@ Different treatment of ruins and exposed rock during ground classification, foll
 #block(breakable: false)[
   #figure(
     image("assets/rlp_france_patterns.png", width: 100%),
-    caption: [Broad bands in the elevation-difference overlay. The image shows broad parallel bands extending across the region.],
+    caption: [Broad bands in the elevation-difference overlay. The image shows broad parallel bands extending across the region. The range of difference raster values is set to -1–1 m to highlight the patterns],
   ) <fig:rlp-france-patterns>
 ]
 
@@ -816,7 +816,7 @@ Alongside these large local differences, @fig:bw-france-patterns shows flight-li
   #block(breakable: false)[
     #figure(
       image("assets/bw_france_patterns.png", width: 68%),
-      caption: [Flight-line-like patterns in the BW–France difference overlay. Coherent bands and sharper local features along the Rhine. The bands match the direction and continuity of those in @fig:rlp-france-patterns. The embedded legend describes the selected display, not the full regional range of differences.],
+      caption: [Flight-line-like patterns in the BW–France difference overlay. Coherent bands and sharper local features along the Rhine. The bands match the direction and continuity of those in @fig:rlp-france-patterns. The embedded legend describes the selected display, not the full regional range of differences. The range of the difference raster is set to -1–1 m to highlight the patterns.],
     ) <fig:bw-france-patterns>
   ]
 ]
