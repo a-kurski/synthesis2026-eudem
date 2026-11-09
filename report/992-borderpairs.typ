@@ -113,7 +113,7 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
       #align(center)[(DH)]
     ]
   ),
-  caption: "Example of differences between the NRW and RLP DTMs, as result of temporal quarry changes",
+  caption: "Example of differences between the NRW and RLP DTMs, as result of temporal quarry changes. The NRW and RLP rasters were set to 115–235 meters, while the difference was set to -1–1 meters to highlight the differences",
 )
 <fig:NRW-RLP-quarry>
 
@@ -140,7 +140,7 @@ All in all, despite issues with the source data, the quality of the @DTM is not 
 
     [
       #image("assets/RLP-Saarland-ExtrapolationBoth.png", width: 100%)
-      #align(center)[(RLP + Saarland)]
+      #align(center)[(RLP and Saarland)]
     ],
 
     [
@@ -148,7 +148,7 @@ All in all, despite issues with the source data, the quality of the @DTM is not 
       #align(center)[(DH)]
     ],
   ),
-  caption: "Extrapolation example 1, large negative difference accompanied by feathering of elevation values due to extrapolation",
+  caption: "Extrapolation example 1, large negative difference accompanied by feathering of elevation values due to extrapolation. The RLP and Saarland rasters were set to 400–700 meters, while the difference was set to -1–1 meters to highlight the differences",
 )
 <fig:Saarland-RLP-Extrapolation1>
 
@@ -172,7 +172,7 @@ All in all, despite issues with the source data, the quality of the @DTM is not 
       #align(center)[(DH)]
     ],
   ),
-  caption: "Extrapolation example 2, large positive and negative differences accompanied by feathering of elevation values due to extrapolation",
+  caption: "Extrapolation example 2, large positive and negative differences accompanied by feathering of elevation values due to extrapolation. The RLP and Saarland rasters were set to 400–575 meters, while the difference was set to -1–1 meters to highlight the differences",
 )
 <fig:Saarland-RLP-Extrapolation2>
 
@@ -193,7 +193,7 @@ The only notable outlier within the data is the convergence of error similarity 
 
 #figure(
   grid(
-    columns: 2,
+    columns: 3,
     gutter: 5pt,
 
     [
@@ -202,17 +202,22 @@ The only notable outlier within the data is the convergence of error similarity 
     ],
 
     [
+      #image("assets/RLP-BW-CoalGoogle.png", width: 100%)
+      #align(center)[(Google)]
+    ],
+
+    [
       #image("assets/RLP-BW-CoalDH.png", width: 100%)
       #align(center)[(DH)]
     ],
   ),
-  caption: "Coal storage example, temporal changes have shifted the distribution of coal piles",
+  caption: "Coal storage example, temporal changes have shifted the distribution of coal piles. The difference was set to -1–1 meters to highlight the differences",
 )
 <fig:RLP-BW-Coal>
 
 #figure(
   image("assets/RLP-BW-TileoffsetDH.png"),
-  caption:"Tile offset example, as shown by the faint discoloration seam at the image center in the order of 10cm difference"
+  caption:"Tile offset example, as shown by the faint discoloration seam at the image center in the order of 10cm difference. The difference was set to -0,25–0,25 meters to highlight the differences"
 )
 <fig:RLP-BW-TileOffset>
 
