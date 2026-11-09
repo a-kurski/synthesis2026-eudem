@@ -61,7 +61,7 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
 
 #figure(
   grid(
-    columns: 3,
+    columns: 4,
     gutter: 5pt,
 
     [
@@ -78,8 +78,13 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
       #image("assets/NRW-RLP-overpassRLP.png", width: 100%)
       #align(center)[(RLP)]
     ],
+
+    [
+      #image("assets/NRW-RLP-overpassDH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
   ),
-  caption: "Example of a highway overpass, where NRW prioritizes the highway as ground, while RLP prioritizes the road underneath",
+  caption: "Example of a highway overpass, where NRW prioritizes the highway as ground, while RLP prioritizes the road underneath. The NRW and RLP rasters were set to 195–215 meters, while the difference was set to -1–1 meters to highlight the differences",
 )
 <fig:NRW-RLP-overpass>
 
