@@ -4,9 +4,9 @@
 
 == Terrain Models
 
-#cite(<terrain_book>, form: "prose") provide the following definition of a terrain model: "A terrain is a representation of the Earth’s surface. It gives us the elevation, which is the height above/below a certain reference point (a vertical datum)." In this project, the main representations of terrain is a gridded @DEM, i.e. a raster dataset (essentially a map) where the value of each pixel equals the height of the terrain at its centre --- within this report, we implicitly mean a _gridded_ @DEM whenever we refer to a @DEM. @DEM:pla are further differentiated into @DTM:pla, which only show the elevation of bare earth without human-made structures or vegetation, and @DSM:pla, which show all objects on the surface, such as trees, buildings, and the ground itself.
+#cite(<terrain_book>, form: "prose") provide the following definition of a terrain model: "A terrain is a representation of the Earth’s surface. It gives us the elevation, which is the height above/below a certain reference point (a vertical datum)." In this project, the main representations of terrain is a gridded @DEM, i.e. a raster dataset (essentially a map) where the value of each grid cell equals the height of the terrain at its centre --- within this report, we implicitly mean a _gridded_ @DEM whenever we refer to a @DEM. @DEM:pla are further differentiated into @DTM:pla, which only show the elevation of bare earth without human-made structures or vegetation, and @DSM:pla, which show all objects on the surface, such as trees, buildings, and the ground itself.
 
-For a given use case, each terrain model, whether a @DEM or a @PC, is associated with a @CRS. A @CRS describes the units of measurement, horizontal and vertical datums, and direction of the axes. Different countries use different reference systems, and conversion between them is needed before different terrain models can be integrated with one another.
+Each terrain model is associated with a @CRS. A @CRS describes the units of measurement, horizontal and vertical datums, and direction of the axes. Different countries use different reference systems, and conversion between them is needed before different terrain models can be integrated with one another.
 
 == The Need for the European DEM
 
@@ -32,7 +32,7 @@ The aspects of the main question can be broken down into the following subquesti
 - What are the limitations of an automated harmonisation pipeline?
 - How can the accuracy of a reconstructed cross-border @DEM be tested?
 
-Answering these subquestions will help to answer the main research question. The first five subquestions are evaluated in the research phase of the project and relate mostly to existing works and available data. Answering these questions informs data acquisition and subsequent software development. The next research questions are to be answered during the software development phase as they relate to testing and limitations of the pipeline by evaluating the procedures and the output, and discussing the findings with the client.
+Answering these subquestions will help to answer the main research question. The first four subquestions are evaluated in the research phase of the project and relate mostly to existing works and available data. Answering these questions informs data acquisition and subsequent software development. The next research questions are answered during the software development phase as they relate to testing and limitations of the pipeline by evaluating the procedures and the output, and discussing the findings with the client.
 
 // == Relevant courses from the MSc Geomatics program
 
