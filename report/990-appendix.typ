@@ -526,4 +526,3 @@ caption:[Gantt chart]
 
 = Border pair analysis <sec:border_pairs>
 #include "992-borderpairs.typ"
-

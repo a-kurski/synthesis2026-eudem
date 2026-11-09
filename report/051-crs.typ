@@ -2,7 +2,7 @@
 
 ==== Input CRS
 
-Most national data providers supply elevation coverage in the local @CRS, such as Amersfoort/RD New (@EPSG code 28992) for the Netherlands. The only exception to this rule is Germany as it uses @UTM zones // #drafting.margin-note[TODO: cite].
+Most national data providers supply elevation coverage in the local @CRS, such as Amersfoort/RD New (EPSG code 28992) for the Netherlands. The only exception to this rule is Germany as it uses @UTM zones // #drafting.margin-note[TODO: cite].
 We found that every dataset uses a national vertical reference system, such as @NAP for the Netherlands or @DHHN2016 for Germany. For further description of input data, see @sec:results-acquisition.
 
 ==== Target CRS
@@ -31,4 +31,4 @@ Equi7Grid has been developed by Vienna University of Technology specifically to 
 @fig:tissot shows the distortion caused by using the Europe subgrid.
 The use of a @CRS other than one derived from @ETRS89 is explicitly disallowed by the @INSPIRE specification, which excludes Equi7Grid from the candidate @CRS:pla for this project.
 However, we recognise that in other cases, a different @CRS may be advantageous.
-Therefore, the pipeline is designed to support selection of a user-specified target @CRS by its @EPSG code.
+Therefore, the pipeline is designed to support selection of a user-specified target @CRS by its EPSG code.
