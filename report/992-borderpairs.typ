@@ -228,7 +228,7 @@ The border between Hessen and @BW one of the shorter borders, coming in at rough
 
 #figure(
   image("assets/Hessen-BW-overview.png",width:40%),
-  caption:"Hessen-BW border"
+  caption:"Hessen-BW border. The red polygon shows the overlapping area of the two DTMs"
 )
 <fig:Hessen-BW-overview>
 
@@ -236,7 +236,7 @@ The first obvious difference is a bright highlight at the border of the @DTM (@f
 
 #figure(
   image("assets/Hessen-BW-Borderartifact.png",width:40%),
-  caption:"Hessen-BW border artefact"
+  caption:"Hessen-BW border artefact. The difference was set to -1–1 meters to highlight the differences, while the red polygon shows the area exceeding the 1.6 meter threshold"
 )
 <fig:Hessen-BW-Borderartefact>
 
@@ -257,7 +257,7 @@ A secondary source of differences appears to be the narrow clearings within wood
       #align(center)[(DH)]
     ],
   ),
-  caption: "Cliff face example, the red polygons show a difference above 1.6 meters on the ESRI aerial image",
+  caption: "Cliff face example, the red polygons show a difference above 1.6 meters on the ESRI aerial image. The difference raster was set to -1–1 meters to highlight the differences",
 )
 <fig:Hessen-BW-clearing>
 
@@ -479,11 +479,11 @@ The border area appears to display two main artefacts. The first of these being 
     ],
 
     [
-      #image("assets/BW-Bavaria-BorderartifactDH.png", width: 100%)
+      #image("assets/BW-Bavaria-BorderArtifactDH.png", width: 100%)
       #align(center)[(DH)]
     ],
   ),
-  caption: "Border artefact caused by BW using both a 0 and -9999 nodata value, while only declaring the -9999 value as nodata",
+  caption: "Border artefact caused by BW using both a 0 and -9999 nodata value, while only declaring the -9999 value as nodata. The difference rasterwas set to -1–1 meters to highlight the differences",
 )
 <fig:BW_Bavaria_Borderartefact>
 
