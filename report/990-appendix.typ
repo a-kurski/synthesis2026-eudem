@@ -189,7 +189,7 @@ The DTM, river mask, and analysis can be fully reproduced by executing the proce
     milestone(
       at: 2,
       style: (stroke: (dash: "dashed")),
-      [@PID deadline],
+      [PID deadline],
     )
 
     // ─────────────────────────────────────────────
@@ -291,7 +291,7 @@ The DTM, river mask, and analysis can be fully reproduced by executing the proce
     milestone(
       at: 5,
       style: (stroke: (dash: "dashed")),
-      [Midterm deliverables],
+      [Midterm milestones],
     )
 
 

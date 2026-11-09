@@ -2,7 +2,7 @@
 
 #set page(
   paper: "a4",
-  flipped: true,
+  flipped: false,
   margin: 1cm,
 )
 
@@ -15,7 +15,7 @@
 #place(center + horizon)[
   #figure(
     table(
-      columns: (2fr,) + (1.5fr,) * 13,
+      columns: (2fr,) + (1fr,) * 13,
 
       inset: 3pt,
       align: center + horizon,
