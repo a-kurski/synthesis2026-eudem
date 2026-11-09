@@ -55,7 +55,7 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
       #align(center)[(DH)]
     ]
   ),
-  caption: "Example of roof interpolation, marked as dark blue pock marks, with red polygons representing roofs exceeding 1.6 meters of difference",
+  caption: "Example of roof interpolation, marked as dark blue pock marks, with red polygons representing roofs exceeding 1.6 meters of difference. NRW and RLP rasters were set to a 50–150 meter range, while the difference was set to -1–1 meters to highlight the differences",
 )
 <fig:NRW-RLP-roofinter>
 
