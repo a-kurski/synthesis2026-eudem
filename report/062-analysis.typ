@@ -144,7 +144,7 @@ The magnitude of the errors differs between region pairs. Some regions show litt
     gutter: 5pt,
 
     [
-      #image("assets/Building-Interpolation.png",width:80%)
+      #image("assets/Building Interpolation.png",width:80%)
       #align(center)[(Elevation Difference))]
     ],
 
