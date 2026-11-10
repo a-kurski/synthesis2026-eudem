@@ -27,7 +27,7 @@ The following regions are explicitly defined to be within the scope of the proje
 Austria, Italy, and Belgium are excluded due to poor availability of data @vanderheide2026pointcloud. Germany's Thüringen has been excluded as only a small part of the state falls within the borders of the catchment area.
 
 #figure(
-  image("assets/rhine_catchment_map.png", width: 70%),
+  image("assets/rhine_catchment_countries.png", width: 70%),
   caption: [The Rhine cathchment area with its regions and main river network. (image by authors)]
 )<fig:rhine-catchment-regions>
 
