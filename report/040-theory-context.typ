@@ -17,7 +17,7 @@ Another possible definition can be found on Wikimedia (see @fig:rhine-defs), and
     columns: (auto, auto),
     [#image("assets/8278083_iawr-rheinkarte-2500x3452.jpg", width: 70%)], [#image("assets/960px-Flusssystemkarte_Rhein_04.jpg", width: 70%)]
   ),
-  caption: [Maps of the Rhine catchment area from ICPR (left, from #cite(<iawr_home>, form: "prose")) and Wikimedia (right, from #cite(<wiki:rhine>, form: "prose")).]
+  caption: [Maps of the Rhine catchment area from ICPR (left, from #cite(<iawr_home>, form: "prose")) and Wikimedia (right, from #cite(<wiki:rhine>, form: "prose"))]
 )<fig:rhine-defs>
 
 For this project, the Rhine river definition comes from HydroBASINS @Lehner2013, derived from a global elevation model. The Meuse and Ijssel are excluded from the main catchment area of the Rhine in this case~--- their exclusion has been discussed with the client and was deemed appropriate as the automated pipeline supports expanding the geographic extent of the @DEM. @fig:rhine-catchment-regions shows the map of the area used in the project, coloured by elevation data provider.
@@ -27,7 +27,7 @@ The following regions are explicitly defined to be within the scope of the proje
 Austria, Italy, and Belgium are excluded due to poor availability of data @vanderheide2026pointcloud. Germany's Thüringen has been excluded as only a small part of the state falls within the borders of the catchment area.
 
 #figure(
-  image("assets/rhine_catchment_countries.png", width: 70%),
+  image("assets/rhine_catchment_map.png", width: 70%),
   caption: [The Rhine cathchment area with its regions and main river network. (image by authors)]
 )<fig:rhine-catchment-regions>
 
@@ -65,7 +65,7 @@ The specification requires that the grid is a two-dimensional regular quadrilate
     "assets/image26.jpeg",
     width: 70%
   ),
-  caption: [INSPIRE definition of gridded coverage. Image from #cite(<inspire2024elevation>, form: "prose").]
+  caption: [INSPIRE definition of gridded coverage. Image from #cite(<inspire2024elevation>, form: "prose")]
 )
 
 Furthermore, the specification includes guidance on providing tiled datasets --- it refers to such coverage as "aggregated coverage", and the process of assembling it is called aggregation.
@@ -141,7 +141,7 @@ There are several shortcomings with current implementation of Mapterhorn. The fi
     "assets/mapterhorn-artefact.png",
     width: 50%
   ),
-  caption: [Example of smoothing at the border in Mapterhorn. From #cite(<wipfli2026mapterhorn>, form: "prose").]
+  caption: [Example of smoothing at the border in Mapterhorn. From #cite(<wipfli2026mapterhorn>, form: "prose")]
 )
 
 A similar approach was described by #cite(<Noardo2016>, form: "prose") who report on harmonisation of the @CRS, orthrophoto, semantic information, and the @DEM and #cite(<biagi_interpolation>, form: "prose") who focus on @DEM harmonisation specifically.
@@ -170,7 +170,7 @@ Compared to the reference (column a), @MSF (b) can introduce noise, @PMF (c) and
     "assets/cai2023-ground-filters.png",
     width: 60%
   ),
-  caption: [Comparison of ground filtering algorithms. From #cite(<cai2023>, form: "prose").]
+  caption: [Comparison of ground filtering algorithms. From #cite(<cai2023>, form: "prose")]
 ) <fig:ground-filter>
 
 // However, the documentation of @PDAL also states it is possible to alternatively use @SMRF. This method is a further developed version of the @PMF. However, #cite(<PINGEL201321>, form: "prose") states that @SMRF uses a slope-dependent elevation, making it more reliable, and possibly solving the issue with @PMF. Therefore, @PDAL using @SMRF ground filtering should allow for a reliable way to generate @DTM:pla from point clouds. Further research into the implementation of other methods will not be discussed or implemented within this project.
