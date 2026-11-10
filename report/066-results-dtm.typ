@@ -4,7 +4,7 @@ The pipeline successfully produces a DTM of the Rhine catchment area. This is sh
 
 #figure(
     image("assets/whole_dtm_with_legend.png", width: 70%),
-    caption: [Finalized Rhine Catchment DTM]
+    caption: [Finalized Rhine Catchment DTM.]
 )<fig:final_dtm>
 
 The final DTM is stored as a Virtual Raster (VRT) referencing 11 regional GeoTIFFs, and it is also available in Cloud Optimized GeoTIFF format. The final DTM uses ETRS89 / LAEA Europe (EPSG:3035) as its coordinate reference system, with a spatial resolution of 5 m and Float32 elevation values. The minimum elevation is -324.90 m, occurring in a quarry in North Rhine-Westphalia, while the maximum of 4,272.68 m occurs in the Swiss Alps. The mean elevation is 452.32 m, with a standard deviation of 448.49 m. The elevation range is 4,597.58 m.

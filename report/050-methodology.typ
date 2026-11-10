@@ -66,7 +66,7 @@ Point cloud processing has been excluded from the pipeline due to the limited ti
     edge((2, 4), (1.1, 4), (1.1, 6), "-|>"),
     edge((1, 6), (1, 7), "-|>"),
   ),
-  caption: [Processing flowchart]
+  caption: [Flowchart of the processing steps of the pipeline.]
 )
 
 The pipeline is split into two stages: processing and comparison --- the above flowchart only shows the processing stage; comparison is described in @sec:border-analysis.
@@ -302,7 +302,7 @@ table(
 
   [After],  [All],      [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
   [After],  [Measured], [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
-),caption:[Example of general metrics for France/NRW border])
+),caption:[Example of general metrics for France/NRW border.])
 <tab:general_metrics>
 #figure(
 table(
@@ -331,7 +331,7 @@ table(
 
   [After],  [All],      [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
   [After],  [Measured], [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
-), caption:[Example accuracy and threshold metrics for France/NRW border])
+), caption:[Example accuracy and threshold metrics for France/NRW border.])
 <tab:accuracy_metrics>
 #figure(
   table(
@@ -357,7 +357,7 @@ table(
   [Before], [0.1075], [4.567], [0.0503], [0.2353], [-],        [-],        [-],
   [After],  [0.1075], [4.567], [0.0503], [0.2353], [-0.0056], [0.2830], [-0.0286],
 ),
-caption:[Example coregistration metrics for France/NRW border]
+caption:[Example coregistration metrics for France/NRW border.]
 )
 <tab:coreg_metrics>
 
@@ -371,7 +371,7 @@ The catchment-wide @DTM product contains elevation values ranging from -325m to 
 
 #figure(
   image("assets/cm_pride.png", width:50%),
-  caption:[`pride` gradient @cm_pride]
+  caption:[Pride gradient. From #cite(<cm_pride>, form: "prose").]
 )
 <fig:cm_pride>
 
@@ -380,7 +380,7 @@ For the purposes of analysis, the colour range is set such that it is symmetrica
 
 #figure(
   image("assets/cm_fusion.png", width:50%),
-  caption:[fusion gradient @cm_fusion]
+  caption:[fusion gradient. From #cite(<cm_fusion>, form: "prose").]
 )
 <fig:cm_fusion>
 

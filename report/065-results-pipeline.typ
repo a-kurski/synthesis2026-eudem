@@ -37,7 +37,7 @@ The fix we adopted was setting the VCRS for affected regions to `null` such that
     [#image("assets/dtm-hessen.png")],
     [#image("assets/dtm-missing-france.png")]
   ),
-  caption: [Issues diagnosed with earlier runs of the pipeline: incorrect `NoData` value for Hessen (left) and missing parts of France (right)]
+  caption: [Issues diagnosed with earlier runs of the pipeline: incorrect 'NoData' value for Hessen (left) and missing parts of France (right).]
 )
 
 An additional issue was observed during the border analysis stage.
@@ -53,5 +53,5 @@ This limitation stems from the coarse vector masks used. These were replaced wit
     [#image("assets/dtm-gaps-2.png")],
     [#image("assets/dtm-gaps-3.png")]
   ),
-  caption: [Gaps on the France/Switzerland, France/Luxembourg, and Netherlands/NRW border]
+  caption: [Gaps on the France/Switzerland, France/Luxembourg, and Netherlands/NRW border.]
 )

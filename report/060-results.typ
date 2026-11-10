@@ -20,37 +20,6 @@ The selection of RGE ALTI in France represented the clearest trade-off between d
 
 #include "066-results-dtm.typ"
 
-// #drafting.inline-note("Go over the pipeline shortcomings in accordance with the subquestion")
-
-
-// == Temp
-// ...
-// The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated @DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated `NoData` cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still necessary.
-
-// For this process nearest inverse distance weighing is used. This does not catch all `NoData` values. In case it does not, nearest neighbor interpolation is used to supplement to fill the remaining holes. However, due to the range set for nearest neighbor, not all `NoData` cells are interpolated. Increasing the radius would likely solve this issue, but would also significantly increase processing time. Therefore, the interpolation limitations of the Netherlands have had to be excepted as a shortcoming of the pipeline, caused by the available data.
-
-// ...
-
-// The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
-
-
-// === Watermask artefacts <Watermask_artefacts>
-// Watermask artefacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artefact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
-
-// >>>>>>> 384cf5fce26c7f26787176b3ffc98e7477df7a41
-
-
-// ...
-// The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated @DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated `NoData` cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still necessary.
-//
-// For this process nearest inverse distance weighing is used. This does not catch all `NoData` values. In case it does not, nearest neighbor interpolation is used to supplement to fill the remaining holes. However, due to the range set for nearest neighbor, not all `NoData` cells are interpolated. Increasing the radius would likely solve this issue, but would also significantly increase processing time. Therefore, the interpolation limitations of the Netherlands have had to be excepted as a shortcoming of the pipeline, caused by the available data.
-//
-// ...
-//
-// The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
-// >>>>>>> 13cbfa95ef3c47a0b26cf6521c947d483c39434d
-
-
 === Water Mask <sec:Watermask_artefacts>
 
 The watermask was not an initially intended addition for the project. However, during analysis it was shown that including waterbodies showed large deviations in elevation between regions. Due to a lack of an existing high quality water mask, an existing mask was refined as detailed in @sec:Water_mask_processing. However, due to shortcomings of the mask and the applied algorithm, artefacts still occur, even if their impact on the analysis is minimized. The final result of the river mask can be observed in @fig:River_mask_final.
@@ -59,21 +28,19 @@ The watermask was not an initially intended addition for the project. However, d
   grid(
     columns: 2,
     gutter: 5pt,
-
-    [
-      #image("assets/rivermask-local.png", width: 100%)
-      #align(center)[(Cologne region mask)]
-    ],
-
     [
       #image("assets/rhinecatchment-full.png", width: 100%)
-      #align(center)[(Full region mask)]
+    ],
+    [
+      #image("assets/rivermask-local.png", width: 100%)
     ],
   ),
-  caption:[Rhine catchment area river mask of the regions around Cologne, and the full catchment area]
+  caption:[River mask visualized on the entire Rhine Cathcment (left), and around the Cologne area in Germany (right).]
 )<fig:River_mask_final>
+#v(1em)
 
-The region growing algorithm relies on the assumption that the water surface is smooth. However, this is not always the case. The first example of this fact is found in @fig:River_mask_manmade. Here a hydro electric power plant causes a deviation in the elevation. The rough water mask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the water mask, and the area surrounding the plant such as the left secondary channel, is not modeled.
+
+The region growing algorithm relies on the assumption that the water surface is smooth. However, this is not always the case. The first example of this is found in @fig:River_mask_manmade. Here a hydroelectric power plant causes a change in the elevation of the water surface. The rough water mask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the water mask, and the area surrounding the plant such as the left secondary channel, is not modeled.
 
 #figure(
   grid(
@@ -82,18 +49,29 @@ The region growing algorithm relies on the assumption that the water surface is 
 
     [
       #image("assets/Lux-Saarland-HydroGoogle.png", width: 80%)
-      #align(center)[(Google maps)]
+      #align(center)[
+        #text(size: 10pt)[
+          Google Maps, Imagery © 2026 Airbus, Maxar Technologies.
+        ]
+      ]
     ],
 
     [
       #image("assets/Lux-Saarland-HydroDH.png", width: 80%)
-      #align(center)[(DH)]
+      #align(center)[
+        #text(size: 10pt)[
+          Non-continuous river mask.
+        ]
+      ]
     ],
   ),
-  caption:[Rivermask failure due to man-made objects, where the mask is not continuous due to a hydro electric power plant]
+  caption: [
+    Rivermask failure where the mask is not continuous due to a hydroelectric power plant.
+  ]
 )<fig:River_mask_manmade>
+#v(1em)
 
-Another common shortcoming which is similar to the previous, is that the @FEE mask is incomplete. Not all lakes have valid seed points contained within. Furthermore, the reprojection of @FEE cell centers onto the empty mask, due to invalid row and/or column values as a result of division by 0 errors. These are known limitations of the river mask which could be solved by extracting the mask from the national point clouds of the respective regions.
+Another similar shortcoming is that the @FEE mask is incomplete. Not all lakes have valid seed points contained within. Furthermore, the reprojection of @FEE cell centers onto the empty mask, due to invalid row and/or column values as a result of division by 0 errors. These are known limitations of the river mask which could be solved by extracting the mask from the national point clouds of the respective regions.
 
 #figure(
   grid(
@@ -101,24 +79,38 @@ Another common shortcoming which is similar to the previous, is that the @FEE ma
     gutter: 5pt,
 
     [
-      #image("assets/France-missing-lakes-Maps.png", width: 80%)
-      #align(center)[(Google maps)]
+      #image("assets/France-missing-lakes-Maps.png", width: 100%)
+      #align(center)[
+        #text(size: 10pt)[
+          Google Maps, Imagery © 2026 Airbus, Maxar Technologies.
+        ]
+      ]
     ],
 
     [
-      #image("assets/France-missing-lakes.png",width:80%)
-      #align(center)[(Mask refined)]
+      #image("assets/France-missing-lakes-FEE.png",width:100%)
+      #align(center)[
+        #text(size: 10pt)[
+          FEE mask.
+        ]
+      ]
     ],
 
     [
-      #image("assets/France-missing-lakes-FEE.png",width:80%)
-      #align(center)[(Mask FEE)]
+      #image("assets/France-missing-lakes.png",width:100%)
+      #align(center)[
+        #text(size: 10pt)[
+          Incomplete river mask.
+        ]
+      ]
     ],
+
   ),
-  caption:[Rivermask failure due missing input raster for region growing]
+  caption:[Rivermask failure due missing water cells in the input raster.]
 )<fig:River_mask_missinglakes>
+#v(1em)
 
-Other issues include areas that are marked as neither lake or river by @FEE. Examples include swampy areas on the Netherlands – @NRW border. This difference is illustrated in @fig:getoutofmyswamp.
+Other issues include areas that are marked as neither lake or river by the @FEE mask. Examples include swampy areas on the Netherlands – @NRW border. This is shown in @fig:getoutofmyswamp.
 
 #figure(grid(
     columns: 2,
@@ -126,15 +118,24 @@ Other issues include areas that are marked as neither lake or river by @FEE. Exa
 
     [
       #image("assets/Netherlands-NRW-StoneSwampGoogle.png", width: 80%)
-      #align(center)[(Google Maps)]
+      #align(center)[
+        #text(size: 10pt)[
+          Imagery © 2026 Airbus, Landsat / Copernicus,
+          Maxar Technologies
+        ]
+      ]
     ],
 
     [
       #image("assets/Netherlands-NRW-StoneSwampDH.png", width: 80%)
-      #align(center)[(DH)]
+      #align(center)[
+        #text(size: 10pt)[
+          Incomplete water mask.
+        ]
+      ]
     ],
   ),
-  caption: [Omission of swamp-like areas from the watermask prevents ommision from difference compariso. The marsh located between the upper lake and smaller patched lakes is not properly accounted for])
+  caption: [Omission of swamp-like areas from the watermask prevents correct detection of water bodies. The marsh located between the upper lake and smaller patched lakes is not properly accounted for.])
 <fig:getoutofmyswamp>
 
 The last artefact appears most frequently within the French region of the mask. This does not affect the border area as the masks of both regions overlap here. However, this appears to be caused by the @TIN approximation of the water surface. This causes shard-like sections of discoloration in the @DTM. Unlike other artefacts this does not strongly affect the border areas. However, it does mean it cannot be used as a true harmonisation step for the Rhine @DTM.
@@ -146,36 +147,33 @@ The last artefact appears most frequently within the French region of the mask. 
 
     [
       #image("assets/France-ommision-riverfail-Maps.png", width: 100%)
-      #align(center)[(Google maps)]
+      #align(center)[
+        #text(size: 10pt)[
+          Imagery © 2026 Airbus, Maxar Technologies.
+        ]
+      ]
     ],
 
     [
       #image("assets/France-ommision-riverfail.png",width:100%)
-      #align(center)[(Mask failure)]
+      #align(center)[
+        #text(size: 10pt)[
+          Non-continuous water mask.
+        ]
+      ]
     ],
 
     [
       #image("assets/France-ommision-riverfail-TIN.png",width:100%)
-      #align(center)[(TIN artefacts on DTM)]
+      #align(center)[
+        #text(size: 10pt)[
+          TIN artefacts observed on DTM.
+        ]
+      ]
     ],
   ),
-  caption:[River mask failure due to discrete water surface, caused by visual spikes in elevation data, caused by TIN approximation of the water surface]
+  caption:[River mask failure due to changes in the water surface elevation caused by TIN interpolation of the surface.]
 )<fig:River_mask_TIN>
 #pagebreak()
-
-== Plots
-Accordingly, @fig:slope_ex illustrates the expected increase in @RMSE with slope. Deviations from this trend may indicate differences in ground filtering, sample locations on steep terrain, or temporal changes such as quarry excavation.
-
-#figure(
-  image("assets/slope_rmse_germany_nrw_germany_rlp.png", width:70%),
-  caption:[Typical slope plot example, the plot follows a gradual curve where the RMSE difference increases for steeper angles]
-)
-<fig:slope_ex>
-
-#figure(
-  image("assets/histogram_germany_rlp_france.png", width:70%),
-  caption:[Typical histogram example, the plot shows a pronounced peak around low difference points, with increasingly smaller amounts of larger differences and strong isolated artefacts further out]
-)
-<fig:hist_ex>
 
 #include "062-analysis.typ"
