@@ -66,7 +66,7 @@ Point cloud processing has been excluded from the pipeline due to the limited ti
     edge((2, 4), (1.1, 4), (1.1, 6), "-|>"),
     edge((1, 6), (1, 7), "-|>"),
   ),
-  caption: [Processing flowchart]
+  caption: [Flowchart of the processing steps of the pipeline.]
 )
 
 The pipeline is split into two stages: processing and comparison --- the above flowchart only shows the processing stage; comparison is described in @sec:border-analysis.
@@ -142,53 +142,6 @@ However for regions where interpolation was performed during our processing, we 
 If the agreement between regions is high (like it is in our case, see @chap:results) this approach produces fewer and smaller artefacts than accepting interpolation results.
 
 The resulting elevation data is written to an output GeoTIFF, cropped to the specified region extents.
-
-// === Processing algorithm
-//
-// @alg-dtm-preparation summarises the shared workflow and its source-specific branches. $G$ denotes the final grid and $G_e$ a temporary extension retaining interpolation context. When enabled, @AHN gap filling operates on this extended grid before final cropping and masking.
-//
-// #[
-// #show figure: set align(left)
-// #figure(
-//   align(left)[
-//     #pseudocode-list(
-//       booktabs: true,
-//       booktabs-stroke: 1pt,
-//       line-number-supplement: "line",
-//       title: [#smallcaps[*@DTM Acquisition and Harmonisation*]],
-//     )[
-//       + *Input:* @AOI $A$, source $S$, processing settings $P$
-//       + *Output:* @DTM $H$; optional baseline $B$ and fill status $F$
-//       + Validate inputs and select supported source rules
-//       + Define grid $G$ on the 5 m EPSG:s code 25832 lattice
-//       + Extend acquisition area for cell footprints and filling context
-//       + Acquire or reuse native rasters; validate and record sources
-//       + Clean invalid elevations and mosaic at native resolution
-//       + *if* $S$ is @AHN *then*
-//         + $G_e arrow.l G$; extend it if filling is enabled
-//         + $B arrow.l$ reproject and average the mosaic directly onto $G_e$
-//         + $H arrow.l B$
-//         + *if* filling is enabled *then*
-//           + $(H, F) arrow.l$ fill remaining gaps in $B$ within $A$ and record fill status
-//         + *end*
-//         + Crop $H$ and retained $B, F$ to $G$ without resampling
-//       + *else if* $S$ is @NRW *then*
-//         + Verify that the native 1 m cells nest within $G$
-//         + $H arrow.l$ valid-sample mean of each $5 times 5$ block
-//         + Retain `NoData` where no valid contributors exist
-//       + *end*
-//       + Apply the original @AOI mask to all retained products
-//       + Verify grid geometry and nonempty valid @AOI coverage
-//       + Create output tiles and stitch them without resampling
-//       + Verify stitched geometry and pixel equality with $H$
-//       + Save stitched @DTM, setting, and coverage counts
-//     ]
-//   ],
-//   kind: "algorithm",
-//   supplement: [Algorithm],
-//   caption: [@DTM acquisition and horizontal harmonisation.],
-// ) <alg-dtm-preparation>
-//  ]
 
 == Water Mask Processing <sec:Water_mask_processing>
 
@@ -302,7 +255,7 @@ table(
 
   [After],  [All],      [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
   [After],  [Measured], [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
-),caption:[Example of general metrics for France/NRW border])
+),caption:[Example of general metrics for France/NRW border.])
 <tab:general_metrics>
 #figure(
 table(
@@ -331,7 +284,7 @@ table(
 
   [After],  [All],      [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
   [After],  [Measured], [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
-), caption:[Example accuracy and threshold metrics for France/NRW border])
+), caption:[Example accuracy and threshold metrics for France/NRW border.])
 <tab:accuracy_metrics>
 #figure(
   table(
@@ -357,7 +310,7 @@ table(
   [Before], [0.1075], [4.567], [0.0503], [0.2353], [-],        [-],        [-],
   [After],  [0.1075], [4.567], [0.0503], [0.2353], [-0.0056], [0.2830], [-0.0286],
 ),
-caption:[Example coregistration metrics for France/NRW border]
+caption:[Example coregistration metrics for France/NRW border.]
 )
 <tab:coreg_metrics>
 
@@ -371,7 +324,7 @@ The catchment-wide @DTM product contains elevation values ranging from -325m to 
 
 #figure(
   image("assets/cm_pride.png", width:50%),
-  caption:[`pride` gradient @cm_pride]
+  caption:[Pride gradient. From #cite(<cm_pride>, form: "prose").]
 )
 <fig:cm_pride>
 
@@ -380,7 +333,7 @@ For the purposes of analysis, the colour range is set such that it is symmetrica
 
 #figure(
   image("assets/cm_fusion.png", width:50%),
-  caption:[fusion gradient @cm_fusion]
+  caption:[Fusion gradient. From #cite(<cm_fusion>, form: "prose").]
 )
 <fig:cm_fusion>
 

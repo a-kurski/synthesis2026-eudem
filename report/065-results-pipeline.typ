@@ -38,7 +38,7 @@ Our fix is setting the VCRS for affected regions to `null` such that no transfor
     [#image("assets/dtm-hessen.png")],
     [#image("assets/dtm-missing-france.png")]
   ),
-  caption: [Issues diagnosed with earlier runs of the pipeline: incorrect `NoData` value for Hessen (left) and missing parts of France (right)]
+  caption: [Issues diagnosed with earlier runs of the pipeline: incorrect 'NoData' value for Hessen (left) and missing parts of France (right).]
 )
 
 An additional issue was observed during the border analysis stage.
@@ -56,5 +56,5 @@ These were replaced with masks acquired from @OSM which has patched the gaps.
     [#image("assets/dtm-gaps-2.png")],
     [#image("assets/dtm-gaps-3.png")]
   ),
-  caption: [Gaps on the France/Switzerland, France/Luxembourg, and Netherlands/NRW border]
+  caption: [Gaps on the France/Switzerland, France/Luxembourg, and Netherlands/NRW border.]
 )

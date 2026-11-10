@@ -19,7 +19,7 @@ Following a discussion with the clients, we determined that @ETRS89-LAEA is best
     [#image("assets/tissot-etrs89.pdf", width: 100%) Geodetic ETRS89], [#image("assets/tissot-equi7.pdf", width: 100%) Equi7 Europe],
     [#image("assets/tissot-lcc.pdf", width: 100%) ETRS89-LCC], [#image("assets/tissot-laea.pdf", width: 100%) ETRS89-LAEA],
   ),
-  caption: [Comparison of Tissot indicatrices for different projections]
+  caption: [Comparison of Tissot indicatrices for different projections.]
 ) <fig:tissot>
 
 The preservation of the angles --- which is among the key reasons to use geodetic coordinates in the @INSPIRE specification --- has been determined to be of lowest priority considering the expected use case of the product, while the preservation of area is of highest priority.
