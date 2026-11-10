@@ -1,16 +1,19 @@
 #import "@preview/drafting:0.2.2"
 = Results <chap:results>
 
-This chapter discusses the results of the data acquisition, the pipeline, analysis of the border-pairs and general findings about the @DTM:pls. The first section describes the challenges encountered while aquiring the data. Section 2 describes the results of the reprojection, resampling, regridding and interpolation. After, the analysis of the process is discussed, specifically analyzing the effect of various factors on the observed border errors. Lastly, any additional observations that do not fall within these categories will be discussed.
+This chapter discusses the results of the data acquisition, the pipeline, analysis of the border-pairs and general findings about the @DTM:pls. First, the challenges encountered while acquiring the data are described. Then, the results of the reprojection, resampling, regridding and interpolation are presented, alongside the description of our experience executing the pipeline. After, the analysis of the process is discussed and a summary of the common error types is given.
 
 == Data Acquisition <sec:results-acquisition>
-The data scraping is not considered a part of the processing pipeline due to the variations in scraping methods, accessing differences, and computation time. However, due to its relevance to the challenges of creating a @DEM of the Rhine catchment area, it has been included in this chapter. The pipeline assumes all data is available in their raw formats that is, individual @DTM tiles in most of the cases. In case the requested data is not available, the pipeline proceeds to download it from the specified source. Currently, all acquisition of data labeled as a must in @Moscow_Prioritization is implemented within the scraping software.
+
+The data scraping is not considered a part of the automated processing pipeline due to the variations in scraping methods, accessing differences, and computation time. For the pipeline to be executed, all data should be made available in their raw formats which in most cases are individual @DTM tiles. In case the requested data is not available, the acquisition script proceeds to download it from the specified source. Currently, all acquisition of data labelled as a "must" in @sec:requirements is implemented within the scraping software.
 
 #include "elevation_data_characteristics.typ"
 
-The pipeline acquires elevation data from 11 regions within 6 countries. The data comes in different formats, availability, @CRS, and resolution. @tab:elevation-data summarizes the characteristics of data from their sources. Some regions offer multiple DTM products that differ in resolution, format, and download accessibility. Selecting a suitable product therefore involved trade-offs between data quality and computational efficiency. For France, two products were considered: RGE ALTI and MNT LiDAR HD. Although MNT LiDAR HD provides newer, higher-resolution elevation data, its publicly available GeoTIFF tiles have a resolution of 0.5 m. Processing these data at the scale of the French study area would require considerably more storage and computational resources, particularly since the target grid has a resolution of 5 m. In contrast, RGE ALTI is available at 5 m resolution, although its ASCII Grid format requires conversion to GeoTIFF. RGE ALTI was therefore selected, prioritising storage and computational efficiency over the potentially higher accuracy and more recent acquisition of MNT LiDAR HD.
+The pipeline acquires elevation data from 11 regions within 6 countries. The data comes in different formats, availability, @CRS, and resolution. @tab:elevation-data summarizes the characteristics of datasets. Some regions offer multiple DTM products that differ in resolution, format, and download accessibility. Selecting a suitable product therefore involved trade-offs between data quality and computational efficiency. For France, two products were reviewed: RGE ALTI and MNT LiDAR HD. Although MNT LiDAR HD provides newer, higher-resolution elevation data, its publicly available GeoTIFF tiles have a resolution of 0.5 m which would require considerably more storage and computational resources. In contrast, RGE ALTI is available at 5 m resolution, although its ASCII Grid format requires conversion to GeoTIFF. RGE ALTI was therefore selected, prioritising storage and computational efficiency over the potentially higher accuracy and more recent acquisition of MNT LiDAR HD. RGE ALTI is also more complete, although omissions from MNT LiDAR HD are outside of the study area.
 
-The selection of RGE ALTI in France represented the clearest trade-off between data quality and computational efficiency. For some regions, however, data acquisition and processing had already been implemented before the target grid resolution of 5 m was established. This was the case for the Netherlands, where the existing implementation using the 0.5 m AHN product was retained despite the availability of a 5 m product. For most German regions, the standard 1 m DTM products were used, with Bavaria being an exception where a 5 m product was available for download. In Baden-Württemberg, a 5 m product was also available, but required payment, so the openly available 1 m product was selected. For Switzerland and Liechtenstein, the nationwide 2 m product was resampled to the target grid. In Luxembourg, the more recent 0.5 m nationwide product was preferred over an older 5 m product, as the relatively small study area made processing the higher-resolution data feasible. Once the source data is acquired, it is then processed in the pipeline to match the specifications of the target grid.
+For some regions, however, data acquisition and processing had already been implemented before the target grid resolution of 5 m was established. For the Netherlands, the existing implementation using the 0.5 m AHN product was retained despite the availability of a 5 m product. For most German regions, the standard 1 m DTM products were used, with Bavaria being an exception where a 5 m product was available for download. For Switzerland and Liechtenstein, the nationwide 2 m product was selected to the target grid. In Luxembourg, the more recent 0.5 m nationwide product was preferred over an older 5 m product, as the relatively small study area made processing the higher-resolution data feasible.
+
+The total file size of the source data is measured at 804.46 GB. Notably, France occupies only 23.04 GB or 2.9% of the total compared to the Netherlands' 213.25GB or 26.5%, clearly demonstrating the trade-off between data quality and storage costs.
 
 == Pipeline <sec:pipeline>
 
@@ -20,40 +23,10 @@ The selection of RGE ALTI in France represented the clearest trade-off between d
 
 #include "066-results-dtm.typ"
 
-// #drafting.inline-note("Go over the pipeline shortcomings in accordance with the subquestion")
-
-
-// == Temp
-// ...
-// The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated @DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated `NoData` cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still necessary.
-
-// For this process nearest inverse distance weighing is used. This does not catch all `NoData` values. In case it does not, nearest neighbor interpolation is used to supplement to fill the remaining holes. However, due to the range set for nearest neighbor, not all `NoData` cells are interpolated. Increasing the radius would likely solve this issue, but would also significantly increase processing time. Therefore, the interpolation limitations of the Netherlands have had to be excepted as a shortcoming of the pipeline, caused by the available data.
-
-// ...
-
-// The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
-
-
-// === Watermask artefacts <Watermask_artefacts>
-// Watermask artefacts are related to the watermask extraction as described in @sec:Water_mask_processing. These are the second to most common artefact encountered in border analysis. The purpose of the watermask of course, is to filter out all waterbodies, as large deviations in elevation are known to occur here and are therefore, not interesting for the analysis. However, the mask is limited in effectiveness.
-
-// >>>>>>> 384cf5fce26c7f26787176b3ffc98e7477df7a41
-
-
-// ...
-// The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated @DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated `NoData` cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still necessary.
-//
-// For this process nearest inverse distance weighing is used. This does not catch all `NoData` values. In case it does not, nearest neighbor interpolation is used to supplement to fill the remaining holes. However, due to the range set for nearest neighbor, not all `NoData` cells are interpolated. Increasing the radius would likely solve this issue, but would also significantly increase processing time. Therefore, the interpolation limitations of the Netherlands have had to be excepted as a shortcoming of the pipeline, caused by the available data.
-//
-// ...
-//
-// The river mask is limited by the quality of the course resolution of the SDG mask @SDG. It has trouble with small rivers as these are generally marked as values of 1 within the river mask, which are currently skipped in the interest of avoiding outliers.
-// >>>>>>> 13cbfa95ef3c47a0b26cf6521c947d483c39434d
-
 
 === Water Mask <sec:Watermask_artefacts>
 
-The watermask was not an initially intended addition for the project. However, during analysis it was shown that including waterbodies showed large deviations in elevation between regions. Due to a lack of an existing high quality water mask, an existing mask was refined as detailed in @sec:Water_mask_processing. However, due to shortcomings of the mask and the applied algorithm, artefacts still occur, even if their impact on the analysis is minimized. The final result of the river mask can be observed in @fig:River_mask_final.
+The water mask was not an initially intended addition for the project. However, during analysis it was shown that including water bodies showed large deviations in elevation between regions. Due to a lack of an existing high quality water mask, an existing mask was refined as detailed in @sec:Water_mask_processing. However, due to shortcomings of the mask and the applied algorithm, artefacts still occur, even if their impact on the analysis is minimised. The final result of the river mask can be observed in @fig:River_mask_final.
 
 #figure(
   grid(
