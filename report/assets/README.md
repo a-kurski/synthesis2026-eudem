@@ -2,7 +2,7 @@
 
 Merges digital terrain models from several regions (countries, states, provinces, ...) into one seamless DTM in a common horizontal and vertical reference system, and compares the regions where they overlap.
 
-Each region can come with its own tile format, CRS, height system, nodata convention and gaps. All of these differences are described in one JSON file; none of them is hardcoded. To process a different set of regions you write a new JSON, not new code.
+Each region can come with its own tile format, CRS, height system, `NoData` convention and gaps. All of these differences are described in one JSON file; none of them is hardcoded. To process a different set of regions you write a new JSON, not new code.
 
 Downloading data and point-cloud processing are out of scope: the pipeline starts from raster tiles that are already on disk.
 
@@ -27,7 +27,7 @@ Downloading data and point-cloud processing are out of scope: the pipeline start
 2. **`rasters`**: for each region, builds a virtual mosaic of its tiles and warps it in one step to the target CRS, height system and resolution. Each region's DEM keeps a `buffer_m` margin beyond its outline, so neighbouring DEMs overlap. Optional extras per region: subtracting a geoid for ellipsoidal heights, gap filling (with a mask of the filled cells) and cropping to the outline.
 3. **`rivers`**: for each region, grows a water mask over the DEM, starting from seed cells taken from a water raster. The comparison uses these masks to leave water surfaces out of the statistics.
 4. **`overlaps`**: where two regions overlap and one region's cell was interpolated (gap-filled) while the other has a measured value, the measured value replaces it. Nothing else is changed: no averaging, no feathering.
-5. **`assemble`**: writes each region's DEM inside its own outline, applies the overrides from the previous stage, masks everything outside the overall extent and writes the result as a Cloud Optimized GeoTIFF. It also stitches the regions' river masks the same way, each inside its own outline, into one binary river mask on the same grid (1 = water, 0 = land, 255 = NoData).
+5. **`assemble`**: writes each region's DEM inside its own outline, applies the overrides from the previous stage, masks everything outside the overall extent and writes the result as a Cloud Optimized GeoTIFF. It also stitches the regions' river masks the same way, each inside its own outline, into one binary river mask on the same grid (1 = water, 0 = land, 255 = `NoData`).
 
 The comparison (`python -m dtm.comparison`) is a separate step that runs on the region DEMs after the pipeline.
 
@@ -127,7 +127,7 @@ The JSON has two parts you write, `settings` and `regions`. The pipeline adds mo
 | `output_dir` | Folder for all outputs. | `data/pipeline` |
 | `product_name` | File name of the merged DTM. | `merged_dtm.tif` |
 | `buffer_m` | Buffer around each outline: used for the intersection test and as the margin of each region's DEM. | `1000` |
-| `nodata` | NoData value of all outputs. | `-9999` |
+| `NoData` | `NoData` value of all outputs. | `-9999` |
 | `max_vertical_shift_m` | The pipeline logs the height shift PROJ applies at each region's centre, and warns if it is larger than this. A shift of tens of metres usually means ellipsoidal and physical heights are being mixed. | `10` |
 | `interpolation_mask` | Optional polygon; gap filling is limited to the part of each region inside it. | `null` |
 | `borders` | Optional border lines, used for the distance-to-border analyses in the comparison. | none |
@@ -145,8 +145,8 @@ The JSON has two parts you write, `settings` and `regions`. The pipeline adds mo
 | Key | Meaning | Default |
 |---|---|---|
 | `method` | `"gdal_idw"`, inverse-distance weighting with GDAL's FillNodata. The only method available. | `"gdal_idw"` |
-| `selection` | `"all_aoi_nodata"`: every NoData cell inside the region outline is a candidate. The only option available. | `"all_aoi_nodata"` |
-| `max_distance_m` | How far to search for valid cells. Gaps wider than about twice this distance stay NoData. | `100` |
+| `selection` | `"all_aoi_NoData"`: every `NoData` cell inside the region outline is a candidate. The only option available. | `"all_aoi_NoData"` |
+| `max_distance_m` | How far to search for valid cells. Gaps wider than about twice this distance stay `NoData`. | `100` |
 | `nearest_fallback` | Fill whatever is left with the nearest valid value. Very slow on large regions with big empty areas. | `true` |
 | `smoothing_iterations` | Must be `0`. | `0` |
 
@@ -172,14 +172,14 @@ One entry per region; the key is the region's name, used in file names and logs.
 | `interpolate` | Fill gaps in this region's DEM and record which cells were filled. | `false` |
 | `crop` | Cut the DEM to the outline. If `false`, the DEM keeps its buffer and neighbours overlap; the merge still uses each region only inside its outline. | `false` |
 | `resampling` | GDAL resampling method used by the warp. | `"average"` |
-| `source_nodata` | A value the tiles use for missing data without declaring it as NoData (e.g. `0`). These cells are then ignored by the warp, including its averaging. Overrides any NoData value the tiles declare. | none |
+| `source_NoData` | A value the tiles use for missing data without declaring it as `NoData` (e.g. `0`). These cells are then ignored by the warp, including its averaging. Overrides any `NoData` value the tiles declare. | none |
 | `river_seeds` | Water raster for this region (any CRS). Cells with one of the `seed_values` are seeds. Without it, the region gets no river mask. | none |
 | `river_growing` | Overrides for `settings.river_growing`, for this region only. | none |
 | `point_clouds` | Ignored (point clouds are out of scope). | — |
 
 How the source data is handled:
 
-- **Tiles without a NoData value**: gaps between tiles are given `settings.nodata`, so they're treated as gaps rather than read as 0 m. If the tiles themselves fill missing areas with a value such as 0, set `source_nodata`. Otherwise those cells come out as near-0 heights, shifted by the height transformation, and are averaged into neighbouring cells.
+- **Tiles without a `NoData` value**: gaps between tiles are given `settings.NoData`, so they're treated as gaps rather than read as 0 m. If the tiles themselves fill missing areas with a value such as 0, set `source_NoData`. Otherwise those cells come out as near-0 heights, shifted by the height transformation, and are averaged into neighbouring cells.
 - **Tiles in different but equivalent CRS definitions** are mosaicked together. The region's `crs` is used for all of them.
 - **Height systems with a ballpark transformation only** are left unchanged, with a warning (see [PROJ grids](#height-transformations-and-proj-grids)).
 - **Ellipsoidal heights**: give a `geoid`. Any geoid model works, for example the global EGM2008 (`curl -fL -o geoids/egm08.tif https://cdn.proj.org/us_nga_egm08_25.tif`). A regional geoid that matches your target height system is more accurate.
@@ -206,7 +206,7 @@ Everything is written under `settings.output_dir`:
 ```
 <output_dir>/
 ├── <product_name>                     merged DTM (Cloud Optimized GeoTIFF)
-├── <product name>_river_mask.tif      merged river mask, Byte COG: 1 = water, 0 = land, 255 = NoData
+├── <product name>_river_mask.tif      merged river mask, Byte COG: 1 = water, 0 = land, 255 = `NoData`
 ├── extent.gpkg                        area covered by the merged DTM
 ├── pipeline.log                       log of all runs, appended
 ├── intersections/<a>__<b>.gpkg        buffered overlap of two regions

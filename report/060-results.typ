@@ -25,9 +25,9 @@ The selection of RGE ALTI in France represented the clearest trade-off between d
 
 // == Temp
 // ...
-// The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated @DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated nodata cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still necessary.
+// The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated @DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated `NoData` cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still necessary.
 
-// For this process nearest inverse distance weighing is used. This does not catch all nodata values. In case it does not, nearest neighbor interpolation is used to supplement to fill the remaining holes. However, due to the range set for nearest neighbor, not all nodata cells are interpolated. Increasing the radius would likely solve this issue, but would also significantly increase processing time. Therefore, the interpolation limitations of the Netherlands have had to be excepted as a shortcoming of the pipeline, caused by the available data.
+// For this process nearest inverse distance weighing is used. This does not catch all `NoData` values. In case it does not, nearest neighbor interpolation is used to supplement to fill the remaining holes. However, due to the range set for nearest neighbor, not all `NoData` cells are interpolated. Increasing the radius would likely solve this issue, but would also significantly increase processing time. Therefore, the interpolation limitations of the Netherlands have had to be excepted as a shortcoming of the pipeline, caused by the available data.
 
 // ...
 
@@ -41,9 +41,9 @@ The selection of RGE ALTI in France represented the clearest trade-off between d
 
 
 // ...
-// The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated @DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated nodata cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still necessary.
+// The last step of the scraping process is interpolation. This step only applies to the Netherlands due to the absence of interpolated @DTM data. This applies to any cell where the ground was not found, including waterbodies, buildings, trees and any other ground obscuring features. Due to the resampling of the data, isolated `NoData` cells often already get removed. However, for larger areas such as rivers and buildings interpolation is still necessary.
 //
-// For this process nearest inverse distance weighing is used. This does not catch all nodata values. In case it does not, nearest neighbor interpolation is used to supplement to fill the remaining holes. However, due to the range set for nearest neighbor, not all nodata cells are interpolated. Increasing the radius would likely solve this issue, but would also significantly increase processing time. Therefore, the interpolation limitations of the Netherlands have had to be excepted as a shortcoming of the pipeline, caused by the available data.
+// For this process nearest inverse distance weighing is used. This does not catch all `NoData` values. In case it does not, nearest neighbor interpolation is used to supplement to fill the remaining holes. However, due to the range set for nearest neighbor, not all `NoData` cells are interpolated. Increasing the radius would likely solve this issue, but would also significantly increase processing time. Therefore, the interpolation limitations of the Netherlands have had to be excepted as a shortcoming of the pipeline, caused by the available data.
 //
 // ...
 //
@@ -162,5 +162,20 @@ The last artefact appears most frequently within the French region of the mask. 
   caption:[River mask failure due to discrete water surface, caused by visual spikes in elevation data, caused by TIN approximation of the water surface]
 )<fig:River_mask_TIN>
 #pagebreak()
+
+== Plots
+Accordingly, @fig:slope_ex illustrates the expected increase in @RMSE with slope. Deviations from this trend may indicate differences in ground filtering, sample locations on steep terrain, or temporal changes such as quarry excavation.
+
+#figure(
+  image("assets/slope_rmse_germany_nrw_germany_rlp.png", width:70%),
+  caption:[Typical slope plot example, the plot follows a gradual curve where the RMSE difference increases for steeper angles]
+)
+<fig:slope_ex>
+
+#figure(
+  image("assets/histogram_germany_rlp_france.png", width:70%),
+  caption:[Typical histogram example, the plot shows a pronounced peak around low difference points, with increasingly smaller amounts of larger differences and strong isolated artefacts further out]
+)
+<fig:hist_ex>
 
 #include "062-analysis.typ"

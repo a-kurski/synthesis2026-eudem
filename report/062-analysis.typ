@@ -365,7 +365,7 @@ Another example of this occurs at the @RLP – Saarland border (@fig:Extrapolati
 )
 <fig:Extrapolation2>
 
-The last example of this type of artefact is one which was introduced due to our own interpolation. In an effort to interpolate the Dutch @DTM nodata values, extrapolation has occured (@fig:Netherlands-border_example). This artefact is created by a disagreement between the border definitions in our Dutch mask and the actual dutch border as it has been clipped. As the mask is slightly expanded, several areas are extrapolated beyond the data available within the Dutch @DTM. Solving this disagreement is a matter up improving the Dutch mask. Furthermore, the availability of @AHN version 6 should eliminate this issue, as it will extend into Germany and beyond the current border mask.
+The last example of this type of artefact is one which was introduced due to our own interpolation. In an effort to interpolate the Dutch @DTM `NoData` values, extrapolation has occured (@fig:Netherlands-border_example). This artefact is created by a disagreement between the border definitions in our Dutch mask and the actual dutch border as it has been clipped. As the mask is slightly expanded, several areas are extrapolated beyond the data available within the Dutch @DTM. Solving this disagreement is a matter up improving the Dutch mask. Furthermore, the availability of @AHN version 6 should eliminate this issue, as it will extend into Germany and beyond the current border mask.
 
 #figure(
   grid(

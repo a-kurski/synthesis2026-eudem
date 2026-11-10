@@ -12,7 +12,7 @@ We would encourage that the specification is reviewed and rewritten in a way tha
 
 To further ensure better cross-border interoperability, we recommend the following:
 - Data providers to adopt a unified way to access and download the data. We particularly recommend a WCS (as adopted by the Netherlands and NRW) as it is an existing standard and allows for automatic server-side querying of a particular geographic extent.
-- Data providers to adopt a unified NoData value, and expressly include it in the elevation data.
+- Data providers to adopt a unified `NoData` value, and expressly include it in the elevation data.
 - Data providers to adopt a unified way to extract a terrain model.
   - Based on the work by #cite(<cai2023>, form: "prose"), we suggest @ICSF will likely perform best for for ground filtering but further research is needed.
   - A standardised interpolation method for filling gaps in the ground points is also needed, as we see artefacts introduced by linear interpolation on a TIN or extracting data from CSF points. We believe that @RBF would produce best results deterministically, but further comparison of the different interpolation methods is needed.
@@ -30,7 +30,7 @@ One such approach, as outlined in @sec:spaceborne-gdem, is evaluating the DTM ag
 Although runoff modelling is the key use case of the @DTM produced within the project, the elevation raster is currently not optimised for it, and no runoff modelling was performed.
 We suggest that such optimisation and modelling can be performed for the given cross-border @DTM.
 
-The pipeline still struggles with some NoData values as seen with @BW elevation dataset. While a small change, a more robust way to handle NoData even where it is not encoded into the dataset is needed.
+The pipeline still struggles with some `NoData` values as seen with @BW elevation dataset. While a small change, a more robust way to handle `NoData` even where it is not encoded into the dataset is needed.
 The river mask is rather basic in its functionality and currently misses sections of the river; work can continue to develop a more robust water detection algorithm which can better handle the different methods used to extract the water surface.
 
 // #drafting.inline-note()[anything else that kinda works but doesn't really?]

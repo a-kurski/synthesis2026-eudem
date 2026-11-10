@@ -14,14 +14,14 @@ However, the pipeline and the `.json` needed to be modified several times to acc
 The pipeline was first tested on Netherlands and @NRW to ensure individual components are integrated, and it was subsequently run in full.
 During the full runs, several issues were discovered and subsequently patched.
 
-The first of these was that Hessen publishes data by administrative unit; for some of these units, NoData is represented with a 0 value but the value is not encoded in the metadata.
+The first of these was that Hessen publishes data by administrative unit; for some of these units, `NoData` is represented with a 0 value but the value is not encoded in the metadata.
 Some of Hessen's tiles also had no horizontal CRS.
 Stitching these tiles resulted in regions of flat terrain with elevation value around 20cm (non-zero due to CRS transform).
 Similar behaviour was observed in RLP, where the coordinates were provided in UTM32N but the CRS was not consistently described in the metadata.
-This behaviour has been patched by force-assigning a horizontal and vertical CRS and a NoData value for each region.
+This behaviour has been patched by force-assigning a horizontal and vertical CRS and a `NoData` value for each region.
 
-Issues with NoData value not declared were also observed in @BW.
-These are mostly resolved except for several tiles overlapping with Bavaria, where NoData issue persists.
+Issues with `NoData` value not declared were also observed in @BW.
+These are mostly resolved except for several tiles overlapping with Bavaria, where `NoData` issue persists.
 We acknowledge these issues within the analysis of the border regions, but resolving them was deemed to be of low priority given the time constraints.
 
 During the later runs, we observed that large parts of the Netherlands and France are absent from the final product.
@@ -37,7 +37,7 @@ The fix we adopted was setting the VCRS for affected regions to `null` such that
     [#image("assets/dtm-hessen.png")],
     [#image("assets/dtm-missing-france.png")]
   ),
-  caption: [Issues diagnosed with earlier runs of the pipeline: incorrect NoData value for Hessen (left) and missing parts of France (right)]
+  caption: [Issues diagnosed with earlier runs of the pipeline: incorrect `NoData` value for Hessen (left) and missing parts of France (right)]
 )
 
 An additional issue was observed during the border analysis stage.

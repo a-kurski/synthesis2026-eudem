@@ -466,7 +466,7 @@ The @BW -- Bavaria border is similar to the @NRW -- Hessen border, as it is spli
 )
 <fig:BW-Bavaria-Border>
 
-The border area appears to display two main artefacts. The first of these being a pronounced difference @DTM edge (@fig:BW_Bavaria_Borderartefact). However, this effect only appears at the southern border, and appears abscent from the northern border. The cause of this artefact is that the @BW @DTM appears to have two nodata values. The metadata states that the nodata value is at $-9999$, while the value in the black area is 0 before the vertical transform. The code currently corrects for this artefact. However, the border edge still has traces of this effect due to the rotation applied during the horizontal transform, and the interpolation that occurs at that stage. These errors make up almost 25% of all designated problem areas. @fig:BW-Bavaria-Borderartefact-Histo illustrates the effect this has on the total error distribution for the border comparison. Nearly all values below $-5$ meters can be attributed to this effect.
+The border area appears to display two main artefacts. The first of these being a pronounced difference @DTM edge (@fig:BW_Bavaria_Borderartefact). However, this effect only appears at the southern border, and appears abscent from the northern border. The cause of this artefact is that the @BW @DTM appears to have two `NoData` values. The metadata states that the `NoData` value is at $-9999$, while the value in the black area is 0 before the vertical transform. The code currently corrects for this artefact. However, the border edge still has traces of this effect due to the rotation applied during the horizontal transform, and the interpolation that occurs at that stage. These errors make up almost 25% of all designated problem areas. @fig:BW-Bavaria-Borderartefact-Histo illustrates the effect this has on the total error distribution for the border comparison. Nearly all values below $-5$ meters can be attributed to this effect.
 
 #figure(
   grid(
@@ -483,13 +483,13 @@ The border area appears to display two main artefacts. The first of these being 
       #align(center)[(DH)]
     ],
   ),
-  caption: "Border artefact caused by BW using both a 0 and -9999 nodata value, while only declaring the -9999 value as nodata. The difference rasterwas set to -1–1 meters to highlight the differences",
+  caption: "Border artefact caused by BW using both a 0 and -9999 `NoData` value, while only declaring the -9999 value as `NoData`. The difference rasterwas set to -1–1 meters to highlight the differences",
 )
 <fig:BW_Bavaria_Borderartefact>
 
 #figure(
   image("assets/histogram_germany_bw_germany_bavaria.png",width:60%),
-  caption:"BW – Bavaria border appears strongly affected by the edge artefacts cause by the effect of 0 nodata value and billinear interpolation during CRS transformation, with differences up to 1000 meters vertically"
+  caption:"BW – Bavaria border appears strongly affected by the edge artefacts cause by the effect of 0 `NoData` value and billinear interpolation during CRS transformation, with differences up to 1000 meters vertically"
 )
 <fig:BW-Bavaria-Borderartefact-Histo>
 

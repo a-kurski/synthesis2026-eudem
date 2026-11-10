@@ -181,7 +181,7 @@ It is also expected that the documentation of the interpolation methods is prima
 
 == Interpolation Methods <sec:theory-interpolate>
 
-Some elevation datasets --- within study area, the Dutch @DTM is the only such dataset --- are supplied with "gaps" of NoData, which warrants filling those gaps.
+Some elevation datasets --- within study area, the Dutch @DTM is the only such dataset --- are supplied with "gaps" of `NoData`, which warrants filling those gaps.
 Other data providers fill those gaps themselves by performing interpolation.
 There are several papers @Chen2014, @Gradka2018, @hu2013, @Raza2023, comparing different interpolation methods for terrain modelling.
 The methods compared include @IDW, @RBF, @NNI, and kriging.

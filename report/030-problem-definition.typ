@@ -4,7 +4,7 @@
 
 == Terrain Models
 
-#cite(<terrain_book>, form: "prose") provide the following definition of a terrain model: "A terrain is a representation of the Earth’s surface. It gives us the elevation, which is the height above/below a certain reference point (a vertical datum)." In this project, the main representations of terrain is a gridded @DEM, i.e. a raster dataset (essentially a map) where the value of each grid cell equals the height of the terrain at its centre --- within this report, we implicitly mean a _gridded_ @DEM whenever we refer to a @DEM. @DEM:pla are further differentiated into @DTM:pla, which only show the elevation of bare earth without human-made structures or vegetation, and @DSM:pla, which show all objects on the surface, such as trees, buildings, and the ground itself.
+#cite(<terrain_book>, form: "prose") provide the following definition of a terrain model: "A terrain is a representation of the Earth’s surface. It gives us the elevation, which is the height above/below a certain reference point (a vertical datum)." In this project, the main representation of terrain is a gridded @DEM, i.e. a raster dataset where the value of each grid cell equals the height of the terrain at its centre --- within this report, the gridding is implied whenever a @DEM is mentioned. @DEM:pla are further differentiated into @DTM:pla, which only show the elevation of bare earth without human-made structures or vegetation, and @DSM:pla, which show all objects on the surface, such as trees, buildings, and the ground itself.
 
 Each terrain model is associated with a @CRS. A @CRS describes the units of measurement, horizontal and vertical datums, and direction of the axes. Different countries use different reference systems, and conversion between them is needed before different terrain models can be integrated with one another.
 
@@ -12,7 +12,7 @@ Each terrain model is associated with a @CRS. A @CRS describes the units of meas
 
 There are currently several products which offer the EU-wide elevation data as described in @sec:gdem. These products, however, have several shortcomings. Satellite-derived @DEM:pla have coarse resolution and do not fully support extracting the @DTM; aggregate @DEM:pla compromise on accuracy in the border regions.
 
-The aim of this project is to develop an automated pipeline for a higher-quality European @DTM which would support runoff, flood, and other modelling.
+The aim of this project is to develop an automated pipeline for a higher-quality European @DEM which would support runoff, flood, and other modelling. We specifically consider the @DTM of the Rhine catchment area as the object of the case study.
 
 == Research Questions <questions>
 
@@ -32,7 +32,7 @@ The aspects of the main question can be broken down into the following subquesti
 - What are the limitations of an automated harmonisation pipeline?
 - How can the accuracy of a reconstructed cross-border @DEM be tested?
 
-Answering these subquestions will help to answer the main research question. The first four subquestions are evaluated in the research phase of the project and relate mostly to existing works and available data. Answering these questions informs data acquisition and subsequent software development. The next research questions are answered during the software development phase as they relate to testing and limitations of the pipeline by evaluating the procedures and the output, and discussing the findings with the client.
+Answering these subquestions helps answer the main research question. The first four subquestions are evaluated in the research phase of the project and relate mostly to existing literature and available data. Answering these questions informs data acquisition and subsequent software development. The next questions are answered during the software development phase as they are related to testing of the pipeline by evaluating the procedures and the output, and discussing the findings with the client.
 
 // == Relevant courses from the MSc Geomatics program
 
