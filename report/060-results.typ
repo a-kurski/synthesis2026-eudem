@@ -120,7 +120,7 @@ Other issues include areas that are marked as neither lake or river by the @FEE 
       #image("assets/Netherlands-NRW-StoneSwampGoogle.png", width: 80%)
       #align(center)[
         #text(size: 10pt)[
-          Imagery © 2026 Airbus, Landsat / Copernicus,
+          Google Maps Imagery © 2026 Airbus, Landsat / Copernicus,
           Maxar Technologies
         ]
       ]
@@ -149,7 +149,7 @@ The last artefact appears most frequently within the French region of the mask. 
       #image("assets/France-ommision-riverfail-Maps.png", width: 100%)
       #align(center)[
         #text(size: 10pt)[
-          Imagery © 2026 Airbus, Maxar Technologies.
+          Google Maps Imagery © 2026 Airbus, Maxar Technologies.
         ]
       ]
     ],

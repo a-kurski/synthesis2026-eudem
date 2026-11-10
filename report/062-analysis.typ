@@ -66,7 +66,7 @@ These artefacts can be divided into six primary categories representing overarch
     ..sub("Acquisition striping", 4, "22%"),
   ),
   caption: [
-    Prevalence of artefact categories and their subcategories.
+    Identified artefact categories and their prevalences.
   ],
 ) <tab:artefact_prevalence>
 
@@ -94,18 +94,18 @@ Small deviations of several centimeters in the elevation of each scanning pass c
 
     [
       #image("assets/bw_france_patterns.png", height: 6cm, fit: "contain")
-      #align(center)[(b)]
+      #align(center)[(b) BW/France border.]
     ],
 
     grid.cell(
       colspan: 2,
       align(center)[
         #image("assets/rlp_france_patterns.png", height: 4cm, fit: "contain")
-        #align(center)[(c)]
+        #align(center)[(c) RLP/France border.]
       ],
     ),
   ),
-  caption: "Examples of LiDAR band-like striping – for all examples the elevation range was set to -1, 1 meters to highlight the difference",
+  caption: "Examples of LiDAR band-like striping artefacts in elevation difference maps (a–c). For all examples, the displayed elevation differences were restricted to values between −1 and 1 m to make the striping patterns more visible.",
 ) <fig:Striping_example>
 
 The second artefact in this category is singular tiles, or sections of tiles that have different vertical offsets compared to the rest of a national @DTM. This appears as visible seamlines on the difference @DEM. These differences however, become less clear when looking at the national @DTM. This happens for example at the @NRW – @RLP border, and more prominently at the @BW – Bavaria border (@fig:Tileoffset_example). While the cause for this artefact is not known for certain, it is possible that this data was captured at a different time, or with a different instrument. This hypothesis can be confirmed by comparing the @LiDAR aquisition time of tiles with such a seam to their neighbors. This is however still a byproduct of inaccurate vertical alignment with a @DTM, in such a manner that it does not correspond with the rest of the @CRF. To solve this difference, the offending tiles would need to be reextracted, and coregistered to the neighboring tiles. The magnitude of this artefact has been inconsistent, but for example 1 in @fig:Tileoffset_example, the maximum difference is 2.6 meters, while for example 2 the difference between tile elevation steps across the seam was 40 centimeters.
@@ -117,15 +117,15 @@ The second artefact in this category is singular tiles, or sections of tiles tha
 
     [
       #image("assets/BW-Bavaria-DiscreteDH.png", height: 7cm, fit: "contain")
-      #align(center)[(Example 1)]
+      #align(center)[(a) BW/Bavaria border.]
     ],
 
     [
       #image("assets/NRW-RLP-nonalignment.png", height: 7cm, fit: "contain")
-      #align(center)[(Example 2)]
+      #align(center)[(b) NRW/RLP border.]
     ],
   ),
-  caption: "Example of tile seams due to vertically offset tiles",
+  caption: "Examples of visible tile seams in elevation difference maps caused by vertical elevation offsets between adjacent DTM tiles.",
 ) <fig:Tileoffset_example>
 
 
