@@ -260,7 +260,7 @@ The second type of slope disagreement can be found primarily in regions which co
     [
       #image("assets/France-Lux-Rumelange-elevation.png", width: 100%)
       #text(size: 10pt)[
-        DTM
+        DTM.
       ]
     ],
   ),
@@ -357,7 +357,7 @@ Small deviations of several centimetres in the elevation of each scanning pass c
     grid.cell(
       colspan: 2,
       align(center)[
-        #image("assets/rlp_france_patterns.png", height: 4cm, fit: "contain")
+        #image("assets/rlp_france_patterns.png", height: 6cm, fit: "contain")
         #text(size: 10pt)[
           RLP/France border.
         ]
@@ -504,12 +504,16 @@ Lastly, @DE-BW fills an area at the edge of the dataset which is different from 
 
     [
       #image("assets/BW-Bavaria-BorderartifactBW.png", width: 100%)
-      #align(center)[(DE-BW)]
+      #text(size: 10pt)[
+        DTM of BW.
+      ]
     ],
 
     [
       #image("assets/BW-Bavaria-BorderArtifactDH.png", width: 100%)
-      #align(center)[(Elevation difference map)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
   ),
   caption: "Border artefact caused by BW using both a 0 and -9999 `NoData` value, while only declaring the -9999 value as `NoData`. The difference raster was set to -1–1 meters to highlight the differences",
