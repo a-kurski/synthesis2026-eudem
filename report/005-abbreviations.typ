@@ -63,7 +63,7 @@
   ("PMF", "Progressive Morphological Filter"),
   ("PTIN", "Progressive Triangulated Irregular Network"),
   ("RBF", "Radial Basis Function"),
-  ("RLP","Rheinland-Pfalz"),
+  ("RLP","Rhineland-Palatinate"),
   ("RMSE", "Root Mean Square Error"),
   ("SMRF", "Simple Morphological Filter"),
   ("STD", "Standard Deviation"),
