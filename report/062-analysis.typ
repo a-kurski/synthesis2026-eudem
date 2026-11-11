@@ -16,11 +16,21 @@ The majority of the datasets demonstrate high agreement with each other, with 15
   grid(
     columns: (1fr, 1fr),
     column-gutter: 5pt,
-    [#image("assets/slope_rmse_france_luxembourg.png")\ Slope/RMSE graph for FR/LU border],
-    [#image("assets/slope_rmse_germany_rlp_germany_saarland.png") Slope/RMSE graph for DE-RP/DE-SL borders]
+    [#image("assets/slope_rmse_france_luxembourg.png")
+      #text(size: 10pt)[
+        Slope/RMSE graph for FR/LU border.
+      ]
+    ],
+    [#image("assets/slope_rmse_germany_rlp_germany_saarland.png")
+      #text(size: 10pt)[
+        Slope/RMSE graph for DE-RP/DE-SL borders.
+      ]
+    ]
   ),
-  caption: [Comparison of slope/RMSE graphs]
+  gap: 12pt,
+  caption: [Comparison of slope/RMSE graphs.]
 ) <fig:graphs-compare>
+#v(1em)
 
 We also observe that the pairs involving France perform consistently worse. Again, this is due to large sections of the @DTM which are not acquired with @ALS. France also has a median and mean of about 0.5m which matches the offset due to co-registration, suggesting a systematic error. We have not been able to determine whether this error is intrinsic to the dataset or a result of the missing @CRS transform.
 
@@ -65,30 +75,30 @@ The full overview of each border pair and their corresponding artefacts can be f
       [*Rank severity*],
     ),
 
-    ..cat("Interpolation", 17, "94%", 1, 5),
-    ..sub("Interpolation differences", 17, "94%"),
+    ..cat("Interpolation", 17, "100%", 1, 5),
+    ..sub("Interpolation differences", 17, "100%"),
 
-    ..cat("Ground filtering", 15, "83%", 2, 2),
-    ..sub("Slopes", 13, "72%"),
-    ..sub("Overpass", 5, "28%"),
+    ..cat("Ground filtering", 15, "88%", 2, 2),
+    ..sub("Slopes", 13, "76%"),
+    ..sub("Overpass", 5, "29%"),
 
-    ..cat("Temporal", 14, "78%", 3, 3),
-    ..sub("Construction", 11, "61%"),
-    ..sub("Quarry", 10, "56%"),
-    ..sub("Storage", 5, "28%"),
+    ..cat("Temporal", 14, "82%", 3, 3),
+    ..sub("Construction", 11, "65%"),
+    ..sub("Quarry", 10, "59%"),
+    ..sub("Storage", 5, "29%"),
     ..sub("Snow", 1, "6%"),
 
-    ..cat("Water mask", 13, "72%", 4, 4),
-    ..sub("River mask failure", 13, "72%"),
-    ..sub("Water handling", 5, "28%"),
+    ..cat("Water mask", 13, "76%", 4, 4),
+    ..sub("River mask failure", 13, "76%"),
+    ..sub("Water handling", 5, "29%"),
 
-    ..cat("Post-processing", 7, "39%", 5, 1),
-    ..sub("Border artefacts", 5, "28%"),
-    ..sub("Extrapolation", 4, "22%"),
+    ..cat("Post-processing", 7, "41%", 5, 1),
+    ..sub("Border artefacts", 5, "29%"),
+    ..sub("Extrapolation", 5, "29%"),
 
-    ..cat("Pre-processing", 7, "39%", 5, 6),
-    ..sub("Tile differences", 4, "22%"),
-    ..sub("Acquisition striping", 4, "22%"),
+    ..cat("Pre-processing", 7, "41%", 5, 6),
+    ..sub("Tile differences", 4, "24%"),
+    ..sub("Acquisition striping", 4, "24%"),
   ),
   caption: [
     Identified artefact categories and their prevalences.
@@ -111,14 +121,20 @@ The magnitude of the errors differs between region pairs. Some regions show litt
     gutter: 5pt,
 
     [
-      #image("assets/Building Interpolation.png",width:80%)
-      #align(center)[(Elevation Difference))]
+      #image("assets/Building Interpolation-maps.png", width:80%)
+      #text(size: 10pt)[
+        Satellite imagery. From Airbus, Maxar Technologies (2026).
+      ]
     ],
 
     [
-      #image("assets/Building Interpolation-maps.png", width:80%)
-      #align(center)[(Google Maps)]
+      #image("assets/Building Interpolation.png",width:80%)
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
+
+
   ),
   caption: "Example of elevation differences caused by interpolation disagreements. Dark red values represent large positive difference while dark blue shows negative difference",
 ) <fig:Building-interpolation>
@@ -133,7 +149,7 @@ One important note is that interpolation is not always at fault for differences 
     [#image("assets/nrw-hessen-buildings.png")],
     [#image("assets/nrw-hessen-warehouse.jpeg")]
   ),
-  caption: [Ground and building filtering differences between NRW and Hessen]
+  caption: [Ground and building filtering differences between NRW and Hessen.]
 )<fig:ground-building>
 
 === Ground filtering artefacts
@@ -149,22 +165,32 @@ Errors in overpasses can only be found in roughly a quarter of all border pairs 
 
     [
       #image("assets/NRW-RLP-overpass.png", width: 100%)
-      #align(center)[(ESRI)]
+      #text(size: 10pt)[
+        Satellite imagery. From AeroWest,
+        Airbus, Maxar Technologies \
+        (2026).
+      ]
     ],
 
     [
       #image("assets/NRW-RLP-overpassNRW.png", width: 100%)
-      #align(center)[(NRW)]
+      #text(size: 10pt)[
+        DTM provided by NRW.
+      ]
     ],
 
     [
       #image("assets/NRW-RLP-overpassRLP.png", width: 100%)
-      #align(center)[(RLP)]
+      #text(size: 10pt)[
+        DTM provided by RLP.
+      ]
+
     ],
   ),
-  caption: "Example of an overpass artefact caused by a difference in ground filtering between NRW and RLP",
+  caption: "Example of an overpass being treated differently between NRW and RLP due to differences in ground filtering.",
 )
 <fig:NRW-RLP-overpass-example>
+#v(1em)
 
 Errors due to slope processing occur at cliffs and in valleys/hills. A cliff typically shows up as a thin and long artefact on the @DEM difference raster, as seen in @fig:Hessen-BW-clearing-example. Due to the steepness of the cliff small horizontal differences between sample points in the @DTM can create large vertical differences if one dataset measures the elevation at the bottom of the cliff and the other at the top. Alternatively, this can be a byproduct of differences in ground filtering methods.
 
@@ -180,12 +206,17 @@ Errors due to slope processing occur at cliffs and in valleys/hills. A cliff typ
 
     [
       #image("assets/Hessen-BW-clearingDH.png", height: 5cm, fit: "contain")
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
 
     [
       #image("assets/Hessen-BW-clearingSV.png", height: 5cm, fit: "contain")
-      #align(center)[(Google Street View (49.4762, 8.4208))]
+      #text(size: 10pt)[
+        Image from Google Street View \
+        (49.4762° N, 8.4208° E)
+      ]
     ],
   ),
   caption: "Example of a cliff artefact flagged as a resolution threshold exceeding disagreement",
@@ -254,23 +285,29 @@ Small deviations of several centimetres in the elevation of each scanning pass c
 
     [
       #image("assets/Striping example.png", height: 6cm, fit: "contain")
-      #align(center)[(a)]
+      #text(size: 10pt)[
+        NRW/RLP border.
+      ]
     ],
 
     [
       #image("assets/bw_france_patterns.png", height: 6cm, fit: "contain")
-      #align(center)[(b) BW/France border.]
+      #text(size: 10pt)[
+        BW/France border.
+      ]
     ],
 
     grid.cell(
       colspan: 2,
       align(center)[
         #image("assets/rlp_france_patterns.png", height: 4cm, fit: "contain")
-        #align(center)[(c) RLP/France border.]
+        #text(size: 10pt)[
+          RLP/France border.
+        ]
       ],
     ),
   ),
-  caption: "Examples of LiDAR band-like striping artefacts in elevation difference maps (a–c). For all examples, the value range for the colour ramp is set −1 and 1 m to emphasise striping patterns.",
+  caption: "Examples of LiDAR band-like striping artefacts in elevation difference maps. For all examples, the displayed elevation differences were restricted to values between −1 and 1 m to make the striping patterns more visible.",
 ) <fig:Striping_example>
 
 The second artefact in this category is singular tiles, or sections of tiles that have different vertical offsets compared to the rest of a national @DTM. This appears as visible seam lines on the @DEM difference raster. These differences, however, become less clear when looking at the national @DTM alone. This happens for example at the @NRW – @RLP border, and more prominently at the @BW – Bavaria border (@fig:Tileoffset_example). We speculate that this artefact is caused by (mis-)alignment of data between different surveys. Resolving this artefact is thus challenging without having access to source point clouds. The magnitude of this artefact has been inconsistent: in @fig:Tileoffset_example (a), the maximum difference is 2.6 meters; in @fig:Tileoffset_example (ab the difference between tile elevation steps across the seam is measured at 40 centimeters.
@@ -282,12 +319,16 @@ The second artefact in this category is singular tiles, or sections of tiles tha
 
     [
       #image("assets/BW-Bavaria-DiscreteDH.png", height: 7cm, fit: "contain")
-      #align(center)[(a) BW/Bavaria border.]
+      #text(size: 10pt)[
+        BW/Bavaria border.
+      ]
     ],
 
     [
       #image("assets/NRW-RLP-nonalignment.png", height: 7cm, fit: "contain")
-      #align(center)[(b) NRW/RLP border.]
+      #text(size: 10pt)[
+        NRW/RLP border.
+      ]
     ],
   ),
   caption: "Examples of visible tile seams in elevation difference maps caused by vertical elevation offsets between adjacent DTM tiles.",

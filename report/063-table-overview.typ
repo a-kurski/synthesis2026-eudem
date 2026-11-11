@@ -28,5 +28,5 @@
     [@NL], [@DE-NW], [-0.065], [-0.063], [0.244], [0.038], [0.134], [-11.543], [13.759], [-0.063],
     table.hline(),
   ),
-  caption: [Overview of error statistics between neighbouring datasets]
+  caption: [Overview of error statistics between neighbouring datasets.]
 ) <tab:stas-overview>
