@@ -1,18 +1,10 @@
-#pagebreak()
-
-#set page(
-  paper: "a4",
-  flipped: false,
-  margin: 1cm,
-)
-
 #set text(size: 9pt)
 
 #let err = [●]
 
 #let vlabel(txt) = rotate(90deg, reflow: true)[#txt]
 
-#place(center + horizon)[
+// #place(center + horizon)[
   #figure(
     table(
       columns: (2fr,) + (1fr,) * 13,
@@ -32,12 +24,12 @@
 
       table.cell(rowspan: 2)[*Region pair*],
 
-      table.cell(colspan: 2)[*Tile artefacts*],
-      table.cell(colspan: 2)[*Watermask*],
+      table.cell(colspan: 2)[*Pre-processing*],
+      table.cell(colspan: 2)[*Water mask*],
       table.cell(colspan: 1)[*Interpolation*],
       table.cell(colspan: 2)[*Ground filtering*],
       table.cell(colspan: 4)[*Temporal*],
-      table.cell(colspan: 2)[*Border*],
+      table.cell(colspan: 2)[*Post-processing*],
 
       // ============================================================
       // artefact HEADER (ROTATED)
@@ -66,13 +58,13 @@
       // SEPARATORS
       // ============================================================
 
-      table.vline(x: 3, stroke: 2pt),
-      table.vline(x: 5, stroke: 2pt),
-      table.vline(x: 6, stroke: 2pt),
-      table.vline(x: 8, stroke: 2pt),
-      table.vline(x: 12, stroke: 2pt),
-
-      table.hline(y: 2, stroke: 1.2pt),
+//       table.vline(x: 3, stroke: 2pt),
+//       table.vline(x: 5, stroke: 2pt),
+//       table.vline(x: 6, stroke: 2pt),
+//       table.vline(x: 8, stroke: 2pt),
+//       table.vline(x: 12, stroke: 2pt),
+//
+//       table.hline(y: 2, stroke: 1.2pt),
 
       // ============================================================
       // DATA
@@ -119,4 +111,4 @@
       Overview of border region artefacts encountered in valid country pairs. The top row shows the main categories, while the second row shows subcategories. Cells marked with #err imply the subcategory artefact occurs at the border pair.
     ]
   ) <tab:artefacts_table>
-]
+// ]

@@ -507,7 +507,7 @@ caption:[Gantt chart]
     [Germany, Baden-Württemberg: @PC:s], [https://www.lgl-bw.de/Produkte/3D-Produkte/Laserscandaten/], [not open data, available for a fee],
     [Germany, Hessen: @DTM:s], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/digitale-gelaendemodelle], [Map tiles — GeoTIFF (1m resolution)],
     [Germany, Hessen: @DSM:s], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/digitale-oberflaechenmodelle], [Map tiles — GeoTIFF (1m resolution)],
-    [Germany, Hessen: @PC:s], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/airborne-laserscanning], [paid only?],
+    [Germany, Hessen: @PC:s], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/airborne-laserscanning], [not open data, available for a fee],
     [Germany, Bayern: @DTM:s], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=dgm1], [Map tiles — GeoTIFF, 1m resolution],
     [Germany, Bayern: @DSM:s], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=dom20], [Map tiles — GeoTIFF, 0.2m resolution],
     [Germany, Bayern: @PC:s], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=laserdaten], [Map tiles — @LAZ:s],

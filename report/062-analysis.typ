@@ -1,11 +1,22 @@
 #import "@preview/drafting:0.2.2"
+
 == Analysis
-As described in @sec:border-analysis, the analysis step is where we evaluate the border differences between two neighboring regions. There are various automatically generated metrics to evaluated on (@sec:border-analysis). However, the difference raster, RMSE – Slope plot, and difference historgram are among the most important as they give information about the general cases. Based this data, a pattern was found regarding the artefacts at the borders.
 
-These artefacts can be divided into six primary categories representing overarching themes. To further specify the type of artefact, each category is divided into subcategories which each represent an example of the artefact. These main artefacts are interpolation, ground filtering, temporal, watermask, and tile artefacts.
+Within this section, we evaluate differences on the border between two neighboring regions.
+We generate at various automatically generated metrics the DTMs are evaluated on (@sec:border-analysis).
+Of those, we find mean, median, RMSE and LE90; the generated raster; RMSE/slope plot and difference histogram to be among the most important as they give information about the general cases. Based this data, a pattern was found regarding the error sources at the borders, described further below.
 
+@tab:stas-overview shows the key statistics for of each pair of the datasets. We note that high @RMSE and high @LE90 correspond to a high systematic error (as is the case for France/Luxembourg border) while high @RMSE but low @LE90 correspond to an outlier (as is the case for @DE-BW/@DE-BY border).
 
-@tab:artefact_prevalence gives an overview of these categories in grey, while the white subsections describe the subcategories. The percentage of border pairs describes in how many of the 18 evaluated border cases an artefact occurs. The bold category percentages detail in what percentage of all border pairs, at least one of the artefacts within the category occurs. An important thing to note is that none of the categories add up to 100%, this is because the Swiss and Liechtenstein border is perfectly aligned, as the Swiss data collection includes Liechtenstein. As can be observed, the interpolation is the most frequently occuring artefact. However, in @tab:artefact_prevalence rank by occurance and severity are not the same, severity ranks the total observed displacement, whereas occurance only looks at how many pairs include the artefact. The only type of artefact which will not be discussed are the artefacts caused by shortcomings in the river mask, which are discussed in @sec:Watermask_artefacts.
+#include "063-table-overview.typ"
+
+The majority of the datasets demonstrate high agreement with each other, with 15 out of 17 pairs meeting the @INSPIRE requirements for @RMSE.
+
+=== Error Sources
+
+These error sources can be divided into six categories representing overarching themes: interpolation, ground filtering, temporal, water mask, pre-processing, and post-processing artefacts. To further specify the type of artefact, each category is divided into subcategories which each represent an example of the artefact. The only type of artefact which will not be discussed are the artefacts caused by shortcomings in the river mask, which are discussed in @sec:Watermask_artefacts.
+
+@tab:artefact_prevalence gives an overview of these categories and their subcategories. The percentage of border pairs describes in how many of the 17 evaluated border cases an artefact occurs. We exclude the Switzerland/Liechtenstein border from the comparison as the countries share the dataset. The bold category percentages detail in what percentage of all border pairs, at least one of the artefacts within the category occurs --- most borders have more than one type of artefact, and are therefore counted several times. As can be observed, the interpolation is the most frequently occurring artefact. We also evaluate the artefacts by severity, i.e. the magnitude and perceived effect of the error type. The overview can be found in @tab:artefact_prevalence.
 
  The full overview of each border pair and their corresponding artefacts can be found in @tab:artefacts_table. Furthermore, a pairwise analysis of all border pairs can be found in @sec:border_pairs, which contains additional visuals and a case-by-case evaluation of the differences.
 
@@ -53,15 +64,15 @@ These artefacts can be divided into six primary categories representing overarch
     ..sub("Storage", 5, "28%"),
     ..sub("Snow", 1, "6%"),
 
-    ..cat("Watermask", 13, "72%", 4, 4),
+    ..cat("Water mask", 13, "72%", 4, 4),
     ..sub("River mask failure", 13, "72%"),
     ..sub("Water handling", 5, "28%"),
 
-    ..cat("Border", 7, "39%", 5, 1),
+    ..cat("Post-processing", 7, "39%", 5, 1),
     ..sub("Border artefacts", 5, "28%"),
     ..sub("Extrapolation", 4, "22%"),
 
-    ..cat("Tile artefacts", 7, "39%", 5, 6),
+    ..cat("Pre-processing", 7, "39%", 5, 6),
     ..sub("Tile differences", 4, "22%"),
     ..sub("Acquisition striping", 4, "22%"),
   ),
@@ -70,7 +81,6 @@ These artefacts can be divided into six primary categories representing overarch
   ],
 ) <tab:artefact_prevalence>
 
-
 #include "061-artefact_table.typ"
 
 === Tile artefacts
@@ -78,7 +88,7 @@ Tile artefacts are one of the least common types of artefacts. However, these ar
 
 The first artefact in this category is aquisition striping. One common trend among the datasets within the Rhine catchment area, is that the elevation data is derived from the @LiDAR point clouds of the region. These are primarily aerial laser scans, which perform a straight line scanning pattern. The width of the bands that this creates are determined by the @FOV of the scanner.
 
-Small deviations of several centimeters in the elevation of each scanning pass can create a striping effect if not corrected for. The severity of this artefact is minimal, however clearly noticable when observing difference @DEM:pls. This is most often observed as bands of similar vertical differences on the difference @DEM, as shown in @fig:Striping_example. To solve this, each band would need to be identified to be offset. Alternatively, the offset would need to be dependent on @LiDAR aquisition time.
+Small deviations of several centimeters in the elevation of each scanning pass can create a striping effect if not corrected for. The severity of this artefact is minimal, however clearly noticable when observing difference @DEM:pls. This is most often observed as bands of similar vertical differences on the difference @DEM, as shown in @fig:Striping_example. To solve this, each band would need to be identified to be offset. Alternatively, the offset would need to be dependent on @LiDAR acquisition time.
 
 
 #figure(

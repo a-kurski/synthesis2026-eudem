@@ -73,6 +73,18 @@
   ("WCS", "Web Coverage Service"),
   ("WLS", "Weighted Linear Least Squares"),
   ("XML", "Extensible Markup Language"),
+  ("FR", "France"),
+  ("LU", "Luxembourg"),
+  ("CH", "Switzerland"),
+  ("LI", "Liechtenstein"),
+  ("NL", "Netherlands"),
+  ("DE", "Germany"),
+  ("DE-BW", "Baden-Württemberg, Germany"),
+  ("DE-BY", "Bavaria, Germany"),
+  ("DE-HE", "Hesse, Germany"),
+  ("DE-NW", "North Rhine-Westphalia, Germany"),
+  ("DE-RP", "Rhineland-Palatinate, Germany"),
+  ("DE-SL", "Saarland, Germany"),
 )
 
 #abbr.config(style: it => text(it))
