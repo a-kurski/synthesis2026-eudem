@@ -3,19 +3,19 @@
 
 === NRW -- RLP
 
-@NRW:l, and @RLP both fall within the extent of Germany. The overlapping border area is hilly with few waterbodies spread throughout the landscape. As with all Germany @DTM data, the tiles are aligned to the same tile grid, and overlap by one or two tiles.
+@NRW:l, and @RLP both fall within the extent of Germany. The overlapping border area is hilly with few water bodies spread throughout the landscape. As with all Germany @DTM data, the tiles are aligned to the same tile grid, and overlap by one or two tiles.
 
-Loading in the $italic("dh_germany_nrw_germany_rlp.tif")$ @DTM, representing the elevation differences, there are several interesting observations. @fig:NRW-RLP-striping shows North-South or South-North scanning tracks created by aerial @LiDAR scanning. The elevation jump in the order of $3 "cm"$, which while minimal, shows that some differences are caused by the misalignment of the scan passes within tiles.
+Loading in the `dh_germany_nrw_germany_rlp.tif` raster shows several interesting features. @fig:NRW-RLP-striping shows North-South or South-North scanning tracks created by aerial @LiDAR scanning. The elevation jump in the order of $3 "cm"$, which while minimal, shows that some differences are caused by the misalignment of the scan passes within tiles.
 
 #figure(
   image("assets/NRW-RLP-striping.png", width:40%),
-  caption:"LiDAR flight path artefact on the difference DEM, magnitude of differences up to 3cm"
+  caption:"LiDAR flight path artefact on the elevation difference raster, magnitude of differences up to 3cm"
 )
 <fig:NRW-RLP-striping>
 
 Secondly, there appears to be misalignment between tiles within the @DTM. This is illustrated in @fig:NRW-RLP-nonalignment as the sharp transition between the four tiles. This transition is is however more drastic at a difference of $30"cm"$ in the difference @DTM. On close inspection of the @NRW and @RLP @DTM:pls, it appears that cells on the edge between tiles, the jump between neighboring cell values increased with $40"cm"$ more on the @NRW @DTM, compared to the @RLP @DTM. However, it is possible this effect occurs on both the @NRW and @RLP @DTM:pls.
 
-$italic("statistics_germany_nrw_germany_rlp.csv")$ corroborates these findings. It lists the similarity of errors within one kilometer to be $99.9%$. High correlation which is consistent throughout the correlation graph either points towards a tiling or vertical transform artefact. Since the median difference between the two tiles is $-2"cm"$, which also corresponds with the z-shift for the coregistration. Therefore, it can be concluded most errors within the border comparison are caused by this tiling artefact.
+`statistics_germany_nrw_germany_rlp.csv` corroborates these findings. It lists the similarity of errors within one kilometer to be $99.9%$. High correlation which is consistent throughout the correlation graph either points towards a tiling or vertical transform artefact. The median difference between the two DTMs is $-2"cm"$, which also corresponds with the z-shift for the coregistration.
 
 #figure(
   image("assets/NRW-RLP-nonalignment.png",width:40%),
@@ -23,7 +23,7 @@ $italic("statistics_germany_nrw_germany_rlp.csv")$ corroborates these findings. 
 )
 <fig:NRW-RLP-nonalignment>
 
-Lastly, as described in @sec:pipeline, small water bodies such as narrow rivers, or small lakes are not filtered out and are therefore counted towards the differences in the comparison. This is however, a small contribution and does not appear disproportionally represented in the calculated problem areas.
+Lastly, as described in @sec:pipeline, small water bodies such as narrow rivers or small lakes are not filtered out and are therefore counted towards the differences in the comparison. This is however, a small contribution and does not appear disproportionally represented in the calculated problem areas.
 
 There do appear to be several differences which are likely related to @LiDAR sensing limitations or subsequent processing steps. Examples include interpolation errors for buildings (@fig:NRW-RLP-roofinter), ground filtering discrepancies (@fig:NRW-RLP-overpass), temporal changes (@fig:NRW-RLP-quarry)(verified using Google Earth), and steep slopes (@fig:NRW-RLP-slope).
 
@@ -123,12 +123,73 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
 <fig:NRW-RLP-slope>
 
 #pagebreak()
+
+==== Hessen -- BW
+
+The border between Hessen and @BW one of the shorter borders, coming in at roughly $33"km"$. It does however contain some interesting elements such as an exclave of Hessen inside of @BW. This exclave does however not appear to contain any notable differences. Furthermore, the elevations in this region range from $90$ meters in the large and relatively flat valley, to nearly $550$ meters in the hills (@fig:Hessen-BW-overview).
+
+#figure(
+  image("assets/Hessen-BW-overview.png",width:40%),
+  caption:"Hessen-BW border. The red polygon shows the overlapping area of the two DTMs"
+)
+<fig:Hessen-BW-overview>
+
+The first obvious difference is a bright highlight at the border of the @DTM (@fig:Hessen-BW-Borderartefact). The effect. This artefact is a byproduct of the @BW dataset being cut differently compared to the Hessen dataset. Therefore, this difference is an artefact caused by the clipped dataset and not a real physical difference. This effect occurs on all difference analysis @DTM:pls, though it is not always as pronounced as within this comparison.
+
+#figure(
+  image("assets/Hessen-BW-Borderartifact.png",width:40%),
+  caption:"Hessen-BW border artefact. The difference was set to -1–1 meters to highlight the differences, while the red polygon shows the area exceeding the 1.6 meter threshold"
+)
+<fig:Hessen-BW-Borderartefact>
+
+A secondary source of differences appears to be the narrow clearings within wooded areas (@fig:Hessen-BW-clearing). This occurs in several locations. It is unclear exactly why this happens. The uncertainty @DTM representing random error shows a very constant, yet small error of around $3"cm"$. This implies that the observed error is not simply consisting of noise. Observing the @BW @DTM, we see a steep drop in elevation. Streetview furthermore confirms that it is indeed a cliff face. The elevation difference is likely caused by ground filtering or different flight paths during @LiDAR scanning.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/Hessen-BW-clearingESRI.png", width: 100%)
+      #align(center)[(ESRI)]
+    ],
+
+    [
+      #image("assets/Hessen-BW-clearingDH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+  ),
+  caption: "Cliff face example, the red polygons show a difference above 1.6 meters on the ESRI aerial image. The difference raster was set to -1–1 meters to highlight the differences",
+)
+<fig:Hessen-BW-clearing>
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/Hessen-BW-clearingUC.png", width: 100%)
+      #align(center)[(Uncertainty)]
+    ],
+
+    [
+      #image("assets/Hessen-BW-clearingSV.png", width: 100%)
+      #align(center)[(Google Street View (49.4762, 8.4208))]
+    ],
+  ),
+  caption: "Cliff face example, random error inspection shows random errors in 3cm range which imply this is not the main cause, Google Street View confirms cliff hypothesis",
+)
+<fig:Hessen-BW-clearingEx>
+
+Further artefacts include common elements throughout the catchment @DTM. These include building interpolation differences, quarries/construction sites, and lakes/rivers not caught by the river mask. These errors are expected and can likely only be fixed through the reextraction of the @DTM, by using both the Hessen and @BW point clouds. Nevertheless, the Hessen-@BW border falls well within the @INSPIRE threshold, with only 0.06% of points being non-compliant. The alignment of the two @DTM:pls also appears to be accurate, with the coregistration recommending a vertical transform of only $1" cm"$ in vertical direction for the best possible alignment.
+
 === Saarland -- RLP
 // https://www.welt.de/regionales/rheinland-pfalz-saarland/article205711099/Rheinland-pfaelzische-Landesgrenze-misst-1185-Kilometer.html
 
 The Saarland -- @RLP border is roughly $207$ kilometers long and consists of mostly hilly terrain. The amount of non-compliant pixels for this area appears slightly higher than that for other regions. However, at 0.15% it is still not a significant amount.
 
-Most errors within this region can be attributed to interpolation errors, temporal changes such as windmill construction or quarries, steep slopes, waterbodies missed by the mask, and border artefacts. The only notable difference between the Saarland and @RLP @DTM:pls, appears to be the inclusion of extrapolation artefacts at the borders, as seen in @fig:Saarland-RLP-Extrapolation1 and @fig:Saarland-RLP-Extrapolation2. These are only two out of several occurances. These large areas of similar errors do explain the secondary peaks seen within the difference histogram (@fig:Hessen-BW-Borderartefact). Upon further inspection, there do also appear to be occurances of overpasses as discussed in @NRW -- @RLP, and cliffs as discussed in Hessen -- @BW.
+Most errors within this region can be attributed to interpolation errors, temporal changes such as windmill construction or quarries, steep slopes, water bodies missed by the mask, and border artefacts. The only notable difference between the Saarland and @RLP @DTM:pls, appears to be the inclusion of extrapolation artefacts at the borders, as seen in @fig:Saarland-RLP-Extrapolation1 and @fig:Saarland-RLP-Extrapolation2. These are only two out of several occurances. These large areas of similar errors do explain the secondary peaks seen within the difference histogram (@fig:Hessen-BW-Borderartefact). Upon further inspection, there do also appear to be occurances of overpasses as discussed in @NRW -- @RLP, and cliffs as discussed in Hessen -- @BW.
 
 All in all, despite issues with the source data, the quality of the @DTM is not affected, due to the region cutoff at the border for the catchment @DTM.
 
@@ -186,7 +247,7 @@ All in all, despite issues with the source data, the quality of the @DTM is not 
 
 The @RLP -- @BW border is a very flat region, which is entirely bisected by the Rhine river. The border region is home to several ports, which also created the greatest source of discrepancy. These ports prominently contain piles of sand and coal. Because these sources shift during the loading and unloading of ships (@fig:RLP-BW-Coal).
 
-Another source of differences are interpolation errors. These are mostly found around the city of Mannheim. These are the common example of building roofs. Furthermore, the tile offset found in several of the other datasets also occurs at the @RLP -- @BW border, as shown in @fig:RLP-BW-TileOffset. More common differences related to waterbodies, overpasses, and construction sites.
+Another source of differences are interpolation errors. These are mostly found around the city of Mannheim. These correspond to building roofs. Furthermore, the tile offset found in several of the other datasets also occurs at the @RLP -- @BW border, as shown in @fig:RLP-BW-TileOffset. More common differences related to water bodies, overpasses, and construction sites.
 
 The only notable outlier within the data is the convergence of error similarity at 60%, which is explained by the tile offset. The reason why the percentage is so high is due to the small over all range of elevation differences. Over all, the comparison falls well within the allowed threshold and causes no noticable issues for the full @DTM.
 
@@ -221,71 +282,10 @@ The only notable outlier within the data is the convergence of error similarity 
 <fig:RLP-BW-TileOffset>
 
 #pagebreak()
-==== Hessen -- BW
-
-The border between Hessen and @BW one of the shorter borders, coming in at roughly $33"km"$. It does however contain some interesting elements such as an exclave of Hessen inside of @BW. This exclave does however not appear to contain any notable differences. Furthermore, the elevations in this region range from $90$ meters in the large and relatively flat valley, to nearly $550$ meters in the hills (@fig:Hessen-BW-overview).
-
-#figure(
-  image("assets/Hessen-BW-overview.png",width:40%),
-  caption:"Hessen-BW border. The red polygon shows the overlapping area of the two DTMs"
-)
-<fig:Hessen-BW-overview>
-
-The first obvious difference is a bright highlight at the border of the @DTM (@fig:Hessen-BW-Borderartefact). The effect. This artefact is a byproduct of the @BW dataset being cut differently compared to the Hessen dataset. Therefore, this difference is an artefact caused by the clipped dataset and not a real physical difference. This effect occurs on all difference analysis @DTM:pls, though it is not always as pronounced as within this comparison.
-
-#figure(
-  image("assets/Hessen-BW-Borderartifact.png",width:40%),
-  caption:"Hessen-BW border artefact. The difference was set to -1–1 meters to highlight the differences, while the red polygon shows the area exceeding the 1.6 meter threshold"
-)
-<fig:Hessen-BW-Borderartefact>
-
-A secondary source of differences appears to be the narrow clearings within wooded areas (@fig:Hessen-BW-clearing). This occurs in several locations. It is unclear exactly why this happens. The uncertainty @DTM representing random error. It shows a very constant, yet small error of around $3"cm"$. This implies that the observed error is not simply consisting of noise. Observing the @BW @DTM, we see a steep drop in elevation. Streetview furthermore confirms that it is indeed a cliff face. The elevation difference is likely caused by ground filtering or different flight paths during @LiDAR scanning.
-
-#figure(
-  grid(
-    columns: 2,
-    gutter: 5pt,
-
-    [
-      #image("assets/Hessen-BW-clearingESRI.png", width: 100%)
-      #align(center)[(ESRI)]
-    ],
-
-    [
-      #image("assets/Hessen-BW-clearingDH.png", width: 100%)
-      #align(center)[(DH)]
-    ],
-  ),
-  caption: "Cliff face example, the red polygons show a difference above 1.6 meters on the ESRI aerial image. The difference raster was set to -1–1 meters to highlight the differences",
-)
-<fig:Hessen-BW-clearing>
-
-#figure(
-  grid(
-    columns: 2,
-    gutter: 5pt,
-
-    [
-      #image("assets/Hessen-BW-clearingUC.png", width: 100%)
-      #align(center)[(Uncertainty)]
-    ],
-
-    [
-      #image("assets/Hessen-BW-clearingSV.png", width: 100%)
-      #align(center)[(Google Street View (49.4762, 8.4208))]
-    ],
-  ),
-  caption: "Cliff face example, random error inspection shows random errors in 3cm range which imply this is not the main cause, Google Street View confirms cliff hypothesis",
-)
-<fig:Hessen-BW-clearingEx>
-
-Further artefacts include common elements throughout the catchment @DTM. These include building interpolation differences, quarries/construction sites, and lakes/rivers not caught by the river mask. These errors are expected and can likely only be fixed through the reextraction of the @DTM, by using both the Hessen and @BW point clouds. Nevertheless, the Hessen-@BW border falls well within the @INSPIRE threshold, with only 0.06% of points being non-compliant. The alignment of the two @DTM:pls also appears to be accurate, with the coregistration recommending a vertical transform of only $1" cm"$ in vertical direction for the best possible alignment.
-
-#pagebreak()
 === NRW -- Hessen
 
 Only 59 kilometres of @NRW -- Hessen border and 127 1km#sym.times\1km tiles fall into the study area.
-Due to the shape of the catchment area, the border is split in two --- a longer section in the South and a shorter, approx. 3-kilometre section in the North.
+Due to the shape of the catchment area, the border is split in two --- a longer section in the South and a shorter, approximately 3-kilometre section in the North.
 Notably, @NRW openly publishes point cloud data which enables further analysis, whereas Hessen does not.
 
 The errors in this region are relatively low: @RMSE is 18cm, @LE90 is 7.5cm, and only 0.07% of cells exceed the 1.67m difference threshold, suggesting a high agreement between the @DTM:pla.
@@ -532,7 +532,7 @@ For this border comparison, the @INSPIRE target is not met. The amount of points
 
 
 
-== Luxembourg -- Germany -- France
+== Luxembourg
 === Luxembourg -- France
 
 The border area between Luxembourg and france is roughly $50"km"$ long and consists of more even terrain in the east and increasingly hilly terrain in the west with deviations of over 100 meters at relatively short distances. As can be seen in @fig:Lux_Fra_border, most of the western region of the border is flagged as having a deviation greater than the resolution-RMSE ratio.
@@ -614,7 +614,7 @@ Influence of the slope on the can also be observed directly from the @RMSE analy
 Further artefacts within the region do more closely correspond with the rest of Luxembourg and the border regions in general. These include building interpolation differences, narrow streams not captured by the river mask, and isolated quarry or construction areas. This region does not comply with the thresholds set within @chap:method, with 23% of all points surpassing the threshold. Furthermore, the resolution would need to be increased by over 80% to nearly 10 meters for compliance with the @INSPIRE target. As eluded to earlier, this difference may be a byproduct of the low resolution @DTM compared to the fine resolution of the Luxembourg @DTM, which has introduced resampling differences. While outside of the time constraint of the project, evaluating the results of the comparison against the higher resolution French @DTM could result in better alignment. Alternatively, reextraction from the national point clouds could also be a way to rectify these differences.
 
 === Luxembourg -- RLP
-The Luxembourg -- @RLP border is roughly 80 kilometers long, and with that is the longest border that is evaluated for the catchment area. On the east side of the overlapping area there is the Our river. Observing the overlap map shows that the rivermask was not succesful at filtering out the waterbodies entirely for the region. This is a known artefact known to be caused by narrow waterbodies. Furthermore, these river areas have been flagged as noticable differences and due count towards the difference at the border.
+The Luxembourg -- @RLP border is roughly 80 kilometers long, and with that is the longest border that is evaluated for the catchment area. On the east side of the overlapping area there is the Our river. Observing the overlap map shows that the rivermask was not succesful at filtering out the water bodies entirely for the region. This is a known artefact known to be caused by narrow water bodies. Furthermore, these river areas have been flagged as noticable differences and due count towards the difference at the border.
 
 Other differences in this region are in line with the other borders surrounding Luxembourg, such as river ports with piled resources, steep cliffs, construction areas and building interpolation differences. The only real artefact that shows up on the histogram, is a singular secondary peak. Observing the difference @DTM, shows that this is caused by a lake, which was missed by the river mask. This is illustrated in @fig:Lux-rlp-peak as a peak starting at 700 meters. The border effect graph also clearly illustrates the difference at the border river.
 
@@ -627,7 +627,7 @@ Other differences in this region are in line with the other borders surrounding 
 === Luxembourg -- Saarland
 The border area between Luxembourg and Saarland is roughly 11 kilometers and like @RLP -- @BW, is entirely bisected by a river, that being the Mosel in this particular case. The borde area consists of flat areas around the river and consists of hills and cliffs on the west side.
 
-This region contains several of the more common differences encountered in other regions can also be found here. This includes harbor loading areas for sand, steep cliffs, construction sites, waterbodies not entirely caught by the river mask, and roof interpolation differences.
+This region contains several of the more common differences encountered in other regions can also be found here. This includes harbor loading areas for sand, steep cliffs, construction sites, water bodies not entirely caught by the river mask, and roof interpolation differences.
 
 The only unique error found around this area is the inclusion of hydro electric powerplants. While this difference can really be attributed to the limits of the river mask, it is an interesting feature within the water which could pose a challenge to solve, were improving the river mask to be attempted, as the water here does not follow the the smooth water hypothesis. Furthermore, the decision would need to be made if the plant should be removed entirely. This depends on wether all countries model this feature in their @DTM, or simply classify it as part of the river, removing it from the @DTM entirely.
 
@@ -783,8 +783,6 @@ Different treatment of ruins and exposed rock during ground classification, foll
   ) <fig:rlp-france-patterns>
 ]
 
-These results quantify agreement between the two DTMs, not their absolute accuracy. Neither surface is independent ground truth, and a small difference can conceal errors shared by both datasets. The selected photographs do not validate all affected cells or establish which provider is more accurate. The principal priorities are therefore the western concentration of large differences, the isolated extremes at complex rock-and-ruin sites, and the flight line patterns.
-
 ==== BW -- France <sec:bw-france>
 
 The Baden-Württemberg (BW)–France comparison shows close agreement across much of the Rhine corridor, interrupted by pronounced local discrepancies and coherent spatial patterns. Across 166.52 km² of valid overlap at 5 m resolution, the mean elevation difference is +0.034 m and the median is +0.058 m, where positive values mean that BW is higher than France. The RMSE of 0.730 m is considerably larger than the NMAD of 0.153 m, indicating that large local differences have a strong influence on the overall result. Numerical results refer to differences before alignment, and 1.667 m is the pipeline's screening threshold. These measures describe agreement between the two DTMs; independent ground control would be needed to establish their absolute accuracy.
@@ -801,11 +799,7 @@ The difference distribution has a narrow centre and long tails. Half of the abso
 ]
 
 
-Visual inspection identifies earthworks and quarries along the Rhine as the setting of many problematic regions. Excavation faces, embankments, terraces and material deposits can change substantially between surveys, producing adjacent positive and negative elevation differences. Consequently, some discrepancies may represent genuine terrain change between acquisition dates, alongside differences in how steep faces and sharp terrain edges are represented. Matching acquisition dates and historical imagery is necessary to separate these contributions. The ten largest supplied problem regions contain 58.38% of all flagged area and contribute 61.96% of total squared difference, making them useful priorities for targeted inspection.
-
 Region 2 is particularly important because it contains both global extremes, only 148 m apart, near 7.530° E, 47.663° N. Its footprint RMSE is 4.30 m. Region 1, the largest by flagged area, contains 0.682 km² of exceedances and is predominantly negative, with a footprint mean of −2.42 m. These coherent, metre-scale discrepancies require local investigation of terrain history and surface representation before any correction is selected.
-
-Slope is also relevant. The saved slope–RMSE curve rises from approximately 0.60 m at 0–5° to 1.47 m at 20–25°, 3.41 m at 35–40°, and 6.90 m at 45–50°. This association is consistent with larger differences around excavation faces, embankments and other abrupt changes in relief. However, these values are visual readings from the saved plot; bin counts are unavailable, and slope has not been separated statistically from the southern concentration or land-use setting. Steepness therefore helps identify sensitive locations but does not establish the cause of each discrepancy.
 
 Alongside these large local differences, @fig:bw-france-patterns shows flight-line-like bands similar to those in the RLP–France comparison (@fig:rlp-france-patterns). The comparative visual inspection identifies bands running in the same direction and matching exactly with the RLP–France patterns. Because the French DTM is common to both comparisons, this correspondence strongly suggests an origin in the French acquisition and the relative alignment or adjustment of its flight paths. The spatially varying bands are consistent with residual differences between flight strips that persist across the two regional comparisons. Flight-line footprints and adjustment records would allow this interpretation to be tested directly and help distinguish acquisition effects from later processing.
 
@@ -818,14 +812,6 @@ Alongside these large local differences, @fig:bw-france-patterns shows flight-li
   ]
 ]
 
-// below: this ChatGPT?
-
-The most useful follow-up actions are:
-
-- Investigate the southern hotspots first, particularly regions 2 and 1, using matching source DTMs, acquisition dates and historical imagery to distinguish earthworks and quarry development from processing differences.
-- Check French flight-strip alignment, comparing strip footprints and adjustment records with the bands shared by BW–France and RLP–France. Test any correction on stable terrain and verify it across both comparisons.
-- Analyse slope and border distance within geographic subsets, with sample counts and land-use context, before attributing the pooled patterns to one mechanism.
-- Recalculate inconsistent polygon areas and refit the uncertainty model, preserving the empirical variogram, fitted parameters, masks and processing provenance needed to validate the results.
 
 == Switzerland -- Germany & France
 
@@ -941,7 +927,7 @@ The border between the Netherlands and @NRW is approximately 50 kilometers long,
 
 Other errors within this region include both small and large scale earth works. Examples include the "Steenfabriek de Bijland", which also includes swampy areas, which are not caught by the river mask (@fig:Netherlands-NRW-Lworks). Another example includes storage of manure and dirt at farms scattered throughout the border area (@fig:Netherlands-NRW-Sworks).
 
-For this border area in particular, there is a strong effect of waterbodies on the difference. The RMSE increases by 10% if the waterbodies are included, compared to the case without. This is likely due to the attempt at interpolating the river areas, which will differ from the approach taken in the german region, which most often involves triangulation of the water surface.
+For this border area in particular, there is a strong effect of water bodies on the difference. The RMSE increases by 10% if the water bodies are included, compared to the case without. This is likely due to the attempt at interpolating the river areas, which will differ from the approach taken in the german region, which most often involves triangulation of the water surface.
 
 There are no significant differences that have an effect on the creation of the final catchment @DTM, and with more time the existing extrapolation error would also be fixable.
 

@@ -46,7 +46,7 @@ The DTM, river mask, and analysis can be fully reproduced by executing the proce
 
 
 #import "@preview/cmarker:0.1.5": render
-= pipeline README <sec:PipelineREADME>
+= Pipeline README <sec:PipelineREADME>
 #render( read("assets/README.md") .split("\n") .slice(2) .join("\n") )
 
 #include "991-contributors.typ"
