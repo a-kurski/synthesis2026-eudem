@@ -10,7 +10,7 @@ Within this project, an automated pipeline has been developed which handles data
 We acquire the datasets which are then reprojected, vertically transformed, resampled, and aggregated into a single DEM.
 Additionally, the pipeline supports interpolation of missing data, generating a high-resolution water mask, and a semi-automated border analysis for neighbouring datasets.
 
-The resulting DTM covers Liechtenstein, Switzerland, France, Luxembourg, the Netherlands, and German states of Bavaria, Baden-Württemberg, Hessen, Rheinland-Pfalz, Saarland, and Nordrhein-Westfalen.
+The resulting DTM covers Liechtenstein, Switzerland, France, Luxembourg, the Netherlands, and German states of Bavaria, Baden-Württemberg, Hessen, Rhineland-Palatinate, Saarland, and Nordrhein-Westfalen.
 To evaluate the quality of the harmonised dataset, neighboring DTMs are compared by performing a difference of elevation rasters, statistical analysis, co-registration, and creating a set of diagnostic plots and raster files which are then evaluated against the requirements set out in the INSPIRE specification on elevation.
 The analysis identifies several recurring sources of disagreement, categorised into interpolation, ground filtering, temporal differences, water representation, and residual artefacts due to lidar data acquisition and processing.
 Of the 17 border pairs within catchment area, 15 meet the INSPIRE requirements for vertical accuracy (for 15 pairs, mean RMSE of 0.50m compared to INSPIRE requirement of 1.67 meters at 5m horizontal resolution) and only two exceed that threshold (RMSE of 3.12m and 5.36m).
