@@ -40,7 +40,6 @@ The elevation differences shown above emphasise the need for masking the rivers~
   ),
   caption:[River mask visualized on the entire Rhine Cathcment (left), and around the Cologne area in Germany (right).]
 )<fig:River_mask_final>
-#v(1em)
 
 The region growing algorithm relies on the assumption that the water surface is smooth. However, this is not always the case. The first example of this is found in @fig:River_mask_manmade. Here a hydroelectric power plant causes a change in the elevation of the water surface. The rough water mask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the water mask, and the area surrounding the plant such as the left secondary channel, is not modelled.
 
@@ -71,7 +70,6 @@ The region growing algorithm relies on the assumption that the water surface is 
     Rivermask failure where the mask is not continuous due to a hydroelectric power plant.
   ]
 )<fig:River_mask_manmade>
-#v(1em)
 
 Another similar shortcoming is that the @FEE mask is incomplete. Not all lakes contain valid seed points. Furthermore, the reprojection of @FEE cell centres onto the empty mask sometimes fails due to invalid row and/or column values which results in runtime errors. These are known limitations of the river mask which could be solved by extracting the mask from the national point clouds of the respective regions.
 
@@ -110,7 +108,6 @@ Another similar shortcoming is that the @FEE mask is incomplete. Not all lakes c
   ),
   caption:[Rivermask failure due missing water cells in the input raster.]
 )<fig:River_mask_missinglakes>
-#v(1em)
 
 Other issues include areas that are not marked as water within the @FEE mask. Examples include swampy areas on the Netherlands – @NRW border. This is shown in @fig:getoutofmyswamp.
 

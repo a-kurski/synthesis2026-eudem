@@ -483,7 +483,7 @@ The border area appears to display two main artefacts. The first of these being 
       #align(center)[(DH)]
     ],
   ),
-  caption: "Border artefact caused by BW using both a 0 and -9999 `NoData` value, while only declaring the -9999 value as `NoData`. The difference rasterwas set to -1–1 meters to highlight the differences",
+  caption: "Border artefact caused by BW using both a 0 and -9999 `NoData` value, while only declaring the -9999 value as `NoData`. The difference raster was set to -1–1 meters to highlight the differences",
 )
 <fig:BW_Bavaria_Borderartefact>
 
