@@ -65,30 +65,30 @@ The full overview of each border pair and their corresponding artefacts can be f
       [*Rank severity*],
     ),
 
-    ..cat("Interpolation", 17, "94%", 1, 5),
-    ..sub("Interpolation differences", 17, "94%"),
+    ..cat("Interpolation", 17, "100%", 1, 5),
+    ..sub("Interpolation differences", 17, "100%"),
 
-    ..cat("Ground filtering", 15, "83%", 2, 2),
-    ..sub("Slopes", 13, "72%"),
-    ..sub("Overpass", 5, "28%"),
+    ..cat("Ground filtering", 15, "88%", 2, 2),
+    ..sub("Slopes", 13, "76%"),
+    ..sub("Overpass", 5, "29%"),
 
-    ..cat("Temporal", 14, "78%", 3, 3),
-    ..sub("Construction", 11, "61%"),
-    ..sub("Quarry", 10, "56%"),
-    ..sub("Storage", 5, "28%"),
+    ..cat("Temporal", 14, "82%", 3, 3),
+    ..sub("Construction", 11, "65%"),
+    ..sub("Quarry", 10, "59%"),
+    ..sub("Storage", 5, "29%"),
     ..sub("Snow", 1, "6%"),
 
-    ..cat("Water mask", 13, "72%", 4, 4),
-    ..sub("River mask failure", 13, "72%"),
-    ..sub("Water handling", 5, "28%"),
+    ..cat("Water mask", 13, "76%", 4, 4),
+    ..sub("River mask failure", 13, "76%"),
+    ..sub("Water handling", 5, "29%"),
 
-    ..cat("Post-processing", 7, "39%", 5, 1),
-    ..sub("Border artefacts", 5, "28%"),
-    ..sub("Extrapolation", 4, "22%"),
+    ..cat("Post-processing", 7, "41%", 5, 1),
+    ..sub("Border artefacts", 5, "29%"),
+    ..sub("Extrapolation", 5, "29%"),
 
-    ..cat("Pre-processing", 7, "39%", 5, 6),
-    ..sub("Tile differences", 4, "22%"),
-    ..sub("Acquisition striping", 4, "22%"),
+    ..cat("Pre-processing", 7, "41%", 5, 6),
+    ..sub("Tile differences", 4, "24%"),
+    ..sub("Acquisition striping", 4, "24%"),
   ),
   caption: [
     Identified artefact categories and their prevalences.
