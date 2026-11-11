@@ -25,7 +25,7 @@ The total file size of the source data is measured at 804.46 GB. Notably, France
 
 === Water Mask <sec:Watermask_artefacts>
 
-The water mask was not an initially intended addition for the project. However, during analysis it was shown that including water bodies showed large deviations in elevation between regions. Due to a lack of an existing high quality water mask, an existing mask was refined as detailed in @sec:Water_mask_processing. However, due to shortcomings of the mask and the applied algorithm, artefacts still occur, even if their impact on the analysis is minimised. The final result of the river mask can be observed in @fig:River_mask_final.
+However, during analysis it was shown that including water bodies showed large deviations in elevation between regions. Due to a lack of an existing high quality water mask, an existing mask was refined as detailed in @sec:Water_mask_processing. However, due to shortcomings of the mask and the applied algorithm, artefacts still occur, even if their impact on the analysis is minimised. The final result of the river mask can be observed in @fig:River_mask_final.
 
 #figure(
   grid(
