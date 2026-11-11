@@ -10,15 +10,29 @@ Of those, we find mean, median, RMSE and LE90; the generated raster; RMSE/slope 
 
 #include "063-table-overview.typ"
 
-The majority of the datasets demonstrate high agreement with each other, with 15 out of 17 pairs meeting the @INSPIRE requirements for @RMSE.
+The majority of the datasets demonstrate high agreement with each other, with 15 out of 17 pairs meeting the @INSPIRE requirements for @RMSE. The first exception is @FR/@LI border where the errors are caused by the consistent differences between the French --- acquired with radar or photogrammetry --- and Luxembourgish --- acquired with @ALS --- @DTM:pla. In @fig:graphs-compare, we can observe that France displays consistently high RMSE for all slope angles which even exceeds 5m in comparison with a more typical slope/RMSE graph. The second is a fill value which does not match the NoData value of specified in metadata for @DE-BY, described in @sec:postprocessing-errors.
+
+#figure(
+  grid(
+    columns: (1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/slope_rmse_france_luxembourg.png")\ Slope/RMSE graph for FR/LU border],
+    [#image("assets/slope_rmse_germany_rlp_germany_saarland.png") Slope/RMSE graph for DE-RP/DE-SL borders]
+  ),
+  caption: [Comparison of slope/RMSE graphs]
+) <fig:graphs-compare>
+
+We also observe that the pairs involving France perform consistently worse. Again, this is due to large sections of the @DTM which are not acquired with @ALS. France also has a median and mean of about 0.5m which matches the offset due to co-registration, suggesting a systematic error. We have not been able to determine whether this error is intrinsic to the dataset or a result of the missing @CRS transform.
 
 === Error Sources
 
-These error sources can be divided into six categories representing overarching themes: interpolation, ground filtering, temporal, water mask, pre-processing, and post-processing artefacts. To further specify the type of artefact, each category is divided into subcategories which each represent an example of the artefact. The only type of artefact which will not be discussed are the artefacts caused by shortcomings in the river mask, which are discussed in @sec:Watermask_artefacts.
+These error sources can be divided into six categories representing overarching themes: interpolation, ground filtering, temporal, water mask, pre-processing, and post-processing artefacts. To further specify the type of artefact, each category is divided into subcategories which each represent an example of the artefact. The only error source which will not be discussed are the artefacts caused by shortcomings in the river mask, which have been discussed above in @sec:Watermask_artefacts.
 
-@tab:artefact_prevalence gives an overview of these categories and their subcategories. The percentage of border pairs describes in how many of the 17 evaluated border cases an artefact occurs. We exclude the Switzerland/Liechtenstein border from the comparison as the countries share the dataset. The bold category percentages detail in what percentage of all border pairs, at least one of the artefacts within the category occurs --- most borders have more than one type of artefact, and are therefore counted several times. As can be observed, the interpolation is the most frequently occurring artefact. We also evaluate the artefacts by severity, i.e. the magnitude and perceived effect of the error type. The overview can be found in @tab:artefact_prevalence.
+@tab:artefact_prevalence gives an overview of these categories and their subcategories. The percentage of border pairs describes in how many of the 17 evaluated border cases an artefact occurs. We exclude the Switzerland/Liechtenstein border from the comparison as the countries share the dataset. We calculate what percentage of all border pairs, at least one of the artefacts within the category occurs --- most borders have more than one type of artefact, and are therefore counted several times. As can be observed, the interpolation is the most frequently occurring artefact. We also evaluate the artefacts by severity, i.e. the magnitude and perceived effect of the error type. The overview can be found in @tab:artefact_prevalence.
 
- The full overview of each border pair and their corresponding artefacts can be found in @tab:artefacts_table. Furthermore, a pairwise analysis of all border pairs can be found in @sec:border_pairs, which contains additional visuals and a case-by-case evaluation of the differences.
+The full overview of each border pair and their corresponding artefacts can be found in @tab:artefacts_table. Furthermore, a pairwise analysis of all border pairs can be found in @sec:border_pairs, which contains additional visuals and a case-by-case evaluation of the differences.
+
+#pagebreak()
 
 #let cat(name, n, pct, rank_occ, rank_sev) = (
   table.cell(fill: rgb("e9eef3"))[*#name*],
@@ -83,70 +97,13 @@ These error sources can be divided into six categories representing overarching 
 
 #include "061-artefact_table.typ"
 
-=== Tile artefacts
-Tile artefacts are one of the least common types of artefacts. However, these artefacts often have a notable effect on the total difference statistic for a border pair. These differences can be divided into two categories.
-
-The first artefact in this category is aquisition striping. One common trend among the datasets within the Rhine catchment area, is that the elevation data is derived from the @LiDAR point clouds of the region. These are primarily aerial laser scans, which perform a straight line scanning pattern. The width of the bands that this creates are determined by the @FOV of the scanner.
-
-Small deviations of several centimeters in the elevation of each scanning pass can create a striping effect if not corrected for. The severity of this artefact is minimal, however clearly noticable when observing difference @DEM:pls. This is most often observed as bands of similar vertical differences on the difference @DEM, as shown in @fig:Striping_example. To solve this, each band would need to be identified to be offset. Alternatively, the offset would need to be dependent on @LiDAR acquisition time.
-
-
-#figure(
-  grid(
-    columns: 2,
-    gutter: 5pt,
-    row-gutter: 10pt,
-
-    [
-      #image("assets/Striping example.png", height: 6cm, fit: "contain")
-      #align(center)[(a)]
-    ],
-
-    [
-      #image("assets/bw_france_patterns.png", height: 6cm, fit: "contain")
-      #align(center)[(b) BW/France border.]
-    ],
-
-    grid.cell(
-      colspan: 2,
-      align(center)[
-        #image("assets/rlp_france_patterns.png", height: 4cm, fit: "contain")
-        #align(center)[(c) RLP/France border.]
-      ],
-    ),
-  ),
-  caption: "Examples of LiDAR band-like striping artefacts in elevation difference maps (a–c). For all examples, the displayed elevation differences were restricted to values between −1 and 1 m to make the striping patterns more visible.",
-) <fig:Striping_example>
-
-The second artefact in this category is singular tiles, or sections of tiles that have different vertical offsets compared to the rest of a national @DTM. This appears as visible seamlines on the difference @DEM. These differences however, become less clear when looking at the national @DTM. This happens for example at the @NRW – @RLP border, and more prominently at the @BW – Bavaria border (@fig:Tileoffset_example). While the cause for this artefact is not known for certain, it is possible that this data was captured at a different time, or with a different instrument. This hypothesis can be confirmed by comparing the @LiDAR aquisition time of tiles with such a seam to their neighbors. This is however still a byproduct of inaccurate vertical alignment with a @DTM, in such a manner that it does not correspond with the rest of the @CRF. To solve this difference, the offending tiles would need to be reextracted, and coregistered to the neighboring tiles. The magnitude of this artefact has been inconsistent, but for example 1 in @fig:Tileoffset_example, the maximum difference is 2.6 meters, while for example 2 the difference between tile elevation steps across the seam was 40 centimeters.
-
-#figure(
-  grid(
-    columns: 2,
-    gutter: 5pt,
-
-    [
-      #image("assets/BW-Bavaria-DiscreteDH.png", height: 7cm, fit: "contain")
-      #align(center)[(a) BW/Bavaria border.]
-    ],
-
-    [
-      #image("assets/NRW-RLP-nonalignment.png", height: 7cm, fit: "contain")
-      #align(center)[(b) NRW/RLP border.]
-    ],
-  ),
-  caption: "Examples of visible tile seams in elevation difference maps caused by vertical elevation offsets between adjacent DTM tiles.",
-) <fig:Tileoffset_example>
-
-
-#pagebreak()
 === Interpolation artefacts
 
-Interpolation disagreements occur in all border pairs (with the exception of Switzerland – Liechtenstein). This is because a @DTM does not include buildings or vegitation within the data, it only includes terrain. However, the source data for the @DTM:pls is the point cloud, which does include buildings and vegitation. There are various methods to filter out these features. Points in the point cloud classified as buildings can be filtered out before ground filtering, or retained during ground filtering, filtered out of the @DTM based on footprint, etc.
+Interpolation disagreements occur at all borders. This is because a @DTM does not include buildings or vegetation within the data, it only includes terrain which means that some data has to be excluded from the source data. There are various methods to filter out these features.This results in gaps in the dataset which need to be filled, typically via interpolation. The exact point within the pipeline, source data, and interpolation algorithm all affect the elevation values of the resulting @DTM.
 
-All these different approaches produce slightly different elevations at the location of a building. The interpolation performed due to reprojection further complicates this. Most data providers do not describe the method through which this filtering and/or interpolation is performed. Therefore, it is hard to say wether differences occur as a result of differences in interpolation strategy, or due to another reasons such as temporal changes (without having the point cloud).
+Most data providers do not describe the method through which this filtering and/or interpolation is performed. Therefore, it is hard to definitively say whether differences occur as a result of differences in interpolation strategy, or due to another reasons such as temporal changes without evaluating the underlying point cloud.
 
-The magnitude of the errors differs between region pairs. Some regions show little disagreement, while others can show elevation differences of 1–2 meters, with isolated cases going beyond that. While not implemented within this project, a possible approach to solve this challenge could be to generate an interpolation mask. If it holds true that the @DTM is created in the same manner as the @DSM
+The magnitude of the errors differs between region pairs. Some regions show little disagreement, while others can show elevation differences of 1–2 meters, with isolated cases going beyond that.
 
 #figure(
   grid(
@@ -178,6 +135,63 @@ One important note is that interpolation is not always at fault for differences 
   ),
   caption: [Ground and building filtering differences between NRW and Hessen]
 )<fig:ground-building>
+
+=== Pre-Processing Artefacts
+Pre-processing artefacts are one of the least common types of artefacts. However, these artefacts may have a sizeable effect on the RMSE or LE90 statistics for a given border pair. These differences can be divided into two categories.
+
+The first artefact in this category is striping. One common trend among the datasets within the Rhine catchment area is that most elevation data is derived from the point clouds of the region. These are primarily aerial laser scans, which are performed by flying a plane in parallel straight lines. The width of the bands that this creates are determined by the scanner's field of view.
+
+Small deviations of several centimetres in the elevation of each scanning pass can create a striping effect if not corrected for. The severity of this artefact is minimal, however clearly noticeable when observing differences in @DEM:pls. Its shows up as bands of consistent elevation along-track difference and sharp changes across the tracks, as shown in @fig:Striping_example. This artefact cannot be corrected based on gridded datasets alone.
+
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+    row-gutter: 10pt,
+
+    [
+      #image("assets/Striping example.png", height: 6cm, fit: "contain")
+      #align(center)[(a)]
+    ],
+
+    [
+      #image("assets/bw_france_patterns.png", height: 6cm, fit: "contain")
+      #align(center)[(b) BW/France border.]
+    ],
+
+    grid.cell(
+      colspan: 2,
+      align(center)[
+        #image("assets/rlp_france_patterns.png", height: 4cm, fit: "contain")
+        #align(center)[(c) RLP/France border.]
+      ],
+    ),
+  ),
+  caption: "Examples of LiDAR band-like striping artefacts in elevation difference maps (a–c). For all examples, the displayed elevation differences were restricted to values between −1 and 1 m to make the striping patterns more visible.",
+) <fig:Striping_example>
+
+The second artefact in this category is singular tiles, or sections of tiles that have different vertical offsets compared to the rest of a national @DTM. This appears as visible seam lines on the @DEM difference raster. These differences, however, become less clear when looking at the national @DTM alone. This happens for example at the @NRW – @RLP border, and more prominently at the @BW – Bavaria border (@fig:Tileoffset_example). We speculate that this artefact is caused by (mis-)alignment of data between different surveys. Resolving this artefact is thus challenging without having access to source point clouds. The magnitude of this artefact has been inconsistent: in @fig:Tileoffset_example (a), the maximum difference is 2.6 meters; in @fig:Tileoffset_example (ab the difference between tile elevation steps across the seam is measured at 40 centimeters.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/BW-Bavaria-DiscreteDH.png", height: 7cm, fit: "contain")
+      #align(center)[(a) BW/Bavaria border.]
+    ],
+
+    [
+      #image("assets/NRW-RLP-nonalignment.png", height: 7cm, fit: "contain")
+      #align(center)[(b) NRW/RLP border.]
+    ],
+  ),
+  caption: "Examples of visible tile seams in elevation difference maps caused by vertical elevation offsets between adjacent DTM tiles.",
+) <fig:Tileoffset_example>
+
+
 
 #pagebreak()
 === Ground filtering artefacts
@@ -325,7 +339,7 @@ There is one even more unique difference which only occurs once to our knowledge
 
 These differences can be resolved by comparing the point clouds of the neighboring regions. For the interest of temporal accuracy, it is most favorable to take the data from the latest aquisition time to have the most recent data. However, this does possibly cause a noticable seam at the edge of the overlapping area without any smoothing. As discussed in ... , smoothing dilutes the elevation data captured between regions and is undesirable. Furthermore, static features such as hills should not be affected by temporal aspects, and may require a different approach to be rectified. Solving this challenge is not within the boundaries of this project, but could be the focus of a followup project.
 
-=== Border artefacts
+=== Border artefacts <sec:postprocessing-errors>
 
 Border artefacts refer to wrongly interpolated @DTM edges and extrapolation of data to fill in missing data. The edge artefact is caused by reprojecting of a @DTM to a different @CRS as this uses iterpolation to determine the new elevation value at the new cell center. Since the point is located at the edge, the billinear interpolation can only be performed on a partial kernel. The magnitude of this difference varies between several milimeters to differences that exceed the resolution threshold (1.6 meters)(@fig:Borderartefact). The solution to this is to clip the offending border pixels from the output @DTM. Because there exists an overlap between the regions, an empty cell should not create gaps within the @DTM, but instead these cells will be overwritten by the neighboring @DTM. However, within the current implementation of the pipeline, border harmonisation is achieved by clipping the @DTM:pls to the national or regional extent. Therefore, these artefacts do not make it into the catchment area @DTM as it is currently.
 

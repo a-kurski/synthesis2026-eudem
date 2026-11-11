@@ -1,13 +1,12 @@
-#set text(size: 9pt)
-
 #let err = [●]
 
 #let vlabel(txt) = rotate(90deg, reflow: true)[#txt]
 
-// #place(center + horizon)[
-  #figure(
+#figure(
+  {
+    set text(size: 9pt)
     table(
-      columns: (2fr,) + (1fr,) * 13,
+      columns: (2.2fr,) + (1fr,) * 13,
 
       inset: 3pt,
       align: center + horizon,
@@ -24,91 +23,72 @@
 
       table.cell(rowspan: 2)[*Region pair*],
 
-      table.cell(colspan: 2)[*Pre-processing*],
-      table.cell(colspan: 2)[*Water mask*],
       table.cell(colspan: 1)[*Interpolation*],
-      table.cell(colspan: 2)[*Ground filtering*],
+      table.cell(colspan: 2)[*Ground\ filtering*],
       table.cell(colspan: 4)[*Temporal*],
-      table.cell(colspan: 2)[*Post-processing*],
+      table.cell(colspan: 2)[*Water mask*],
+      table.cell(colspan: 2)[*Pre-\ processing*],
+      table.cell(colspan: 2)[*Post-\ processing*],
 
       // ============================================================
       // artefact HEADER (ROTATED)
       // ============================================================
 
-      [#vlabel([Acquisition striping])],
-      [#vlabel([Tile seam])],
-
-      [#vlabel([Water modelling mismatch])],
-      [#vlabel([River mask failure])],
-
-      [#vlabel([Interpolation artefact])],
+      [#vlabel([Interpolation])],
 
       [#vlabel([Overpass])],
       [#vlabel([Steep slopes])],
 
       [#vlabel([Snow cover])],
-      [#vlabel([Storage changes])],
-      [#vlabel([Quarry activity])],
-      [#vlabel([Construction activity])],
+      [#vlabel([Bulk storage])],
+      [#vlabel([Excavation])],
+      [#vlabel([Construction works])],
+
+      [#vlabel([Water modelling])],
+      [#vlabel([River mask failure])],
+
+      [#vlabel([ALS striping])],
+      [#vlabel([Tile seam])],
 
       [#vlabel([Extrapolation])],
-      [#vlabel([Border edge artefact])],
+      [#vlabel([Edge resampling])],
 
       // ============================================================
       // SEPARATORS
       // ============================================================
 
-//       table.vline(x: 3, stroke: 2pt),
-//       table.vline(x: 5, stroke: 2pt),
-//       table.vline(x: 6, stroke: 2pt),
-//       table.vline(x: 8, stroke: 2pt),
-//       table.vline(x: 12, stroke: 2pt),
-//
-//       table.hline(y: 2, stroke: 1.2pt),
+      table.vline(x: 2, stroke: 2pt),
+      table.vline(x: 4, stroke: 2pt),
+      table.vline(x: 8, stroke: 2pt),
+      table.vline(x: 10, stroke: 2pt),
+      table.vline(x: 12, stroke: 2pt),
 
       // ============================================================
       // DATA
       // ============================================================
 
-      [Netherlands–NRW], [], [], [], [], [#err], [], [], [], [#err], [], [], [#err], [#err],
+      [NL/DE-NW], [#err], [], [], [], [#err], [], [], [], [], [], [], [#err], [#err],
+      [DE-NW/DE-RP], [#err], [#err], [#err], [], [], [#err], [#err], [], [#err], [#err], [#err], [#err], [],
+      [DE-NW/DE-HE], [#err], [#err], [#err], [#err], [], [#err], [#err], [], [], [], [], [], [],
+      [DE-RP/DE-SL], [#err], [], [#err], [], [], [#err], [#err], [], [#err], [], [], [#err], [#err],
+      [DE-RP/DE-BW], [#err], [#err], [], [], [#err], [], [#err], [], [#err], [], [#err], [], [],
+      [DE-RP/DE-HE], [#err], [], [], [], [], [], [], [], [], [], [#err], [#err], [],
+      [DE-RP/FR], [#err], [#err], [#err], [], [], [], [], [#err], [#err], [#err], [], [], [],
+      [DE-RP/LU], [#err], [], [#err], [], [#err], [], [#err], [], [#err], [], [], [], [#err],
+      [DE-SL/FR], [#err], [], [#err], [], [], [#err], [#err], [#err], [#err], [], [], [], [],
+      [DE-SL/LU], [#err], [], [#err], [], [#err], [#err], [], [], [#err], [], [], [], [],
+      [DE-HE/DE-BW], [#err], [], [#err], [], [], [#err], [#err], [], [#err], [], [], [], [#err],
+      [DE-HE/DE-BY], [#err], [], [#err], [], [], [], [#err], [#err], [#err], [], [], [], [],
+      [DE-BW/DE-BY], [#err], [#err], [], [], [], [#err], [#err], [], [#err], [], [#err], [#err], [#err],
+      [DE-BW/FR], [#err], [], [#err], [], [#err], [#err], [], [#err], [#err], [#err], [], [], [],
+      [DE-BW/CH], [#err], [], [#err], [], [], [#err], [#err], [#err], [#err], [], [], [], [],
+      [FR/LU], [#err], [], [#err], [], [], [#err], [#err], [], [#err], [], [], [], [],
+      [FR/CH], [#err], [], [#err], [], [], [], [], [], [], [#err], [], [], [],
+    )
+  },
 
-      [NRW–RLP], [#err], [#err], [], [#err], [#err], [#err], [#err], [], [], [#err], [#err], [#err], [],
-
-      [NRW–Hessen], [], [], [], [], [#err], [#err], [#err], [#err], [], [#err], [#err], [], [],
-
-      [RLP–Saar], [], [], [], [#err], [#err], [], [#err], [], [], [#err], [#err], [#err], [#err],
-
-      [RLP–BW], [], [#err], [], [#err], [#err], [#err], [], [], [#err], [], [#err], [], [],
-
-      [RLP–Hessen], [], [#err], [], [], [#err], [], [], [], [], [], [], [#err], [],
-
-      [RLP–France], [#err], [], [#err], [#err], [#err], [#err], [#err], [], [], [], [], [], [],
-
-      [RLP–Lux], [], [], [], [#err], [#err], [], [#err], [], [#err], [], [#err], [], [#err],
-
-      [Saar–France], [], [], [#err], [#err], [#err], [], [#err], [], [], [#err], [#err], [], [],
-
-      [Saar–Lux], [], [], [], [#err], [#err], [], [#err], [], [#err], [#err], [], [], [],
-
-      [Hessen–BW], [], [], [], [#err], [#err], [], [#err], [], [], [#err], [#err], [], [#err],
-
-      [Hessen–Bav], [], [], [#err], [#err], [#err], [], [#err], [], [], [], [#err], [], [],
-
-      [BW–Bav], [], [#err], [], [#err], [#err], [#err], [], [], [], [#err], [#err], [#err], [#err],
-
-      [BW–France], [#err], [], [#err], [#err], [#err], [], [#err], [], [#err], [#err], [], [], [],
-
-      [BW–Swi], [], [], [#err], [#err], [#err], [], [#err], [], [], [#err], [#err], [], [],
-
-      [France–Lux], [], [], [], [#err], [#err], [], [#err], [], [], [#err], [#err], [], [],
-
-      [France–Swi], [#err], [], [], [], [#err], [], [#err], [], [], [], [], [], [],
-
-      [Swi–Lie], [], [], [], [], [], [], [], [], [], [], [], [], [],
-    ),
-
-    caption: [
-      Overview of border region artefacts encountered in valid country pairs. The top row shows the main categories, while the second row shows subcategories. Cells marked with #err imply the subcategory artefact occurs at the border pair.
-    ]
-  ) <tab:artefacts_table>
+  caption: [
+    Overview of border region artefacts. Cells marked with #err imply the subcategory artefact occurs at the border pair.
+  ]
+) <tab:artefacts_table>
 // ]
