@@ -13,8 +13,7 @@ Loading in the $italic("dh_germany_nrw_germany_rlp.tif")$ @DTM, representing the
 )
 <fig:NRW-RLP-striping>
 
-Secondly, there appears to be misalignment between tiles within the @DTM. This is illustrated in @fig:NRW-RLP-nonalignment as the sharp transition between the four tiles. This transition is is however more drastic at a difference of $30"cm"$ in the difference @DTM. On close inspection of the @NRW and @RLP @DTM:pls, it appears that cells on the edge between tiles, the jump between neighboring cell values increased with $40"cm"$ more on the @NRW @DTM, compared to the @RLP @DTM. However, it is possible this effect occurs on both the @NRW and @RLP @DTM:pls. // To verify this hypothesis, we compared the point clouds to determine where this effect is introduced.
-// #drafting.inline-note("maybe pt would data would solve this.")
+Secondly, there appears to be misalignment between tiles within the @DTM. This is illustrated in @fig:NRW-RLP-nonalignment as the sharp transition between the four tiles. This transition is is however more drastic at a difference of $30"cm"$ in the difference @DTM. On close inspection of the @NRW and @RLP @DTM:pls, it appears that cells on the edge between tiles, the jump between neighboring cell values increased with $40"cm"$ more on the @NRW @DTM, compared to the @RLP @DTM. However, it is possible this effect occurs on both the @NRW and @RLP @DTM:pls.
 
 $italic("statistics_germany_nrw_germany_rlp.csv")$ corroborates these findings. It lists the similarity of errors within one kilometer to be $99.9%$. High correlation which is consistent throughout the correlation graph either points towards a tiling or vertical transform artefact. Since the median difference between the two tiles is $-2"cm"$, which also corresponds with the z-shift for the coregistration. Therefore, it can be concluded most errors within the border comparison are caused by this tiling artefact.
 
@@ -494,8 +493,6 @@ The border area appears to display two main artefacts. The first of these being 
 <fig:BW-Bavaria-Borderartefact-Histo>
 
 The second artefact within this border comparison is similar to the one encountered in @NRW -- @RLP section. In this instance, the effect clearly occurs in the Bavaria @DTM. @fig:BW-Bavaria-Discrete shows this effect. It appears as if these specific tiles are seperate from the the rest of the @DTM as it contains both positive and negative differences, meaning it cannot be the result of a vertical shift. Zooming in on the border confirms that these different tiles exist in the Bavaria, shown by the faint line at the same line as the DH @DTM. The cause for this can be that the tiles have either been collected at a different time, or that the aquisition was done through another method.
-
-// #drafting.inline-note("Look at the bavaria point cloud to see what the difference in aquisition time is between those tiles")
 
 #figure(
   image("assets/BW-Bavaria-DiscreteDH.png",width:60%),

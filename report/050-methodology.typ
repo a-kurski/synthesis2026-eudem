@@ -4,14 +4,10 @@
 
 = Methodology <chap:method>
 
-// [X]
-
 This chapter describes the methodology used in the DTM harmonisation pipeline. It provides both a general overview and specifics of our approach to processing heterogeneous elevation data and subsequent analysis of the results.
 It additionally covers water mask generation alongside the visualisation and comparison methods employed.
 
 == Pipeline Overview
-
-// [X]
 
 Within this project, we create a fully automated pipeline for processing and harmonising heterogeneous gridded elevation data.
 Raster processing has been chosen as the focus of the project as re-extracting a @DTM from scratch is computationally expensive and is deemed unnecessary: as shown in @chap:results, most national @DTM:pla are sufficiently accurate to allow near-seamless integration.

@@ -33,28 +33,3 @@ The aspects of the main question can be broken down into the following subquesti
 - How can the accuracy of a reconstructed cross-border @DEM be tested?
 
 Answering these subquestions helps answer the main research question. The first four subquestions are evaluated in the research phase of the project and relate mostly to existing literature and available data. Answering these questions informs data acquisition and subsequent software development. The next questions are answered during the software development phase as they are related to testing of the pipeline by evaluating the procedures and the output, and discussing the findings with the client.
-
-// == Relevant courses from the MSc Geomatics program
-
-// #drafting.inline-note[Do we care about this?]
-
-// This project applies knowledge gained from several courses from the MSc Geomatics program. Having a basic overview of these courses will highlight the current knowledge possessed by the team. These are the following courses:
-
-// - GEO1000 - Python for Geomatics;
-// - GEO1001 - Sensing Technologies;
-// - GEO1002 - GIS and Cartography;
-// - GEO1004 - 3D modelling for the built environment;
-// - GEO1015 - Digital Terrain Modelling.
-
-// GEO1000 is relevant for programming the pipeline in either Python or C++. GEO1001 was the basis for understanding point cloud data collection and processing. GEO1002 is relevant for understanding the data and how to visualise it. GEO1004 is possibly relevant for working with 3D data and point cloud processing. GEO1015 is applicable as it forms the basis for 2D and 2.5D terrain modelling, shortcomings and processing of DEMs.//
-
-// #pagebreak()
-
-// == Deliverables
-//
-// Within the project, we produce the following output:
-// - *A working pipeline* for @DEM harmonisation. This includes the code and documentation which supports its use.
-// - *A @DEM* of the Rhine catchment area.
-// - *This report* justifying the decisions made and describing the process.
-//
-// More detailed requirements for these deliverables are found in @sec:requirements.

@@ -173,8 +173,6 @@ Compared to the reference (column a), @MSF (b) can introduce noise, @PMF (c) and
   caption: [Comparison of ground filtering algorithms. From #cite(<cai2023>, form: "prose").]
 ) <fig:ground-filter>
 
-// However, the documentation of @PDAL also states it is possible to alternatively use @SMRF. This method is a further developed version of the @PMF. However, #cite(<PINGEL201321>, form: "prose") states that @SMRF uses a slope-dependent elevation, making it more reliable, and possibly solving the issue with @PMF. Therefore, @PDAL using @SMRF ground filtering should allow for a reliable way to generate @DTM:pla from point clouds. Further research into the implementation of other methods will not be discussed or implemented within this project.
-
 Point distribution and interpolation methods can introduce further discrepancies between the raster products from different data providers.
 It is expected that these discrepancies are minimal for flatter areas or regions with high point density, and higher for steep slopes or regions with high point density.
 It is also expected that the documentation of the interpolation methods is primarily available in the national language of each data provider, if at all, therefore investigating it was deemed to be out of scope of the project.

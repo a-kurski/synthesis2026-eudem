@@ -33,8 +33,6 @@ We suggest that such optimisation and modelling can be performed for the given c
 The pipeline still struggles with some `NoData` values as seen with @BW elevation dataset. While a small change, a more robust way to handle `NoData` even where it is not encoded into the dataset is needed.
 The river mask is rather basic in its functionality and currently misses sections of the river; work can continue to develop a more robust water detection algorithm which can better handle the different methods used to extract the water surface.
 
-// #drafting.inline-note()[anything else that kinda works but doesn't really?]
-
 Within this project, the differences between the different DTMs are only analysed but not mitigated.
 We recommend that ways to detect and automatically fix those differences are investigated, based either on the raster data or a combination of raster and point cloud data.
 

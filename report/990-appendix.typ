@@ -329,7 +329,7 @@ The DTM, river mask, and analysis can be fully reproduced by executing the proce
 caption:[Gantt chart]
 )
 
-== Risk analysis
+== Risk Analysis <sec:risk>
 
 #figure(
   image("assets/riskmatrix.png", width: 60%),
