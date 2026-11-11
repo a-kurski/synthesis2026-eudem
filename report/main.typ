@@ -2,7 +2,6 @@
 
 #import "@preview/abbr:0.3.1"
 #show: abbr.show-rule
-
 // Cover page
 #set page(
   paper: "a4",
@@ -59,7 +58,7 @@
 //   it
 // }
 
-#show figure: set block(breakable: true)
+#show figure: set block(breakable: false)
 
 #set par(justify: true)
 

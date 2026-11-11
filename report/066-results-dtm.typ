@@ -30,7 +30,7 @@ In our case, this happens primarily on the border with France as it is an older 
     [#image("assets/de-3-elev.png")],
     [#image("assets/de-3-hillshade.png")]
   ),
-  caption: [Example of seamless border between Hessen, NRW, and RLP]
+  caption: [Example of seamless border between Hessen, NRW, and RLP.]
 ) <fig:seam-germany>
 
 #figure(
@@ -42,7 +42,7 @@ In our case, this happens primarily on the border with France as it is an older 
     [#image("assets/fr-ch-elev.png")],
     [#image("assets/fr-ch-hillshade.png")]
   ),
-  caption: [Example of border seam between France and Switzerland]
+  caption: [Example of border seam between France and Switzerland.]
 ) <fig:seam-france>
 
 // #drafting.inline-note()[zoomed-in hillshade]
@@ -59,5 +59,5 @@ Whenever a border passes through a water body, we reliably see "jumps" in elevat
     [#image("assets/river-elev.png")],
     [#image("assets/river-hillshade.png")]
   ),
-  caption: [Elevation changes in water, as shown on the border between Hessen and RLP]
+  caption: [Elevation changes in water, as shown on the border between Hessen and RLP.]
 ) <fig:seam-river>
