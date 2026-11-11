@@ -5,15 +5,15 @@
 === Recommendations on Standardisation <sec:recommend-standards>
 
 Currently, @INSPIRE specification on elevation is a 260-page document, encompassing everything from the basic definition of a terrain to implementations of the GML schema, with a particular focus on the latter.
-We find that the specification is quite limited, focusing on the interoperability only on a very basic level (essentially, that all data follows a schema which can be read in an automated way) without much regard for the interoperability between the datasets themselves.
+We find that the specification is quite limited, focusing on the interoperability only on a very basic level (essentially, that all data follows a schema which can be read in an automated way) without much regard for the congruity between the datasets themselves.
 Currently, the specification is not fully followed: while most elevation datasets appear to be INSPIRE-compliant, France publishes its data as ASCII grid which is expressly disallowed #cite(<inspire2024elevation>, supplement:[p. 166]).
-However, this guidance is one line, presented as a note rather than requirement, which makes it easy to ignore.
+However, this guidance is limited to one line within the specification, presented as a note rather than requirement, which makes it easy to ignore.
 We would encourage that the specification is reviewed and rewritten in a way that enables easier implementation, e.g. by including a catalogue of all requirements, recommendations, and their scope.
 
 To further ensure better cross-border interoperability, we recommend the following:
-- Data providers to adopt a unified way to access and download the data. We particularly recommend a WCS (as adopted by the Netherlands and NRW) as it is an existing standard and allows for automatic server-side querying of a particular geographic extent.
+- Data providers to adopt a unified way to access and download the data. We find WCS (as adopted by the Netherlands and NRW) particularly convenient and allows for automatic server-side querying of a particular geographic extent. Alternatively, we can also recommend providing tiled GeoTIFFs with a spatial catalogue of tiles or COGs.
 - Data providers to adopt a unified `NoData` value, and expressly include it in the elevation data.
-- Data providers to adopt a unified way to extract a terrain model.
+- Data providers to adopt a unified way to extract a @DTM from a surface model.
   - Based on the work by #cite(<cai2023>, form: "prose"), we suggest @ICSF will likely perform best for for ground filtering but further research is needed.
   - A standardised interpolation method for filling gaps in the ground points is also needed, as we see artefacts introduced by linear interpolation on a TIN or extracting data from CSF points. We believe that @RBF would produce best results deterministically, but further comparison of the different interpolation methods is needed.
   - We also recommend that the river surface is extracted with a hydro-flattening approach based on the elevation of points classified as water given the errors introduced by interpolation on a TIN or the need for post-processing if the water surface is excluded.
@@ -33,9 +33,7 @@ We suggest that such optimisation and modelling can be performed for the given c
 The pipeline still struggles with some `NoData` values as seen with @BW elevation dataset. While a small change, a more robust way to handle `NoData` even where it is not encoded into the dataset is needed.
 The river mask is rather basic in its functionality and currently misses sections of the river; work can continue to develop a more robust water detection algorithm which can better handle the different methods used to extract the water surface.
 
-// #drafting.inline-note()[anything else that kinda works but doesn't really?]
-
-Within this project, the differences between the different DTMs are only analysed but not mitigated.
+Within this project, the differences between the different DTMs are only analysed but not resolved.
 We recommend that ways to detect and automatically fix those differences are investigated, based either on the raster data or a combination of raster and point cloud data.
 
 A more ambitious but worthwhile version of this project would involve a re-extraction of the DTM from the national and regional point cloud data, including re-classification and performing hydro-flattening.

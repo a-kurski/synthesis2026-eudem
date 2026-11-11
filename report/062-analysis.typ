@@ -10,7 +10,7 @@ Of those, we find mean, median, RMSE and LE90; the generated raster; RMSE/slope 
 
 #include "063-table-overview.typ"
 
-The majority of the datasets demonstrate high agreement with each other, with 15 out of 17 pairs meeting the @INSPIRE requirements for @RMSE. The first exception is @FR/@LI border where the errors are caused by the consistent differences between the French --- acquired with radar or photogrammetry --- and Luxembourgish --- acquired with @ALS --- @DTM:pla. In @fig:graphs-compare, we can observe that France displays consistently high RMSE for all slope angles which even exceeds 5m in comparison with a more typical slope/RMSE graph. The second is a fill value which does not match the NoData value of specified in metadata for @DE-BY, described in @sec:postprocessing-errors.
+The majority of the datasets demonstrate high agreement with each other, with 15 out of 17 pairs meeting the @INSPIRE requirements for @RMSE. The first exception is @FR/@LI border where the errors are caused by the consistent differences between the French~--- acquired with radar or photogrammetry~--- and Luxembourgish~--- acquired with @ALS~--- @DTM:pla. In @fig:graphs-compare, we can observe that France displays consistently high RMSE for all slope angles which even exceeds 5m in comparison with a more typical slope/RMSE graph. The second is a fill value which does not match the NoData value of specified in metadata for @DE-BY, described in @sec:postprocessing-errors.
 
 #figure(
   grid(
@@ -37,7 +37,7 @@ We also observe that the pairs involving France perform consistently worse. Agai
 
 These error sources can be divided into six categories representing overarching themes: interpolation, ground filtering, temporal, water mask, pre-processing, and post-processing artefacts. To further specify the type of artefact, each category is divided into subcategories which each represent an example of the artefact. The only error source which will not be discussed are the artefacts caused by shortcomings in the river mask, which have been discussed above in @sec:Watermask_artefacts.
 
-@tab:artefact_prevalence gives an overview of these categories and their subcategories. The percentage of border pairs describes in how many of the 17 evaluated border cases an artefact occurs. We exclude the Switzerland/Liechtenstein border from the comparison as the countries share the dataset. We calculate what percentage of all border pairs, at least one of the artefacts within the category occurs --- most borders have more than one type of artefact, and are therefore counted several times. As can be observed, the interpolation is the most frequently occurring artefact. We also evaluate the artefacts by severity, i.e. the magnitude and perceived effect of the error type. The overview can be found in @tab:artefact_prevalence.
+@tab:artefact_prevalence gives an overview of these categories and their subcategories. The percentage of border pairs describes in how many of the 17 evaluated border cases an artefact occurs. We exclude the Switzerland/Liechtenstein border from the comparison as the countries share the dataset. We calculate what percentage of all border pairs, at least one of the artefacts within the category occurs~--- most borders have more than one type of artefact, and are therefore counted several times. As can be observed, the interpolation is the most frequently occurring artefact. We also evaluate the artefacts by severity, i.e. the magnitude and perceived effect of the error type. The overview can be found in @tab:artefact_prevalence.
 
 The full overview of each border pair and their corresponding artefacts can be found in @tab:artefacts_table. Furthermore, a pairwise analysis of all border pairs can be found in @sec:border_pairs, which contains additional visuals and a case-by-case evaluation of the differences.
 
@@ -112,7 +112,7 @@ Interpolation disagreements occur at all borders. This is because a @DTM does no
 
 Most data providers do not describe the method through which this filtering and/or interpolation is performed. Therefore, it is hard to definitively say whether differences occur as a result of differences in interpolation strategy, or due to another reasons such as temporal changes without evaluating the underlying point cloud.
 
-The magnitude of the errors differs between region pairs. Some regions show little disagreement, while others can show elevation differences of 1–2 meters, with isolated cases going beyond that. We suggest that the errors can be better assessed if an accurate interpolation mask can be obtained. We can also use point cloud data to harmonise the interpolation --- this has not been performed within the project.
+The magnitude of the errors differs between region pairs. Some regions show little disagreement, while others can show elevation differences of 1–2 meters, with isolated cases going beyond that. We suggest that the errors can be better assessed if an accurate interpolation mask can be obtained. We can also use point cloud data to harmonise the interpolation~--- this has not been performed within the project.
 
 #figure(
   grid(
@@ -138,7 +138,7 @@ The magnitude of the errors differs between region pairs. Some regions show litt
   caption: "Example of elevation differences caused by interpolation disagreements. Dark red values represent large positive difference while dark blue shows negative difference",
 ) <fig:Building-interpolation>
 
-One important note is that interpolation is not always at fault for differences observed for buildings. Especially for large area buildings, ground filtering can also cause disagreements. @DE-NW uses synthetic ground points from the CSF instead of interpolation to extract the @DTM --- this causes artefacts seen in @fig:ground-building.
+One important note is that interpolation is not always at fault for differences observed for buildings. Especially for large area buildings, ground filtering can also cause disagreements. @DE-NW uses synthetic ground points from the CSF instead of interpolation to extract the @DTM~--- this causes artefacts seen in @fig:ground-building.
 
 #figure(
   grid(
@@ -155,7 +155,7 @@ One important note is that interpolation is not always at fault for differences 
 
 Ground filtering is the second most common artefact encountered for the border pairs. For this category we consider steep slopes (cliffs, valleys), and disagreements caused by overpass handling. Out of these subcategories, steep slopes are both the most common and most severe, while overpasses only create small, local disagreements.
 
-Errors in overpasses can only be found in roughly a quarter of all border pairs --- they may also be present in other @DTM:pla but are processed similarly there. The severity of the difference largely depends on the height of the overpass and generally exceed the 1.67m threshold. @fig:NRW-RLP-overpass-example shows an example of different overpass processing.
+Errors in overpasses can only be found in roughly a quarter of all border pairs~--- they may also be present in other @DTM:pla but are processed similarly there. The severity of the difference largely depends on the height of the overpass and generally exceed the 1.67m threshold. @fig:NRW-RLP-overpass-example shows an example of different overpass processing.
 
 #figure(
   grid(

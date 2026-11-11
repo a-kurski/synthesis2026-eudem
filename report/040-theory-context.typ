@@ -23,7 +23,7 @@ Another possible definition can be found on Wikimedia (see @fig:rhine-defs), and
 For this project, the Rhine river definition comes from HydroBASINS @Lehner2013, derived from a global elevation model. The Meuse and Ijssel are excluded from the main catchment area of the Rhine in this case~--- their exclusion has been discussed with the client and was deemed appropriate as the automated pipeline supports expanding the geographic extent of the @DEM. @fig:rhine-catchment-regions shows the map of the area used in the project, coloured by elevation data provider.
 
 The Rhine catchment area nominally covers (parts of) Switzerland, Liechtenstein, Austria, Italy, Germany, France, Luxembourg, Belgium, and The Netherlands.
-The following regions are explicitly defined to be within the scope of the project: @CH, @LI, @FR, @LU, @DE --- specifically, states of @DE-BW, @DE-BY, @DE-HE, @DE-NW, @DE-RP, and @DE-SL --- and @NL.
+The following regions are explicitly defined to be within the scope of the project: @CH, @LI, @FR, @LU, @DE~--- specifically, states of @DE-BW, @DE-BY, @DE-HE, @DE-NW, @DE-RP, and @DE-SL~--- and @NL.
 Austria, Italy, and Belgium are excluded due to poor availability of data @vanderheide2026pointcloud. Germany's Thüringen has been excluded as only a small part of the state falls within the borders of the catchment area.
 
 #figure(
@@ -41,7 +41,7 @@ Certain implementation-specific details, such as the XML schema or data structur
 
 === INSPIRE View on Elevation <sec:inspire-elevation>
 
-Within the scope of the specification, the elevation property --- either depth or height --- is understood to be the three-dimensional shape of the Earth's surface #cite(<inspire2024elevation>, supplement: [pp. 40--43]).
+Within the scope of the specification, the elevation property~--- either depth or height~--- is understood to be the three-dimensional shape of the Earth's surface #cite(<inspire2024elevation>, supplement: [pp. 40--43]).
 Generally, land-elevation and bathymetry are considered separately; for land-elevation, the elevation property is called height and its positive direction is "upwards", and for bathymetry, it is depth with positive direction pointing downward.
 The scope for bathymetry is specifically the sea, inland standing water bodies, and navigable rivers.
 The specification also considers an integrated land-sea model, where as measured from a given datum, the height is positive and the depth is negative.
@@ -51,7 +51,7 @@ The specification considers two possible "shapes" of the terrain #cite(<inspire2
 - a @DSM, which represents the Earth's surface with all static natural and artificial features (e.g. this includes trees and buildings, but not cars).
 "Digital elevation model" (@DEM) is used as an umbrella term which encompasses both a @DTM and a @DSM.
 
-Within the scope of the specification, the surface is considered 2.5-dimensional --- for each $(x, y)$ position, only one elevation value is possible --- and it can be represented with gridded coverage (raster data), vector data (contour lines and spot elevations), or a @TIN.
+Within the scope of the specification, the surface is considered 2.5-dimensional~--- for each $(x, y)$ position, only one elevation value is possible~--- and it can be represented with gridded coverage (raster data), vector data (contour lines and spot elevations), or a @TIN.
 For land-elevation, grid coverage is required and vector representation is optional but recommended #cite(<inspire2024elevation>, supplement: [pp. 44--45]).
 For bathymetry, either grid coverage or vector representation are required.
 
@@ -68,11 +68,11 @@ The specification requires that the grid is a two-dimensional regular quadrilate
   caption: [INSPIRE definition of gridded coverage. Image from #cite(<inspire2024elevation>, form: "prose").]
 )
 
-Furthermore, the specification includes guidance on providing tiled datasets --- it refers to such coverage as "aggregated coverage", and the process of assembling it is called aggregation.
+Furthermore, the specification includes guidance on providing tiled datasets~--- it refers to such coverage as "aggregated coverage", and the process of assembling it is called aggregation.
 While the illsutrations (e.g. on pp. 52 and 53) show that the tiles may be overlapping, the implementation rule (p. 60) requires that:
 - the tiles are consistent, i.e. sharing @CRS, encoding, and resolution;
 - the grids of the tiles are aligned;
-- the footprints of the tiles are either adjacent or disjoint --- that is, non-overlapping;
+- the footprints of the tiles are either adjacent or disjoint~--- that is, non-overlapping;
 - the domain of the aggregated coverage is the union of the tiles' domains.
 
 It is also clarified that the coverage describes the elevation values at the centres of the geographic grid; and the geographic grid cells are the squares rendered when a GeoTIFF is displayed.
@@ -104,7 +104,7 @@ Conceptual consistency describes compliance with the conceptual schema; domain c
 The error rate describes the ratio of non-compliant items and the target is 0%.
 
 Positional accuracy is defined differently for vector and @TIN data and for gridded data.
-For a grid, only the planimetric accuracy is considered. The @RMSE --- here, defined as the radius of a circle around the point, such that the true value of a point lies within that circle with a given probability --- is the chosen evaluation metric. The target for the maximum @RMSE is $"GSD"/6$, where @GSD is the ground sample distance, essentially the resolution of the grid.
+For a grid, only the planimetric accuracy is considered. The @RMSE~--- here, defined as the radius of a circle around the point, such that the true value of a point lies within that circle with a given probability~--- is the chosen evaluation metric. The target for the maximum @RMSE is $"GSD"/6$, where @GSD is the ground sample distance, essentially the resolution of the grid.
 
 In the "Data Capture" section #cite(<inspire2024elevation>, supplement:[p. 171]), the resolution is additionally related to the vertical accuracy of the dataset.
 For flat terrain, the resolution should be between $3 times "RMSE"$ and $20 times "RMSE"$, while for mountainous terrain it should be between $3 times "RMSE"$ and $10 times "RMSE"$.
@@ -128,13 +128,13 @@ EU-DEM is available in geodetic @ETRS89 and @ETRS89-LAEA and is described to hav
 Copernicus further offer a 10m dataset titled EEA-10 which is limited to the @EEA member states and is only available to select users @cdse_copdem.
 EEA-10 is the only dataset which is available in INSPIRE-compatible format and projected to @ETRS89-LAEA for continental Europe whereas 30m and 90m global datasets are only supplied in WGS84 @airbus_copernicusdem_handbook_2022.
 
-#cite(<krdzalic2024>, form: "prose") evaluate the accuracy of several @GDEM:pla against two sets of reference points in Bosnia and Herzogovina, additionally comparing them with the national @DEM. The authors further compare different interpolation methods in their assessment --- here, only results achieved with bilinear interpolation are referenced as it is the interpolation method recommended by @INSPIRE. For both sets of reference points, national @DEM has the lowest RMSE of 1.64m and 3.02m respectively; Copernicus DEM has the lowest RMSE of the @GDEM:pla with 2.35m and 3.11m respectively.
+#cite(<krdzalic2024>, form: "prose") evaluate the accuracy of several @GDEM:pla against two sets of reference points in Bosnia and Herzogovina, additionally comparing them with the national @DEM. The authors further compare different interpolation methods in their assessment~--- here, only results achieved with bilinear interpolation are referenced as it is the interpolation method recommended by @INSPIRE. For both sets of reference points, national @DEM has the lowest RMSE of 1.64m and 3.02m respectively; Copernicus DEM has the lowest RMSE of the @GDEM:pla with 2.35m and 3.11m respectively.
 
 === Aggregate Global Elevation Models <sec:mapterhorn>
 
-An aggregate elevation model serves as an alternative to the conventional @GDEM. With this approach, several heterogeneous @DEM:pla are assembled into one finished product --- this is also an approach taken in this project. The only example of this approach known to us is Mapterhorn @wipfli2026mapterhorn. Currently, Mapterhorn combines 70 open-access national, regional, and local elevation products alongside Copernicus DEM GLO-30 into one harmonised @DEM.
+An aggregate elevation model serves as an alternative to the conventional @GDEM. With this approach, several heterogeneous @DEM:pla are assembled into one finished product~--- this is also an approach taken in this project. The only example of this approach known to us is Mapterhorn @wipfli2026mapterhorn. Currently, Mapterhorn combines 70 open-access national, regional, and local elevation products alongside Copernicus DEM GLO-30 into one harmonised @DEM.
 
-There are several shortcomings with current implementation of Mapterhorn. The first one is that it is neither a @DTM nor a @DSM: Copernicus DEM is a _surface_ model, and national products can be both a _terrain_ and a _surface_ model --- therefore, Mapterhorn's elevation data is a mix of both. The second one is the approach to resolving elevation conflicts at the border. Mapterhorn uses a Gaussian blur to blend the elevation data where two datasets overlap, which may introduce elevation values which are not representative of reality for those point samples. Lastly, Mapterhorn enforces that the @CRS transform is only horizontal, explicitly ruling out vertical transform.
+There are several shortcomings with current implementation of Mapterhorn. The first one is that it is neither a @DTM nor a @DSM: Copernicus DEM is a _surface_ model, and national products can be both a _terrain_ and a _surface_ model~--- therefore, Mapterhorn's elevation data is a mix of both. The second one is the approach to resolving elevation conflicts at the border. Mapterhorn uses a Gaussian blur to blend the elevation data where two datasets overlap, which may introduce elevation values which are not representative of reality for those point samples. Lastly, Mapterhorn enforces that the @CRS transform is only horizontal, explicitly ruling out vertical transform.
 
 #figure(
   image(
@@ -147,7 +147,7 @@ There are several shortcomings with current implementation of Mapterhorn. The fi
 A similar approach was described by #cite(<Noardo2016>, form: "prose") who report on harmonisation of the @CRS, orthrophoto, semantic information, and the @DEM and #cite(<biagi_interpolation>, form: "prose") who focus on @DEM harmonisation specifically.
 The papers try and harmonise Italian elevation data with France and Switzerland respectively, focusing on the mountainous regions.
 Both demonstrate presence of errors of high magnitude, exceeding 100m.
-To resolve those errors, both sets of authors suggest an approach conceptually similar to that of Mapterhorn --- #cite(<Noardo2016>, form: "author") obtain the elevation of the border regions by performing a linear interpolation on the overlapping region while #cite(<biagi_interpolation>, form: "author") perform bicubic interpolation --- which also introduce issues similar to using a Gaussian blur in that the data around the border may not match reality.
+To resolve those errors, both sets of authors suggest an approach conceptually similar to that of Mapterhorn~--- #cite(<Noardo2016>, form: "author") obtain the elevation of the border regions by performing a linear interpolation on the overlapping region while #cite(<biagi_interpolation>, form: "author") perform bicubic interpolation~--- which also introduce issues similar to using a Gaussian blur in that the data around the border may not match reality.
 #cite(<Noardo2016>, form: "author") comment on the potential discrepancy; #cite(<biagi_interpolation>, form: "author") leave it unaddressed.
 
 == Point Cloud Processing <sec:pc-processing>
@@ -173,20 +173,18 @@ Compared to the reference (column a), @MSF (b) can introduce noise, @PMF (c) and
   caption: [Comparison of ground filtering algorithms. From #cite(<cai2023>, form: "prose").]
 ) <fig:ground-filter>
 
-// However, the documentation of @PDAL also states it is possible to alternatively use @SMRF. This method is a further developed version of the @PMF. However, #cite(<PINGEL201321>, form: "prose") states that @SMRF uses a slope-dependent elevation, making it more reliable, and possibly solving the issue with @PMF. Therefore, @PDAL using @SMRF ground filtering should allow for a reliable way to generate @DTM:pla from point clouds. Further research into the implementation of other methods will not be discussed or implemented within this project.
-
 Point distribution and interpolation methods can introduce further discrepancies between the raster products from different data providers.
 It is expected that these discrepancies are minimal for flatter areas or regions with high point density, and higher for steep slopes or regions with high point density.
 It is also expected that the documentation of the interpolation methods is primarily available in the national language of each data provider, if at all, therefore investigating it was deemed to be out of scope of the project.
 
 == Interpolation Methods <sec:theory-interpolate>
 
-Some elevation datasets --- within study area, the Dutch @DTM is the only such dataset --- are supplied with "gaps" of `NoData`, which warrants filling those gaps.
+Some elevation datasets~--- within study area, the Dutch @DTM is the only such dataset~--- are supplied with "gaps" of `NoData`, which warrants filling those gaps.
 Other data providers fill those gaps themselves by performing interpolation.
 There are several papers @Chen2014, @Gradka2018, @hu2013, @Raza2023, comparing different interpolation methods for terrain modelling.
 The methods compared include @IDW, @RBF, @NNI, and kriging.
 The first three methods are deterministic as the results are strictly based on the input data and parameters of the function; kriging is stochastic and also requires assumptions about the statistical properties of the dataset.
-All authors agree that @IDW produces less accurate results than @IDW produces less accurate results than the alternatives: #cite(<Chen2014>, form: "author") and #cite(<Gradka2018>, form: "author") find that kriging is most accurate; #cite(<hu2013>, form: "author") does not evaluate kriging but recommends that an implementation of @RBF produces best result --- these findings are partly corroborated by #cite(<Gradka2018>, form: "author") who state that results obtained with @RBF and kriging closely match; and #cite(<Raza2023>, form: "author") finds that @NNI works best for their dataset.
+All authors agree that @IDW produces less accurate results than @IDW produces less accurate results than the alternatives: #cite(<Chen2014>, form: "author") and #cite(<Gradka2018>, form: "author") find that kriging is most accurate; #cite(<hu2013>, form: "author") does not evaluate kriging but recommends that an implementation of @RBF produces best result~--- these findings are partly corroborated by #cite(<Gradka2018>, form: "author") who state that results obtained with @RBF and kriging closely match; and #cite(<Raza2023>, form: "author") finds that @NNI works best for their dataset.
 However #cite(<Gradka2018>, form: "author") note that @IDW is less computationally expensive than @RBF and especially kriging.
 
 For this project, we chose @IDW as the interpolation method as it requires minimal tuning compared to the alternatives; it is computationally cheaper; and a ready implementation is available in @GDAL.
@@ -196,6 +194,6 @@ Given only a small part of the study region (the Netherlands) requires interpola
 
 The way different @DEM:pla treat water body surfaces can further influence the differences between products.
 
-Currently, the Netherlands assigns a `NoData` value to the water bodies without efforts to estimate either the elevation of the water surface or the bathymetry. All other countries in the region either perform hydro-flattening as described by #cite(<zheng2019>, form: "prose") which estimates a flat across-channel surface and a continuous along-channel slope; or interpolate the shoreline. Similar approaches have been trialed for the Dutch elevation model @keurentjes2020ahn3 but are currently not included in the official product. Hydro-flattening may introduce artefacts due to temporal differences between different lidar surveys --- these are presented in @chap:results.
+Currently, the Netherlands assigns a `NoData` value to the water bodies without efforts to estimate either the elevation of the water surface or the bathymetry. All other countries in the region either perform hydro-flattening as described by #cite(<zheng2019>, form: "prose") which estimates a flat across-channel surface and a continuous along-channel slope; or interpolate the shoreline. Similar approaches have been trialed for the Dutch elevation model @keurentjes2020ahn3 but are currently not included in the official product. Hydro-flattening may introduce artefacts due to temporal differences between different lidar surveys~--- these are presented in @chap:results.
 
 A third approach is to estimate the riverbed as proposed by #cite(<dysarz2018>, form: "prose") which would allow for a mixed elevation/bathymetry model. No national product currently uses this approach; and estimating river elevation was deemed to be out of scope for this project.
