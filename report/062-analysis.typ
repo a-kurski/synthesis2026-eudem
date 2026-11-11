@@ -336,7 +336,7 @@ The second artefact in this category is singular tiles, or sections of tiles tha
 
 === Temporal artefacts
 
-Temporal artefacts rank third as the most common cause of artefacts. This is due to the fact the aquisition time between two regional or national @DTM:pls can differ in the order of years.
+Temporal artefacts rank third as the most common cause of artefacts. This is due to the fact the acquisition time between two regional or national @DTM:pls can differ up to several years.
 
 There does appear to be a surprising commonality in the specific causes of these differences. The most common cause are construction sites. These include everything from the construction of new buildings, demolishing of buildings, or the construction of windmills.
 
