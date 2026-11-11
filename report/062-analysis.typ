@@ -113,7 +113,7 @@ Interpolation disagreements occur at all borders. This is because a @DTM does no
 
 Most data providers do not describe the method through which this filtering and/or interpolation is performed. Therefore, it is hard to definitively say whether differences occur as a result of differences in interpolation strategy, or due to another reasons such as temporal changes without evaluating the underlying point cloud.
 
-The magnitude of the errors differs between region pairs. Some regions show little disagreement, while others can show elevation differences of 1–2 meters, with isolated cases going beyond that.
+The magnitude of the errors differs between region pairs. Some regions show little disagreement, while others can show elevation differences of 1–2 meters, with isolated cases going beyond that. We suggest that the errors can be better assessed if an accurate interpolation mask can be obtained. We can also use point cloud data to harmonise the interpolation --- this has not been performed within the project.
 
 #figure(
   grid(
@@ -139,7 +139,7 @@ The magnitude of the errors differs between region pairs. Some regions show litt
   caption: "Example of elevation differences caused by interpolation disagreements. Dark red values represent large positive difference while dark blue shows negative difference",
 ) <fig:Building-interpolation>
 
-One important note is that interpolation is not always at fault for differences observed for buildings. Especially for large area buildings, ground filtering can also cause disagreements. An example of this phenomenon can be found on the @NRW – Hessen border as shown in @fig:ground-building.
+One important note is that interpolation is not always at fault for differences observed for buildings. Especially for large area buildings, ground filtering can also cause disagreements. @DE-NW uses synthetic ground points from the CSF instead of interpolation to extract the @DTM --- this causes artefacts seen in @fig:ground-building.
 
 #figure(
   grid(
@@ -151,6 +151,123 @@ One important note is that interpolation is not always at fault for differences 
   ),
   caption: [Ground and building filtering differences between NRW and Hessen.]
 )<fig:ground-building>
+
+=== Ground filtering artefacts
+
+Ground filtering is the second most common artefact encountered for the border pairs. For this category we consider steep slopes (cliffs, valleys), and disagreements caused by overpass handling. Out of these subcategories, errors due to steep slopes are both the most common and most severe, while overpasses are rare and only create small, local disagreements.
+
+Errors in overpasses can only be found in roughly a quarter of all border pairs --- they may also be present in other @DTM:pla but are processed similarly there. The severity of the difference largely depends on the height of the overpass and generally exceed the 1.67m threshold. @fig:NRW-RLP-overpass-example shows an example of different overpass processing.
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/NRW-RLP-overpass.png", width: 100%)
+      #text(size: 10pt)[
+        Satellite imagery. From AeroWest,
+        Airbus, Maxar Technologies \
+        (2026).
+      ]
+    ],
+
+    [
+      #image("assets/NRW-RLP-overpassNRW.png", width: 100%)
+      #text(size: 10pt)[
+        DTM provided by NRW.
+      ]
+    ],
+
+    [
+      #image("assets/NRW-RLP-overpassRLP.png", width: 100%)
+      #text(size: 10pt)[
+        DTM provided by RLP.
+      ]
+
+    ],
+  ),
+  caption: "Example of an overpass being treated differently between NRW and RLP due to differences in ground filtering.",
+)
+<fig:NRW-RLP-overpass-example>
+#v(1em)
+
+Errors due to slope processing occur at cliffs and in valleys/hills. A cliff typically shows up as a thin and long artefact on the @DEM difference raster, as seen in @fig:Hessen-BW-clearing-example. Due to the steepness of the cliff small horizontal differences between sample points in the @DTM can create large vertical differences if one dataset measures the elevation at the bottom of the cliff and the other at the top. Alternatively, this can be a byproduct of differences in ground filtering methods.
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/Hessen-BW-clearingESRI.png", height: 5cm, fit: "contain")
+      #align(center)[(ESRI)]
+    ],
+
+    [
+      #image("assets/Hessen-BW-clearingDH.png", height: 5cm, fit: "contain")
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
+    ],
+
+    [
+      #image("assets/Hessen-BW-clearingSV.png", height: 5cm, fit: "contain")
+      #text(size: 10pt)[
+        Image from Google Street View \
+        (49.4762° N, 8.4208° E)
+      ]
+    ],
+  ),
+  caption: "Example of a cliff artefact flagged as a resolution threshold exceeding disagreement",
+)
+<fig:Hessen-BW-clearing-example>
+
+The second type of slope disagreement can be found primarily in regions which constain deep valleys such as the France – Luxembourg border. The underlying causes are similar: differences in either data acquisition or ground filtering. However unlike cliffs, this type of artefact can cause large sections of disagreement between @DTM:pls (@fig:Lux_Fra_border-example). @fig:Lux_Fra_Rumelange_example shows the region around the city of Rumelange, which is located within a valley. The difference in @DTM elevations here are up to differences of 25 meters in both positive and negative directions. We also observe higher error rates for areas with steep slopes in other datasets, but the magnitude of those is typically under a metre. For France, we expect that a more accurate dataset will mostly resolve these errors; for other regions, standardising the ground filtering algorithm may reduce their magnitude too.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/France-Lux-borderarea.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+
+    [
+      #image("assets/France-Lux-borderarea-issues.png", width: 100%)
+      #align(center)[(Flagged Differences)]
+    ],
+  ),
+  caption: "Example of large regions of disagreement, flagged differences in red exceed 1.6 meters of difference at the France – Luxembourg border",
+)
+<fig:Lux_Fra_border-example>
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/France-Lux-Rumelange-DH.png", width: 100%)
+      #align(center)[(DH)]
+    ],
+
+    [
+      #image("assets/France-Lux-Rumelange-elevation.png", width: 100%)
+      #align(center)[(DTM)]
+    ],
+
+
+    [
+        #image("assets/France-Lux-Rumelange-contour.png", width: 100%)
+        #align(center)[(Contours)]
+    ],
+  ),
+  caption: "Example of Rumelange where disagreements can increase up to 25 meters.",
+)
+<fig:Lux_Fra_Rumelange_example>
 
 === Pre-Processing Artefacts
 Pre-processing artefacts are one of the least common types of artefacts. However, these artefacts may have a sizeable effect on the RMSE or LE90 statistics for a given border pair. These differences can be divided into two categories.
@@ -217,6 +334,7 @@ The second artefact in this category is singular tiles, or sections of tiles tha
   caption: "Examples of visible tile seams in elevation difference maps caused by vertical elevation offsets between adjacent DTM tiles.",
 ) <fig:Tileoffset_example>
 
+<<<<<<< HEAD
 === Ground filtering artefacts
 
 Ground filtering is the second most common artefact encountered for the border pairs. For this category we consider steep slopes (cliffs, valleys), and disagreements caused by overpass handling. Out of these subcategories, steep slopes are both the most common and most severe, while overpasses only create small, local disagreements.
@@ -335,6 +453,8 @@ The second type of slope disagreement can be found primarily in regions which co
 )
 <fig:Lux_Fra_Rumelange_example>
 
+=======
+>>>>>>> 6627f71ee4d6db542a8584b1aabbeaa6ce35876a
 === Temporal artefacts
 
 Temporal artefacts rank third as the most common cause of artefacts. This is due to the fact the aquisition time between two regional or national @DTM:pls can differ in the order of years.
