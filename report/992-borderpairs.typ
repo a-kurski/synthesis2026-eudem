@@ -285,7 +285,7 @@ The only notable outlier within the data is the convergence of error similarity 
 === NRW -- Hessen
 
 Only 59 kilometres of @NRW -- Hessen border and 127 1km#sym.times\1km tiles fall into the study area.
-Due to the shape of the catchment area, the border is split in two --- a longer section in the South and a shorter, approximately 3-kilometre section in the North.
+Due to the shape of the catchment area, the border is split in two~--- a longer section in the South and a shorter, approximately 3-kilometre section in the North.
 Notably, @NRW openly publishes point cloud data which enables further analysis, whereas Hessen does not.
 
 The errors in this region are relatively low: @RMSE is 18cm, @LE90 is 7.5cm, and only 0.07% of cells exceed the 1.67m difference threshold, suggesting a high agreement between the @DTM:pla.
@@ -321,7 +321,7 @@ Additionally at the time of acquisition, there was snow on the ground in Willing
 
 There are several smaller issues which we believe are best attributed to the differences in processing. The built-up areas display a high number of scattered differences around 0.5m which are likely caused by either the states' approach to ground filtering or interpolation algorithms used to create the original @DTM:pla.
 An interesting artefact is a 0.6m-tall "mound" between Wallau and Bad Laasphe.
-@NRW appears to be using @CSF and extract the heights of synthetic cloth points instead of interpolating authentic ground points --- we believe the mound is most likely caused by the "sagging" of the simulated cloth (see @fig:nrw-hessen-ground, simulated cloth in yellow), which we verify by examining the point clouds.
+@NRW appears to be using @CSF and extract the heights of synthetic cloth points instead of interpolating authentic ground points~--- we believe the mound is most likely caused by the "sagging" of the simulated cloth (see @fig:nrw-hessen-ground, simulated cloth in yellow), which we verify by examining the point clouds.
 
 #figure(
   grid(
@@ -384,7 +384,7 @@ Due to lack of open point cloud data in Hessen, the comparison between two state
 ) <fig:bavaria-forest-slope>
 
 Another detail evident from the comparison is the difference in approach to estimating the elevation of the water surface.
-Hessen appears to be relying on the data about the water surface obtained from the point cloud --- the surface does not appear to be perfectly smooth and seems to contain small artefacts.
+Hessen appears to be relying on the data about the water surface obtained from the point cloud~--- the surface does not appear to be perfectly smooth and seems to contain small artefacts.
 Bavaria instead uses Delaunay triangulation, seemingly based on the lowest point along the coastline of the water body.
 
 #figure(
@@ -409,7 +409,7 @@ The border between Hessen and @RLP largely follows the Rhine.
 Compared to the borders between German states, it has the second-highest @RMSE at 1.30m and the highest @LE90 at 0.19m. It also has the second-highest absolute error at -61.59m.
 High @RMSE can largely be attributed to errors due to processing in one particular tile; high @LE90 is a symptom of systematic errors.
 
-One of the tiles Hessen includes in its elevation dataset is almost entirely interpolated --- seemingly using two interpolation methods: linear interpolation on a TIN where sample points are available; and another method where data was not available.
+One of the tiles Hessen includes in its elevation dataset is almost entirely interpolated~--- seemingly using two interpolation methods: linear interpolation on a TIN where sample points are available; and another method where data was not available.
 Hessen does not publish the point cloud data, yet having observed raster elevation data, we believe that the entire tile was cropped out from the point cloud survey as it only contained partial data.
 A small part of Hessen still falls within that tile; and it was re-included by Hessen during the raster processing phase, interpolated based on the ground points from the neighbouring tiles.
 It is unclear what the elevation of the southwest extreme point is based on.
@@ -526,7 +526,7 @@ The second artefact within this border comparison is similar to the one encounte
 
 Several other errors exist within the border comparison. These are in line with the errors encountered at other borders. These include interpolation errors, differences in ground filtering (differences in overpass handling), temporal changes (mostly due to quarries or construction areas), differnces due to watermask shortcomings (including small pools, small lakes, creaks), steep slopes
 
-For this border comparison, the @INSPIRE target is not met. The amount of points above the threshold is only $0.14%$. However, the total @RMSE is 5.36m --- a factor $3.2$ greater than what it is allowed to be for the $5$ meter resolution. These results are not acceptable for the final map. However, solving this problem does not fall within the scope or time constraints of this project, and is primarily a challenge created due to available input data and not by the processing pipeline.
+For this border comparison, the @INSPIRE target is not met. The amount of points above the threshold is only $0.14%$. However, the total @RMSE is 5.36m~--- a factor $3.2$ greater than what it is allowed to be for the $5$ meter resolution. These results are not acceptable for the final map. However, solving this problem does not fall within the scope or time constraints of this project, and is primarily a challenge created due to available input data and not by the processing pipeline.
 
 #pagebreak()
 
@@ -827,7 +827,7 @@ The stripe appears to follow the edge of the French @DTM, which further points t
 )
 
 There is also a large artefact in the forested region near Pfetterhouse.
-In the French @DTM, the elevation of peaks appears to be underestimated while the elevation of valleys is overestimated --- essentially, the @DTM is over-smoothed.
+In the French @DTM, the elevation of peaks appears to be underestimated while the elevation of valleys is overestimated~--- essentially, the @DTM is over-smoothed.
 We speculate that regions like this come from a different survey with different approach to ground filtering (perhaps ground is estimated with a global interpolation function) but we have not been able to verify or falsify this hypothesis.
 
 #figure(
@@ -846,7 +846,7 @@ We speculate that regions like this come from a different survey with different 
 The border between Switzerland and @BW largely follows the Rhine between Konstanz and Basel and notably includes Büsingen, an exclave of BW within Switzerland.
 The regions are overall well-aligned with @LE90 of only 0.12m but a high @RMSE of 0.4m.
 
-The largest errors are best explained by temporal differences --- like in other areas examined above, there are several quarries present near the border. The largest of them is located northeast of Schaffhausen and is responsible for the largest differences in elevation, up to 30m.
+The largest errors are best explained by temporal differences~--- like in other areas examined above, there are several quarries present near the border. The largest of them is located northeast of Schaffhausen and is responsible for the largest differences in elevation, up to 30m.
 
 #figure(
   grid(

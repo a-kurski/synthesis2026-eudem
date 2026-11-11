@@ -14,7 +14,7 @@ This catchment definition includes the main body of the Rhine but excludes the M
 It covers parts of Italy, Austria, Liechtenstein, Switzerland, Germany, France, Luxembourg, Belgium, and the Netherlands.
 
 Existing approaches to creating cross-border DEMs were also reviewed.
-Mapterhorn combines heterogeneous --- global, national, and regional --- sources into a single DEM.
+Mapterhorn combines heterogeneous~--- global, national, and regional~--- sources into a single DEM.
 However, Mapterhorn currently does not aim to harmonise them or resolve conflicts at the border.
 Alternative cross-border products are global elevation models like Copernicus DEM which is only available at low (30m) resolution.
 
@@ -28,7 +28,7 @@ The datasets are available at a range or resolutions from 0.5m to 5m; several pr
 For different products, the data has a different horizontal and vertical CRS; different `NoData` values; different approaches to terrain filtering and interpolation are used.
 Several providers do not disclose, or incorrectly disclose, the `NoData` values and CRSs of their datasets.
 Parts of the datasets have also been acquired at different times, resulting in differences in elevation due to changes in terrain, such as earthworks or construction.
-Each of these results in extra need to perform data discovery and either an additional processing step --- such as CRS transformation or harmonising `NoData` values --- or a difference in elevation data at the border.
+Each of these results in extra need to perform data discovery and either an additional processing step~--- such as CRS transformation or harmonising `NoData` values~--- or a difference in elevation data at the border.
 
 We find that the pipeline is sensitive to the specifics of the input (meta-)data, such as correct CRS or `NoData` values.
 Several of the datasets feature incorrect or incomplete information which warrants additional data discovery and manually specifying this information for each dataset.
@@ -40,6 +40,6 @@ To test the accuracy of the DEM, we analyse the errors between the overlapping D
 We observe several kinds of errors when comparing bordering datasets.
 These can be categorised into interpolation errors, ground filtering errors, errors due to temporal differences, and errors due to pre- and post-processing (here listed from most to least common).
 The majority of the datasets demonstrate good agreement as illustrated by low RMSE and LE90, with errors largely caused by changes in elevation over time, often observed in quarries.
-Hessen/RLP and Bavaria/BW border pairs have high RMSE due to errors with interpolation and `NoData` values --- however, these areas fall outside of the extent of their corresponding region and therefore are not present in the product.
+Hessen/RLP and Bavaria/BW border pairs have high RMSE due to errors with interpolation and `NoData` values~--- however, these areas fall outside of the extent of their corresponding region and therefore are not present in the product.
 French national elevation product appears to be using a global interpolation function on some of the terrain which also results in high error rate and does have an effect on the quality of the product.
 Based on border region comparison alone, it is impossible to evaluate the exact magnitude of these errors.

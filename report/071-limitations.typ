@@ -6,7 +6,7 @@ However despite this success, there are limitations to the project.
 The first limitation is the scope of the project itself.
 Originally designed for a group of 4--6, it was completed by only three people over the course of 10 weeks.
 Within this time frame, they performed acquisition, harmonisation, evaluation; carried out project management; and presented their results in this report and in talks.
-The small number of people essentially prevented multitasking --- for instance, data acquisition and processing was paused at one point to allow the team to focus on presenting the results.
+The small number of people essentially prevented multitasking~--- for instance, data acquisition and processing was paused at one point to allow the team to focus on presenting the results.
 As a result, several aspects of the project were excluded from its scope: these include re-extracting the @DTM from raw point cloud data, automated artefact correction, and more extensive validation of the final product.
 
 Several issues were anticipated within the risk analysis carried out at the start of the project (@sec:risk).

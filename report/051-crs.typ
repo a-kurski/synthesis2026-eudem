@@ -22,7 +22,7 @@ Following a discussion with the clients, we determined that @ETRS89-LAEA is best
   caption: [Comparison of Tissot indicatrices for different projections.]
 ) <fig:tissot>
 
-The preservation of the angles --- which is among the key reasons to use geodetic coordinates in the @INSPIRE specification --- has been determined to be of lowest priority considering the expected use case of the product, while the preservation of area is of highest priority.
+The preservation of the angles~--- which is among the key reasons to use geodetic coordinates in the @INSPIRE specification~--- has been determined to be of lowest priority considering the expected use case of the product, while the preservation of area is of highest priority.
 A qualitative analysis of Tissot indicatrices (@fig:tissot) shows that the distortions in the Rhine catchment area are relatively minimal with @ETRS89-LAEA, whereas @ETRS89-GRS80 noticeably distorts shape and @ETRS89-LCC distorts area.
 
 Additionally, the use of Equi7Grid was considered.

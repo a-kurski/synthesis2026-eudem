@@ -65,16 +65,16 @@ Point cloud processing has been excluded from the pipeline due to the limited ti
   caption: [Flowchart of the processing steps of the pipeline.]
 )
 
-The pipeline is split into two stages: processing and comparison --- the above flowchart only shows the processing stage; comparison is described in @sec:border-analysis.
+The pipeline is split into two stages: processing and comparison~--- the above flowchart only shows the processing stage; comparison is described in @sec:border-analysis.
 Both stages take a `.json` file as input and write the intermediate and final results to it.
 The comparison stage reads and evaluates data completed during processing.
-The user is not expected to interact or pass arguments directly to the pipeline --- instead, they fill in the `.json` with input data.
+The user is not expected to interact or pass arguments directly to the pipeline~--- instead, they fill in the `.json` with input data.
 
 The global settings influence both the final product and the performance of the pipeline.
 The key raster settings include the target @CRS and resolution, region extent, interpolation settings, and path where the output raster should be written to.
 The performance settings govern the maximum number of threads which can be used for processing or the number of regions which can be processed at once.
 
-The region settings include the path to vector and raw raster data, information about regions @CRS and @VCRS in case they are not specified within metadata, and whether interpolation is needed --- currently, only Dutch @DTM needs interpolation.
+The region settings include the path to vector and raw raster data, information about regions @CRS and @VCRS in case they are not specified within metadata, and whether interpolation is needed~--- currently, only Dutch @DTM needs interpolation.
 Additionally, a water mask is passed for the river detection part of the algorithm.
 
 For the comparison stage, the settings include the threshold for flagging errors and the path to region's river or interpolation masks.
@@ -102,7 +102,7 @@ First, all regions without a processed @DEM are listed and a queue is built from
 The regions can be processed in parallel and this order helps avoid situations when one process is performing the reprojection while the remaining processes are sitting idle.
 
 For each region, all tiles are first aggregated into a virtual mosaic (`.vrt`).
-Each tile is assigned the region's @CRS as specified in the `.json` file --- this behaviour is necessary as parts of regional datasets (most notably subdivisions of Hessen and @RLP) have their @CRS either missing or incorrectly specified within the tile's metadata; and is placed into the mosaic according to that @CRS.
+Each tile is assigned the region's @CRS as specified in the `.json` file~--- this behaviour is necessary as parts of regional datasets (most notably subdivisions of Hessen and @RLP) have their @CRS either missing or incorrectly specified within the tile's metadata; and is placed into the mosaic according to that @CRS.
 No region has been found to have a mixed @CRS; we note, however, that this approach may cause issues if that is the case.
 
 Similarly, for certain regions, a `NoData` value needs to be specified.
@@ -131,7 +131,7 @@ Alongside the interpolated surface, a binary interpolation mask are written to f
 
 At this step, we need to decide which data to write to the output @DEM where @DEM:pla of several regions overlap.
 Several approaches were considered, such as evaluating for best temporal match or data quality.
-The former is not guaranteed by raster metadata --- referring to the GPS time of the corresponding point cloud was considered but ruled out due to storage requirements --- and the latter is difficult to infer from raster elevation data alone.
+The former is not guaranteed by raster metadata~--- referring to the GPS time of the corresponding point cloud was considered but ruled out due to storage requirements~--- and the latter is difficult to infer from raster elevation data alone.
 Instead, we simply write each region's data within its boundaries (as determined by a vector file of that region).
 
 However for regions where interpolation was performed during our processing, we decide to overwrite the interpolated grid cells with non-interpolated data from the neighbouring region if that data is available.
@@ -145,11 +145,11 @@ An expected behaviour of the pipeline is retaining the errors introduced by wate
 
 This mask could be identified using the classified point clouds. However, the re-extraction of a DEM from point clouds is out of the scope for this project. Therefore, we only rely on the DEM data for segmentation. While river/lake masks do exist, they either offer provide global low resolution vector data @HydroATLAS, or low resolution raster data @unep_fee.
 
-In order to create a high quality water mask, the @FEE mask was used as an input. The @FEE mask contains a value 1, 2, or 3 to describe the certainty of the underlying value being water --- corresponding to "no water", "seasonal water", and "permanent water" respectively --- based on historical remote sensing data.
+In order to create a high quality water mask, the @FEE mask was used as an input. The @FEE mask contains a value 1, 2, or 3 to describe the certainty of the underlying value being water~--- corresponding to "no water", "seasonal water", and "permanent water" respectively~--- based on historical remote sensing data.
 
 However, the @FEE mask is not fine enough to be applied to the elevation map. Instead, we can use the @FEE mask's values of 2 and 3 as seed points in a region growing algorithm. Since rivers and water bodies are known to be relatively flat, we perform region growing detecting neighbourhoods with small changes in elevation.
 
-The mask is transformed to the elevation map resolution, @CRS and grid. Each grid point with value 2 or 3 raster is taken as a seed for a region growing algorithm. These seed points are added to the region growing queue. Each entry has eight neighbours and for each, the height difference with the given cell is calculated. When these differences are smaller than the set threshold --- empirically, it was found that a 0.02m threshold works best --- the neighbouring point is added to the end of the queue. The result is a breadth first search which incrementally classifies cells as a water body. The end result is a mask with region IDs, where cell values above 0 denote the existence of a water body. A pseudo-code description of the water masking is found in @alg-river-mask.
+The mask is transformed to the elevation map resolution, @CRS and grid. Each grid point with value 2 or 3 raster is taken as a seed for a region growing algorithm. These seed points are added to the region growing queue. Each entry has eight neighbours and for each, the height difference with the given cell is calculated. When these differences are smaller than the set threshold~--- empirically, it was found that a 0.02m threshold works best~--- the neighbouring point is added to the end of the queue. The result is a breadth first search which incrementally classifies cells as a water body. The end result is a mask with region IDs, where cell values above 0 denote the existence of a water body. A pseudo-code description of the water masking is found in @alg-river-mask.
 
 #[
 #show figure: set align(left)
@@ -203,10 +203,10 @@ The resulting elevation difference rasters contain the cell-wise elevation diffe
 Qualitative analysis is also supported by satellite imagery or @OSM vector maps.
 
 Based on this difference, we construct polygons to highlight errors greater than a set threshold. Nearby polygons are merged into one which allows highlighting potential areas with high concentration of disagreements rather than relying on a count of cells in excess of the threshold.
-We selected the threshold to match the minimum ratio between resolution and vertical @RMSE --- at 5m, that threshold is 1.67m. This threshold is a little lower than Copernicus's 2m @LE90 benchmark. For the analysis, the number of cells where the error rate exceeds the threshold is also presented.
+We selected the threshold to match the minimum ratio between resolution and vertical @RMSE~--- at 5m, that threshold is 1.67m. This threshold is a little lower than Copernicus's 2m @LE90 benchmark. For the analysis, the number of cells where the error rate exceeds the threshold is also presented.
 
 The spatial correlation of the elevation differnces is also analysed. Overall, it is expected that Tobler's (#cite(<Tobler1970>, form: "year")) first law of geography will hold: the close-by errors will have a higher correlation than far-away ones.
-It is further expected that stochastic errors are uncorrelated, and a high correlation of far away errors likely indicates a systematic error instead. However, the correlation does not account for error magnitude --- a small systematic error will result in a higher correlation rate than a large stochastic one.
+It is further expected that stochastic errors are uncorrelated, and a high correlation of far away errors likely indicates a systematic error instead. However, the correlation does not account for error magnitude~--- a small systematic error will result in a higher correlation rate than a large stochastic one.
 
 Another way to evaluate systematic errors is through coregistration. This is a function in XDEM which performs an affine transform @tc-5-271-2011, which ensures best alignment of the @DTM:pla in $x$, $y$ and $z$ directions. The statistics (@RMSE, @LE90, mean error etc) are calculated for the border region before and after coregistration. A small affine transform with a high @RMSE would indicate stochastic errors.
 
