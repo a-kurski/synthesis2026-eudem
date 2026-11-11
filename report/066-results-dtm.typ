@@ -46,3 +46,18 @@ In our case, this happens primarily on the border with France as it is an older 
 ) <fig:seam-france>
 
 // #drafting.inline-note()[zoomed-in hillshade]
+
+Whenever a border passes through a water body, we reliably see "jumps" in elevation.
+@fig:seam-river shows that such jumps are present not only at the border but also within the individual @DTM:pla and are likely due to temporal differences between different surveys.
+
+#figure(
+  //placement: auto,
+  grid(
+    columns: (1fr, 1fr, 1fr),
+    column-gutter: 5pt,
+    [#image("assets/river-elev-borders.png")],
+    [#image("assets/river-elev.png")],
+    [#image("assets/river-hillshade.png")]
+  ),
+  caption: [Elevation changes in water, as shown on the border between Hessen and RLP]
+) <fig:seam-river>
