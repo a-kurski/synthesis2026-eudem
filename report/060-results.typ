@@ -25,7 +25,7 @@ The total file size of the source data is measured at 804.46 GB. Notably, France
 
 === Water Mask <sec:Watermask_artefacts>
 
-However, during analysis it was shown that including water bodies showed large deviations in elevation between regions. Due to a lack of an existing high quality water mask, an existing mask was refined as detailed in @sec:Water_mask_processing. However, due to shortcomings of the mask and the applied algorithm, artefacts still occur, even if their impact on the analysis is minimised. The final result of the river mask can be observed in @fig:River_mask_final.
+The elevation differences shown above emphasise the need for masking the rivers~--- within the scope of this project, primarily for performing more accurate analysis. Due to a lack of an existing high quality water mask, an existing mask was refined as detailed in @sec:Water_mask_processing. However, due to the nature of the underlying data ("jumps" in elevation happen even within the same dataset) and the applied algorithm, artefacts still occur, even if their impact on the analysis is minimised. The final result of the river mask can be observed in @fig:River_mask_final.
 
 #figure(
   grid(
@@ -42,8 +42,7 @@ However, during analysis it was shown that including water bodies showed large d
 )<fig:River_mask_final>
 #v(1em)
 
-
-The region growing algorithm relies on the assumption that the water surface is smooth. However, this is not always the case. The first example of this is found in @fig:River_mask_manmade. Here a hydroelectric power plant causes a change in the elevation of the water surface. The rough water mask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the water mask, and the area surrounding the plant such as the left secondary channel, is not modeled.
+The region growing algorithm relies on the assumption that the water surface is smooth. However, this is not always the case. The first example of this is found in @fig:River_mask_manmade. Here a hydroelectric power plant causes a change in the elevation of the water surface. The rough water mask from @FEE marks this as an area which is not considered water. Therefore, there is a break in the water mask, and the area surrounding the plant such as the left secondary channel, is not modelled.
 
 #figure(
   grid(
@@ -54,7 +53,7 @@ The region growing algorithm relies on the assumption that the water surface is 
       #image("assets/Lux-Saarland-HydroGoogle.png", width: 80%)
       #align(center)[
         #text(size: 10pt)[
-          Google Maps, Imagery © 2026 Airbus, Maxar Technologies.
+          Satellite imagery. From Airbus, Maxar Technologies (2026).
         ]
       ]
     ],
@@ -74,7 +73,7 @@ The region growing algorithm relies on the assumption that the water surface is 
 )<fig:River_mask_manmade>
 #v(1em)
 
-Another similar shortcoming is that the @FEE mask is incomplete. Not all lakes have valid seed points contained within. Furthermore, the reprojection of @FEE cell centers onto the empty mask, due to invalid row and/or column values as a result of division by 0 errors. These are known limitations of the river mask which could be solved by extracting the mask from the national point clouds of the respective regions.
+Another similar shortcoming is that the @FEE mask is incomplete. Not all lakes contain valid seed points. Furthermore, the reprojection of @FEE cell centres onto the empty mask sometimes fails due to invalid row and/or column values which results in runtime errors. These are known limitations of the river mask which could be solved by extracting the mask from the national point clouds of the respective regions.
 
 #figure(
   grid(
@@ -85,7 +84,7 @@ Another similar shortcoming is that the @FEE mask is incomplete. Not all lakes h
       #image("assets/France-missing-lakes-Maps.png", width: 100%)
       #align(center)[
         #text(size: 10pt)[
-          Google Maps, Imagery © 2026 Airbus, Maxar Technologies.
+          Satellite imagery. From Airbus, Maxar Technologies (2026).
         ]
       ]
     ],
@@ -113,7 +112,7 @@ Another similar shortcoming is that the @FEE mask is incomplete. Not all lakes h
 )<fig:River_mask_missinglakes>
 #v(1em)
 
-Other issues include areas that are marked as neither lake or river by the @FEE mask. Examples include swampy areas on the Netherlands – @NRW border. This is shown in @fig:getoutofmyswamp.
+Other issues include areas that are not marked as water within the @FEE mask. Examples include swampy areas on the Netherlands – @NRW border. This is shown in @fig:getoutofmyswamp.
 
 #figure(grid(
     columns: 2,
@@ -123,8 +122,8 @@ Other issues include areas that are marked as neither lake or river by the @FEE 
       #image("assets/Netherlands-NRW-StoneSwampGoogle.png", width: 80%)
       #align(center)[
         #text(size: 10pt)[
-          Google Maps Imagery © 2026 Airbus, Landsat / Copernicus,
-          Maxar Technologies
+          Satellite imagery. From Airbus, Landsat / Copernicus,
+          Maxar Technologies (2026).
         ]
       ]
     ],
@@ -138,10 +137,10 @@ Other issues include areas that are marked as neither lake or river by the @FEE 
       ]
     ],
   ),
-  caption: [Omission of swamp-like areas from the watermask prevents correct detection of water bodies. The marsh located between the upper lake and smaller patched lakes is not properly accounted for.])
+  caption: [Omission of swamp-like areas from the water mask prevents correct detection of water bodies. The marsh located between the upper lake and smaller patched lakes is not properly accounted for.])
 <fig:getoutofmyswamp>
 
-The last artefact appears most frequently within the French region of the mask. This does not affect the border area as the masks of both regions overlap here. However, this appears to be caused by the @TIN approximation of the water surface. This causes shard-like sections of discoloration in the @DTM. Unlike other artefacts this does not strongly affect the border areas. However, it does mean it cannot be used as a true harmonisation step for the Rhine @DTM.
+The last artefact can be observed along several regions but is most pronounced within France. It is caused by using the @TIN to approximate the water surface. Visually, it appears as shard-like sections of lighter and darker colour in the @DTM where different points along the river bank are chosen as sample points for interpolation on a TIN (see @fig:River_mask_TIN). While it is most severe in areas further from the border and does not significantly affect the quality of the analysis, it does show that further work is needed to fully integrate the water mask.
 
 #figure(
   grid(
@@ -152,7 +151,7 @@ The last artefact appears most frequently within the French region of the mask. 
       #image("assets/France-ommision-riverfail-Maps.png", width: 100%)
       #align(center)[
         #text(size: 10pt)[
-          Google Maps Imagery © 2026 Airbus, Maxar Technologies.
+          Satellite imagery. From Airbus, Maxar Technologies (2026).
         ]
       ]
     ],
@@ -177,6 +176,5 @@ The last artefact appears most frequently within the French region of the mask. 
   ),
   caption:[River mask failure due to changes in the water surface elevation caused by TIN interpolation of the surface.]
 )<fig:River_mask_TIN>
-#pagebreak()
 
 #include "062-analysis.typ"
