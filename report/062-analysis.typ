@@ -221,7 +221,7 @@ The second artefact in this category is singular tiles, or sections of tiles tha
 
 Ground filtering is the second most common artefact encountered for the border pairs. For this category we consider steep slopes (cliffs, valleys), and disagreements caused by overpass handling. Out of these subcategories, steep slopes are both the most common and most severe, while overpasses only create small, local disagreements.
 
-Overpasses can only be found in roughly a quarter of all cases. However, this does not mean they do not exist within other border pairs, but simply do not create elevation differences. The severity of the difference depends on the height of the overpass, though generally exceed the resolution threshold. @fig:NRW-RLP-overpass-example shows and example where the area which exceeds the resolution threshold is highlighted in red, while the NRW and RLP images show the elevation.
+Errors in overpasses can only be found in roughly a quarter of all border pairs --- they may also be present in other @DTM:pla but are processed similarly there. The severity of the difference largely depends on the height of the overpass and generally exceed the 1.67m threshold. @fig:NRW-RLP-overpass-example shows an example of different overpass processing.
 
 #figure(
   grid(
@@ -257,7 +257,7 @@ Overpasses can only be found in roughly a quarter of all cases. However, this do
 <fig:NRW-RLP-overpass-example>
 #v(1em)
 
-The two main types of slope disagreement are cliffs and valleys/hills. These artefacts can be recognized by a discrete drop in the @DTM or a thin and long artefact on the difference @DEM. An example of this type of artefact can be seen in @fig:Hessen-BW-clearing-example. Due to the steepness of the cliff small horizontal differences between sample points in the @DTM can create large vertical differences as measurements may lie at the top or bottom of the cliff. Alternatively, this can be a byproduct of differnces in ground filtering methods such as cloth simulation, progressive TIN densification, or @SMRF.
+Errors due to slope processing occur at cliffs and in valleys/hills. A cliff typically shows up as a thin and long artefact on the @DEM difference raster, as seen in @fig:Hessen-BW-clearing-example. Due to the steepness of the cliff small horizontal differences between sample points in the @DTM can create large vertical differences if one dataset measures the elevation at the bottom of the cliff and the other at the top. Alternatively, this can be a byproduct of differences in ground filtering methods.
 
 #figure(
   grid(
@@ -291,7 +291,7 @@ The two main types of slope disagreement are cliffs and valleys/hills. These art
 )
 <fig:Hessen-BW-clearing-example>
 
-The second type of slope disagreement can be found primarily in regions which constain deep valleys such as the France – Luxembourg border. The cause for this disagreement is the same as for steep cliffs. However, unlike cliffs, this type of artefact can cause large sections of disagreement between @DTM:pls (@fig:Lux_Fra_border-example). @fig:Lux_Fra_Rumelange_example shows the region around the city of Rumelange, which is located within a valley. The difference in @DTM elevations can increase up to differences of 25 meters in both positive and negative directions. The best way to resolve these sorts of discrepancies would be to reextract the @DTM for the border region through the point cloud, as smoothing the terrain such as Mapterhorn does, deviates far from the actual elevation of the region @wipfli2026mapterhorn.
+The second type of slope disagreement can be found primarily in regions which constain deep valleys such as the France – Luxembourg border. The underlying causes are similar: differences in either data acquisition or ground filtering. However unlike cliffs, this type of artefact can cause large sections of disagreement between @DTM:pls (@fig:Lux_Fra_border-example). @fig:Lux_Fra_Rumelange_example shows the region around the city of Rumelange, which is located within a valley. The difference in @DTM elevations here are up to differences of 25 meters in both positive and negative directions. We also observe higher error rates for areas with steep slopes in other datasets, but the magnitude of those is typically under a metre. For France, we expect that a more accurate dataset will mostly resolve these errors; for other regions, standardising the ground filtering algorithm may reduce their magnitude too.
 
 #figure(
   grid(
