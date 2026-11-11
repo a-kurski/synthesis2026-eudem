@@ -152,123 +152,6 @@ One important note is that interpolation is not always at fault for differences 
   caption: [Ground and building filtering differences between NRW and Hessen.]
 )<fig:ground-building>
 
-=== Ground filtering artefacts
-
-Ground filtering is the second most common artefact encountered for the border pairs. For this category we consider steep slopes (cliffs, valleys), and disagreements caused by overpass handling. Out of these subcategories, errors due to steep slopes are both the most common and most severe, while overpasses are rare and only create small, local disagreements.
-
-Errors in overpasses can only be found in roughly a quarter of all border pairs --- they may also be present in other @DTM:pla but are processed similarly there. The severity of the difference largely depends on the height of the overpass and generally exceed the 1.67m threshold. @fig:NRW-RLP-overpass-example shows an example of different overpass processing.
-
-#figure(
-  grid(
-    columns: 3,
-    gutter: 5pt,
-
-    [
-      #image("assets/NRW-RLP-overpass.png", width: 100%)
-      #text(size: 10pt)[
-        Satellite imagery. From AeroWest,
-        Airbus, Maxar Technologies \
-        (2026).
-      ]
-    ],
-
-    [
-      #image("assets/NRW-RLP-overpassNRW.png", width: 100%)
-      #text(size: 10pt)[
-        DTM provided by NRW.
-      ]
-    ],
-
-    [
-      #image("assets/NRW-RLP-overpassRLP.png", width: 100%)
-      #text(size: 10pt)[
-        DTM provided by RLP.
-      ]
-
-    ],
-  ),
-  caption: "Example of an overpass being treated differently between NRW and RLP due to differences in ground filtering.",
-)
-<fig:NRW-RLP-overpass-example>
-#v(1em)
-
-Errors due to slope processing occur at cliffs and in valleys/hills. A cliff typically shows up as a thin and long artefact on the @DEM difference raster, as seen in @fig:Hessen-BW-clearing-example. Due to the steepness of the cliff small horizontal differences between sample points in the @DTM can create large vertical differences if one dataset measures the elevation at the bottom of the cliff and the other at the top. Alternatively, this can be a byproduct of differences in ground filtering methods.
-
-#figure(
-  grid(
-    columns: 3,
-    gutter: 5pt,
-
-    [
-      #image("assets/Hessen-BW-clearingESRI.png", height: 5cm, fit: "contain")
-      #align(center)[(ESRI)]
-    ],
-
-    [
-      #image("assets/Hessen-BW-clearingDH.png", height: 5cm, fit: "contain")
-      #text(size: 10pt)[
-        Elevation difference map.
-      ]
-    ],
-
-    [
-      #image("assets/Hessen-BW-clearingSV.png", height: 5cm, fit: "contain")
-      #text(size: 10pt)[
-        Image from Google Street View \
-        (49.4762° N, 8.4208° E)
-      ]
-    ],
-  ),
-  caption: "Example of a cliff artefact flagged as a resolution threshold exceeding disagreement",
-)
-<fig:Hessen-BW-clearing-example>
-
-The second type of slope disagreement can be found primarily in regions which constain deep valleys such as the France – Luxembourg border. The underlying causes are similar: differences in either data acquisition or ground filtering. However unlike cliffs, this type of artefact can cause large sections of disagreement between @DTM:pls (@fig:Lux_Fra_border-example). @fig:Lux_Fra_Rumelange_example shows the region around the city of Rumelange, which is located within a valley. The difference in @DTM elevations here are up to differences of 25 meters in both positive and negative directions. We also observe higher error rates for areas with steep slopes in other datasets, but the magnitude of those is typically under a metre. For France, we expect that a more accurate dataset will mostly resolve these errors; for other regions, standardising the ground filtering algorithm may reduce their magnitude too.
-
-#figure(
-  grid(
-    columns: 2,
-    gutter: 5pt,
-
-    [
-      #image("assets/France-Lux-borderarea.png", width: 100%)
-      #align(center)[(DH)]
-    ],
-
-    [
-      #image("assets/France-Lux-borderarea-issues.png", width: 100%)
-      #align(center)[(Flagged Differences)]
-    ],
-  ),
-  caption: "Example of large regions of disagreement, flagged differences in red exceed 1.6 meters of difference at the France – Luxembourg border",
-)
-<fig:Lux_Fra_border-example>
-
-#figure(
-  grid(
-    columns: 3,
-    gutter: 5pt,
-
-    [
-      #image("assets/France-Lux-Rumelange-DH.png", width: 100%)
-      #align(center)[(DH)]
-    ],
-
-    [
-      #image("assets/France-Lux-Rumelange-elevation.png", width: 100%)
-      #align(center)[(DTM)]
-    ],
-
-
-    [
-        #image("assets/France-Lux-Rumelange-contour.png", width: 100%)
-        #align(center)[(Contours)]
-    ],
-  ),
-  caption: "Example of Rumelange where disagreements can increase up to 25 meters.",
-)
-<fig:Lux_Fra_Rumelange_example>
-
 === Pre-Processing Artefacts
 Pre-processing artefacts are one of the least common types of artefacts. However, these artefacts may have a sizeable effect on the RMSE or LE90 statistics for a given border pair. These differences can be divided into two categories.
 
@@ -334,6 +217,124 @@ The second artefact in this category is singular tiles, or sections of tiles tha
   caption: "Examples of visible tile seams in elevation difference maps caused by vertical elevation offsets between adjacent DTM tiles.",
 ) <fig:Tileoffset_example>
 
+=== Ground filtering artefacts
+
+Ground filtering is the second most common artefact encountered for the border pairs. For this category we consider steep slopes (cliffs, valleys), and disagreements caused by overpass handling. Out of these subcategories, steep slopes are both the most common and most severe, while overpasses only create small, local disagreements.
+
+Errors in overpasses can only be found in roughly a quarter of all border pairs --- they may also be present in other @DTM:pla but are processed similarly there. The severity of the difference largely depends on the height of the overpass and generally exceed the 1.67m threshold. @fig:NRW-RLP-overpass-example shows an example of different overpass processing.
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/NRW-RLP-overpass.png", width: 100%)
+      #text(size: 10pt)[
+        Satellite imagery. From AeroWest,
+        Airbus, Maxar Technologies \
+        (2026).
+      ]
+    ],
+
+    [
+      #image("assets/NRW-RLP-overpassNRW.png", width: 100%)
+      #text(size: 10pt)[
+        DTM of NRW.
+      ]
+    ],
+
+    [
+      #image("assets/NRW-RLP-overpassRLP.png", width: 100%)
+      #text(size: 10pt)[
+        DTM of RLP.
+      ]
+
+    ],
+  ),
+  caption: "Example of an overpass being treated differently between NRW and RLP due to differences in ground filtering.",
+)
+<fig:NRW-RLP-overpass-example>
+#v(1em)
+
+Errors due to slope processing occur at cliffs and in valleys/hills. A cliff typically shows up as a thin and long artefact on the @DEM difference raster, as seen in @fig:Hessen-BW-clearing-example. Due to the steepness of the cliff small horizontal differences between sample points in the @DTM can create large vertical differences if one dataset measures the elevation at the bottom of the cliff and the other at the top. Alternatively, this can be a byproduct of differences in ground filtering methods.
+
+#figure(
+  grid(
+    columns: 3,
+    gutter: 5pt,
+
+    [
+      #image("assets/Hessen-BW-clearingESRI.png", height: 5cm, fit: "contain")
+      #text(size: 10pt)[
+        Satellite imagery. From AeroWest, Airbus, Geobasis-DE/BKG.
+        \ (2026)
+      ]
+    ],
+
+    [
+      #image("assets/Hessen-BW-clearingDH.png", height: 5cm, fit: "contain")
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
+    ],
+
+    [
+      #image("assets/Hessen-BW-clearingSV.png", height: 5cm, fit: "contain")
+      #text(size: 10pt)[
+        Image from Google Street View \
+        (49.453946° N, 8.947358° E)
+      ]
+    ],
+  ),
+  caption: "Example of a cliff artefact flagged as a resolution threshold exceeding disagreement",
+)
+<fig:Hessen-BW-clearing-example>
+
+The second type of slope disagreement can be found primarily in regions which constain deep valleys such as the France – Luxembourg border. The underlying causes are similar: differences in either data acquisition or ground filtering. However unlike cliffs, this type of artefact can cause large sections of disagreement between @DTM:pls (@fig:Lux_Fra_border-example). @fig:Lux_Fra_Rumelange_example shows the region around the city of Rumelange, which is located within a valley. The difference in @DTM elevations here are up to differences of 25 meters in both positive and negative directions. We also observe higher error rates for areas with steep slopes in other datasets, but the magnitude of those is typically under a metre. For France, we expect that a more accurate dataset will mostly resolve these errors; for other regions, standardising the ground filtering algorithm may reduce their magnitude too.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/France-Lux-borderarea.png", width: 100%)
+      #text(size: 10pt)[Elevation difference map.]
+    ],
+
+    [
+      #image("assets/France-Lux-borderarea-issues.png", width: 100%)
+      #text(size: 10pt)[Flagged differences in red.]
+    ],
+  ),
+  caption: "Example of large regions of disagreements. Flagged disagreements in red exceed 1.6 meters of difference between the France/Luxembourg datasets.",
+)
+<fig:Lux_Fra_border-example>
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/France-Lux-Rumelange-DH.png", width: 100%)
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
+    ],
+
+    [
+      #image("assets/France-Lux-Rumelange-elevation.png", width: 100%)
+      #text(size: 10pt)[
+        DTM
+      ]
+    ],
+  ),
+  caption: "Example of Rumelange in Luxembourg, next to the French border. Disagreements of up to 25 meters are observed.",
+)
+<fig:Lux_Fra_Rumelange_example>
+
 === Temporal artefacts
 
 Temporal artefacts rank third as the most common cause of artefacts. This is due to the fact the acquisition time between two regional or national @DTM:pls can differ up to several years.
@@ -349,17 +350,23 @@ However, a more interesting type of temporal difference is found in the area sur
 
     [
       #image("assets/RLP-BW-CoalESRI.png", width: 80%)
-      #align(center)[(ESRI)]
+      #text(size: 10pt)[
+        Satellite imagery. From Airbus, GeoBasis-DE/BKG, Maxar Technologies\
+        (2026)
+      ]
     ],
 
     [
       #image("assets/RLP-BW-CoalDH.png", width: 80%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
   ),
-  caption: "Example of coal storage",
+  caption: "Large elevation differences observed due to changes of a coal storage between two surveys.",
 )
 <fig:Coal>
+#v(1em)
 
 There is one even more unique difference which only occurs once to our knowledge within the border comparisons. This is the inclusion of snow which has affected the elevation in the @DTM, which was determined through point cloud evaluation (@fig:snow).
 
@@ -367,14 +374,27 @@ There is one even more unique difference which only occurs once to our knowledge
   grid(
     columns: (1fr, 1fr, 2fr),
     column-gutter: 5pt,
-    [#image("assets/nrw-hessen-snow-satellite.png")],
-    [#image("assets/nrw-hessen-snow.png")],
-    [#image("assets/nrw-hessen-snow.jpeg", width: 85%)]
+    [#image("assets/nrw-hessen-snow-satellite.png")
+      #text(size: 10pt)[
+        Satellite imagery. \ From Airbus, \ Maxar Technologies\
+        (2026)
+      ]
+    ],
+    [#image("assets/nrw-hessen-snow.png")
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
+    ],
+    [#image("assets/nrw-hessen-snow.jpeg", width: 85%)
+      #text(size: 10pt)[
+        Point cloud of the area. \ Yellow areas correspond to snow.
+      ]
+    ]
   ),
-  caption: [Example of snow affecting the comparison]
+  caption: "Elevation differences caused by the presence of snow in one of the surveys.",
 )<fig:snow>
 
-These differences can be resolved by comparing the point clouds of the neighboring regions. For the interest of temporal accuracy, it is most favorable to take the data from the latest aquisition time to have the most recent data. However, this does possibly cause a noticable seam at the edge of the overlapping area without any smoothing. As discussed in ... , smoothing dilutes the elevation data captured between regions and is undesirable. Furthermore, static features such as hills should not be affected by temporal aspects, and may require a different approach to be rectified. Solving this challenge is not within the boundaries of this project, but could be the focus of a followup project.
+These differences can be resolved by comparing the point clouds of the neighboring regions. For the interest of temporal accuracy, it is most favorable to take the data from the latest aquisition time to have the most recent data. However, this does possibly cause a noticable seam at the edge of the overlapping area without any smoothing. Smoothing dilutes the elevation data captured between regions and is undesirable. Furthermore, static features such as hills should not be affected by temporal aspects, and may require a different approach to be rectified. Solving this challenge is not within the boundaries of this project, but could be the focus of a followup project.
 
 === Border artefacts <sec:postprocessing-errors>
 
@@ -382,9 +402,10 @@ Border artefacts refer to wrongly interpolated @DTM edges and extrapolation of d
 
 #figure(
   image("assets/Hessen-BW-Borderartifact.png",width:40%),
-  caption:"Example where a DTM edge difference exceeds the resolution threshold"
+  caption:"Example where a DTM edge difference exceeds the resolution threshold."
 )
 <fig:Borderartefact>
+#v(1em)
 
 The second type of artefact are border regions where some type of interpolation has occured to complete or modify the @DTM. The severity of this artefact is greater as it often covers a larger area, and is harder to filter out due to the diversity of how the artefact presents itself. The first of the ways in which it is presented, occurs at the Hessen – @RLP border. The method through which this artefact has been created is not entirely clear. It appears in the Hessen @DTM and appears to linearly stretch pixel values between two non-neighboring tiles, and also produces sharp geometric shapes.
 
@@ -392,14 +413,31 @@ The second type of artefact are border regions where some type of interpolation 
   grid(
     columns: (1fr, 1fr, 1fr, 1fr),
     column-gutter: 5pt,
-    [#image("assets/hessen-rlp-artefact-satellite.png")],
-    [#image("assets/hessen-rlp-artefact-hessen.png") Hessen],
-    [#image("assets/hessen-rlp-artefact-rlp.png") RLP],
-    [#image("assets/hessen-rlp-artefact.png")],
+    [#image("assets/hessen-rlp-artefact-satellite.png")
+      #text(size: 10pt)[
+        Satellite imagery. \ From Airbus, \ Maxar Technologies.\
+        (2026)
+      ]
+    ],
+    [#image("assets/hessen-rlp-artefact-hessen.png")
+      #text(size: 10pt)[
+        DTM of Hessen.
+      ]
+    ],
+    [#image("assets/hessen-rlp-artefact-rlp.png")
+      #text(size: 10pt)[
+        DTM of RLP.
+      ]
+    ],
+    [#image("assets/hessen-rlp-artefact.png")
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
+    ],
   ),
-  caption: [Interpolation artefact by shown as a combination of smeared and geometrically shaped data for the Hessen DTM]
+  caption: [Interpolation artefact found over an entire tile for the Hessen DTM. The RLP DTM in the same location is also shown.]
 )
-
+#v(1em)
 Another example of this occurs at the @RLP – Saarland border (@fig:Extrapolation2). As can be observed in the figure, the valley in blue for the RLP and Saarland images, does not line up between the the two @DTM:pls. Furthermore, the visuals appear smeared in the difference map on the right side (DH), pointing towards values interpolated using a method such as @IDW. In contrast to the previous case, not all of the offending area appears to be interpolated. However, some degree of processing at the border section has caused a disagreement of put to 16 meters in this area.
 
 #figure(
@@ -409,22 +447,29 @@ Another example of this occurs at the @RLP – Saarland border (@fig:Extrapolati
 
     [
       #image("assets/RLP-Saarland-Extrapolation2RLP.png", width: 100%)
-      #align(center)[(RLP)]
+      #text(size: 10pt)[
+        DTM of RLP.
+      ]
     ],
 
     [
       #image("assets/RLP-Saarland-Extrapolation2Saar.png", width: 100%)
-      #align(center)[(Saarland)]
+      #text(size: 10pt)[
+        DTM of Saarland.
+      ]
     ],
 
     [
       #image("assets/RLP-Saarland-Extrapolation2DH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
   ),
-  caption: "Example of extrapolation artefact as smeared",
+  caption: "Large elevation differences caused by extrapolation artefacts. The artefacts are visible in the Saarland DTM.",
 )
 <fig:Extrapolation2>
+#v(1em)
 
 The last example of this type of artefact is one which was introduced due to our own interpolation. In an effort to interpolate the Dutch @DTM `NoData` values, extrapolation has occured (@fig:Netherlands-border_example). This artefact is created by a disagreement between the border definitions in our Dutch mask and the actual dutch border as it has been clipped. As the mask is slightly expanded, several areas are extrapolated beyond the data available within the Dutch @DTM. Solving this disagreement is a matter up improving the Dutch mask. Furthermore, the availability of @AHN version 6 should eliminate this issue, as it will extend into Germany and beyond the current border mask.
 
@@ -435,14 +480,20 @@ The last example of this type of artefact is one which was introduced due to our
 
     [
       #image("assets/Netherlands-NRW-borderdifferenceAHN.png", width: 100%)
-      #align(center)[(Netherlands)]
+      #align(center)[
+        #text(size: 10pt)[
+          DTM of The Netherlands' border with NRW.
+        ]
+      ]
     ],
 
     [
       #image("assets/Netherlands-NRW-borderdifferenceDH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
   ),
-  caption: "Border artefact",
+  caption: "Elevation differences introduced along the Netherlands/NRW border caused by interpolation by the authors.",
 )
 <fig:Netherlands-border_example>
