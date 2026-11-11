@@ -813,7 +813,7 @@ Alongside these large local differences, @fig:bw-france-patterns shows flight-li
 ]
 
 
-== Switzerland -- Germany & France
+== Switzerland
 
 === Switzerland -- France
 
