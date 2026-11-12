@@ -79,26 +79,26 @@ The full overview of each border pair and their corresponding artefacts can be f
     ..sub("Interpolation differences", 17, "100%"),
 
     ..cat("Ground filtering", 15, "88%", 2, 2),
-    ..sub("Slopes", 13, "76%"),
     ..sub("Overpass", 5, "29%"),
+    ..sub("Slopes", 13, "76%"),
 
     ..cat("Temporal", 14, "82%", 3, 3),
-    ..sub("Construction", 11, "65%"),
-    ..sub("Quarry", 10, "59%"),
-    ..sub("Bulk storage", 5, "29%"),
     ..sub("Snow", 1, "6%"),
+    ..sub("Bulk storage", 5, "29%"),
+    ..sub("Quarry", 10, "59%"),
+    ..sub("Construction", 11, "65%"),
 
     ..cat("Water mask", 13, "76%", 4, 4),
-    ..sub("River mask failure", 13, "76%"),
     ..sub("Water handling", 5, "29%"),
-
-    ..cat("Post-processing", 7, "41%", 5, 1),
-    ..sub("Edge resampling", 5, "29%"),
-    ..sub("Extrapolation", 5, "29%"),
+    ..sub("River mask failure", 13, "76%"),
 
     ..cat("Pre-processing", 7, "41%", 5, 6),
-    ..sub("Tile seam", 4, "24%"),
     ..sub("ALS striping", 4, "24%"),
+    ..sub("Tile seam", 4, "24%"),
+
+    ..cat("Post-processing", 7, "41%", 5, 1),
+    ..sub("Extrapolation", 5, "29%"),
+    ..sub("Edge resampling", 5, "29%"),
   ),
   caption: [
     Identified artefact categories and their prevalences.
@@ -107,7 +107,7 @@ The full overview of each border pair and their corresponding artefacts can be f
 
 #include "061-artefact_table.typ"
 
-=== Interpolation artefacts
+=== Interpolation Artefacts
 
 Interpolation disagreements occur at all borders. This is because a @DTM does not include buildings or vegetation within the data, it only includes terrain which means that some data has to be excluded from the source data. There are various methods to filter out these features. This results in gaps in the dataset which need to be filled, typically via interpolation. The exact point within the pipeline, source data, and interpolation algorithm all affect the elevation values of the resulting @DTM.
 
@@ -152,7 +152,7 @@ One important note is that interpolation is not always at fault for differences 
   caption: [Ground and building filtering differences between DE-NW and DE-HE.]
 )<fig:ground-building>
 
-=== Ground filtering artefacts
+=== Ground Filtering Artefacts
 
 Ground filtering is the second most common artefact encountered for the border pairs. For this category we consider steep slopes (cliffs, valleys), and disagreements caused by overpass handling. Out of these subcategories, steep slopes are both the most common and most severe, while overpasses only create small, local disagreements.
 
@@ -269,7 +269,7 @@ The second type of slope disagreement can be found primarily in regions which co
 )
 <fig:Lux_Fra_Rumelange_example>
 
-=== Temporal artefacts
+=== Temporal Artefacts
 
 Temporal artefacts rank third as the most common cause of artefacts. This is due to the fact that the acquisition time between two regional or national @DTM:pls can differ up to several years. There are only a few typical causes of these differences. Most common are construction sites, which include everything from the construction or demolition of buildings, to the erection of wind turbines, which happens in most German regions. These are followed by excavation within the quarries, frequently found in all regions of Germany.
 
@@ -328,7 +328,7 @@ Some remnants of snow at a skiing resort are included in the @DTM of @DE-NW, lik
 These differences can be only resolved by comparing the point clouds of the neighbouring regions. In the interest of temporal accuracy, it is most favourable to select data acquired most recently. However, this may cause a noticeable "seam" if the change happens at the edge of the dataset.
 
 === Pre-Processing Artefacts
-Pre-processing artefacts are one of the least common types of artefacts. However, these artefacts may have a sizeable effect on the RMSE or LE90 statistics for a given border pair. These differences can be divided into two categories.
+Pre-processing artefacts are one of the least common types of artefacts. However, these artefacts may have a sizeable effect on the RMSE or LE90 statistics for a given border pair. These differences can be divided into two subcategories.
 
 The first artefact in this category is striping. One common trend among the datasets within the Rhine catchment area is that most elevation data is derived from the point clouds of the region. These are primarily aerial laser scans, which are performed by flying a plane in parallel straight lines. The width of the bands that this creates is determined by the scanner's field of view.
 
@@ -392,7 +392,7 @@ The second artefact in this category is singular tiles, or sections of tiles tha
   caption: "Examples of visible tile seams in elevation difference maps caused by vertical elevation offsets between adjacent DTM tiles.",
 ) <fig:Tileoffset_example>
 
-=== Post-processing artefacts <sec:postprocessing-errors>
+=== Post-Processing Artefacts <sec:postprocessing-errors>
 
 Post-processing artefacts refer to errors due to resampling @DTM edges and providers' extrapolation of data to fill in missing data or use of fill values.
 
@@ -517,5 +517,5 @@ Lastly, @DE-BW fills an area at the edge of the dataset which is different from 
       ]
     ],
   ),
-  caption: [Border artefact caused by DE-BW using both a 0 and -9999 `NoData` value, while only declaring the -9999 value as `NoData`. The difference raster was set to −1 to #qty("1", "m") to highlight the differences.],
+  caption: [Edge resampling artefact caused by DE-BW using both a 0 and -9999 `NoData` value, while only declaring the -9999 value as `NoData`. The difference raster was set to −1 to #qty("1", "m") to highlight the differences.],
 )

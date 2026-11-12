@@ -218,7 +218,7 @@ Several diagnostic plots are generated for each border pair: an elevation-differ
 We also plot a histogram of errors, set to logarithmic scale to better highlight the less prevalent errors too. We expect the errors to largely follow a normal distribution with a mean at 0.
 A mean shifted away from zero may suggest a systematic vertical offset, while secondary peaks may indicate artefacts such as extrapolation errors.
 
-=== Analysis outputs and interpretation
+=== Analysis Outputs and Interpretation
 
 The generated `.csv` file with statistics complements the spatial plots with summary statistics for the entire border region. The "before" and "after" describe the differences before and after co-registration. Since we do not apply the affine transform to national @DTM:pls, the "before" rows are more informative. However, the after section does show the effect of vertical transform errors on the total difference. The "subset" refers to the cells with and without the values interpolated by us, which may be the same number if no interpolation was applied; both figures already include the removed river mask. The "mean" and "median" help describe the systematic errors of the border region, while the @STD, @RMSE, @MAE, and @NMAD describe the magnitude of the outliers (@tab:general_metrics). The minimum and maximum values indicate the greatest disagreements between the datasets. Furthermore, the "above threshold" shows the amount of cells that do not meet the error threshold, while the "percentage above threshold" describes what percentage of cells that accounts for (@tab:accuracy_metrics).
 

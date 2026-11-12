@@ -39,7 +39,7 @@ While this assumption holds for the regions we have investigated, the opposite w
 
 To test the accuracy of the DEM, we analyse the errors between the overlapping DTM products.
 We observe several kinds of errors when comparing bordering datasets.
-These can be categorised into interpolation errors, ground filtering errors, errors due to temporal differences, and errors due to pre- and post-processing (here listed from most to least common).
+These can be categorised into interpolation errors, ground filtering errors, errors due to temporal differences, water mask errors, and errors due to pre- and post-processing (here listed from most to least common).
 The majority of the datasets demonstrate good agreement as illustrated by low RMSE and LE90, with errors largely caused by changes in elevation over time, often observed in quarries.
 Of the 17 evaluated border pairs, 15 meet the INSPIRE guidance for vertical accuracy, with FR/LU and DE-BW/DE-BY exceeding it.
 @DE-HE/@DE-RP and @DE-BY/@DE-BW border pairs have higher RMSE due to errors with interpolation and `NoData` values~--- however, these areas fall outside of the extent of their corresponding region and therefore are not present in the product.

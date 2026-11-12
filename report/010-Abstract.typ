@@ -13,7 +13,7 @@ Additionally, the pipeline supports interpolation of missing data, generating a 
 
 The resulting DTM covers Liechtenstein, Switzerland, France, Luxembourg, the Netherlands, and the German states of Bavaria, Baden-Württemberg, Hessen, Rhineland-Palatinate, Saarland, and Nordrhein-Westfalen.
 To evaluate the quality of the harmonised dataset, neighbouring DTMs are compared by performing a difference of elevation rasters, statistical analysis, co-registration, and creating a set of diagnostic plots and raster files which are then evaluated against the requirements set out in the INSPIRE specification on elevation.
-The analysis identifies several recurring sources of disagreement, categorised into interpolation, ground filtering, temporal differences, water representation, and residual artefacts due to lidar data acquisition and processing.
+The analysis identifies several recurring sources of disagreement, categorised into interpolation, ground filtering, temporal differences, water mask, and pre- and post-processing artefacts.
 Of the 17 border pairs within the catchment area, 15 meet the INSPIRE requirements for vertical accuracy (for 15 pairs, a mean RMSE of #qty("0.50", "m") compared to INSPIRE requirement of #qty("1.67", "m") at #qty("5", "m") horizontal resolution) and only two exceed that threshold (RMSE of #qty("3.12", "m") and #qty("5.36", "m")).
 The sources of errors are best explained by differences in acquisition processing by data providers; the pipeline does not introduce significant errors.
 
