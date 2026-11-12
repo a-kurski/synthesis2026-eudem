@@ -329,7 +329,7 @@ The DTM, river mask, and analysis can be fully reproduced by executing the proce
     )
   },
 ),
-caption:[Gantt chart]
+caption:[Gantt chart.]
 )
 
 == Risk Analysis <sec:risk>
@@ -522,7 +522,7 @@ caption:[Gantt chart]
     [Luxembourg: @DSM:s],[https://data.public.lu/fr/datasets/lidar-2024-releve-3d-du-territoire-luxembourgeois/],[Map tiles — GeoTIFF, 0.5m resolution],
     [Luxembourg: @PC:s],[https://data.public.lu/fr/datasets/lidar-2024-releve-3d-du-territoire-luxembourgeois/],[Map tiles — @LAZ:s]
   ),
-  caption:[Dataset availability]
+  caption:[Dataset availability.]
 )
 
 
