@@ -29,6 +29,8 @@
   ),
 )
 
+#show link: set text(fill: blue)
+
 #include "000-front-matter.typ"
 #counter(page).update(0)
 

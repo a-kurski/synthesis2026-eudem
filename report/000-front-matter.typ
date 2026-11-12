@@ -6,14 +6,15 @@
 
 #v(2fr)
 
-#text(size: 16pt, weight: "bold")[Harmonising European Elevation Data Across Borders]
+#text(size: 16pt, weight: "bold")[Harmonising European Elevation Data Across Borders: \
+  a Case Study on the Rhine Catchment Area]
 
-#v(1cm)
+#v(2fr)
 
 MSc Geomatics for the Built Environment\
 GEOIT1501 Synthesis Project Report
 
-#v(4em)
+#v(1fr)
 
 #grid(
   columns: (4.5cm, 4.5cm, 4.5cm),
@@ -23,7 +24,7 @@ GEOIT1501 Synthesis Project Report
   [6195784],[5484987],[6285880],
 )
 
-#v(2em)
+#v(.5fr)
 
 Supervised by:
 
@@ -45,22 +46,20 @@ Supervised by:
   [#image("assets/RWS_logo.svg", height: 1.2cm, fit: "contain")],
 )
 
-#v(5em)
-
-#grid(
-  columns: (5cm, 5cm, 5cm),
-
-)
-
 #v(1fr)
 Faculty of Architecture and the Built Environment, \
 Delft University of Technology, \
 The Netherlands
-#v(4em)
+#v(.5fr)
 #datetime.today().display("[month repr:long] [day], [year]")
 
-#v(1fr)
+#v(2fr)
 
+The cover image shows a fragment of the DTM of the Rhine catchment area covering parts of Switzerland, France, and Germany.
 
+#text(size: 10pt)[
+This work is licensed under the Creative Commons Attribution 4.0 International License (CC BY 4.0).\
+To view a copy of the license, visit https://creativecommons.org/licenses/by/4.0/.
+]
 
 #set align(left)
