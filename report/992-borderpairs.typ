@@ -1028,12 +1028,11 @@ Different treatment of ruins and exposed rock during ground classification, foll
 ]
 
 === Baden-Württemberg / France <sec:bw-france>
+The @DE-BW (@DE-BW)–France comparison shows close agreement across much of the Rhine corridor, interrupted by pronounced local discrepancies and coherent spatial patterns. Across 166.52 km² of valid overlap at #qty("5", "m") resolution, the mean elevation difference is +0.034 m and the median is +0.058 m, where positive values mean that @DE-BW is higher than France. The RMSE of #qty("0.730", "m") is considerably larger than the NMAD of #qty("0.153", "m"), indicating that large local differences have a strong influence on the overall result.
 
-The @DE-BW (@DE-BW)–France comparison shows close agreement across much of the Rhine corridor, interrupted by pronounced local discrepancies and coherent spatial patterns. Across 166.52 km² of valid overlap at #qty("5", "m") resolution, the mean elevation difference is +0.034 m and the median is +0.058 m, where positive values mean that @DE-BW is higher than France. The RMSE of #qty("0.730", "m") is considerably larger than the NMAD of #qty("0.153", "m"), indicating that large local differences have a strong influence on the overall result. Numerical results refer to differences before alignment, and #qty("1.667", "m") is the pipeline's screening threshold. These measures describe agreement between the two DTMs; independent ground control would be needed to establish their absolute accuracy.
+The difference distribution has a narrow centre and long tails. 95% of the absolute differences are below #qty("1.059", "m"). Only 2.744% of compared cells exceed the configured #qty("1.667", "m") threshold, but these cells occupy 4.57 km² and contribute 82.73% of the total squared difference. Differences larger than #qty("5", "m") occupy just 0.397%. The extremes range from #qty("-25.96", "m") to +46.72 m of elevation difference.
 
-The difference distribution has a narrow centre and long tails. Half of the absolute differences are below #qty("0.117", "m"), 90% below #qty("0.508", "m"), and 95% below #qty("1.059", "m"). Only 2.744% of compared cells exceed the configured #qty("1.667", "m") threshold, but these cells occupy 4.57 km² and contribute 82.73% of the total squared difference. Differences larger than #qty("5", "m") occupy just 0.397% of the area yet contribute 47.62% of squared difference. Positive and negative discrepancies partly cancel in the regional mean, which therefore understates their local importance. The observed extremes range from #qty("-25.96", "m") to +46.72 m.
-
-@fig:bw-france-north-south shows the strongest regional contrast, between the southern overlap and the remainder of the corridor. An exploratory division at EPSG:3035 northing 2,760,000 m, selected after examining the #qty("10", "km") bands, isolates a southern segment covering 26.89 km², or 16.15% of compared area. This segment contains 89.82% of all threshold-exceeding cells and 85.53% of total squared difference. Its RMSE is #qty("1.680", "m"), compared with #qty("0.303", "m") in the remaining northern segment; exceedance rates are 15.26% and 0.333%, respectively. NMAD also rises from #qty("0.132", "m") in the north to #qty("0.661", "m") in the south, showing that the southern disagreement affects the broader distribution as well as its most extreme values.
+@fig:bw-france-north-south shows the strongest regional contrast, between the southern overlap and the remainder of border. The southern segment of the border region contains 89.82% of all threshold-exceeding cells and 85.53% of total squared difference. Its RMSE is #qty("1.680", "m"), compared with #qty("0.303", "m") in the northern segment. Exceedance rates are 15.26% and 0.333% for the two segments, respectively. NMAD also rises from #qty("0.132", "m") in the north to #qty("0.661", "m") in the south, showing that the southern disagreement affects the broader distribution as well as its most extreme values.
 
 #block(breakable: false)[
   #figure(
@@ -1042,16 +1041,13 @@ The difference distribution has a narrow centre and long tails. Half of the abso
   ) <fig:bw-france-north-south>
 ]
 
-
-Region 2 is particularly important because it contains both global extremes, only #qty("148", "m") apart, near 47.663° N, 7.530° E. Its footprint RMSE is #qty("4.30", "m"). Region 1, the largest by flagged area, contains 0.682 km² of exceedances and is predominantly negative, with a footprint mean of #qty("-2.42", "m"). These coherent, metre-scale discrepancies require local investigation of terrain history and surface representation before any correction is selected.
-
 Alongside these large local differences, @fig:bw-france-patterns shows flight-line-like bands similar to those in the @DE-RP/@FR comparison (@fig:rlp-france-patterns). The comparative visual inspection identifies bands running in the same direction and matching exactly with the @DE-RP/@FR patterns. Because the French DTM is common to both comparisons, this correspondence strongly suggests an origin in the French acquisition and the relative alignment or adjustment of its flight paths. The spatially varying bands are consistent with residual differences between flight strips that persist across the two regional comparisons. Flight-line footprints and adjustment records would allow this interpretation to be tested directly and help distinguish acquisition effects from later processing.
 
 #align(center)[
   #block(breakable: false)[
     #figure(
       image("assets/bw_france_patterns.png", width: 68%),
-      caption: [Flight-path artefacts over the border region. The bands match the direction and continuity of those in @fig:rlp-france-patterns. The color scale was set to −1 to #qty("1", "m") to highlight the differences.],
+      caption: [Flight-path artefacts over the border region. The color scale was set to −1 to #qty("1", "m") to highlight the differences.],
     ) <fig:bw-france-patterns>
   ]
 ]
