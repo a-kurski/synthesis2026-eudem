@@ -11,10 +11,10 @@ However, this guidance is limited to one line within the specification, presente
 We would encourage that the specification is reviewed and rewritten in a way that enables easier implementation, e.g. by including a catalogue of all requirements, recommendations, and their scope.
 
 To further ensure better cross-border interoperability, we recommend the following:
-- Data providers to adopt a unified way to access and download the data. We find WCS (as adopted by the Netherlands and NRW) particularly convenient and allows for automatic server-side querying of a particular geographic extent. Alternatively, we can also recommend providing tiled GeoTIFFs with a spatial catalogue of tiles or COGs.
+- Data providers to adopt a unified way to access and download the data. We find WCS (as adopted by the Netherlands and @DE-NW) particularly convenient and allows for automatic server-side querying of a particular geographic extent. Alternatively, we can also recommend providing tiled GeoTIFFs with a spatial catalogue of tiles or COGs.
 - Data providers to adopt a unified `NoData` value, and expressly include it in the elevation data.
 - Data providers to adopt a unified way to extract a @DTM from a surface model.
-  - Based on the work by #cite(<cai2023>, form: "prose"), we suggest @ICSF will likely perform best for for ground filtering but further research is needed.
+  - Based on the work by #cite(<cai2023>, form: "prose"), we suggest @ICSF will likely perform best for ground filtering but further research is needed.
   - A standardised interpolation method for filling gaps in the ground points is also needed, as we see artefacts introduced by linear interpolation on a TIN or extracting data from CSF points. We believe that @RBF would produce best results deterministically, but further comparison of the different interpolation methods is needed.
   - We also recommend that the river surface is extracted with a hydro-flattening approach based on the elevation of points classified as water given the errors introduced by interpolation on a TIN or the need for post-processing if the water surface is excluded.
 - Supplementary data on dataset quality to be provided. This data can include masks showing the interpolated areas, the water surface, the time of acquisition of each given elevation sample, or the density of (ground) points within each grid cell. This data can support integrating elevation data from different providers.
@@ -30,7 +30,7 @@ One such approach, as outlined in @sec:spaceborne-gdem, is evaluating the DTM ag
 Although runoff modelling is the key use case of the @DTM produced within the project, the elevation raster is currently not optimised for it, and no runoff modelling was performed.
 We suggest that such optimisation and modelling can be performed for the given cross-border @DTM.
 
-The pipeline still struggles with some `NoData` values as seen with @BW elevation dataset. While a small change, a more robust way to handle `NoData` even where it is not encoded into the dataset is needed.
+The pipeline still struggles with some `NoData` values as seen with @DE-BW elevation dataset. While a small change, a more robust way to handle `NoData` even where it is not encoded into the dataset is needed.
 The river mask is rather basic in its functionality and currently misses sections of the river; work can continue to develop a more robust water detection algorithm which can better handle the different methods used to extract the water surface.
 
 Within this project, the differences between the different DTMs are only analysed but not resolved.

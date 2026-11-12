@@ -1,6 +1,6 @@
 == Limitations
 
-The project has resulted in our successfully producing a harmonized @DTM of the Rhine catchment area. Furthermore, the automated pipeline for processing and analysis has been completed and tested, resulting in the evaluation of data quality between bordering regions to determine the quality of the product.
+The project has resulted in our successfully producing a harmonised @DTM of the Rhine catchment area. Furthermore, the automated pipeline for processing and analysis has been completed and tested, resulting in the evaluation of data quality between bordering regions to determine the quality of the product.
 
 However despite this success, there are limitations to the project.
 The first limitation is the scope of the project itself.
@@ -23,4 +23,4 @@ Several limitations related to the border analysis itself also exist. The compar
 
 Finally, a number of artefact categories are based on qualitative rather than quantitative evidence. While in many cases, interpretation allows the cause of a difference to be determined based on facts and data, we haven't been always able to determine it exactly. Verifying whether the interpretations are correct would require processing of metadata, and classified point cloud data for all regions. Such data was not widely available, or within the scope and temporal constraints of the project.
 
-// Despite all these limitations and setbacks, the project does demonstrate that a harmonized cross-border @DTM can be constructed in an automated manner from heterogeneous datasets. Furthermore, the analysis shows that many of the inconsistencies can be traced back to source data inconsistencies, rather than the pipeline, which can in most cases be solved through reprocessing of the data using point clouds. The identified limitations therefore represent both challenges for future works, and opportunities for improving cross-border interoperability for elevation datasets in Europe.
+// Despite all these limitations and setbacks, the project does demonstrate that a harmonised cross-border @DTM can be constructed in an automated manner from heterogeneous datasets. Furthermore, the analysis shows that many of the inconsistencies can be traced back to source data inconsistencies, rather than the pipeline, which can in most cases be solved through reprocessing of the data using point clouds. The identified limitations therefore represent both challenges for future works, and opportunities for improving cross-border interoperability for elevation datasets in Europe.

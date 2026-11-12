@@ -1,3 +1,4 @@
+#import "@preview/unify:0.8.1": qty
 #import "@preview/lovelace:0.3.0": *
 #import "@preview/drafting:0.2.2"
 #import "@preview/fletcher:0.5.8" as fletcher: diagram, node, edge
@@ -84,10 +85,10 @@ Full breakdown of all settings can be found in @sec:PipelineREADME.
 === Data Acquisition <sec:acquisition>
 
 Data acquisition is a crucial step which enables the rest of the workflow despite technically being outside of the fully automated part of the pipeline.
-Data discovery was perfomed primarily based on @vanderheide2026pointcloud supported by additional online searches.
+Data discovery was performed primarily based on @vanderheide2026pointcloud supported by additional online searches.
 
-We find that national and regional data providers offer different download options: the Netherlands and @NRW offer a @WCS server for access/download; Bavaria and France offer tiled raster data in a binary (`.xyz` and `.asc` respectively) format; Luxembourg offers a single untiled @COG; the remaining datasets are available as GeoTIFF (`.tif`) tiles from a catalogue or a download portal.
-Some providers (Hessen, France) bundle the tiles into zip archives by administrative subdivision.
+We find that national and regional data providers offer different download options: the Netherlands and @DE-NW offer a @WCS server for access/download; @DE-BY and France offer tiled raster data in a binary (`.xyz` and `.asc` respectively) format; Luxembourg offers a single untiled @COG; the remaining datasets are available as GeoTIFF (`.tif`) tiles from a catalogue or a download portal.
+Some providers (@DE-HE, France) bundle the tiles into zip archives by administrative subdivision.
 
 The downloads are handled automatically but each region essentially requires a bespoke solution due to the differences in the data portals and the catalogues.
 
@@ -102,15 +103,15 @@ First, all regions without a processed @DEM are listed and a queue is built from
 The regions can be processed in parallel and this order helps avoid situations when one process is performing the reprojection while the remaining processes are sitting idle.
 
 For each region, all tiles are first aggregated into a virtual mosaic (`.vrt`).
-Each tile is assigned the region's @CRS as specified in the `.json` file~--- this behaviour is necessary as parts of regional datasets (most notably subdivisions of Hessen and @RLP) have their @CRS either missing or incorrectly specified within the tile's metadata; and is placed into the mosaic according to that @CRS.
+Each tile is assigned the region's @CRS as specified in the `.json` file~--- this behaviour is necessary as parts of regional datasets (most notably subdivisions of @DE-HE and @DE-RP) have their @CRS either missing or incorrectly specified within the tile's metadata; and is placed into the mosaic according to that @CRS.
 No region has been found to have a mixed @CRS; we note, however, that this approach may cause issues if that is the case.
 
 Similarly, for certain regions, a `NoData` value needs to be specified.
-Parts of @BW and Hessen, again, record `NoData` as 0 but do not state this in metadata, which warrants forcing a `NoData` value.
+Parts of @DE-BW and @DE-HE, again, record `NoData` as 0 but do not state this in metadata, which warrants forcing a `NoData` value.
 
 The output grid is established based on the resolution supplied in the `.json`.
 The grid is identical for all regions.
-For the product described in this report, the grid is in EPSG:3035 and at 5m resolution; the vertical @CRS is EVRF2007 (EPSG:5621) as the PROJ library does not yet natively support transformation to EVRF2019.
+For the product described in this report, the grid is in EPSG:3035 and at #qty("5", "m") resolution; the vertical @CRS is EVRF2007 (EPSG:5621) as the PROJ library does not yet natively support transformation to EVRF2019.
 
 Then, the rasters are warped (using `gdalwarp`) to the common grid.
 At this step, the data is transformed from the source @CRS to target @CRS both horizontally and vertically.
@@ -149,7 +150,7 @@ In order to create a high quality water mask, the @FEE mask was used as an input
 
 However, the @FEE mask is not fine enough to be applied to the elevation map. Instead, we can use the @FEE mask's values of 2 and 3 as seed points in a region growing algorithm. Since rivers and water bodies are known to be relatively flat, we perform region growing detecting neighbourhoods with small changes in elevation.
 
-The mask is transformed to the elevation map resolution, @CRS and grid. Each grid point with value 2 or 3 raster is taken as a seed for a region growing algorithm. These seed points are added to the region growing queue. Each entry has eight neighbours and for each, the height difference with the given cell is calculated. When these differences are smaller than the set threshold~--- empirically, it was found that a 0.02m threshold works best~--- the neighbouring point is added to the end of the queue. The result is a breadth first search which incrementally classifies cells as a water body. The end result is a mask with region IDs, where cell values above 0 denote the existence of a water body. A pseudo-code description of the water masking is found in @alg-river-mask.
+The mask is transformed to the elevation map resolution, @CRS and grid. Each grid point with value 2 or 3 raster is taken as a seed for a region growing algorithm. These seed points are added to the region growing queue. Each entry has eight neighbours and for each, the height difference with the given cell is calculated. When these differences are smaller than the set threshold~--- empirically, it was found that a #qty("0.02", "m") threshold works best~--- the neighbouring point is added to the end of the queue. The result is a breadth first search which incrementally classifies cells as a water body. The end result is a mask with region IDs, where cell values above 0 denote the existence of a water body. A pseudo-code description of the water masking is found in @alg-river-mask.
 
 #[
 #show figure: set align(left)
@@ -198,19 +199,19 @@ $max(x_(A min), x_(B min)) < min(x_(A max), x_(B max)) and max(y_(A min), y_(B m
 
 However, the bounding boxes may overlap even when the datasets do not. Therefore, another check is done by cropping the @DTM of one country with the other and checking if the cropped dataset is not empty. This is a computationally expensive operation and is thus only performed if an overlap between the bounding boxes is found.
 
-The next step in the analysis process is to calculate the elevation differences between the @DTM pairs in the overlaping border regions by subtracting the @DTM rasters.
+The next step in the analysis process is to calculate the elevation differences between the @DTM pairs in the overlapping border regions by subtracting the @DTM rasters.
 The resulting elevation difference rasters contain the cell-wise elevation difference in the region, and constitute the core of the conducted qualitative analysis.
 Qualitative analysis is also supported by satellite imagery or @OSM vector maps.
 
 Based on this difference, we construct polygons to highlight errors greater than a set threshold. Nearby polygons are merged into one which allows highlighting potential areas with high concentration of disagreements rather than relying on a count of cells in excess of the threshold.
-We selected the threshold to match the minimum ratio between resolution and vertical @RMSE~--- at 5m, that threshold is 1.67m. This threshold is a little lower than Copernicus's 2m @LE90 benchmark. For the analysis, the number of cells where the error rate exceeds the threshold is also presented.
+We selected the threshold to match the minimum ratio between resolution and vertical @RMSE~--- at #qty("5", "m"), that threshold is #qty("1.67", "m"). This threshold is a little lower than Copernicus's #qty("2", "m") @LE90 benchmark. For the analysis, the number of cells where the error rate exceeds the threshold is also presented.
 
-The spatial correlation of the elevation differnces is also analysed. Overall, it is expected that Tobler's (#cite(<Tobler1970>, form: "year")) first law of geography will hold: the close-by errors will have a higher correlation than far-away ones.
+The spatial correlation of the elevation differences is also analysed. Overall, it is expected that Tobler's (#cite(<Tobler1970>, form: "year")) first law of geography will hold: the close-by errors will have a higher correlation than far-away ones.
 It is further expected that stochastic errors are uncorrelated, and a high correlation of far away errors likely indicates a systematic error instead. However, the correlation does not account for error magnitude~--- a small systematic error will result in a higher correlation rate than a large stochastic one.
 
 Another way to evaluate systematic errors is through coregistration. This is a function in XDEM which performs an affine transform @tc-5-271-2011, which ensures best alignment of the @DTM:pla in $x$, $y$ and $z$ directions. The statistics (@RMSE, @LE90, mean error etc) are calculated for the border region before and after coregistration. A small affine transform with a high @RMSE would indicate stochastic errors.
 
-Several diagnostic plots are generated for each border pair: an elevation-difference histogram, an @RMSE versus slope plot using 5-degree slope bins, and a border-effect plot showing @RMSE in 50-meter distance bins. The slope plot examines the relationship between terrain slope and elevation differences, while the border-effect plot can help identify errors caused by extrapolation near dataset edges. The latter can also be sensitive to a single large error.
+Several diagnostic plots are generated for each border pair: an elevation-difference histogram, an @RMSE versus slope plot using 5-degree slope bins, and a border-effect plot showing @RMSE in 50-metre distance bins. The slope plot examines the relationship between terrain slope and elevation differences, while the border-effect plot can help identify errors caused by extrapolation near dataset edges. The latter can also be sensitive to a single large error.
 
 @INSPIRE suggests different target ratios between horizontal resolution and vertical accuracy depending on slope angle: 3–20 for flat terrains and 3–10 for steep terrain. To evaluate the implied increase in error rate, we produce a plot showing the relationship between the slope angle and the error rate.
 
@@ -221,7 +222,7 @@ A mean shifted away from zero may suggest a systematic vertical offset, while se
 
 The generated `.csv` file with statistics complements the spatial plots with summary statistics for the entire border region. The "before" and "after" describe the differences before and after co-registration. Since we do not apply the affine transform to national @DTM:pls, the "before" rows are more informative. However, the after section does show the effect of vertical transform errors on the total difference. The "subset" refers to the cells with and without the values interpolated by us, which may be the same number if no interpolation was applied; both figures already include the removed river mask. The "mean" and "median" help describe the systematic errors of the border region, while the @STD, @RMSE, @MAE, and @NMAD describe the magnitude of the outliers (@tab:general_metrics). The minimum and maximum values indicate the greatest disagreements between the datasets. Furthermore, the "above threshold" shows the amount of cells that do not meet the error threshold, while the "percentage above threshold" describes what percentage of cells that accounts for (@tab:accuracy_metrics).
 
-The remaining attributes are mainly he to determine the reliability of the comparison, and the effectiveness of the coregistration (@tab:coreg_metrics). The "mean $sigma Delta$ h" represents the average uncertainty associated with the elevation differences, while $N_("eff")$ reflects the number of independent observations after accounting for spatial correlation. The "mean $Delta h$/$sigma$" metric describes the magnitude of the differences, relative to the expected random error. Furthermore, the $rho_(1 "km") $ provides an indication of the spatial correlation of the errors at 1km distance, with larger values suggesting that cells exhibit similar error behaviour. Finally, the estimated $Delta X$, $Delta Y$, and $Delta Z$ values quantify the horizontal and vertical corrections determined during coregistration and can help identify systematic offsets between neighbouring datasets. Small values of this shift indicate that the vertical and horizontal @CRS transformations already properly align the two @DTM:pls.
+The remaining attributes are mainly he to determine the reliability of the comparison, and the effectiveness of the coregistration (@tab:coreg_metrics). The "mean $sigma Delta$ h" represents the average uncertainty associated with the elevation differences, while $N_("eff")$ reflects the number of independent observations after accounting for spatial correlation. The "mean $Delta h$/$sigma$" metric describes the magnitude of the differences, relative to the expected random error. Furthermore, the $rho_(1 "km") $ provides an indication of the spatial correlation of the errors at #qty("1", "km") distance, with larger values suggesting that cells exhibit similar error behaviour. Finally, the estimated $Delta X$, $Delta Y$, and $Delta Z$ values quantify the horizontal and vertical corrections determined during coregistration and can help identify systematic offsets between neighbouring datasets. Small values of this shift indicate that the vertical and horizontal @CRS transformations already properly align the two @DTM:pls.
 
 #let headerfill = rgb("e9eef3")
 #let gridcolor = rgb("aab2bb")
@@ -251,7 +252,7 @@ table(
 
   [After],  [All],      [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
   [After],  [Measured], [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
-),caption:[Example of general metrics for France/RLP border.])
+),caption:[Example of general metrics for FR/DE-RP border.])
 <tab:general_metrics>
 #figure(
 table(
@@ -280,7 +281,7 @@ table(
 
   [After],  [All],      [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
   [After],  [Measured], [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
-), caption:[Example accuracy and threshold metrics for France/RLP border.])
+), caption:[Example accuracy and threshold metrics for FR/DE-RP border.])
 <tab:accuracy_metrics>
 #figure(
   table(
@@ -306,17 +307,17 @@ table(
   [Before], [0.1075], [4.567], [0.0503], [0.2353], [-],        [-],        [-],
   [After],  [0.1075], [4.567], [0.0503], [0.2353], [-0.0056], [0.2830], [-0.0286],
 ),
-caption:[Example coregistration metrics for France/RLP border.]
+caption:[Example coregistration metrics for FR/DE-RP border.]
 )
 <tab:coreg_metrics>
 
 We find that of these metrics, mean, median, RMSE, NMAD, and LE90 best inform the analysis, and the rest are primarily used for context.
 
-== Visualizing the DTMs
+== Visualising the DTMs
 
-Next to designing the pipeline and implementing analysis methods, an important aspect of this study was to decide on effective visualization methods and color schemes for the catchment-wide and analysis related @DTM:pls.
+Next to designing the pipeline and implementing analysis methods, an important aspect of this study was to decide on effective visualisation methods and colour schemes for the catchment-wide and analysis related @DTM:pls.
 
-The catchment-wide @DTM product contains elevation values ranging from -325m to 4272m. The @DTM also contains various terrain types from the Netherlands' low variation in elevation to the Swiss Alps where elevation changes by several thousands of meters. This made visualizing the catchment-wide @DTM challenging, as with most color maps used, the Netherlands appeared completely dark while Switzerland became very bright and saturated, or vice versa. The Pride @cm_pride colour map resulted in a good balance between having an interpretable @DTM, also at the extremes of the range, and a visually striking product (@fig:cm_pride).
+The catchment-wide @DTM product contains elevation values ranging from #qty("-325", "m") to #qty("4272", "m"). The @DTM also contains various terrain types from the Netherlands' low variation in elevation to the Swiss Alps where elevation changes by several thousands of metres. This made visualising the catchment-wide @DTM challenging, as with most colour maps used, the Netherlands appeared completely dark while Switzerland became very bright and saturated, or vice versa. The Pride @cm_pride colour map resulted in a good balance between having an interpretable @DTM, also at the extremes of the range, and a visually striking product (@fig:cm_pride).
 
 #figure(
   image("assets/cm_pride.png", width:50%),

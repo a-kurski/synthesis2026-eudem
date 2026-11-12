@@ -1,7 +1,8 @@
+#import "@preview/unify:0.8.1": qty
 #import "@preview/drafting:0.2.2"
 
 During this project, we have created an automated pipeline which can process, aggregate, and compare national gridded elevation products.
-The code has been executed on the server which has a CPU with 128 threads and a maximum clock speed of 2900 MHz, and 512GB RAM.
+The code has been executed on the server which has a CPU with 128 threads and a maximum clock speed of 2900 MHz, and #qty("512", "GB") RAM.
 The server was shared with other members of the research group; we cannot guarantee that we had access to its full resources at all times.
 The pipeline has been run utilising 64 threads; in 4 parallel processes for individual @DTM rasters, and sequential processing for river mask extraction and border pair comparison.
 We have attempted parallel processing for river mask and comparison; however, we found that both tasks have high memory demands which would result in some, especially larger, regions being skipped if sufficient memory could not be allocated.
@@ -11,17 +12,17 @@ Note that these times are for a single run of the full pipeline, starting on 202
 
 If the associated `.json` file is configured properly, the code can be executed in full and produce the desired outcome.
 However, the pipeline and the `.json` needed to be modified several times to account for the unforeseen errors.
-The pipeline was first tested on Netherlands and @NRW to ensure individual components are integrated, and it was subsequently run in full.
+The pipeline was first tested on Netherlands and @DE-NW to ensure individual components are integrated, and it was subsequently run in full.
 During the full runs, several issues were discovered and patched.
 
-The first of these was that Hessen publishes data by administrative unit; for some of these units, `NoData` is represented with a 0 value but the value is not encoded in the metadata.
-Some of Hessen's tiles also had no horizontal CRS.
-Stitching these tiles resulted in regions of flat terrain with elevation value around 20cm (non-zero due to CRS transform).
-Similar behaviour was observed in RLP, where the CRS was not consistently described in the metadata.
+The first of these was that @DE-HE publishes data by administrative unit; for some of these units, `NoData` is represented with a 0 value but the value is not encoded in the metadata.
+Some of @DE-HE's tiles also had no horizontal CRS.
+Stitching these tiles resulted in regions of flat terrain with elevation value around #qty("20", "cm") (non-zero due to CRS transform).
+Similar behaviour was observed in @DE-RP, where the CRS was not consistently described in the metadata.
 This behaviour has been patched by force-assigning a horizontal and vertical CRS and a `NoData` value for each region.
 
-Issues with `NoData` value not declared were also observed in @BW.
-These are mostly resolved except for several tiles overlapping with Bavaria, where `NoData` issue persists.
+Issues with `NoData` value not declared were also observed in @DE-BW.
+These are mostly resolved except for several tiles overlapping with @DE-BY, where `NoData` issue persists.
 We acknowledge these issues within the analysis of the border regions, but resolving them was deemed to be of low priority given the time constraints.
 
 During the later runs, we observed that large parts of the Netherlands and France were absent from the final product.
@@ -38,7 +39,7 @@ Our fix is setting the VCRS for affected regions to `null` such that no transfor
     [#image("assets/dtm-hessen.png")],
     [#image("assets/dtm-missing-france.png")]
   ),
-  caption: [Issues diagnosed with earlier runs of the pipeline: incorrect 'NoData' value for Hessen (left) and missing parts of France (right).]
+  caption: [Issues diagnosed with earlier runs of the pipeline: incorrect `NoData` value for DE-HE (left) and missing parts of FR (right).]
 )
 
 An additional issue was observed during the border analysis stage.
@@ -56,5 +57,5 @@ These were replaced with masks acquired from @OSM which has patched the gaps.
     [#image("assets/dtm-gaps-2.png")],
     [#image("assets/dtm-gaps-3.png")]
   ),
-  caption: [Gaps on the France/Switzerland, France/Luxembourg, and Netherlands/NRW border.]
+  caption: [Gaps on the FR/CH, FR/LU, and NL/DE-NW border.]
 )

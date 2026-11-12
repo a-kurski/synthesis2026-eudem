@@ -37,14 +37,14 @@
       [#vlabel([Interpolation])],
 
       [#vlabel([Overpass])],
-      [#vlabel([Steep slopes])],
+      [#vlabel([Slopes])],
 
-      [#vlabel([Snow cover])],
+      [#vlabel([Snow])],
       [#vlabel([Bulk storage])],
-      [#vlabel([Excavation])],
-      [#vlabel([Construction works])],
+      [#vlabel([Quarry])],
+      [#vlabel([Construction])],
 
-      [#vlabel([Water modelling])],
+      [#vlabel([Water handling])],
       [#vlabel([River mask failure])],
 
       [#vlabel([ALS striping])],

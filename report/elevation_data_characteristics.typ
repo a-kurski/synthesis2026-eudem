@@ -10,23 +10,23 @@
     [Vertical datum],
   )
   #let rows = (
-    ([Netherlands], [AHN / Rijkswaterstaat], [GeoTIFF], [ALS], [0.5], [28992], [NAP]),
-    ([Bavaria (DE)], [DGM5 / LDBV], [XYZ Tiles], [ALS], [5], [25832], [DHHN2016 / NHN]),
-    ([Baden-#linebreak()Württemberg (DE)], [DGM1 / LGL], [XYZ Tiles], [ALS], [1], [25832], [DHHN2016 / NHN]),
-    ([Hessen (DE)], [ATKIS DGM1 / HVBG], [GeoTIFF], [ALS], [1], [25832], [DHHN2016 / NHN]),
-    ([North Rhine-#linebreak()Westphalia (DE)], [DGM1 / Geobasis NRW], [GeoTIFF], [ALS], [1], [25832], [DHHN2016 / NHN]),
-    ([Rhineland-#linebreak()Palatinate (DE)], [DGM1 / LVermGeo], [GeoTIFF], [ALS], [1], [25832], [DHHN2016 / NHN]),
-    ([Saarland (DE)], [DGM1 / LVGL], [GeoTIFF], [ALS], [1], [25832], [DHHN2016 / NHN]),
-    ([France], [RGE ALTI 5 m / IGN], [ASCII Grid],
+    ([@NL], [AHN / Rijkswaterstaat], [GeoTIFF], [ALS], [0.5], [28992], [NAP]),
+    ([@DE-BY], [DGM5 / LDBV], [XYZ Tiles], [ALS], [5], [25832], [DHHN2016 / NHN]),
+    ([@DE-BW], [DGM1 / LGL], [XYZ Tiles], [ALS], [1], [25832], [DHHN2016 / NHN]),
+    ([@DE-HE], [ATKIS DGM1 / HVBG], [GeoTIFF], [ALS], [1], [25832], [DHHN2016 / NHN]),
+    ([@DE-NW], [DGM1 / Geobasis NRW], [GeoTIFF], [ALS], [1], [25832], [DHHN2016 / NHN]),
+    ([@DE-RP], [DGM1 / LVermGeo], [GeoTIFF], [ALS], [1], [25832], [DHHN2016 / NHN]),
+    ([@DE-SL], [DGM1 / LVGL], [GeoTIFF], [ALS], [1], [25832], [DHHN2016 / NHN]),
+    ([@FR], [RGE ALTI 5 m / IGN], [ASCII Grid],
       [Mixed#footnote[IGN uses ALS in flood-prone areas, coastal zones and large forests combined with radar in mountainous areas
     (Alps, Pyrenees, Cévennes and Corsica), and aerial image correlation elsewhere. In some areas processed by image    correlation, older elevation data fill gaps where vegetation or other surface objects prevent ground measurements.]]
       , [5], [2154], [IGN69]),
-    ([Luxembourg], [LiDAR 2024 MNT / ACT], [GeoTIFF], [ALS], [0.5], [2169], [n/a]),
-    ([Liechtenstein], [swissALTI3D / swisstopo], [GeoTIFF], [Mixed#footnote[swissALTI3D combines airborne laser scanning with
+    ([@LU], [LiDAR 2024 MNT / ACT], [GeoTIFF], [ALS], [0.5], [2169], [n/a]),
+    ([@LI], [swissALTI3D / swisstopo], [GeoTIFF], [Mixed#footnote[swissALTI3D combines airborne laser scanning with
     aerial photogrammetry, including automatic stereo correlation
     and manual stereoscopic measurements. The source methods
     vary spatially.]<ftnt>], [2], [2056], [LN02]),
-    ([Switzerland], [swissALTI3D / swisstopo], [GeoTIFF], [Mixed@ftnt], [2], [2056], [LN02]),
+    ([@CH], [swissALTI3D / swisstopo], [GeoTIFF], [Mixed@ftnt], [2], [2056], [LN02]),
   )
 
 

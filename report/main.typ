@@ -46,6 +46,9 @@
 #include "010-Abstract.typ"
 #include "015-acknowledgements.typ"
 
+// Outline titles are not outlined by default, so they are missing from the PDF bookmarks.
+// bookmarked: true adds them to the PDF outline without listing them in the contents itself.
+#show outline: set heading(bookmarked: true)
 #outline(title: "Contents")
 #outline(title: "Figures", target: figure.where(kind: image))
 #outline(title: "Tables", target: figure.where(kind: table))
