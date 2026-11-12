@@ -175,7 +175,7 @@ One entry per region; the key is the region's name, used in file names and logs.
 | `source_NoData` | A value the tiles use for missing data without declaring it as `NoData` (e.g. `0`). These cells are then ignored by the warp, including its averaging. Overrides any `NoData` value the tiles declare. | none |
 | `river_seeds` | Water raster for this region (any CRS). Cells with one of the `seed_values` are seeds. Without it, the region gets no river mask. | none |
 | `river_growing` | Overrides for `settings.river_growing`, for this region only. | none |
-| `point_clouds` | Ignored (point clouds are out of scope). | — |
+| `point_clouds` | Ignored (point clouds are out of scope). |~--- |
 
 How the source data is handled:
 
@@ -228,7 +228,7 @@ Everything is written under `settings.output_dir`:
 - computes statistics (mean, median, standard deviation, RMSE, MAE, NMAD, LE90, min, max, cells above the threshold), with and without the gap-filled cells;
 - flags cells where |dh| exceeds `resolution × threshold_fraction` and groups them into problem regions. Gap-filled cells are left out of both, since measured data replaces them where the neighbour has it;
 - if `settings.borders` is set, plots the error against distance to the border;
-- estimates the random error with xdem's [uncertainty workflow](https://xdem.readthedocs.io/en/stable/uncertainty.html) (Hugonnet et al., 2022), on stable terrain (no water, no gap-filled cells) after coregistration:
+- estimates the random error with xdem's [uncertainty workflow](https://xdem.readthedocs.io/en/stable/uncertainty.html), on stable terrain (no water, no gap-filled cells) after coregistration:
   1. **Heteroscedasticity:** the spread (NMAD) of the differences is binned by terrain attributes (slope and maximum curvature by default), which gives an error map for every cell.
   2. **Spatial correlation:** a variogram of the standardized differences, fitted with a sum of models; each model gives one correlation range.
   3. **Propagation:** the error of the mean difference is the mean error divided by √(number of effective samples). It's reported in each statistics row as `mean_dh_sigma_m`, together with `n_effective`, `mean_sigma_dh_m` and `error_correlation_1km`. The overlap area is treated as a disk, which is conservative for thin border strips (fewer effective samples, so a larger error).

@@ -14,7 +14,7 @@ The resulting DTM covers Liechtenstein, Switzerland, France, Luxembourg, the Net
 To evaluate the quality of the harmonised dataset, neighboring DTMs are compared by performing a difference of elevation rasters, statistical analysis, co-registration, and creating a set of diagnostic plots and raster files which are then evaluated against the requirements set out in the INSPIRE specification on elevation.
 The analysis identifies several recurring sources of disagreement, categorised into interpolation, ground filtering, temporal differences, water representation, and residual artefacts due to lidar data acquisition and processing.
 Of the 17 border pairs within catchment area, 15 meet the INSPIRE requirements for vertical accuracy (for 15 pairs, mean RMSE of 0.50m compared to INSPIRE requirement of 1.67 meters at 5m horizontal resolution) and only two exceed that threshold (RMSE of 3.12m and 5.36m).
-The sources of errors are best explained by differences in acquisition processing by data providers; they are not introduced by the harmonisation pipeline.
+The sources of errors are best explained by differences in acquisition processing by data providers; the pipeline does not introduce significant errors.
 
 The project demonstrates that harmonised cross-border DTM data can be generated automatically from heterogeneous elevation data while retaining the original data without applying methods such as cross-border smoothing, unlike existing cross-border elevation products.
 We acknowledge that the challenges to harmonising the cross-border DEMs remain; and provide recommendation for improving the interoperability of elevation data.

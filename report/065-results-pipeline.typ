@@ -6,7 +6,7 @@ The server was shared with other members of the research group; we cannot guaran
 The pipeline has been run utilising 64 threads; in 4 parallel processes for individual @DTM rasters, and sequential processing for river mask extraction and border pair comparison.
 We have attempted parallel processing for river mask and comparison; however, we found that both tasks have high memory demands which would result in some, especially larger, regions being skipped if sufficient memory could not be allocated.
 
-The time required to produce an aggregate @DEM was measured at 2:29:22; and time to produce the full comparison was measured at 14:44:39.
+The time required to produce an aggregate @DEM was measured at 2:29:22; and time to produce the full comparison was measured at 14:44:39. The river mask extraction was not measured, but is estimated at 4:12:04.
 Note that these times are for a single run of the full pipeline, starting on 2026-10-25 at 00:16:57 and finishing on 2026-10-25 at 20:43:03; they may not be representative of optimal or typical resource availability.
 
 If the associated `.json` file is configured properly, the code can be executed in full and produce the desired outcome.

@@ -1,7 +1,7 @@
 == Conclusion
 
 During this project, an automated pipeline for producing a harmonised DTM of the Rhine catchment area was developed.
-The DTM of most of the Rhine catchment area was successfully produced by executing the pipeline. The DTM is at 5m resolution, its CRS is ETRS89-LAEA + EVRS2007; and it has an omission rate of 2.67%. The DTM is near-seamless, except for water surface and small parts of land border.
+The DTM of most of the Rhine catchment area was successfully produced by executing the pipeline. The DTM is at 5m resolution, its CRS is ETRS89-LAEA + EVRF2007; and it has an omission rate of 2.67%. The DTM is near-seamless, except for water surface and small parts of land border.
 
 Within the EU, the INSPIRE directive informs the requirements to several themes of geographical information, including elevation.
 For land-elevation, INSPIRE Specification on Elevation requires that gridded (i.e. raster) data is available in either GeoTIFF or GML format.
@@ -15,7 +15,7 @@ It covers parts of Italy, Austria, Liechtenstein, Switzerland, Germany, France, 
 
 Existing approaches to creating cross-border DEMs were also reviewed.
 Mapterhorn combines heterogeneous~--- global, national, and regional~--- sources into a single DEM.
-However, Mapterhorn currently does not aim to harmonise them or resolve conflicts at the border.
+However, Mapterhorn's current harmonisation algorithm prefers smoothness to accuracy.
 Alternative cross-border products are global elevation models like Copernicus DEM which is only available at low (30m) resolution.
 
 Alongside global elevation models, national and regional datasets were investigated.
@@ -40,6 +40,7 @@ To test the accuracy of the DEM, we analyse the errors between the overlapping D
 We observe several kinds of errors when comparing bordering datasets.
 These can be categorised into interpolation errors, ground filtering errors, errors due to temporal differences, and errors due to pre- and post-processing (here listed from most to least common).
 The majority of the datasets demonstrate good agreement as illustrated by low RMSE and LE90, with errors largely caused by changes in elevation over time, often observed in quarries.
-Hessen/RLP and Bavaria/BW border pairs have high RMSE due to errors with interpolation and `NoData` values~--- however, these areas fall outside of the extent of their corresponding region and therefore are not present in the product.
+Of the 17 evaluated border pairs, 15 meet the INSPIRE guidance for vertical accuracy, with FR/LU and DE-BW/DE-BY exceeding it.
+Hessen/RLP and Bavaria/BW border pairs have higher RMSE due to errors with interpolation and `NoData` values~--- however, these areas fall outside of the extent of their corresponding region and therefore are not present in the product.
 French national elevation product appears to be using a global interpolation function on some of the terrain which also results in high error rate and does have an effect on the quality of the product.
 Based on border region comparison alone, it is impossible to evaluate the exact magnitude of these errors.

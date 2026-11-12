@@ -67,10 +67,10 @@
       // DATA
       // ============================================================
 
-      [NL/DE-NW], [#err], [], [], [], [#err], [], [], [], [], [], [], [#err], [#err],
+      [NL/DE-NW], [#err], [], [], [], [#err], [], [], [], [#err], [], [], [#err], [#err],
       [DE-NW/DE-RP], [#err], [#err], [#err], [], [], [#err], [#err], [], [#err], [#err], [#err], [#err], [],
       [DE-NW/DE-HE], [#err], [#err], [#err], [#err], [], [#err], [#err], [], [], [], [], [], [],
-      [DE-RP/DE-SL], [#err], [], [#err], [], [], [#err], [#err], [], [#err], [], [], [#err], [#err],
+      [DE-RP/DE-SL], [#err], [#err], [#err], [], [], [#err], [#err], [], [#err], [], [], [#err], [#err],
       [DE-RP/DE-BW], [#err], [#err], [], [], [#err], [], [#err], [], [#err], [], [#err], [], [],
       [DE-RP/DE-HE], [#err], [], [], [], [], [], [], [], [], [], [#err], [#err], [],
       [DE-RP/FR], [#err], [#err], [#err], [], [], [], [], [#err], [#err], [#err], [], [], [],
@@ -78,7 +78,7 @@
       [DE-SL/FR], [#err], [], [#err], [], [], [#err], [#err], [#err], [#err], [], [], [], [],
       [DE-SL/LU], [#err], [], [#err], [], [#err], [#err], [], [], [#err], [], [], [], [],
       [DE-HE/DE-BW], [#err], [], [#err], [], [], [#err], [#err], [], [#err], [], [], [], [#err],
-      [DE-HE/DE-BY], [#err], [], [#err], [], [], [], [#err], [#err], [#err], [], [], [], [],
+      [DE-HE/DE-BY], [#err], [], [#err], [], [], [#err], [#err], [#err], [#err], [], [], [], [],
       [DE-BW/DE-BY], [#err], [#err], [], [], [], [#err], [#err], [], [#err], [], [#err], [#err], [#err],
       [DE-BW/FR], [#err], [], [#err], [], [#err], [#err], [], [#err], [#err], [#err], [], [], [],
       [DE-BW/CH], [#err], [], [#err], [], [], [#err], [#err], [#err], [#err], [], [], [], [],

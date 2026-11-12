@@ -23,7 +23,7 @@ Secondly, there appears to be misalignment between tiles within the @DTM. This i
 )
 <fig:NRW-RLP-nonalignment>
 
-Lastly, as described in @sec:pipeline, small water bodies such as narrow rivers or small lakes are not filtered out and are therefore counted towards the differences in the comparison. This is however, a small contribution and does not appear disproportionally represented in the calculated problem areas.
+Lastly, as described in @sec:Water_mask_processing, small water bodies such as narrow rivers or small lakes are not filtered out and are therefore counted towards the differences in the comparison. This is however, a small contribution and does not appear disproportionally represented in the calculated problem areas.
 
 There do appear to be several differences which are likely related to @LiDAR sensing limitations or subsequent processing steps. Examples include interpolation errors for buildings (@fig:NRW-RLP-roofinter), ground filtering discrepancies (@fig:NRW-RLP-overpass), temporal changes (@fig:NRW-RLP-quarry)(verified using Google Earth), and steep slopes (@fig:NRW-RLP-slope).
 
@@ -124,7 +124,7 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
 
 #pagebreak()
 
-==== Hessen -- BW
+=== Hessen -- BW
 
 The border between Hessen and @BW one of the shorter borders, coming in at roughly $33"km"$. It does however contain some interesting elements such as an exclave of Hessen inside of @BW. This exclave does however not appear to contain any notable differences. Furthermore, the elevations in this region range from $90$ meters in the large and relatively flat valley, to nearly $550$ meters in the hills (@fig:Hessen-BW-overview).
 
@@ -189,7 +189,7 @@ Further artefacts include common elements throughout the catchment @DTM. These i
 
 The Saarland -- @RLP border is roughly $207$ kilometers long and consists of mostly hilly terrain. The amount of non-compliant pixels for this area appears slightly higher than that for other regions. However, at 0.15% it is still not a significant amount.
 
-Most errors within this region can be attributed to interpolation errors, temporal changes such as windmill construction or quarries, steep slopes, water bodies missed by the mask, and border artefacts. The only notable difference between the Saarland and @RLP @DTM:pls, appears to be the inclusion of extrapolation artefacts at the borders, as seen in @fig:Saarland-RLP-Extrapolation1 and @fig:Saarland-RLP-Extrapolation2. These are only two out of several occurances. These large areas of similar errors do explain the secondary peaks seen within the difference histogram (@fig:Hessen-BW-Borderartefact). Upon further inspection, there do also appear to be occurances of overpasses as discussed in @NRW -- @RLP, and cliffs as discussed in Hessen -- @BW.
+Most errors within this region can be attributed to interpolation errors, temporal changes such as windmill construction or quarries, steep slopes, water bodies missed by the mask, and border artefacts. The only notable difference between the Saarland and @RLP @DTM:pls, appears to be the inclusion of extrapolation artefacts at the borders, as seen in @fig:Saarland-RLP-Extrapolation1 and @fig:Saarland-RLP-Extrapolation2. These are only two out of several occurances. These large areas of similar errors do explain the secondary peaks seen within the difference histogram (@fig:Saarland-RLP-Histogram). Upon further inspection, there do also appear to be occurances of overpasses as discussed in @NRW -- @RLP, and cliffs as discussed in Hessen -- @BW.
 
 All in all, despite issues with the source data, the quality of the @DTM is not affected, due to the region cutoff at the border for the catchment @DTM.
 
@@ -406,7 +406,7 @@ Bavaria instead uses Delaunay triangulation, seemingly based on the lowest point
 === Hessen -- RLP
 
 The border between Hessen and @RLP largely follows the Rhine.
-Compared to the borders between German states, it has the second-highest @RMSE at 1.30m and the highest @LE90 at 0.19m. It also has the second-highest absolute error at -61.59m.
+Compared to the borders between German states, it has the second-highest @RMSE at 1.30m and the second-highest @LE90 at 0.19m. It also has the second-highest absolute error at -61.56m.
 High @RMSE can largely be attributed to errors due to processing in one particular tile; high @LE90 is a symptom of systematic errors.
 
 One of the tiles Hessen includes in its elevation dataset is almost entirely interpolated~--- seemingly using two interpolation methods: linear interpolation on a TIN where sample points are available; and another method where data was not available.
@@ -453,7 +453,7 @@ Smaller errors are also visible in building footprints, where both providers are
     [#image("assets/hessen-rlp-buildings-rlp.png") RLP],
     [#image("assets/hessen-rlp-buildings.png")],
   ),
-  caption: [Temporal differences between Switzerland and BW]
+  caption: [Interpolation differences between Hessen and RLP]
 )
 
 === BW -- Bavaria
@@ -526,7 +526,7 @@ The second artefact within this border comparison is similar to the one encounte
 
 Several other errors exist within the border comparison. These are in line with the errors encountered at other borders. These include interpolation errors, differences in ground filtering (differences in overpass handling), temporal changes (mostly due to quarries or construction areas), differnces due to watermask shortcomings (including small pools, small lakes, creaks), steep slopes
 
-For this border comparison, the @INSPIRE target is not met. The amount of points above the threshold is only $0.14%$. However, the total @RMSE is 5.36m~--- a factor $3.2$ greater than what it is allowed to be for the $5$ meter resolution. These results are not acceptable for the final map. However, solving this problem does not fall within the scope or time constraints of this project, and is primarily a challenge created due to available input data and not by the processing pipeline.
+For this border comparison, the @INSPIRE target is not met. The amount of points above the threshold is only $0.14%$. However, the total @RMSE is 5.36m~--- a factor $3.2$ greater than what it is allowed to be for the $5$ meter resolution. These statistics suggest this border pair is of unacceptable quality; however, the error regions get overwritten and thus do not introduce any conflicts within the final product. Solving this problem does not fall within the scope or time constraints of this project, and is primarily a challenge created due to available input data and not by the processing pipeline.
 
 #pagebreak()
 
@@ -614,7 +614,7 @@ Influence of the slope on the can also be observed directly from the @RMSE analy
 Further artefacts within the region do more closely correspond with the rest of Luxembourg and the border regions in general. These include building interpolation differences, narrow streams not captured by the river mask, and isolated quarry or construction areas. This region does not comply with the thresholds set within @chap:method, with 23% of all points surpassing the threshold. Furthermore, the resolution would need to be increased by over 80% to nearly 10 meters for compliance with the @INSPIRE target. As eluded to earlier, this difference may be a byproduct of the low resolution @DTM compared to the fine resolution of the Luxembourg @DTM, which has introduced resampling differences. While outside of the time constraint of the project, evaluating the results of the comparison against the higher resolution French @DTM could result in better alignment. Alternatively, reextraction from the national point clouds could also be a way to rectify these differences.
 
 === Luxembourg -- RLP
-The Luxembourg -- @RLP border is roughly 80 kilometers long, and with that is the longest border that is evaluated for the catchment area. On the east side of the overlapping area there is the Our river. Observing the overlap map shows that the rivermask was not succesful at filtering out the water bodies entirely for the region. This is a known artefact known to be caused by narrow water bodies. Furthermore, these river areas have been flagged as noticable differences and due count towards the difference at the border.
+The Luxembourg -- @RLP border is roughly 80 kilometers long. On the east side of the overlapping area there is the Our river. Observing the overlap map shows that the rivermask was not succesful at filtering out the water bodies entirely for the region. This is a known artefact known to be caused by narrow water bodies. Furthermore, these river areas have been flagged as noticable differences and due count towards the difference at the border.
 
 Other differences in this region are in line with the other borders surrounding Luxembourg, such as river ports with piled resources, steep cliffs, construction areas and building interpolation differences. The only real artefact that shows up on the histogram, is a singular secondary peak. Observing the difference @DTM, shows that this is caused by a lake, which was missed by the river mask. This is illustrated in @fig:Lux-rlp-peak as a peak starting at 700 meters. The border effect graph also clearly illustrates the difference at the border river.
 
@@ -783,7 +783,7 @@ Different treatment of ruins and exposed rock during ground classification, foll
   ) <fig:rlp-france-patterns>
 ]
 
-==== BW -- France <sec:bw-france>
+=== BW -- France <sec:bw-france>
 
 The Baden-Württemberg (BW)–France comparison shows close agreement across much of the Rhine corridor, interrupted by pronounced local discrepancies and coherent spatial patterns. Across 166.52 km² of valid overlap at 5 m resolution, the mean elevation difference is +0.034 m and the median is +0.058 m, where positive values mean that BW is higher than France. The RMSE of 0.730 m is considerably larger than the NMAD of 0.153 m, indicating that large local differences have a strong influence on the overall result. Numerical results refer to differences before alignment, and 1.667 m is the pipeline's screening threshold. These measures describe agreement between the two DTMs; independent ground control would be needed to establish their absolute accuracy.
 
@@ -904,7 +904,7 @@ Similarly to the building interpolation, there is also an observable difference 
 == Germany -- Netherlands
 
 === Netherlands -- NRW
-The border between the Netherlands and @NRW is approximately 50 kilometers long, is mainly flat, but also contains large hills. The main error found within this region is unfortunately a byproduct of our attempt to interpolate the non-interpolated regions of the Netherlands (@fig:Netherlands-NRW-border). These errors are found primarily in the form of extrapolation errors found at various positions along the border. This is a discrepancy caused by differences in the specified borders for the Netherlands within the interpolation algorithm. However, since these areas are trimmed from the final @DTM, it is not a issue which will be fixed during this project.
+The border between the Netherlands and @NRW is approximately 50 kilometers long, is mainly flat, but also contains large hills. The main error found within this region is unfortunately a byproduct of our attempt to interpolate the non-interpolated regions of the Netherlands (@fig:Netherlands-NRW-border). These errors are found primarily in the form of extrapolation errors found at various positions along the border. This is a discrepancy caused by differences in the specified borders for the Netherlands within the interpolation algorithm, and has been later resolved by changing the border dataset
 
 #figure(
   grid(
@@ -928,8 +928,6 @@ The border between the Netherlands and @NRW is approximately 50 kilometers long,
 Other errors within this region include both small and large scale earth works. Examples include the "Steenfabriek de Bijland", which also includes swampy areas, which are not caught by the river mask (@fig:Netherlands-NRW-Lworks). Another example includes storage of manure and dirt at farms scattered throughout the border area (@fig:Netherlands-NRW-Sworks).
 
 For this border area in particular, there is a strong effect of water bodies on the difference. The RMSE increases by 10% if the water bodies are included, compared to the case without. This is likely due to the attempt at interpolating the river areas, which will differ from the approach taken in the german region, which most often involves triangulation of the water surface.
-
-There are no significant differences that have an effect on the creation of the final catchment @DTM, and with more time the existing extrapolation error would also be fixable.
 
 #figure(
   grid(

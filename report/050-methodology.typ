@@ -116,7 +116,7 @@ Then, the rasters are warped (using `gdalwarp`) to the common grid.
 At this step, the data is transformed from the source @CRS to target @CRS both horizontally and vertically.
 After that, the data is resampled to the target grid.
 By default, the chosen resampling method is averaging all the valid (i.e. not `NoData`) sample points located in the given grid cell, but bilinear interpolation is also possible.
-A brief comparison of interpolation methods is included in @chap:results.
+// A brief comparison of interpolation methods is included in @chap:results.
 
 The resampled raster is written to file, without cropping, with a `NoData` value of -9999.
 
@@ -251,7 +251,7 @@ table(
 
   [After],  [All],      [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
   [After],  [Measured], [11,282,135], [-0.0042], [-0.0001], [0.2518], [0.2518],
-),caption:[Example of general metrics for France/NRW border.])
+),caption:[Example of general metrics for France/RLP border.])
 <tab:general_metrics>
 #figure(
 table(
@@ -280,7 +280,7 @@ table(
 
   [After],  [All],      [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
   [After],  [Measured], [0.1057], [0.1054], [0.1928], [-30.15], [34.84], [26,976], [0.239],
-), caption:[Example accuracy and threshold metrics for France/NRW border.])
+), caption:[Example accuracy and threshold metrics for France/RLP border.])
 <tab:accuracy_metrics>
 #figure(
   table(
@@ -306,7 +306,7 @@ table(
   [Before], [0.1075], [4.567], [0.0503], [0.2353], [-],        [-],        [-],
   [After],  [0.1075], [4.567], [0.0503], [0.2353], [-0.0056], [0.2830], [-0.0286],
 ),
-caption:[Example coregistration metrics for France/NRW border.]
+caption:[Example coregistration metrics for France/RLP border.]
 )
 <tab:coreg_metrics>
 

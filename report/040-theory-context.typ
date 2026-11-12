@@ -163,7 +163,7 @@ However the resulting @DTM:pla are still very close to each other, with highest 
 The study provides both a quantitative and a qualitative assessment of the different methods.
 Quantitatively, omission and commission errors are evaluated: @MSF has the highest error rate of up to 20% for complex scenes; @PMF and @CSF have generally comparable and slightly lower error rates (ca 14% for the same scene); @ICSF performs best, with an error rate of ca 7% for the same scene.
 Qualitative analysis is illustrated with @fig:ground-filter.
-Compared to the reference (column a), @MSF (b) can introduce noise, @PMF (c) and @CSF (d) tend to smooth out steep slopes — this is especially apparent in 2(c) — while @ICSF is mostly artefact-free.
+Compared to the reference (column a), @MSF (b) can introduce noise, @PMF (c) and @CSF (d) tend to smooth out steep slopes~--- this is especially apparent in @fig:ground-filter (c)~--- while @ICSF is mostly artefact-free.
 
 #figure(
   image(
@@ -174,7 +174,7 @@ Compared to the reference (column a), @MSF (b) can introduce noise, @PMF (c) and
 ) <fig:ground-filter>
 
 Point distribution and interpolation methods can introduce further discrepancies between the raster products from different data providers.
-It is expected that these discrepancies are minimal for flatter areas or regions with high point density, and higher for steep slopes or regions with high point density.
+It is expected that these discrepancies are minimal for flatter areas or regions with high point density, and higher for steep slopes or regions with low point density.
 It is also expected that the documentation of the interpolation methods is primarily available in the national language of each data provider, if at all, therefore investigating it was deemed to be out of scope of the project.
 
 == Interpolation Methods <sec:theory-interpolate>
