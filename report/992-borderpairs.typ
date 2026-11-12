@@ -1237,15 +1237,14 @@ For this border area in particular, there is a strong effect of water bodies on 
     [
       #image("assets/Netherlands-NRW-StoneSwampGoogle.png", width: 100%)
       #text(size: 10pt)[
-        Satellite imagery. From Airbus, Maxar Technologies. \
-        (2026).
+        Satellite imagery. From Airbus, Landsat / Copernicus,\ Maxar Technologies\ (2026).
       ]
     ],
 
     [
       #image("assets/Netherlands-NRW-StoneSwampDH.png", width: 100%)
       #text(size: 10pt)[
-        Incomplete river mask.
+        Incomplete water mask.
       ]
     ],
   ),

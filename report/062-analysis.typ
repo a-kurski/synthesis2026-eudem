@@ -307,8 +307,8 @@ Some remnants of snow at a skiing resort are included in the @DTM of @DE-NW, lik
     column-gutter: 5pt,
     [#image("assets/nrw-hessen-snow-satellite.png")
       #text(size: 10pt)[
-        Satellite imagery. \ From Airbus, \ Maxar Technologies\
-        (2026)
+        Satellite imagery. From Airbus, Maxar Technologies, GeoBasis-DE/BKG \
+        (2026).
       ]
     ],
     [#image("assets/nrw-hessen-snow.png")
