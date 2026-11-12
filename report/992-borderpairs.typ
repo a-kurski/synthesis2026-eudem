@@ -177,8 +177,7 @@ A secondary source of differences appears to be the narrow clearings within wood
     [
       #image("assets/Hessen-BW-clearingESRI.png", width: 100%)
       #text(size: 10pt)[
-        Satellite imagery. From Airbus, Maxar Technologies. \
-        (2026).
+        Satellite imagery. From AeroWest, Airbus\ Geobasis-DE/BKG.\ (2026)
       ]
     ],
 
@@ -201,7 +200,7 @@ A secondary source of differences appears to be the narrow clearings within wood
     [
       #image("assets/Hessen-BW-clearingUC.png", width: 100%)
       #text(size: 10pt)[
-        Uncertainity map.
+        Uncertainty map.
       ]
     ],
 
