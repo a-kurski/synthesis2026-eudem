@@ -542,9 +542,8 @@ It is unclear what the elevation of the southwest extreme point is based on.
     column-gutter: 5pt,
     [#image("assets/hessen-rlp-artefact-satellite.png")
     #text(size: 10pt)[
-      Satellite imagery. From AeroWest,
-      Airbus, Geobasis-DE/BKG.\
-      (2026)
+      Satellite imagery. From Airbus, Maxar Technologies\
+      (2026).
       ]
     ],
     [
