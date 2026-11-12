@@ -10,7 +10,7 @@ Each terrain model is associated with a @CRS. A @CRS describes the units of meas
 
 == The Need for the European DEM
 
-There are currently several products which offer the EU-wide elevation data as described in @sec:gdem. These products, however, have several shortcomings. Satellite-derived @DEM:pla have coarse resolution and do not fully support extracting the @DTM; aggregate @DEM:pla compromise on accuracy in the border regions.
+There are currently several products which offer EU-wide elevation data as described in @sec:gdem. These products, however, have several shortcomings. Satellite-derived @DEM:pla have coarse resolution and do not fully support extracting the @DTM; aggregate @DEM:pla compromise on accuracy in the border regions.
 
 The aim of this project is to develop an automated pipeline for a higher-quality European @DEM which would support runoff, flood, and other modelling. We specifically consider the @DTM of the Rhine catchment area as the object of the case study.
 

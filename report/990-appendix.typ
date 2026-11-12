@@ -1,3 +1,4 @@
+#import "@preview/unify:0.8.1": qty
 #import "@preview/timeliney:0.4.0"
 
 #set heading(numbering: "A.1.1", supplement: [Appendix])
@@ -5,13 +6,13 @@
 
 = Work Allocation & AI Statement
 
-RB is the primary author of the abstract.
+RV is the primary author of the abstract.
 AB is the primary author of the introduction.
 AB, AK, and RV have collaborated on writing the project definition.
 
 AB, AK, and RV have each performed literature review.
 In the report, AK describes the INSPIRE specification on elevation (reading which was one of the hardest~--- and surprisingly pointless~--- things he's ever done), global elevation models, and the Rhine catchment area definition.
-RB and AK both contribute to describing point cloud processing, interpolation, and river elevation.
+RV and AK both contribute to describing point cloud processing, interpolation, and river elevation.
 
 AB and AK have both performed data discovery.
 AB, AK, and RV have collectively designed the processing pipeline.
@@ -27,7 +28,7 @@ AB, AK, and RV have all performed the analysis of border regions, each focusing 
 AB, AK, and RV present the aggregated description of issues found between bordering DTMs.
 
 AK presents the conclusions and recommendations.
-RB describes limitations.
+RV describes limitations.
 
 AK has led a (highly opinionated) edit of the report prior to its publication.
 AK has also written this section.
@@ -35,11 +36,11 @@ AK has also written this section.
 AB, AK, and RV have all used generative AI over the course of the project.
 AB has used ChatGPT 6 Astra to produce the code for data acquisition; help understand code produced by other group members; and as a proof-reading/editing aid.
 AK has used Claude Opus 5.5 to integrate different aspects of the pipeline~--- AK is not sure he wrote a single line of code by hand during this project. Reluctantly, he also used AI for proof-reading and editing~--- tightly controlling the scope of those edits.
-RB has used Claude Opus 5.5. to perform bug-fixing and implement a small set of features in his code. He has also used Microsoft Copilot as a proof-reading/editing aid.
+RV has used Claude Opus 5.5. to perform bug-fixing and implement a small set of features in his code. He has also used Microsoft Copilot as a proof-reading/editing aid.
 
 = Data and Code <appx:code>
 
-The code are available on GitHub at https://github.com/a-kurski/synthesis2026-eudem.
+The code is available on GitHub at https://github.com/a-kurski/synthesis2026-eudem.
 
 The data is available from national providers, and can be acquired by executing corresponding parts of the code.
 The DTM, river mask, and analysis can be fully reproduced by executing the processing and analysis parts of the pipeline.
@@ -106,19 +107,19 @@ The DTM, river mask, and analysis can be fully reproduced by executing the proce
     [DT-01],[Global / @EU:s @DEM:s], moscow("Must"),status("Done"),
     [DT-02],[Rhine Watershed Mask], moscow("Must"),status("Done"),
     [DT-03],[Rhine Bathymetry], moscow("Will not have"),status("Not done"),
-    [DT-04], [National/regional @PC:s], moscow("Must"),status("In progress"),
+    [DT-04], [National/regional @PC:s], moscow("Must"),status("Not done"),
     [DT-05], [National/regional @DTM:s], moscow("Must"),status("Done"),
     [DT-06], [National/regional @DSM:s], moscow("Should"),status("Not done"),
     [DT-07], [National/regional topographic map], moscow("Could"),status("Not done"),
     table.hline(stroke: 2pt),
-    [CT-01],[The Netherlands is included], moscow("Must"),status("Done"),
-    [CT-02],[Germany is included], moscow("Must"),status("Done"),
+    [CT-01],[@NL is included], moscow("Must"),status("Done"),
+    [CT-02],[@DE is included], moscow("Must"),status("Done"),
     [CT-03],[Belgium is included], moscow("Should"),status("Not done"),
-    [CT-04],[Switzerland is included], moscow("Must"),status("Done"),
-    [CT-05],[France is included], moscow("Must"),status("Done"),
-    [CT-06],[Luxembourg is included], moscow("Must"),status("Done"),
+    [CT-04],[@CH is included], moscow("Must"),status("Done"),
+    [CT-05],[@FR is included], moscow("Must"),status("Done"),
+    [CT-06],[@LU is included], moscow("Must"),status("Done"),
     [CT-07],[Austria is included], moscow("Should"),status("Not done"),
-    [CT-08],[Liechtenstein is included], moscow("Must"),status("Done"),
+    [CT-08],[@LI is included], moscow("Must"),status("Done"),
     [CT-09],[Italy is included], moscow("Will not have"),status("Not done"),
     table.hline(stroke: 2pt),
     [MP-01],[@DTM:s raster], moscow("Must"),status("Done"),
@@ -129,10 +130,10 @@ The DTM, river mask, and analysis can be fully reproduced by executing the proce
     [TC-02],[Workflow is efficient], moscow("Should"),status("Done"),
     [TC-03],[Workflow is reproducible], moscow("Must"),status("Done"),
     table.hline(stroke: 2pt),
-    [RP-01],[Report on findings], moscow("Must"),status("In progress"),
+    [RP-01],[Report on findings], moscow("Must"),status("Done"),
     [RP-02],[Report details the workflow], moscow("Must"),status("Done"),
-    [RP-03],[Report details the issues with cross-border data], moscow("Must"),status("In progress"),
-    [RP-04],[Report details the limitations of the workflow], moscow("Must"),status("In progress")
+    [RP-03],[Report details the issues with cross-border data], moscow("Must"),status("Done"),
+    [RP-04],[Report details the limitations of the workflow], moscow("Must"),status("Done")
   )
 ) <Moscow_Prioritization>
 
@@ -482,50 +483,50 @@ caption:[Gantt chart.]
 
 
 = Data Source List <appx-data-sources>
+#[
+#show figure: set block(breakable: true)
 #figure(
   table(
     columns: (auto, auto, auto),
     table.header([*Dataset*], [*URL*], [*Notes*]),
-    [Netherlands: @DTM:s], [see https://www.ahn.nl/dataroom], [Map tiles — @COG, 0.5m resolution, not interpolated; also available at 5m resolution],
-    [Netherlands: @DSM:s], [see https://www.ahn.nl/dataroom], [Map tiles — @COG:s, 0.5m resolution, not interpolated; also available at 5m resolution],
-    [Netherlands: @PC:s], [], [Map tiles — @LAZ, 10–14 pt/cm#super[2]],
-    [Switzerland: @DTM:s], [https://www.swisstopo.admin.ch/en/height-model-swissalti3d], [Map tiles — @COG:s, 0.5m and 2m resolution, interpolated],
-    [Switzerland: @DSM:s], [https://www.swisstopo.admin.ch/en/height-model-swisssurface3d-raster], [Map tiles — @COG:s, 0.5m resolution only, interpolated],
-    [Switzerland: @PC:s], [https://www.swisstopo.admin.ch/en/height-model-swisssurface3d], [Map tiles — @LAZ:s or @COPC, point density 15–40 pt/cm#super[2] (region-dependent)],
-    [Germany, Niedersachsen: @DTM:s], [https://ni-lgln-opengeodata.hub.arcgis.com/pages/digitales-gel-ndemodell-dgm1], [Map tiles — @COG:s, 1m resolution],
-    [Germany, Niedersachsen: @DSM:s], [https://ni-lgln-opengeodata.hub.arcgis.com/pages/digitales-oberfl-chenmodell-dom1], [Map tiles — @COG:s, 1m resolution],
-    [Germany, Niedersachsen: @PC:s], [https://lgln-geodaten.niedersachsen.de/startseite/luftbilder_und_3d_produkte/3d_produkte/3d_messdaten/3d-messdaten-142870.html], [not open data, available for a fee],
-    [Germany, Nordrhein-Westfalen: @DTM:s], [https://www.opengeodata.nrw.de/produkte/geobasis/hm/dgm1_tiff/dgm1_tiff/], [Map tiles — GeoTIFF, 1m resolution],
-    [Germany, Nordrhein-Westfalen: @DSM:s], [https://www.opengeodata.nrw.de/produkte/geobasis/hm/dom1_tiff/dom1_tiff/], [Map tiles — GeoTIFF, 1m resolution],
-    [Germany, Nordrhein-Westfalen: @PC:s], [https://www.opengeodata.nrw.de/produkte/geobasis/hm/3dm_l_las/3dm_l_las/], [@LAZ:s],
-    [Germany, Rheinland-Pfalz: @DTM:s], [https://geoshop.rlp.de/digitale_gelaendemodelle/digitale_gelaendemodelle_dgm.html], [Map tiles — GeoTIFF, 1m resolution],
-    [Germany, Rheinland-Pfalz: @DSM:s], [https://geoshop.rlp.de/digitale_oberflaechenmodelle/digitales_oberflaechenmodell_domb.html], [Map tiles — GeoTIFF, 0.2m resolution],
-    [Germany, Rheinland-Pfalz: @PC:s — surface], [https://geoshop.rlp.de/digitale_oberflaechenmodelle/laserpunkte_objekte_lpo.html], [@LAZ:s],
-    [Germany, Rheinland-Pfalz: @PC:s — terrain], [https://geoshop.rlp.de/digitale_gelaendemodelle/laserpunkte_gelaende_lpg.html], [@LAZ:s],
-    [Germany, Saarland: @DTM:s], [https://www.shop.lvgl.saarland.de/index.php?option=com_virtuemart&view=category&virtuemart_category_id=1060&Itemid=475], [GeoTIFF, 1m resolution],
-    [Germany, Saarland: @DSM:s], [https://www.shop.lvgl.saarland.de/index.php?option=com_virtuemart&view=category&virtuemart_category_id=1066&Itemid=475], [GeoTIFF, 1m resolution],
-    [Germany, Saarland: @PC:s], [https://www.shop.lvgl.saarland.de/index.php?option=com_virtuemart&view=category&virtuemart_category_id=1067&Itemid=475], [@LAZ:s],
-    [Germany, Baden-Württemberg: @DTM:s], [https://www.lgl-bw.de/Produkte/3D-Produkte/Digitale-Gelaendemodelle/], [Map tiles — GeoTIFF, 0.25m resolution],
-    [Germany, Baden-Württemberg: @DSM:s], [https://www.lgl-bw.de/Produkte/3D-Produkte/Digitale-Oberflaechenmodelle/DOM1/], [Map tiles — GeoTIFF (1m resolution)],
-    [Germany, Baden-Württemberg: @PC:s], [https://www.lgl-bw.de/Produkte/3D-Produkte/Laserscandaten/], [not open data, available for a fee],
-    [Germany, Hessen: @DTM:s], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/digitale-gelaendemodelle], [Map tiles — GeoTIFF (1m resolution)],
-    [Germany, Hessen: @DSM:s], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/digitale-oberflaechenmodelle], [Map tiles — GeoTIFF (1m resolution)],
-    [Germany, Hessen: @PC:s], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/airborne-laserscanning], [not open data, available for a fee],
-    [Germany, Bayern: @DTM:s], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=dgm1], [Map tiles — GeoTIFF, 1m resolution],
-    [Germany, Bayern: @DSM:s], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=dom20], [Map tiles — GeoTIFF, 0.2m resolution],
-    [Germany, Bayern: @PC:s], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=laserdaten], [Map tiles — @LAZ:s],
-    [Liechtenstein: @DTM:s, @DSM:s, @PC:s], [], [Included in Swiss datasets],
-    [France: @DTM:s], [https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_MNT-LIDAR-HD], [Map tiles — GeoTIFF, 0.5m resolution],
-    [France: @DSM:s], [https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_MNS-LIDAR-HD], [Map tiles — GeoTIFF, 0.5m resolution],
-    [France: @PC:s], [https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD?redirected_from=geoservices.ign.fr], [Map tiles — @LAZ:s],
-    [Luxembourg: @DTM:s],[https://data.public.lu/fr/datasets/lidar-2024-releve-3d-du-territoire-luxembourgeois/],[Map tiles — GeoTIFF, 0.5m resolution],
-    [Luxembourg: @DSM:s],[https://data.public.lu/fr/datasets/lidar-2024-releve-3d-du-territoire-luxembourgeois/],[Map tiles — GeoTIFF, 0.5m resolution],
-    [Luxembourg: @PC:s],[https://data.public.lu/fr/datasets/lidar-2024-releve-3d-du-territoire-luxembourgeois/],[Map tiles — @LAZ:s]
+    [@NL: @DTM:s], [see https://www.ahn.nl/dataroom], [Map tiles~--- @COG, #qty("0.5", "m") resolution, not interpolated; also available at #qty("5", "m") resolution],
+    [@NL: @DSM:s], [see https://www.ahn.nl/dataroom], [Map tiles~--- @COG:s, #qty("0.5", "m") resolution, not interpolated; also available at #qty("5", "m") resolution],
+    [@NL: @PC:s], [], [Map tiles~--- @LAZ, 10–14 pt/cm#super[2]],
+    [@CH: @DTM:s], [https://www.swisstopo.admin.ch/en/height-model-swissalti3d], [Map tiles~--- @COG:s, #qty("0.5", "m") and #qty("2", "m") resolution, interpolated],
+    [@CH: @DSM:s], [https://www.swisstopo.admin.ch/en/height-model-swisssurface3d-raster], [Map tiles~--- @COG:s, #qty("0.5", "m") resolution only, interpolated],
+    [@CH: @PC:s], [https://www.swisstopo.admin.ch/en/height-model-swisssurface3d], [Map tiles~--- @LAZ:s or @COPC, point density 15–40 pt/cm#super[2] (region-dependent)],
+    [@DE-NW: @DTM:s], [https://www.opengeodata.nrw.de/produkte/geobasis/hm/dgm1_tiff/dgm1_tiff/], [Map tiles~--- GeoTIFF, #qty("1", "m") resolution],
+    [@DE-NW: @DSM:s], [https://www.opengeodata.nrw.de/produkte/geobasis/hm/dom1_tiff/dom1_tiff/], [Map tiles~--- GeoTIFF, #qty("1", "m") resolution],
+    [@DE-NW: @PC:s], [https://www.opengeodata.nrw.de/produkte/geobasis/hm/3dm_l_las/3dm_l_las/], [@LAZ:s],
+    [@DE-RP: @DTM:s], [https://geoshop.rlp.de/digitale_gelaendemodelle/digitale_gelaendemodelle_dgm.html], [Map tiles~--- GeoTIFF, #qty("1", "m") resolution],
+    [@DE-RP: @DSM:s], [https://geoshop.rlp.de/digitale_oberflaechenmodelle/digitales_oberflaechenmodell_domb.html], [Map tiles~--- GeoTIFF, #qty("0.2", "m") resolution],
+    [@DE-RP: @PC:s — surface], [https://geoshop.rlp.de/digitale_oberflaechenmodelle/laserpunkte_objekte_lpo.html], [@LAZ:s],
+    [@DE-RP: @PC:s~--- terrain], [https://geoshop.rlp.de/digitale_gelaendemodelle/laserpunkte_gelaende_lpg.html], [@LAZ:s],
+    [@DE-SL: @DTM:s], [https://www.shop.lvgl.saarland.de/index.php?option=com_virtuemart&view=category&virtuemart_category_id=1060&Itemid=475], [GeoTIFF, #qty("1", "m") resolution],
+    [@DE-SL: @DSM:s], [https://www.shop.lvgl.saarland.de/index.php?option=com_virtuemart&view=category&virtuemart_category_id=1066&Itemid=475], [GeoTIFF, #qty("1", "m") resolution],
+    [@DE-SL: @PC:s], [https://www.shop.lvgl.saarland.de/index.php?option=com_virtuemart&view=category&virtuemart_category_id=1067&Itemid=475], [@LAZ:s],
+    [@DE-BW: @DTM:s], [https://www.lgl-bw.de/Produkte/3D-Produkte/Digitale-Gelaendemodelle/], [Map tiles — GeoTIFF, #qty("0.25", "m") resolution],
+    [@DE-BW: @DSM:s], [https://www.lgl-bw.de/Produkte/3D-Produkte/Digitale-Oberflaechenmodelle/DOM1/], [Map tiles~--- GeoTIFF (#qty("1", "m") resolution)],
+    [@DE-BW: @PC:s], [https://www.lgl-bw.de/Produkte/3D-Produkte/Laserscandaten/], [not open data, available for a fee],
+    [@DE-HE: @DTM:s], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/digitale-gelaendemodelle], [Map tiles~--- GeoTIFF (#qty("1", "m") resolution)],
+    [@DE-HE: @DSM:s], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/digitale-oberflaechenmodelle], [Map tiles~--- GeoTIFF (#qty("1", "m") resolution)],
+    [@DE-HE: @PC:s], [https://hvbg.hessen.de/landesvermessung/geotopographie/3d-daten/airborne-laserscanning], [not open data, available for a fee],
+    [@DE-BY: @DTM:s], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=dgm1], [Map tiles~--- GeoTIFF, #qty("1", "m") resolution],
+    [@DE-BY: @DSM:s], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=dom20], [Map tiles~--- GeoTIFF, #qty("0.2", "m") resolution],
+    [@DE-BY: @PC:s], [https://geodaten.bayern.de/opengeodata/OpenDataDetail.html?pn=laserdaten], [Map tiles~--- @LAZ:s],
+    [@LI: @DTM:s, @DSM:s, @PC:s], [], [Included in Swiss datasets],
+    [@FR: @DTM:s], [https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_MNT-LIDAR-HD], [Map tiles~--- GeoTIFF, #qty("0.5", "m") resolution],
+    [@FR: @DSM:s], [https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_MNS-LIDAR-HD], [Map tiles~--- GeoTIFF, #qty("0.5", "m") resolution],
+    [@FR: @PC:s], [https://cartes.gouv.fr/rechercher-une-donnee/dataset/IGNF_NUAGES-DE-POINTS-LIDAR-HD?redirected_from=geoservices.ign.fr], [Map tiles~--- @LAZ:s],
+    [@LU: @DTM:s],[https://data.public.lu/fr/datasets/lidar-2024-releve-3d-du-territoire-luxembourgeois/],[Map tiles — GeoTIFF, #qty("0.5", "m") resolution],
+    [@LU: @DSM:s],[https://data.public.lu/fr/datasets/lidar-2024-releve-3d-du-territoire-luxembourgeois/],[Map tiles — GeoTIFF, #qty("0.5", "m") resolution],
+    [@LU: @PC:s],[https://data.public.lu/fr/datasets/lidar-2024-releve-3d-du-territoire-luxembourgeois/],[Map tiles~--- @LAZ:s]
   ),
   caption:[Dataset availability.]
 )
+]
 
 
 
-= Border pair analysis <sec:border_pairs>
+= Border Pair Analysis <sec:border_pairs>
 #include "992-borderpairs.typ"

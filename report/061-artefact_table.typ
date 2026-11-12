@@ -37,14 +37,14 @@
       [#vlabel([Interpolation])],
 
       [#vlabel([Overpass])],
-      [#vlabel([Steep slopes])],
+      [#vlabel([Slopes])],
 
-      [#vlabel([Snow cover])],
+      [#vlabel([Snow])],
       [#vlabel([Bulk storage])],
-      [#vlabel([Excavation])],
-      [#vlabel([Construction works])],
+      [#vlabel([Quarry])],
+      [#vlabel([Construction])],
 
-      [#vlabel([Water modelling])],
+      [#vlabel([Water handling])],
       [#vlabel([River mask failure])],
 
       [#vlabel([ALS striping])],
@@ -67,10 +67,10 @@
       // DATA
       // ============================================================
 
-      [NL/DE-NW], [#err], [], [], [], [#err], [], [], [], [], [], [], [#err], [#err],
+      [NL/DE-NW], [#err], [], [], [], [#err], [], [], [], [#err], [], [], [#err], [#err],
       [DE-NW/DE-RP], [#err], [#err], [#err], [], [], [#err], [#err], [], [#err], [#err], [#err], [#err], [],
       [DE-NW/DE-HE], [#err], [#err], [#err], [#err], [], [#err], [#err], [], [], [], [], [], [],
-      [DE-RP/DE-SL], [#err], [], [#err], [], [], [#err], [#err], [], [#err], [], [], [#err], [#err],
+      [DE-RP/DE-SL], [#err], [#err], [#err], [], [], [#err], [#err], [], [#err], [], [], [#err], [#err],
       [DE-RP/DE-BW], [#err], [#err], [], [], [#err], [], [#err], [], [#err], [], [#err], [], [],
       [DE-RP/DE-HE], [#err], [], [], [], [], [], [], [], [], [], [#err], [#err], [],
       [DE-RP/FR], [#err], [#err], [#err], [], [], [], [], [#err], [#err], [#err], [], [], [],
@@ -78,7 +78,7 @@
       [DE-SL/FR], [#err], [], [#err], [], [], [#err], [#err], [#err], [#err], [], [], [], [],
       [DE-SL/LU], [#err], [], [#err], [], [#err], [#err], [], [], [#err], [], [], [], [],
       [DE-HE/DE-BW], [#err], [], [#err], [], [], [#err], [#err], [], [#err], [], [], [], [#err],
-      [DE-HE/DE-BY], [#err], [], [#err], [], [], [], [#err], [#err], [#err], [], [], [], [],
+      [DE-HE/DE-BY], [#err], [], [#err], [], [], [#err], [#err], [#err], [#err], [], [], [], [],
       [DE-BW/DE-BY], [#err], [#err], [], [], [], [#err], [#err], [], [#err], [], [#err], [#err], [#err],
       [DE-BW/FR], [#err], [], [#err], [], [#err], [#err], [], [#err], [#err], [#err], [], [], [],
       [DE-BW/CH], [#err], [], [#err], [], [], [#err], [#err], [#err], [#err], [], [], [], [],
