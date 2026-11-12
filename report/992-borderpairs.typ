@@ -19,7 +19,7 @@ Secondly, there appears to be misalignment between tiles within the @DTM. This i
 
 #figure(
   image("assets/NRW-RLP-nonalignment.png",width:40%),
-  caption:"Tile vertical misalignment artefact on the border difference DEM"
+  caption: "Tiling artefacts on the elevation difference map over the NRW/RLP border.",
 )
 <fig:NRW-RLP-nonalignment>
 
@@ -36,25 +36,33 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
 
     [
       #image("assets/NRW-RLP-roofinterESRI.png", width: 100%)
-      #align(center)[(ESRI)]
+      #text(size: 10pt)[
+        DTM of BW.
+      ]
     ],
 
     [
       #image("assets/NRW-RLP-roofinterNRW.png", width: 100%)
-      #align(center)[(NRW)]
+      #text(size: 10pt)[
+        DTM of NRW.
+      ]
     ],
 
     [
       #image("assets/NRW-RLP-roofinterRLP.png", width: 100%)
-      #align(center)[(RLP)]
+      #text(size: 10pt)[
+        DTM of RLP.
+      ]
     ],
 
     [
       #image("assets/NRW-RLP-roofinter.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ]
   ),
-  caption: "Example of roof interpolation, marked as dark blue pock marks, with red polygons representing roofs exceeding 1.6 meters of difference. NRW and RLP rasters were set to a 50–150 meter range, while the difference was set to -1–1 meters to highlight the differences",
+  caption: "Example of elevation differences caused by roof interpolations. Red polygons in the leftmost figure indicate areas where the elevation difference exceeds 1.6m.",
 )
 <fig:NRW-RLP-roofinter>
 
@@ -65,25 +73,34 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
 
     [
       #image("assets/NRW-RLP-overpass.png", width: 100%)
-      #align(center)[(ESRI)]
+      #text(size: 10pt)[
+        Satellite imagery. From Airbus, Maxar Technologies. \
+        (2026).
+      ]
     ],
 
     [
       #image("assets/NRW-RLP-overpassNRW.png", width: 100%)
-      #align(center)[(NRW)]
+      #text(size: 10pt)[
+        DTM of NRW.
+      ]
     ],
 
     [
       #image("assets/NRW-RLP-overpassRLP.png", width: 100%)
-      #align(center)[(RLP)]
+      #text(size: 10pt)[
+        DTM of RLP.
+      ]
     ],
 
     [
       #image("assets/NRW-RLP-overpassDH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
   ),
-  caption: "Example of a highway overpass, where NRW prioritizes the highway as ground, while RLP prioritizes the road underneath. The NRW and RLP rasters were set to 195–215 meters, while the difference was set to -1–1 meters to highlight the differences",
+  caption: "Example of a highway overpass, where NRW prioritizes the highway as ground, while RLP prioritizes the road underneath. The NRW and RLP rasters were set to 195–215 meters, while the difference was set to -1–1 meters to highlight the differences.",
 )
 <fig:NRW-RLP-overpass>
 
@@ -94,35 +111,42 @@ Nevertheless, the overall alignment of the @NRW and @RLP @DTM:pls does comply wi
 
     [
       #image("assets/NRW-RLP-quarry.png", width: 100%)
-      #align(center)[(ESRI)]
+      #text(size: 10pt)[
+        Satellite imagery. From Airbus, Maxar Technologies. \
+        (2026).
+      ]
     ],
 
     [
       #image("assets/NRW-RLP-quarryNRW.png", width: 100%)
-      #align(center)[(NRW)]
+      #text(size: 10pt)[
+        DTM of NRW.
+      ]
     ],
 
     [
       #image("assets/NRW-RLP-quarryRLP.png", width: 100%)
-      #align(center)[(RLP)]
+      #text(size: 10pt)[
+        DTM of RLP.
+      ]
     ],
 
     [
       #image("assets/NRW-RLP-quarryDH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ]
   ),
-  caption: "Example of differences between the NRW and RLP DTMs, as result of temporal quarry changes. The NRW and RLP rasters were set to 115–235 meters, while the difference was set to -1–1 meters to highlight the differences",
+  caption: "Example of differences between the NRW and RLP DTMs, as result of temporal quarry changes. The NRW and RLP rasters were set to 115–235 meters, while the difference was set to -1–1 meters to highlight the differences.",
 )
 <fig:NRW-RLP-quarry>
 
 #figure(
   image("assets/slope_rmse_germany_nrw_germany_rlp.png",width:60%),
-  caption:"Slope effect on the RMSE of the difference"
+  caption: "RMSE of the elevation difference plotted against terrain slope.",
 )
 <fig:NRW-RLP-slope>
-
-#pagebreak()
 
 === Hessen -- BW
 
@@ -200,15 +224,19 @@ All in all, despite issues with the source data, the quality of the @DTM is not 
 
     [
       #image("assets/RLP-Saarland-ExtrapolationBoth.png", width: 100%)
-      #align(center)[(RLP and Saarland)]
+      #text(size: 10pt)[
+        DTM of RLP and Saarland.
+      ]
     ],
 
     [
       #image("assets/RLP-Saarland-ExtrapolationDH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
   ),
-  caption: "Extrapolation example 1, large negative difference accompanied by feathering of elevation values due to extrapolation. The RLP and Saarland rasters were set to 400–700 meters, while the difference was set to -1–1 meters to highlight the differences",
+  caption: "Extrapolation example 1, large negative difference accompanied by feathering of elevation values due to extrapolation. The RLP and Saarland rasters were set to 400–700 meters, while the difference was set to -1–1 meters to highlight the differences.",
 )
 <fig:Saarland-RLP-Extrapolation1>
 
@@ -219,26 +247,32 @@ All in all, despite issues with the source data, the quality of the @DTM is not 
 
     [
       #image("assets/RLP-Saarland-Extrapolation2RLP.png", width: 100%)
-      #align(center)[(RLP)]
+      #text(size: 10pt)[
+        DTM of RLP.
+      ]
     ],
 
     [
       #image("assets/RLP-Saarland-Extrapolation2Saar.png", width: 100%)
-      #align(center)[(Saarland)]
+      #text(size: 10pt)[
+        DTM of Saarland.
+      ]
     ],
 
     [
       #image("assets/RLP-Saarland-Extrapolation2DH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
   ),
-  caption: "Extrapolation example 2, large positive and negative differences accompanied by feathering of elevation values due to extrapolation. The RLP and Saarland rasters were set to 400–575 meters, while the difference was set to -1–1 meters to highlight the differences",
+  caption: "Extrapolation example 2, large positive and negative differences accompanied by feathering of elevation values due to extrapolation. The RLP and Saarland rasters were set to 400–575 meters, while the difference was set to -1–1 meters to highlight the differences.",
 )
 <fig:Saarland-RLP-Extrapolation2>
 
 #figure(
   image("assets/histogram_germany_rlp_germany_saarland.png", width:80%),
-  caption:"Saarland-RLP Histogram, secondary peaks around the -30, -20, and 20 meter marks represent extrapolation artefacts"
+  caption: "Saarland/RLP histogram of elevation differences. Secondary peaks around the -30, -20, and 20 meter marks mostly represent extrapolation artefacts.",
 )
 <fig:Saarland-RLP-Histogram>
 
@@ -253,33 +287,105 @@ The only notable outlier within the data is the convergence of error similarity 
 
 #figure(
   grid(
-    columns: 3,
+    columns: 2,
     gutter: 5pt,
 
     [
       #image("assets/RLP-BW-CoalESRI.png", width: 100%)
-      #align(center)[(ESRI)]
+      #text(size: 10pt)[
+        Satellite imagery. From Airbus, GeoBasis-DE/BKG,\
+        Maxar Technologies\
+        (2026)
+      ]
     ],
-
-    [
-      #image("assets/RLP-BW-CoalGoogle.png", width: 100%)
-      #align(center)[(Google)]
-    ],
-
     [
       #image("assets/RLP-BW-CoalDH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
   ),
-  caption: "Coal storage example, temporal changes have shifted the distribution of coal piles. The difference was set to -1–1 meters to highlight the differences",
+  caption: "Example of elevation differences encountered on a coal storage. The temporal changes in the coal mine cause this difference. Color scale was set to [-1m;1m] to highlight the differences.",
 )
 <fig:RLP-BW-Coal>
 
 #figure(
   image("assets/RLP-BW-TileoffsetDH.png"),
-  caption:"Tile offset example, as shown by the faint discoloration seam at the image center in the order of 10cm difference. The difference was set to -0,25–0,25 meters to highlight the differences"
+  caption: "Elevation differences caused by tiling artefacts. The difference was set to [-0.25m;0.25m] to highlight the differences.",
 )
 <fig:RLP-BW-TileOffset>
+
+#pagebreak()
+=== Hessen -- BW
+
+The border between Hessen and @BW one of the shorter borders, coming in at roughly $33"km"$. It does however contain some interesting elements such as an exclave of Hessen inside of @BW. This exclave does however not appear to contain any notable differences. Furthermore, the elevations in this region range from $90$ meters in the large and relatively flat valley, to nearly $550$ meters in the hills (@fig:Hessen-BW-overview).
+
+#figure(
+  image("assets/Hessen-BW-overview.png",width:40%),
+  caption: "Hessen/BW border. The overlapping DTM area is shown by the red polygon.",
+)
+<fig:Hessen-BW-overview>
+
+The first obvious difference is a bright highlight at the border of the @DTM (@fig:Hessen-BW-Borderartefact). The effect. This artefact is a byproduct of the @BW dataset being cut differently compared to the Hessen dataset. Therefore, this difference is an artefact caused by the clipped dataset and not a real physical difference. This effect occurs on all difference analysis @DTM:pls, though it is not always as pronounced as within this comparison.
+
+#figure(
+  image("assets/Hessen-BW-Borderartifact.png",width:40%),
+  caption: "Elevation differences caused by DTM border artefacts. The color scale was set to [-1m;1m] to highlight the differences. The red polygon highlights differences with magnitude greater than 1.6m.",
+)
+<fig:Hessen-BW-Borderartefact>
+
+A secondary source of differences appears to be the narrow clearings within wooded areas (@fig:Hessen-BW-clearing). This occurs in several locations. It is unclear exactly why this happens. The uncertainty @DTM representing random error. It shows a very constant, yet small error of around $3"cm"$. This implies that the observed error is not simply consisting of noise. Observing the @BW @DTM, we see a steep drop in elevation. Streetview furthermore confirms that it is indeed a cliff face. The elevation difference is likely caused by ground filtering or different flight paths during @LiDAR scanning.
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/Hessen-BW-clearingESRI.png", width: 100%)
+      #text(size: 10pt)[
+        Satellite imagery. From AeroWest,
+        Airbus, Geobasis-DE/BKG.
+        (2026)
+      ]
+    ],
+
+    [
+      #image("assets/Hessen-BW-clearingDH.png", width: 100%)
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
+    ],
+  ),
+  caption: "Elevation differences caused by the presence of a cliff face. The red polygons (left) show a difference greater than 1.6m. The color scale was set to [-1m;1m] to highlight the differences.",
+)
+<fig:Hessen-BW-clearing>
+
+#figure(
+  grid(
+    columns: 2,
+    gutter: 5pt,
+
+    [
+      #image("assets/Hessen-BW-clearingUC.png", width: 100%)
+      #text(size: 10pt)[
+        Uncertainty map.
+      ]
+    ],
+
+    [
+      #image("assets/Hessen-BW-clearingSV.png", width: 100%)
+      #text(size: 10pt)[
+        Image from Google Street View\
+        (49.453946° N, 8.947358° E)
+      ]
+    ],
+  ),
+  caption: "Cliff face example. Random error inspection shows random errors in 3cm range which imply this is not the main cause. Inspecting Google Street View confirms the presence of the cliff face.",
+)
+<fig:Hessen-BW-clearingEx>
+
+Further artefacts include common elements throughout the catchment @DTM. These include building interpolation differences, quarries/construction sites, and lakes/rivers not caught by the river mask. These errors are expected and can likely only be fixed through the reextraction of the @DTM, by using both the Hessen and @BW point clouds. Nevertheless, the Hessen-@BW border falls well within the @INSPIRE threshold, with only 0.06% of points being non-compliant. The alignment of the two @DTM:pls also appears to be accurate, with the coregistration recommending a vertical transform of only $1" cm"$ in vertical direction for the best possible alignment.
 
 #pagebreak()
 === NRW -- Hessen
@@ -300,7 +406,8 @@ Still, the biggest differences are -9m and 22m in the negative and positive dire
     [#image("assets/nrw-hessen-roadworks-satellite.png")],
     [#image("assets/nrw-hessen-roadworks.png")]
   ),
-  caption: [Areas on the Hessen--NRW border with high temporal differences]
+  caption: [Elevation difference maps showing areas on the Hessen/NRW border with high elevation differences due to temporal changes. Satellite imagery from Airbus, GeoBasis-DE/BKG, Maxar Technologies.
+  ],
 )<fig:nrw-hessen-temporal>
 
 Most of the errors which exceed threshold are best explained by the temporal differences in the datasets.
@@ -316,7 +423,7 @@ Additionally at the time of acquisition, there was snow on the ground in Willing
     [#image("assets/nrw-hessen-snow.png")],
     [#image("assets/nrw-hessen-snow.jpeg", width: 85%)]
   ),
-  caption: [Effects of snow on the ground in NRW]
+  caption: [Figure 29: Elevation differences caused by the presence of snow in one of the NRW surveys.],
 )<fig:nrw-hessen-snow>
 
 There are several smaller issues which we believe are best attributed to the differences in processing. The built-up areas display a high number of scattered differences around 0.5m which are likely caused by either the states' approach to ground filtering or interpolation algorithms used to create the original @DTM:pla.
@@ -331,7 +438,7 @@ An interesting artefact is a 0.6m-tall "mound" between Wallau and Bad Laasphe.
     [#image("assets/nrw-hessen-buildings.png")],
     [#image("assets/nrw-hessen-warehouse.jpeg")]
   ),
-  caption: [Ground and building filtering differences between NRW and Hessen]
+  caption: [Ground and building filtering differences between NRW and Hessen.],
 )<fig:nrw-hessen-ground>
 
 
@@ -352,24 +459,12 @@ There are additionally some construction works taking place along the border, bu
     [#image("assets/bavaria-hessen-quarry-elev.png")],
     [#image("assets/bavaria-hessen-quarry.png")],
   ),
-  caption: [Temporal differences between Hessen and Bavaria]
+  caption: [Elevation differences caused by temporal artefacts between Hessen and Bavaria.],
 ) <fig:hessen-bavaria-forest>
 
 More noteworthy are the small (typically around 0.3--0.5m) differences in rural, especially forested, areas.
-These are areas of difference which appear to correspond to linear features in the landscape such as roads, streams, or edges between a forest and an open field.
+These are areas of difference which appear to correspond to linear features in the landscape such as roads, streams, or edges between a forest and an open field. These are likely consequences of the approaches to ground and vegetation classification employed by the different data providers.
 
-#figure(
-  grid(
-    columns: (1fr, 1fr, 1fr),
-    column-gutter: 5pt,
-    [#image("assets/hessen-bavaria-forest-satellite.png")],
-    [#image("assets/hessen-bavaria-forest-osm.png")],
-    [#image("assets/hessen-bavaria-forest.png")],
-  ),
-  caption: [Differences between forested terrain in Hessen and Bavaria]
-) <fig:hessen-bavaria-forest>
-
-These are likely consequences of the approaches to ground and vegetation classification employed by the different data providers.
 Examining the Bavarian point cloud reveal that all points in the relevant tile are strictly classified into ground (2) and "objects" (20); as well as scan patterns and non-uniform point distribution, largely due to shadowing from trees.
 Due to lack of open point cloud data in Hessen, the comparison between two states is impossible.
 
@@ -380,7 +475,7 @@ Due to lack of open point cloud data in Hessen, the comparison between two state
     [#image("assets/hessen-bavaria-pc-forest-bare.jpeg")],
     [#image("assets/hessen-bavaria-pc-forest-trees.jpeg")],
   ),
-  caption: [Bavarian point cloud data]
+  caption: [Bavarian point cloud data. Classified ground points in purple.],
 ) <fig:bavaria-forest-slope>
 
 Another detail evident from the comparison is the difference in approach to estimating the elevation of the water surface.
@@ -391,16 +486,34 @@ Bavaria instead uses Delaunay triangulation, seemingly based on the lowest point
   grid(
     columns: (1fr, 1fr, 1fr, 1fr),
     column-gutter: 5pt,
-    [#image("assets/bavaria-hessen-water-satellite.png")
-      satellite view],
-    [#image("assets/bavaria-hessen-water.png")
-      elevation difference],
-    [#image("assets/bavaria-hessen-water-elev-bavaria.png")
-      Bavaria],
-    [#image("assets/bavaria-hessen-water-elev-hessen.png")
-      Hessen]
+    [
+      #image("assets/bavaria-hessen-water-satellite.png")
+      #text(size: 10pt)[
+        Satellite imagery. From AeroWest,\
+        Airbus, Geobasis-DE/BKG.\
+        (2026)
+      ]
+    ],
+    [
+      #image("assets/bavaria-hessen-water.png")
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
+    ],
+    [
+      #image("assets/bavaria-hessen-water-elev-bavaria.png")
+      #text(size: 10pt)[
+        DTM of Bavaria.
+      ]
+    ],
+    [
+      #image("assets/bavaria-hessen-water-elev-hessen.png")
+      #text(size: 10pt)[
+        DTM of Hessen.
+      ]
+    ]
   ),
-  caption: [Differences in water processing between Bavaria and Hessen]
+  caption: [Differences in water processing between Bavaria and Hessen.],
 )<fig:bavaria-hessen-water>
 
 === Hessen -- RLP
@@ -418,12 +531,32 @@ It is unclear what the elevation of the southwest extreme point is based on.
   grid(
     columns: (1fr, 1fr, 1fr, 1fr),
     column-gutter: 5pt,
-    [#image("assets/hessen-rlp-artefact-satellite.png")],
-    [#image("assets/hessen-rlp-artefact-hessen.png") Hessen],
-    [#image("assets/hessen-rlp-artefact-rlp.png") RLP],
-    [#image("assets/hessen-rlp-artefact.png")],
+    [#image("assets/hessen-rlp-artefact-satellite.png")
+    #text(size: 10pt)[
+      Satellite imagery. From AeroWest,\
+      Airbus, Geobasis-DE/BKG.\
+      (2026)
+      ]
+    ],
+    [
+      #image("assets/hessen-rlp-artefact-hessen.png")
+      #text(size: 10pt)[
+        DTM of Hessen.
+      ]
+    ],
+    [
+      #image("assets/hessen-rlp-artefact-rlp.png")
+      #text(size: 10pt)[
+        DTM of RLP.
+      ]
+    ],
+    [#image("assets/hessen-rlp-artefact.png")
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
+    ],
   ),
-  caption: [Interpolation artefact by Hessen]
+  caption: [Interpolation artefact by Hessen.],
 )
 
 Systematic errors can be observed throughout the region where, especially on hilly terrain, there is a relatively consistent 5--20cm difference between the two @DTM:pla.
@@ -434,12 +567,32 @@ The hilly terrain makes it impossible to confidently conclude which of the data 
   grid(
     columns: (1fr, 1fr, 1fr, 1fr),
     column-gutter: 5pt,
-    [#image("assets/hessen-rlp-tiling-satellite.png")],
-    [#image("assets/hessen-rlp-tiling-hessen.png") Hessen],
-    [#image("assets/hessen-rlp-tiling-rlp.png") RLP],
-    [#image("assets/hessen-rlp-tiling.png")],
+    [#image("assets/hessen-rlp-tiling-satellite.png")
+      #text(size: 10pt)[
+        Satellite imagery. From AeroWest,\
+        Airbus, Geobasis-DE/BKG.\
+        (2026)
+        ]
+      ],
+    [
+      #image("assets/hessen-rlp-tiling-hessen.png")
+      #text(size: 10pt)[
+        DTM of Hessen.
+      ]
+    ],
+    [
+      #image("assets/hessen-rlp-tiling-rlp.png")
+      #text(size: 10pt)[
+        DTM of RLP.
+      ]
+    ],
+    [#image("assets/hessen-rlp-tiling.png")
+      #text(size: 10pt)[
+        Elevation difference map.
+        ]
+      ],
   ),
-  caption: [Example of systematic error between Hessen and RLP]
+  caption: [Example of systematic difference between Hessen and RLP.],
 )
 
 Smaller errors are also visible in building footprints, where both providers are performing linear interpolation on a TIN but based on somewhat different set of points.
@@ -449,8 +602,18 @@ Smaller errors are also visible in building footprints, where both providers are
     columns: (1fr, 1fr, 1fr, 1fr),
     column-gutter: 5pt,
     [#image("assets/hessen-rlp-buildings-satellite.png")],
-    [#image("assets/hessen-rlp-buildings-hessen.png") Hessen],
-    [#image("assets/hessen-rlp-buildings-rlp.png") RLP],
+    [
+      #image("assets/hessen-rlp-buildings-hessen.png")
+      #text(size: 10pt)[
+        DTM of Hessen.
+      ]
+    ],
+    [
+      #image("assets/hessen-rlp-buildings-rlp.png")
+      #text(size: 10pt)[
+        DTM of RLP.
+      ]
+    ],
     [#image("assets/hessen-rlp-buildings.png")],
   ),
   caption: [Interpolation differences between Hessen and RLP]
@@ -461,7 +624,7 @@ The @BW -- Bavaria border is similar to the @NRW -- Hessen border, as it is spli
 
 #figure(
   image("assets/BW-Bavaria-Border.png",width:40%),
-  caption:"BW – Bavaria border is divided into a northern and southern section in the catchment area"
+  caption: "BW/Bavaria border is divided into a northern and southern section in the catchment area.",
 )
 <fig:BW-Bavaria-Border>
 
@@ -474,29 +637,33 @@ The border area appears to display two main artefacts. The first of these being 
 
     [
       #image("assets/BW-Bavaria-BorderartifactBW.png", width: 100%)
-      #align(center)[(BW)]
+      #text(size: 10pt)[
+        DTM of BW.
+      ]
     ],
 
     [
       #image("assets/BW-Bavaria-BorderArtifactDH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
   ),
-  caption: "Border artefact caused by BW using both a 0 and -9999 `NoData` value, while only declaring the -9999 value as `NoData`. The difference raster was set to -1–1 meters to highlight the differences",
+  caption: "Border artefact caused by BW using both a 0 and -9999 `NoData` value, while only declaring the -9999 value as `NoData`. The color scale was set to [-1m;1m] to highlight differences.",
 )
 <fig:BW_Bavaria_Borderartefact>
 
 #figure(
   image("assets/histogram_germany_bw_germany_bavaria.png",width:60%),
-  caption:"BW – Bavaria border appears strongly affected by the edge artefacts cause by the effect of 0 `NoData` value and billinear interpolation during CRS transformation, with differences up to 1000 meters vertically"
+  caption: "BW/Bavaria border elevation differences histogram. This region appears to be strongly affected by the edge artefacts cause by the effect of 0 as `NoData` value and billinear interpolation during CRS transformation, with elevation differences of up to 1000m of magnitude.",
 )
 <fig:BW-Bavaria-Borderartefact-Histo>
 
-The second artefact within this border comparison is similar to the one encountered in @NRW -- @RLP section. In this instance, the effect clearly occurs in the Bavaria @DTM. @fig:BW-Bavaria-Discrete shows this effect. It appears as if these specific tiles are seperate from the the rest of the @DTM as it contains both positive and negative differences, meaning it cannot be the result of a vertical shift. Zooming in on the border confirms that these different tiles exist in the Bavaria, shown by the faint line at the same line as the DH @DTM. The cause for this can be that the tiles have either been collected at a different time, or that the aquisition was done through another method.
+The second artefact within this border comparison is similar to the one encountered in @NRW -- @RLP section. In this instance, the effect clearly occurs in the Bavaria @DTM. @fig:BW-Bavaria-Discrete shows this effect. It appears as if these specific tiles are seperate from the the rest of the @DTM as it contains both positive and negative differences, meaning it cannot be the result of a vertical shift. Zooming in on the border confirms that these different tiles exist in Bavaria, shown by the faint line at the same line as the elevation difference map. The cause for this can be that the tiles have either been collected at a different time, or that the aquisition was done through another method.
 
 #figure(
   image("assets/BW-Bavaria-DiscreteDH.png",width:60%),
-  caption:"Discrete tile step, as shown by the tiles which deviate in difference range from the rest of the difference DEM, shown as pronounced red, white, blue sections"
+  caption: "Elevation differences appearing like tiling artefacts. Pronounced red and blue regions show larger differences.",
 )
 <fig:BW-Bavaria-Discrete>
 
@@ -507,20 +674,26 @@ The second artefact within this border comparison is similar to the one encounte
 
     [
       #image("assets/BW-Bavaria-Discrete-zoomDH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
 
     [
       #image("assets/BW-Bavaria-Discrete-zoomBavaria.png", width: 100%)
-      #align(center)[(Bavaria)]
+      #text(size: 10pt)[
+        DTM of Bavaria.
+      ]
     ],
 
     [
       #image("assets/BW-Bavaria-Discrete-zoomBW.png", width: 100%)
-      #align(center)[(BW)]
+      #text(size: 10pt)[
+        DTM of BW.
+      ]
     ],
   ),
-  caption: "Discrete tile step zoomed, shows Bavaria mirrors the tile step obserbed in the difference DEM",
+  caption: "Discrete tile step zoomed, shows Bavaria mirrors the tile step obserbed in the difference DEM.",
 )
 <fig:BW_Bavaria_DiscreteZoom>
 
@@ -544,41 +717,44 @@ The border area between Luxembourg and france is roughly $50"km"$ long and consi
 
     [
       #image("assets/France-Lux-borderarea.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
 
     [
       #image("assets/France-Lux-borderarea-issues.png", width: 100%)
-      #align(center)[(Flagged Differences)]
+      #text(size: 10pt)[
+        Flagged Differences.
+      ]
     ],
   ),
-  caption: "Difference overview, showing the western section of the border almost entirely exceeding the 1.6 meter resolution threshold",
+  caption: "Overlaping border DTM region for Luxembourg/France. The western section of the border almost entirely exceeds the 1.6 meter resolution threshold, shown by the red polygons (right).",
 )
 <fig:Lux_Fra_border>
 
-As a primary example of this phenomenon the area around Rumelange was more closely evaluated. Unlike most border regions, the differences are not limited to isolated artefacts, but affect most of the border area. A prominent example is the area around Rumelange. Evaluating the elevation map and Google Earth, shows that the area is populated with steep slopes, valley sides, ridges and cliff faces (@fig:Lux_Fra_Rumelange).
+As a primary example of this phenomenon the area around Rumelange was more closely evaluated. Unlike most border regions, the differences are not limited to isolated artefacts, but affect most of the border area. A prominent example is the area around Rumelange. Inspecting the DTM shows that the area is populated with steep slopes, valley sides, ridges and cliff faces (@fig:Lux_Fra_Rumelange).
 
 #figure(
   grid(
-    columns: 3,
+    columns: 2,
     gutter: 5pt,
 
     [
       #image("assets/France-Lux-Rumelange.png", width: 100%)
-      #align(center)[(Flagged Differences)]
+      #text(size: 10pt)[
+        Flagged Differences.
+      ]
     ],
 
     [
       #image("assets/France-Lux-Rumelange-elevation.png", width: 100%)
-      #align(center)[(DTM)]
-    ],
-
-    [
-      #image("assets/France-Lux-Rumelange-contour.png", width: 100%)
-      #align(center)[(DTM)]
+      #text(size: 10pt)[
+        DTM.
+      ]
     ],
   ),
-  caption: "Rumelange difference overview, showing very hilly terrain at primary areas of disagreement",
+  caption: "Rumelange difference overview, showing very hilly terrain at primary areas of disagreement.",
 )
 <fig:Lux_Fra_Rumelange>
 
@@ -591,15 +767,19 @@ Further examining the uncertainty pattern of the border region further supports 
 
     [
       #image("assets/France-Lux-Rumelange-DH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
 
     [
       #image("assets/France-Lux-Rumelange-uncertainty.png", width: 100%)
-      #align(center)[(Uncertainty)]
+      #text(size: 10pt)[
+        Uncertainty map.
+      ]
     ],
   ),
-  caption: "Random error effects due to sloped terrain appear increased (red) up to values of 5 meters on hilly terrain. The uncertainty map shows random errors and is set to a range of -1,5–1,5 meters, while the range of the difference raster is set to -2–2 meters to highlight the differences",
+  caption: "Random elevation differences due to sloped terrain appear (in red) up to values of 5 meters. The uncertainty map shows random errors with a color scale of [-1.5m;1.5m].",
 )
 <fig:Lux_Fra_Rumelange_uncertainty>
 
@@ -607,7 +787,7 @@ Influence of the slope on the can also be observed directly from the @RMSE analy
 
 #figure(
   image("assets/slope_rmse_france_luxembourg.png",width:60%),
-  caption:[RMSE grows strongly due to the effects of terrain slope, up to 5.5 meters at 40 degree slopes]
+  caption: [RMSE of elevation differences against slope of the terrain. RMSE grows strongly with higher slope, up to 5.5 meters at 40 degree slopes.],
 )
 <fig:Lux_Fra_Rumelange_slope>
 
@@ -620,7 +800,7 @@ Other differences in this region are in line with the other borders surrounding 
 
 #figure(
   image("assets/border_effect_germany_rlp_luxembourg.png"),
-  caption:"River differences (0m), lake river mask failure (700 – 1200m)"
+  caption: "Elevation differences plotted against distance from border. River differences (0m), lake river mask failure (700 – 1200m).",
 )
 <fig:Lux-rlp-peak>
 
@@ -638,15 +818,20 @@ The only unique error found around this area is the inclusion of hydro electric 
 
     [
       #image("assets/Lux-Saarland-HydroGoogle.png", width: 100%)
-      #align(center)[(Google maps)]
+      #text(size: 10pt)[
+        Satellite imagery. From Airbus, Maxar Technologies. \
+        (2026).
+      ]
     ],
 
     [
       #image("assets/Lux-Saarland-HydroDH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Non-continuous river mask.
+      ]
     ],
   ),
-  caption: "Hydro electric powerplant example",
+  caption: "Rivermask failure where the mask is not continuous due to a hydroelectric power plant.",
 )
 <fig:Lux-Saarland-Hydro>
 
@@ -660,25 +845,27 @@ The approximately 157 km border between Saarland and France crosses rolling hill
 
 These discrepancies are concentrated rather than evenly distributed. Only 5.81% of the compared area exceeds the 1.667 m comparison threshold, yet this portion contributes approximately 90% of the total squared elevation difference. Differences greater than 5 m occupy just 1.27% of the area but contribute about 63% of that total. The distribution therefore has a narrow centre and long tails, with extremes from approximately −22 m to +33 m. Neighbouring positive and negative differences partly cancel, so the small mean understates the local disagreement.
 
-The Google Earth inspections and corresponding difference maps place these results in their terrain context. In @fig:saarland-france-region1, the long dark blue difference pattern in panel (b) corresponds to a cliff identified in the Google Earth terrain view in panel (a). The pronounced discrepancies follow this abrupt terrain edge, with additional patches within the surrounding woodland. In @fig:saarland-france-region2, the largest differences in panel (b) coincide with an apparent valley-like terrain feature visible in panel (a). These selected examples illustrate recurring settings of disagreement rather than representing every location along the border.
-
-// Equal panel frames preserve the complete images without stretching or cropping.
-#let saarland-france-panel(path, panel-caption) = block(
-  width: 100%,
-  breakable: false,
-)[
-  #image(path, width: 100%, height: 43mm, fit: "contain")
-  #v(3pt)
-  #align(center)[#text(size: 9pt)[#panel-caption]]
-]
+The Google Earth inspections and corresponding difference maps place these results in their terrain context. In @fig:saarland-france-region1, the long dark blue difference pattern on the right corresponds to a cliff visible in the Google Earth imagery on the left. The pronounced discrepancies follow this abrupt terrain edge, with additional patches within the surrounding woodland. In @fig:saarland-france-region2, the largest differences on the right coincide with an apparent valley-like terrain feature visible on the left. These selected examples illustrate recurring settings of disagreement rather than representing every location along the border.
 
 #block(breakable: false)[
   #figure(
     grid(
       columns: (1fr, 1fr),
       column-gutter: 8pt,
-      saarland-france-panel("assets/region1_bare.png", [(a) Google Earth terrain view]),
-      saarland-france-panel("assets/region1_dtm.png", [(b) Elevation-difference overlay]),
+      [
+        #image("assets/region1_bare.png", width: 100%, height: 43mm, fit: "contain")
+        #v(3pt)
+        #text(size: 10pt)[
+          Google Earth Imagery. From Airbus, Landsat/Copernicus.
+        ]
+      ],
+      [
+        #image("assets/region1_dtm.png", width: 100%, height: 43mm, fit: "contain")
+        #v(3pt)
+        #text(size: 10pt)[
+          Elevation difference map.
+        ]
+      ],
     ),
     caption: [Forested escarpment beside water bodies.],
   ) <fig:saarland-france-region1>
@@ -689,8 +876,20 @@ The Google Earth inspections and corresponding difference maps place these resul
     grid(
       columns: (1fr, 1fr),
       column-gutter: 8pt,
-      saarland-france-panel("assets/region2_bare.png", [(a) Google Earth terrain view]),
-      saarland-france-panel("assets/region2_dtm.png", [(b) Elevation-difference overlay]),
+      [
+        #image("assets/region2_bare.png", width: 100%, height: 43mm, fit: "contain")
+        #v(3pt)
+        #text(size: 10pt)[
+          Google Earth Imagery. From Airbus, Landsat/Copernicus.
+        ]
+      ],
+      [
+        #image("assets/region2_dtm.png", width: 100%, height: 43mm, fit: "contain")
+        #v(3pt)
+        #text(size: 10pt)[
+          Elevation difference map.
+        ]
+      ],
     ),
     caption: [Wooded slopes and abrupt terrain changes.],
   ) <fig:saarland-france-region2>
@@ -716,8 +915,20 @@ The quarry in @fig:saarland-france-quarry provides a clear setting in which acqu
     grid(
       columns: (1fr, 1fr),
       column-gutter: 8pt,
-      saarland-france-panel("assets/quary_bare.png", [(a) Quarry imagery]),
-      saarland-france-panel("assets/quary_dtm.png", [(b) Elevation-difference overlay]),
+      [
+        #image("assets/quary_bare.png", width: 100%, height: 43mm, fit: "contain")
+        #v(3pt)
+        #text(size: 10pt)[
+          Quarry imagery.
+        ]
+      ],
+      [
+        #image("assets/quary_dtm.png", width: 100%, height: 43mm, fit: "contain")
+        #v(3pt)
+        #text(size: 10pt)[
+          Elevation difference map.
+        ]
+      ],
     ),
     caption: [Imagery corresponding to a quarry and its difference raster.],
   ) <fig:saarland-france-quarry>
@@ -753,22 +964,34 @@ The spatial overview in @fig:rlp-france-spatial distinguishes broad patterns of 
 The inspected locations in @fig:rlp-france-extremes place the largest differences in their physical setting. The minimum of −30.37 m occurs at Fleckenstein Castle (7.772331° E, 49.044892° N), where the French DTM is higher. The maximum of +34.54 m occurs at the Klein Arsberg ruins (7.690392° E, 49.038642° N), where the RLP DTM is higher. Another pronounced positive difference was identified at the nearby rock opening (7.693148° E, 49.039210° N). These photographs were taken from public contributions found in Google Maps, and they provide terrain context rather than a direct measurement of DTM error.
 ]
 
-#let rlp-france-panel(path, panel-caption) = block(width: 100%, breakable: false)[
-  #image(path, width: 100%, height: 58mm, fit: "contain")
-  #v(3pt)
-  #align(center)[#text(size: 9pt)[#panel-caption]]
-]
-
 #block(breakable: false)[
   #figure(
     grid(
       columns: (1fr, 1fr, 1fr),
       column-gutter: 7pt,
-      rlp-france-panel("assets/rlp_france_fleckenstein.png", [(a) Fleckenstein Castle]),
-      rlp-france-panel("assets/rlp_france_klein_arsberg.png", [(b) Klein Arsberg ruins]),
-      rlp-france-panel("assets/rlp_france_rock_opening.png", [(c) Nearby rock opening]),
+      [
+        #image("assets/rlp_france_fleckenstein.png", width: 100%, height: 58mm, fit: "contain")
+        #v(3pt)
+        #text(size: 10pt)[
+          Fleckenstein Castle.
+        ]
+      ],
+      [
+        #image("assets/rlp_france_klein_arsberg.png", width: 100%, height: 58mm, fit: "contain")
+        #v(3pt)
+        #text(size: 10pt)[
+          Klein Arsberg ruins.
+        ]
+      ],
+      [
+        #image("assets/rlp_france_rock_opening.png", width: 100%, height: 58mm, fit: "contain")
+        #v(3pt)
+        #text(size: 10pt)[
+          Nearby rock opening.
+        ]
+      ],
     ),
-    caption: [Terrain settings of selected large differences. (a) and (b) correspond to the most negative and most positive cells, respectively. (c) illustrates another positive discrepancy. Google Maps photographs supplied with the visual inspection.],
+    caption: [Terrain settings of selected large differences. The left and centre photographs show the locations of the most negative and most positive cells, respectively. The photograph on the right shows another positive discrepancy. Google Maps photographs supplied with the visual inspection.],
   ) <fig:rlp-france-extremes>
 ]
 
@@ -779,7 +1002,7 @@ Different treatment of ruins and exposed rock during ground classification, foll
 #block(breakable: false)[
   #figure(
     image("assets/rlp_france_patterns.png", width: 100%),
-    caption: [Broad bands in the elevation-difference overlay. The image shows broad parallel bands extending across the region. The range of difference raster values is set to -1–1 m to highlight the patterns],
+    caption: [Broad bands in the elevation-difference overlay. The image shows broad parallel bands extending across the region. The range of difference raster values is set to -1–1 m to highlight the patterns.],
   ) <fig:rlp-france-patterns>
 ]
 
@@ -823,7 +1046,7 @@ The stripe appears to follow the edge of the French @DTM, which further points t
 
 #figure(
   image("assets/fr-ch-flightpath.png", width: 40%),
-  caption: [Flight-path artefacts between France and Switzerland]
+  caption: [Flight-path artefacts between France and Switzerland.],
 )
 
 There is also a large artefact in the forested region near Pfetterhouse.
@@ -834,11 +1057,21 @@ We speculate that regions like this come from a different survey with different 
   grid(
     columns: (1fr, 1fr, 1fr),
     column-gutter: 5pt,
-    [#image("assets/fr-ch-forest-ch.png") Switzerland],
-    [#image("assets/fr-ch-forest-fr.png") France],
+    [
+      #image("assets/fr-ch-forest-ch.png")
+      #text(size: 10pt)[
+        DTM of Switzerland.
+      ]
+    ],
+    [
+      #image("assets/fr-ch-forest-fr.png")
+      #text(size: 10pt)[
+        DTM of France.
+      ]
+    ],
     [#image("assets/fr-ch-forest.png")],
   ),
-  caption: [Ground filtering differences between Switzerland and France]
+  caption: [Ground filtering differences between Switzerland and France.],
 )
 
 === Switzerland -- BW
@@ -853,11 +1086,21 @@ The largest errors are best explained by temporal differences~--- like in other 
     columns: (1fr, 1fr, 1fr, 1fr),
     column-gutter: 5pt,
     [#image("assets/ch-bw-quarry-satellite.png")],
-    [#image("assets/ch-bw-quarry-ch.png") Switzerland],
-    [#image("assets/ch-bw-quarry-bw.png") BW],
+    [
+      #image("assets/ch-bw-quarry-ch.png")
+      #text(size: 10pt)[
+        DTM of Switzerland.
+      ]
+    ],
+    [
+      #image("assets/ch-bw-quarry-bw.png")
+      #text(size: 10pt)[
+        DTM of BW.
+      ]
+    ],
     [#image("assets/ch-bw-quarry.png")],
   ),
-  caption: [Temporal differences between Switzerland and BW]
+  caption: [Temporal differences between Switzerland and BW.],
 )
 
 A more unique error is due to ground filtering, as can be observed with the industrial complex north of Stein, where differences between the different ground filtering/interpolation methods can exceed 3m. As is evident from the difference mask, both data providers use TIN to interpolate the terrain but a different set of points for constructing said TIN. A likely misclassification of the ground, perhaps due to shadowing or multipath errors, causes the error in the elevation of ground points and therefore the error in the TIN.
@@ -867,11 +1110,21 @@ A more unique error is due to ground filtering, as can be observed with the indu
     columns: (1fr, 1fr, 1fr, 1fr),
     column-gutter: 5pt,
     [#image("assets/ch-bw-buildings-satellite.png")],
-    [#image("assets/ch-bw-buildings-ch.png") Switzerland],
-    [#image("assets/ch-bw-buildings-bw.png") BW],
+    [
+      #image("assets/ch-bw-buildings-ch.png")
+      #text(size: 10pt)[
+        DTM of Switzerland.
+      ]
+    ],
+    [
+      #image("assets/ch-bw-buildings-bw.png")
+      #text(size: 10pt)[
+        DTM of BW.
+      ]
+    ],
     [#image("assets/ch-bw-buildings.png")],
   ),
-  caption: [Differences in building processing between Switzerland and BW]
+  caption: [Differences in building processing between Switzerland and BW.],
 )
 
 Ground and vegetation filtering also have an effect on forested slopes between Hallau and Eggingen where minor striping can be observed. The stripes appear to be running perpendicular to the slope and, we speculate, can be symptomatic of either differences in ground processing by data providers; or they could be a resampling artefact. We recommend performing point cloud analysis to validate either of these hypotheses, which was skipped due to time constraints of the project.
@@ -884,7 +1137,7 @@ Ground and vegetation filtering also have an effect on forested slopes between H
     [#image("assets/ch-bw-forest-elev.png")],
     [#image("assets/ch-bw-forest.png")]
   ),
-  caption: [Differences in ground processing between Switzerland and BW]
+  caption: [Differences in ground processing between Switzerland and BW.],
 )
 
 Similarly to the building interpolation, there is also an observable difference in the water surface. Switzerland appears to be using a hydro-flattening approach whereas @BW is instead using linear interpolation on a TIN.
@@ -894,11 +1147,21 @@ Similarly to the building interpolation, there is also an observable difference 
     columns: (1fr, 1fr, 1fr, 1fr),
     column-gutter: 5pt,
     [#image("assets/ch-bw-water-satellite.png")],
-    [#image("assets/ch-bw-water-ch.png") Switzerland],
-    [#image("assets/ch-bw-water-bw.png") BW],
+    [
+      #image("assets/ch-bw-water-ch.png")
+      #text(size: 10pt)[
+        DTM of Switzerland.
+      ]
+    ],
+    [
+      #image("assets/ch-bw-water-bw.png")
+      #text(size: 10pt)[
+        DTM of BW.
+      ]
+    ],
     [#image("assets/ch-bw-water.png")],
   ),
-  caption: [Differences in water processing between Switzerland and BW]
+  caption: [Differences in water processing between Switzerland and BW.],
 )
 
 == Germany -- Netherlands
@@ -913,15 +1176,19 @@ The border between the Netherlands and @NRW is approximately 50 kilometers long,
 
     [
       #image("assets/Netherlands-NRW-borderdifferenceAHN.png", width: 100%)
-      #align(center)[(Netherlands)]
+      #text(size: 10pt)[
+        DTM of Netherlands.
+      ]
     ],
 
     [
       #image("assets/Netherlands-NRW-borderdifferenceDH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
   ),
-  caption: "Border artefact",
+  caption: "Border artefact.",
 )
 <fig:Netherlands-NRW-border>
 
@@ -936,15 +1203,20 @@ For this border area in particular, there is a strong effect of water bodies on 
 
     [
       #image("assets/Netherlands-NRW-StoneSwampGoogle.png", width: 100%)
-      #align(center)[(Google Maps)]
+      #text(size: 10pt)[
+        Satellite imagery. From Airbus, Maxar Technologies. \
+        (2026).
+      ]
     ],
 
     [
       #image("assets/Netherlands-NRW-StoneSwampDH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
   ),
-  caption: "Large earthworks example",
+  caption: "Large earthworks example.",
 )
 <fig:Netherlands-NRW-Lworks>
 
@@ -955,14 +1227,19 @@ For this border area in particular, there is a strong effect of water bodies on 
 
     [
       #image("assets/Netherlands-NRW-FarmsGoogle.png", width: 100%)
-      #align(center)[(Google Maps)]
+      #text(size: 10pt)[
+        Satellite imagery. From Airbus, Maxar Technologies. \
+        (2026).
+      ]
     ],
 
     [
       #image("assets/Netherlands-NRW-FarmsDH.png", width: 100%)
-      #align(center)[(DH)]
+      #text(size: 10pt)[
+        Elevation difference map.
+      ]
     ],
   ),
-  caption: "Small earthworks example",
+  caption: "Small earthworks example.",
 )
 <fig:Netherlands-NRW-Sworks>
