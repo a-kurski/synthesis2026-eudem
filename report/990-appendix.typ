@@ -29,12 +29,13 @@ AB, AK, and RV present the aggregated description of issues found between border
 
 AK presents the conclusions and recommendations.
 RV describes limitations.
+AB ensured the consistency and correctness of all figure captions in the report.
 
 AK has led a (highly opinionated) edit of the report prior to its publication.
 AK has also written this section.
 
 AB, AK, and RV have all used generative AI over the course of the project.
-AB has used ChatGPT 6 Astra to produce the code for data acquisition; help understand code produced by other group members; and as a proof-reading/editing aid.
+AB has used ChatGPT 6 Astra to aid with production of the code for data acquisition; help understand code produced by other group members; and as a proof-reading/editing aid.
 AK has used Claude Opus 5.5 to integrate different aspects of the pipeline~--- AK is not sure he wrote a single line of code by hand during this project. Reluctantly, he also used AI for proof-reading and editing~--- tightly controlling the scope of those edits.
 RV has used Claude Opus 5.5. to perform bug-fixing and implement a small set of features in his code. He has also used Microsoft Copilot as a proof-reading/editing aid.
 
