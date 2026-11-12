@@ -27,7 +27,7 @@ Downloading data and point-cloud processing are out of scope: the pipeline start
 2. **`rasters`**: for each region, builds a virtual mosaic of its tiles and warps it in one step to the target CRS, height system and resolution. Each region's DEM keeps a `buffer_m` margin beyond its outline, so neighbouring DEMs overlap. Optional extras per region: subtracting a geoid for ellipsoidal heights, gap filling (with a mask of the filled cells) and cropping to the outline.
 3. **`rivers`**: for each region, grows a water mask over the DEM, starting from seed cells taken from a water raster. The comparison uses these masks to leave water surfaces out of the statistics.
 4. **`overlaps`**: where two regions overlap and one region's cell was interpolated (gap-filled) while the other has a measured value, the measured value replaces it. Nothing else is changed: no averaging, no feathering.
-5. **`assemble`**: writes each region's DEM inside its own outline, applies the overrides from the previous stage, masks everything outside the overall extent and writes the result as a Cloud Optimized GeoTIFF. It also stitches the regions' river masks the same way, each inside its own outline, into one binary river mask on the same grid (1 = water, 0 = land, 255 = `NoData`).
+5. **`assemble`**: writes each region's DEM inside its own outline, applies the overrides from the previous stage, masks everything outside the overall extent and writes the result as a Cloud-Optimized GeoTIFF. It also stitches the regions' river masks the same way, each inside its own outline, into one binary river mask on the same grid (1 = water, 0 = land, 255 = `NoData`).
 
 The comparison (`python -m dtm.comparison`) is a separate step that runs on the region DEMs after the pipeline.
 
@@ -205,7 +205,7 @@ Everything is written under `settings.output_dir`:
 
 ```
 <output_dir>/
-├── <product_name>                     merged DTM (Cloud Optimized GeoTIFF)
+├── <product_name>                     merged DTM (Cloud-Optimized GeoTIFF)
 ├── <product name>_river_mask.tif      merged river mask, Byte COG: 1 = water, 0 = land, 255 = `NoData`
 ├── extent.gpkg                        area covered by the merged DTM
 ├── pipeline.log                       log of all runs, appended
@@ -224,7 +224,7 @@ Everything is written under `settings.output_dir`:
 `python -m dtm.comparison my_config.json` compares every pair of region DEMs whose extents overlap. Finished pairs are recorded in the JSON (`comparisons`) and skipped on the next run, as long as their statistics file exists and is newer than both DEMs, so an interrupted comparison resumes and a reprocessed region is compared again. A pair is recognised in either order (`a__b` or `b__a`). The summary table always lists all finished pairs. With `comparison.workers` above 1, several pairs run at once, each in its own process. Their log lines are prefixed with the pair name, e.g. `[a__b]`. It uses the region DEMs with their buffers, not the merged DTM, so it sees both datasets on either side of a border. For each pair it:
 
 - excludes water cells (both regions' river masks, dilated by `river_buffer_cells`);
-- computes the raw difference `dh = first − second`, and the difference after Nuth & Kaab coregistration (a horizontal and vertical shift only);
+- computes the raw difference `dh = first − second`, and the difference after Nuth and Kääb coregistration (a horizontal and vertical shift only);
 - computes statistics (mean, median, standard deviation, RMSE, MAE, NMAD, LE90, min, max, cells above the threshold), with and without the gap-filled cells;
 - flags cells where |dh| exceeds `resolution × threshold_fraction` and groups them into problem regions. Gap-filled cells are left out of both, since measured data replaces them where the neighbour has it;
 - if `settings.borders` is set, plots the error against distance to the border;
@@ -268,7 +268,7 @@ comparison/
     └── local_inspire_rmse_*.tif, dh_std_*.tif, aspect_difference_*.tif
 ```
 
-The Nuth & Kaab shift in the log is a quick diagnostic. A few centimetres is normal. A large vertical shift points to a wrong height system, for example ellipsoidal heights declared as orthometric. A consistent horizontal shift points to a georeferencing problem in one of the datasets.
+The Nuth and Kääb shift in the log is a quick diagnostic. A few centimetres is normal. A large vertical shift points to a wrong height system, for example ellipsoidal heights declared as orthometric. A consistent horizontal shift points to a georeferencing problem in one of the datasets.
 
 ## Running large jobs
 

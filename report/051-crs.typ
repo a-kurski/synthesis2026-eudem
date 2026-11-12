@@ -10,7 +10,7 @@ We found that every dataset uses a national vertical reference system, such as @
 Following a discussion with the clients, we determined that @ETRS89-LAEA is best suited for the current project for the following reasons:
 - *Cell area.* The primary use of the @DEM is expected to be hydrological modelling. The cells of @ETRS89-LAEA each have the same area, removing the need to recompute it for each cell.
 - *Cell shape.* The area of the project is close to the origin of the @CRS which minimises the shape distortion, as seen in @fig:tissot: the Tissot's indicatrices are near-circular, with the semi-major and semi-minor axes being within 0.2% of 1. In practice, this means that the equal spacing of the grid in the X and Y directions will also be near-equal in reality (intuitively, a square cell on a map represents a square parcel of land).
-- *Cell orientation.* The angles are distorted somewhat more: the westernmost point is at 4#sym.degree E, which results in a cell being rotated 6° relative to true North at that point; however the centroid of the dataset is at 8#sym.degree E, which means a rotation of only 2#sym.degree.
+- *Cell orientation.* The angles are distorted somewhat more: the westernmost point is at 4#sym.degree E, which results in a cell being rotated 6° relative to true North at that point; however, the centroid of the dataset is at 8#sym.degree E, which means a rotation of only 2#sym.degree.
 
 #figure(
   grid(

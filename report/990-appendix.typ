@@ -40,7 +40,7 @@ RV has used Claude Opus 5.5. to perform bug-fixing and implement a small set of 
 
 = Data and Code <appx:code>
 
-The code are available on GitHub at https://github.com/a-kurski/synthesis2026-eudem.
+The code is available on GitHub at https://github.com/a-kurski/synthesis2026-eudem.
 
 The data is available from national providers, and can be acquired by executing corresponding parts of the code.
 The DTM, river mask, and analysis can be fully reproduced by executing the processing and analysis parts of the pipeline.

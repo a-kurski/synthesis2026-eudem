@@ -10,7 +10,7 @@ In it, we present the definition for the Rhine catchment area; the summary of th
 
 The first step of the project is determining the area on which the project is going to get carried out.
 For this, different extents of the Rhine catchment area were considered.
-One most commonly agreed upon comes from International Association of Waterworks in the Rhine Basin @iawr_rhine and @ICPR @ICPR2013. It excludes the upstream Meuse but includes the rest of the delta, e.g. IJssel and Waal.
+The most commonly agreed-upon definition comes from International Association of Waterworks in the Rhine Basin @iawr_rhine and @ICPR @ICPR2013. It excludes the upstream Meuse but includes the rest of the delta, e.g. IJssel and Waal.
 Another possible definition can be found on Wikimedia (see @fig:rhine-defs), and it also includes the Meuse.
 
 #figure(
@@ -45,7 +45,7 @@ Certain implementation-specific details, such as the XML schema or data structur
 Within the scope of the specification, the elevation property~--- either depth or height~--- is understood to be the three-dimensional shape of the Earth's surface #cite(<inspire2024elevation>, supplement: [pp. 40--43]).
 Generally, land-elevation and bathymetry are considered separately; for land-elevation, the elevation property is called height and its positive direction is "upwards", and for bathymetry, it is depth with positive direction pointing downward.
 The scope for bathymetry is specifically the sea, inland standing water bodies, and navigable rivers.
-The specification also considers an integrated land-sea model, where as measured from a given datum, the height is positive and the depth is negative.
+The specification also considers an integrated land-sea model, where, measured from a given datum, the height is positive and the depth is negative.
 
 The specification considers two possible "shapes" of the terrain #cite(<inspire2024elevation>, supplement: [pp. 43--44]):
 - a @DTM, which only represents the bare surface of the Earth;
@@ -84,7 +84,7 @@ Generally, @INSPIRE demands that the @CRS used for datasets of continental Europ
 These include unmodified @ETRS89, based on the @GRS80 ellipsoid, which uses geodetic coordinates; and different metric @CRS:pla, usually @ETRS89-LAEA or @ETRS89-LCC.
 @EVRS is prescribed as the vertical reference system.
 
-Annex D, however, provides specific guidance for gridded elevation data. It deems @ETRS89-LAEA and @ETRS89-LCC unsuitable for the elevation data for a number of reasons, notably that it does not preserve the geometry of the terrain, i.e. planar angles.
+Annex D, however, provides specific guidance for gridded elevation data. It deems @ETRS89-LAEA and @ETRS89-LCC unsuitable for the elevation data for a number of reasons, notably that they do not preserve the geometry of the terrain, i.e. planar angles.
 It instead recommends the use of a zoned geographic grid based on the geodetic coordinates, denoted ETRS89-GRS80zn.
 Under such a grid, the longitudinal resolution of the grid is different for different zones. Below 50°, the grid is "square": the latitude and longitude are in a 1:1 ratio; between 50° and 70°, the ratio is 1:2; and it further increases in the higher latitudes.
 Annex D is informative only, i.e. it is not expressly required to follow its guidance.
@@ -113,14 +113,14 @@ This will be the target when evaluating the agreement between overlapping border
 
 == Global Elevation Models <sec:gdem>
 
-A @GDEM covers most of the land surface of the Earth. Currently, there are two main approaches to creating a @GDEM: a conventional approach relies on satellite data, and more recently, there have been efforts to derive a @GDEM from national and regional datasets like suggested by @INSPIRE. Below is a brief overview of both approaches.
+A @GDEM covers most of the land surface of the Earth. Currently, there are two main approaches to creating a @GDEM: a conventional approach relies on satellite data, and more recently, there have been efforts to derive a @GDEM from national and regional datasets as suggested by @INSPIRE. Below is a brief overview of both approaches.
 
 === Satellite Data-Derived GDEMs <sec:spaceborne-gdem>
 
 Most @GDEM:pla are constructed using data from space-borne @InSAR or optical sensors.
 An overview of the most common existing @GDEM:pla is provided by #cite(<terrain_book>, form: "prose", supplement: "Table 3.2").
 The majority of satellite @GDEM:pla are obtained using @InSAR; only two of those described are derived from optical data.
-The common @GSD is #qty("30", "m") or 90m; a few, like WorldDEM or @ALOS are also available at finer resolutions.
+The common @GSD is #qty("30", "m") or #qty("90", "m"); a few, like WorldDEM or @ALOS are also available at finer resolutions.
 The majority of the @GDEM:pla are @DSM:pla; some products offer a "_pseudo_-@DTM" where some ground filtering has been performed.
 
 The European data portal lists two official @DTM datasets: EU-DEM @eurostat_eudem and Copernicus @DEM @eurostat_copernicusdem.
@@ -135,7 +135,7 @@ EEA-10 is the only dataset which is available in INSPIRE-compatible format and p
 
 An aggregate elevation model serves as an alternative to the conventional @GDEM. With this approach, several heterogeneous @DEM:pla are assembled into one finished product~--- this is also an approach taken in this project. The only example of this approach known to us is Mapterhorn @wipfli2026mapterhorn. Currently, Mapterhorn combines 70 open-access national, regional, and local elevation products alongside Copernicus DEM GLO-30 into one harmonised @DEM.
 
-There are several shortcomings with current implementation of Mapterhorn. The first one is that it is neither a @DTM nor a @DSM: Copernicus DEM is a _surface_ model, and national products can be both a _terrain_ and a _surface_ model~--- therefore, Mapterhorn's elevation data is a mix of both. The second one is the approach to resolving elevation conflicts at the border. Mapterhorn uses a Gaussian blur to blend the elevation data where two datasets overlap, which may introduce elevation values which are not representative of reality for those point samples. Lastly, Mapterhorn enforces that the @CRS transform is only horizontal, explicitly ruling out vertical transform.
+There are several shortcomings with the current implementation of Mapterhorn. The first one is that it is neither a @DTM nor a @DSM: Copernicus DEM is a _surface_ model, and national products can be both a _terrain_ and a _surface_ model~--- therefore, Mapterhorn's elevation data is a mix of both. The second one is the approach to resolving elevation conflicts at the border. Mapterhorn uses a Gaussian blur to blend the elevation data where two datasets overlap, which may introduce elevation values which are not representative of reality for those point samples. Lastly, Mapterhorn enforces that the @CRS transform is only horizontal, explicitly ruling out vertical transform.
 
 #figure(
   image(
@@ -148,7 +148,7 @@ There are several shortcomings with current implementation of Mapterhorn. The fi
 A similar approach was described by #cite(<Noardo2016>, form: "prose") who report on harmonisation of the @CRS, orthophoto, semantic information, and the @DEM and #cite(<biagi_interpolation>, form: "prose") who focus on @DEM harmonisation specifically.
 The papers try and harmonise Italian elevation data with France and Switzerland respectively, focusing on the mountainous regions.
 Both demonstrate presence of errors of high magnitude, exceeding #qty("100", "m").
-To resolve those errors, both sets of authors suggest an approach conceptually similar to that of Mapterhorn~--- #cite(<Noardo2016>, form: "author") obtain the elevation of the border regions by performing a linear interpolation on the overlapping region while #cite(<biagi_interpolation>, form: "author") perform bicubic interpolation~--- which also introduce issues similar to using a Gaussian blur in that the data around the border may not match reality.
+To resolve those errors, both sets of authors suggest an approach conceptually similar to that of Mapterhorn~--- #cite(<Noardo2016>, form: "author") obtain the elevation of the border regions by performing a linear interpolation on the overlapping region while #cite(<biagi_interpolation>, form: "author") perform bicubic interpolation~--- which also introduces issues similar to using a Gaussian blur in that the data around the border may not match reality.
 #cite(<Noardo2016>, form: "author") comment on the potential discrepancy; #cite(<biagi_interpolation>, form: "author") leave it unaddressed.
 
 == Point Cloud Processing <sec:pc-processing>
@@ -158,7 +158,7 @@ A potential source of disagreement between gridded elevation data from different
 Ground filtering is one of key steps to extracting a @DTM from a point cloud. #cite(<Silva2018GroundFiltering>, form: "prose") compare @PMF, @MCC, @PTIN, and @WLS.
 One notable finding from this study is that @PMF outputs a set of ground points with constant density whereas the other three algorithms produce a set of ground points with uneven density depending on the type of surface.
 @PMF's set is also approximately 10–15 times smaller than the other algorithms.
-However the resulting @DTM:pla are still very close to each other, with highest @RMSE of #qty("0.37", "m") (for shrubland; when comparing @MCC to @PMF).
+However, the resulting @DTM:pla are still very close to each other, with highest @RMSE of #qty("0.37", "m") (for shrubland; when comparing @MCC to @PMF).
 #cite(<Silva2018GroundFiltering>, form: "author") note that @PMF assumes constant slope and therefore struggles in steeper parts of the terrain.
 #cite(<cai2023>, form: "prose") carry out further assessment of @MSF, @PMF, @CSF, and @ICSF.
 The study provides both a quantitative and a qualitative assessment of the different methods.
@@ -180,13 +180,13 @@ It is also expected that the documentation of the interpolation methods is prima
 
 == Interpolation Methods <sec:theory-interpolate>
 
-Some elevation datasets~--- within study area, the Dutch @DTM is the only such dataset~--- are supplied with "gaps" of `NoData`, which warrants filling those gaps.
+Some elevation datasets~--- within the study area, the Dutch @DTM is the only such dataset~--- are supplied with "gaps" of `NoData`, which warrants filling those gaps.
 Other data providers fill those gaps themselves by performing interpolation.
-There are several papers @Chen2014, @Gradka2018, @hu2013, @Raza2023, comparing different interpolation methods for terrain modelling.
+There are several papers @Chen2014 @Gradka2018 @hu2013 @Raza2023 comparing different interpolation methods for terrain modelling.
 The methods compared include @IDW, @RBF, @NNI, and kriging.
 The first three methods are deterministic as the results are strictly based on the input data and parameters of the function; kriging is stochastic and also requires assumptions about the statistical properties of the dataset.
-All authors agree that @IDW produces less accurate results than @IDW produces less accurate results than the alternatives: #cite(<Chen2014>, form: "author") and #cite(<Gradka2018>, form: "author") find that kriging is most accurate; #cite(<hu2013>, form: "author") does not evaluate kriging but recommends that an implementation of @RBF produces best result~--- these findings are partly corroborated by #cite(<Gradka2018>, form: "author") who state that results obtained with @RBF and kriging closely match; and #cite(<Raza2023>, form: "author") finds that @NNI works best for their dataset.
-However #cite(<Gradka2018>, form: "author") note that @IDW is less computationally expensive than @RBF and especially kriging.
+All authors agree that @IDW produces less accurate results than @IDW produces less accurate results than the alternatives: #cite(<Chen2014>, form: "author") and #cite(<Gradka2018>, form: "author") find that kriging is most accurate; #cite(<hu2013>, form: "author") does not evaluate kriging but recommends that an implementation of @RBF produces the best result~--- these findings are partly corroborated by #cite(<Gradka2018>, form: "author") who state that results obtained with @RBF and kriging closely match; and #cite(<Raza2023>, form: "author") find that @NNI works best for their dataset.
+However, #cite(<Gradka2018>, form: "author") note that @IDW is less computationally expensive than @RBF and especially kriging.
 
 For this project, we chose @IDW as the interpolation method as it requires minimal tuning compared to the alternatives; it is computationally cheaper; and a ready implementation is available in @GDAL.
 Given only a small part of the study region (the Netherlands) requires interpolation, the compromise is deemed acceptable as interpolation is not the primary focus of the project.

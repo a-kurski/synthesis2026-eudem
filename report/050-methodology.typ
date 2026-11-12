@@ -80,7 +80,7 @@ Additionally, a water mask is passed for the river detection part of the algorit
 
 For the comparison stage, the settings include the threshold for flagging errors and the path to region's river or interpolation masks.
 
-Full breakdown of all settings can be found in @sec:PipelineREADME.
+A full breakdown of all settings can be found in @sec:PipelineREADME.
 
 === Data Acquisition <sec:acquisition>
 
@@ -103,7 +103,7 @@ First, all regions without a processed @DEM are listed and a queue is built from
 The regions can be processed in parallel and this order helps avoid situations when one process is performing the reprojection while the remaining processes are sitting idle.
 
 For each region, all tiles are first aggregated into a virtual mosaic (`.vrt`).
-Each tile is assigned the region's @CRS as specified in the `.json` file~--- this behaviour is necessary as parts of regional datasets (most notably subdivisions of @DE-HE and @DE-RP) have their @CRS either missing or incorrectly specified within the tile's metadata; and is placed into the mosaic according to that @CRS.
+Each tile is assigned the region's @CRS as specified in the `.json` file~--- this behaviour is necessary as parts of regional datasets (most notably subdivisions of @DE-HE and @DE-RP) have their @CRS either missing or incorrectly specified within the tile's metadata~--- and is placed into the mosaic according to that @CRS.
 No region has been found to have a mixed @CRS; we note, however, that this approach may cause issues if that is the case.
 
 Similarly, for certain regions, a `NoData` value needs to be specified.
@@ -126,7 +126,7 @@ The resampled raster is written to file, without cropping, with a `NoData` value
 If specified by a region's setting in the `.json`, gap filling is applied after resampling using @IDW interpolation with a specified maximum search distance and no smoothing.
 This order targets gaps remaining in the final-resolution surface and preserves all already valid target elevations.
 Valid surrounding terrain may supply interpolation donors outside the @AOI.
-Alongside the interpolated surface, a binary interpolation mask are written to file to distinguish unchanged cells from interpolated cells.
+Alongside the interpolated surface, a binary interpolation mask is written to file to distinguish unchanged cells from interpolated cells.
 
 === Resolving Conflicts and Assembling the Output
 
@@ -135,22 +135,22 @@ Several approaches were considered, such as evaluating for best temporal match o
 The former is not guaranteed by raster metadata~--- referring to the GPS time of the corresponding point cloud was considered but ruled out due to storage requirements~--- and the latter is difficult to infer from raster elevation data alone.
 Instead, we simply write each region's data within its boundaries (as determined by a vector file of that region).
 
-However for regions where interpolation was performed during our processing, we decide to overwrite the interpolated grid cells with non-interpolated data from the neighbouring region if that data is available.
+However, for regions where interpolation was performed during our processing, we decide to overwrite the interpolated grid cells with non-interpolated data from the neighbouring region if that data is available.
 If the agreement between regions is high (like it is in our case, see @chap:results) this approach produces fewer and smaller artefacts than accepting interpolation results.
 
 The resulting elevation data is written to an output GeoTIFF, cropped to the specified region extents.
 
 == Water Mask Processing <sec:Water_mask_processing>
 
-An expected behaviour of the pipeline is retaining the errors introduced by water body interpolation by different providers which significantly impacts the error rate when comparing the datasets. The solution to this problem is to exclude the subset of points which fall within the river area from the error analysis.
+An expected behaviour of the pipeline is retaining the errors introduced by water body interpolation by different providers, which significantly impact the error rate when comparing the datasets. The solution to this problem is to exclude the subset of points which fall within the river area from the error analysis.
 
-This mask could be identified using the classified point clouds. However, the re-extraction of a DEM from point clouds is out of the scope for this project. Therefore, we only rely on the DEM data for segmentation. While river/lake masks do exist, they either offer provide global low resolution vector data @HydroATLAS, or low resolution raster data @unep_fee.
+This mask could be identified using the classified point clouds. However, the re-extraction of a DEM from point clouds is out of the scope for this project. Therefore, we only rely on the DEM data for segmentation. While river/lake masks do exist, they either provide global low-resolution vector data @HydroATLAS, or low-resolution raster data @unep_fee.
 
-In order to create a high quality water mask, the @FEE mask was used as an input. The @FEE mask contains a value 1, 2, or 3 to describe the certainty of the underlying value being water~--- corresponding to "no water", "seasonal water", and "permanent water" respectively~--- based on historical remote sensing data.
+In order to create a high-quality water mask, the @FEE mask was used as an input. The @FEE mask contains a value 1, 2, or 3 to describe the certainty of the underlying value being water~--- corresponding to "no water", "seasonal water", and "permanent water" respectively~--- based on historical remote sensing data.
 
 However, the @FEE mask is not fine enough to be applied to the elevation map. Instead, we can use the @FEE mask's values of 2 and 3 as seed points in a region growing algorithm. Since rivers and water bodies are known to be relatively flat, we perform region growing detecting neighbourhoods with small changes in elevation.
 
-The mask is transformed to the elevation map resolution, @CRS and grid. Each grid point with value 2 or 3 raster is taken as a seed for a region growing algorithm. These seed points are added to the region growing queue. Each entry has eight neighbours and for each, the height difference with the given cell is calculated. When these differences are smaller than the set threshold~--- empirically, it was found that a #qty("0.02", "m") threshold works best~--- the neighbouring point is added to the end of the queue. The result is a breadth first search which incrementally classifies cells as a water body. The end result is a mask with region IDs, where cell values above 0 denote the existence of a water body. A pseudo-code description of the water masking is found in @alg-river-mask.
+The mask is transformed to the elevation map resolution, @CRS and grid. Each grid point with value 2 or 3 raster is taken as a seed for a region growing algorithm. These seed points are added to the region growing queue. Each entry has eight neighbours and for each, the height difference with the given cell is calculated. When these differences are smaller than the set threshold~--- empirically, it was found that a #qty("0.02", "m") threshold works best~--- the neighbouring point is added to the end of the queue. The result is a breadth-first search which incrementally classifies cells as a water body. The end result is a mask with region IDs, where cell values above 0 denote the existence of a water body. A pseudo-code description of the water masking is found in @alg-river-mask.
 
 #[
 #show figure: set align(left)
@@ -222,7 +222,7 @@ A mean shifted away from zero may suggest a systematic vertical offset, while se
 
 The generated `.csv` file with statistics complements the spatial plots with summary statistics for the entire border region. The "before" and "after" describe the differences before and after co-registration. Since we do not apply the affine transform to national @DTM:pls, the "before" rows are more informative. However, the after section does show the effect of vertical transform errors on the total difference. The "subset" refers to the cells with and without the values interpolated by us, which may be the same number if no interpolation was applied; both figures already include the removed river mask. The "mean" and "median" help describe the systematic errors of the border region, while the @STD, @RMSE, @MAE, and @NMAD describe the magnitude of the outliers (@tab:general_metrics). The minimum and maximum values indicate the greatest disagreements between the datasets. Furthermore, the "above threshold" shows the amount of cells that do not meet the error threshold, while the "percentage above threshold" describes what percentage of cells that accounts for (@tab:accuracy_metrics).
 
-The remaining attributes are mainly he to determine the reliability of the comparison, and the effectiveness of the coregistration (@tab:coreg_metrics). The "mean $sigma Delta$ h" represents the average uncertainty associated with the elevation differences, while $N_("eff")$ reflects the number of independent observations after accounting for spatial correlation. The "mean $Delta h$/$sigma$" metric describes the magnitude of the differences, relative to the expected random error. Furthermore, the $rho_(1 "km") $ provides an indication of the spatial correlation of the errors at #qty("1", "km") distance, with larger values suggesting that cells exhibit similar error behaviour. Finally, the estimated $Delta X$, $Delta Y$, and $Delta Z$ values quantify the horizontal and vertical corrections determined during coregistration and can help identify systematic offsets between neighbouring datasets. Small values of this shift indicate that the vertical and horizontal @CRS transformations already properly align the two @DTM:pls.
+The remaining attributes are mainly used to determine the reliability of the comparison, and the effectiveness of the coregistration (@tab:coreg_metrics). The "mean $sigma Delta$ h" represents the average uncertainty associated with the elevation differences, while $N_("eff")$ reflects the number of independent observations after accounting for spatial correlation. The "mean $Delta h$/$sigma$" metric describes the magnitude of the differences, relative to the expected random error. Furthermore, the $rho_(1 "km") $ provides an indication of the spatial correlation of the errors at #qty("1", "km") distance, with larger values suggesting that cells exhibit similar error behaviour. Finally, the estimated $Delta X$, $Delta Y$, and $Delta Z$ values quantify the horizontal and vertical corrections determined during coregistration and can help identify systematic offsets between neighbouring datasets. Small values of this shift indicate that the vertical and horizontal @CRS transformations already properly align the two @DTM:pls.
 
 #let headerfill = rgb("e9eef3")
 #let gridcolor = rgb("aab2bb")

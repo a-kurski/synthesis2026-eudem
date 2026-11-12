@@ -151,7 +151,7 @@ Nevertheless, the overall alignment of the @DE-NW and @DE-RP @DTM:pls does compl
 
 === Hessen / Baden-Württemberg
 
-The border between @DE-HE and @DE-BW one of the shorter borders, coming in at roughly #qty("33", "km"). It does however contain some interesting elements such as an exclave of @DE-HE inside of @DE-BW. This exclave does however not appear to contain any notable differences. Furthermore, the elevations in this region range from $90$ metres in the large and relatively flat valley, to nearly $550$ metres in the hills (@fig:Hessen-BW-overview).
+The border between @DE-HE and @DE-BW is one of the shorter borders, coming in at roughly #qty("33", "km"). It does however contain some interesting elements such as an exclave of @DE-HE inside of @DE-BW. This exclave does however not appear to contain any notable differences. Furthermore, the elevations in this region range from $90$ metres in the large and relatively flat valley, to nearly $550$ metres in the hills (@fig:Hessen-BW-overview).
 
 #figure(
   image("assets/Hessen-BW-overview.png",width:40%),
@@ -159,7 +159,7 @@ The border between @DE-HE and @DE-BW one of the shorter borders, coming in at ro
 )
 <fig:Hessen-BW-overview>
 
-The first obvious difference is a bright highlight at the border of the @DTM (@fig:Hessen-BW-Borderartefact). The effect. This artefact is a byproduct of the @DE-BW dataset being cut differently compared to the @DE-HE dataset. Therefore, this difference is an artefact caused by the clipped dataset and not a real physical difference. This effect occurs on all difference analysis @DTM:pls, though it is not always as pronounced as within this comparison.
+The first obvious difference is a bright highlight at the border of the @DTM (@fig:Hessen-BW-Borderartefact). This artefact is a byproduct of the @DE-BW dataset being cut differently compared to the @DE-HE dataset. Therefore, this difference is an artefact caused by the clipped dataset and not a real physical difference. This effect occurs on all difference analysis @DTM:pls, though it is not always as pronounced as within this comparison.
 
 #figure(
   image("assets/Hessen-BW-Borderartifact.png",width:40%),
@@ -207,14 +207,14 @@ A secondary source of differences appears to be the narrow clearings within wood
 )
 <fig:Hessen-BW-clearingEx>
 
-Further artefacts include common elements throughout the catchment @DTM. These include building interpolation differences, quarries/construction sites, and lakes/rivers not caught by the river mask. These errors are expected and can likely only be fixed through the re-extraction of the @DTM, by using both the @DE-HE and @DE-BW point clouds. Nevertheless, the @DE-HE/@DE-BW border falls well within the @INSPIRE threshold, with only 0.06% of points being non-compliant. The alignment of the two @DTM:pls also appears to be accurate, with the coregistration recommending a vertical transform of only $1" cm"$ in vertical direction for the best possible alignment.
+Further artefacts include common elements throughout the catchment @DTM. These include building interpolation differences, quarries/construction sites, and lakes/rivers not caught by the river mask. These errors are expected and can likely only be fixed through the re-extraction of the @DTM, by using both the @DE-HE and @DE-BW point clouds. Nevertheless, the @DE-HE/@DE-BW border falls well within the @INSPIRE threshold, with only 0.06% of points being non-compliant. The alignment of the two @DTM:pls also appears to be accurate, with the coregistration recommending a vertical transform of only $1" cm"$ for the best possible alignment.
 
 === Saarland / Rhineland-Palatinate
 // https://www.welt.de/regionales/rheinland-pfalz-saarland/article205711099/Rheinland-pfaelzische-Landesgrenze-misst-1185-Kilometer.html
 
 The @DE-SL/@DE-RP border is roughly #qty("207", "km") long and consists of mostly hilly terrain. The amount of non-compliant pixels for this area appears slightly higher than that for other regions. However, at 0.15% it is still not a significant amount.
 
-Most errors within this region can be attributed to interpolation errors, temporal changes such as windmill construction or quarries, steep slopes, water bodies missed by the mask, and border artefacts. The only notable difference between the @DE-SL and @DE-RP @DTM:pls, appears to be the inclusion of extrapolation artefacts at the borders, as seen in @fig:Saarland-RLP-Extrapolation1 and @fig:Saarland-RLP-Extrapolation2. These are only two out of several occurrences. These large areas of similar errors do explain the secondary peaks seen within the difference histogram (@fig:Saarland-RLP-Histogram). Upon further inspection, there do also appear to be occurrences of overpasses as discussed in @DE-NW/@DE-RP, and cliffs as discussed in @DE-HE/@DE-BW.
+Most errors within this region can be attributed to interpolation errors, temporal changes such as wind turbine construction or quarries, steep slopes, water bodies missed by the mask, and border artefacts. The only notable difference between the @DE-SL and @DE-RP @DTM:pls, appears to be the inclusion of extrapolation artefacts at the borders, as seen in @fig:Saarland-RLP-Extrapolation1 and @fig:Saarland-RLP-Extrapolation2. These are only two out of several occurrences. These large areas of similar errors do explain the secondary peaks seen within the difference histogram (@fig:Saarland-RLP-Histogram). Upon further inspection, there do also appear to be occurrences of overpasses as discussed in @DE-NW/@DE-RP, and cliffs as discussed in @DE-HE/@DE-BW.
 
 All in all, despite issues with the source data, the quality of the @DTM is not affected, due to the region cutoff at the border for the catchment @DTM.
 
@@ -280,11 +280,11 @@ All in all, despite issues with the source data, the quality of the @DTM is not 
 #pagebreak()
 === Rhineland-Palatinate / Baden-Württemberg
 
-The @DE-RP/@DE-BW border is a very flat region, which is entirely bisected by the Rhine river. The border region is home to several ports, which also created the greatest source of discrepancy. These ports prominently contain piles of sand and coal. Because these sources shift during the loading and unloading of ships (@fig:RLP-BW-Coal).
+The @DE-RP/@DE-BW border is a very flat region, which is entirely bisected by the Rhine river. The border region is home to several ports, which also created the greatest source of discrepancy. These ports prominently contain piles of sand and coal which are moved around during the loading and unloading of ships (@fig:RLP-BW-Coal).
 
-Another source of differences are interpolation errors. These are mostly found around the city of Mannheim. These correspond to building roofs. Furthermore, the tile offset found in several of the other datasets also occurs at the @DE-RP/@DE-BW border, as shown in @fig:RLP-BW-TileOffset. More common differences related to water bodies, overpasses, and construction sites.
+Another source of differences are interpolation errors. These are mostly found around the city of Mannheim. These correspond to building roofs. Furthermore, the tile offset found in several of the other datasets also occurs at the @DE-RP/@DE-BW border, as shown in @fig:RLP-BW-TileOffset. More common differences are related to water bodies, overpasses, and construction sites.
 
-The only notable outlier within the data is the convergence of error similarity at 60%, which is explained by the tile offset. The reason why the percentage is so high is due to the small over all range of elevation differences. Over all, the comparison falls well within the allowed threshold and causes no noticeable issues for the full @DTM.
+The only notable outlier within the data is the convergence of error similarity at 60%, which is explained by the tile offset. The reason why the percentage is so high is due to the small overall range of elevation differences. Overall, the comparison falls well within the allowed threshold and causes no noticeable issues for the full @DTM.
 
 #figure(
   grid(
@@ -319,7 +319,7 @@ The only notable outlier within the data is the convergence of error similarity 
 #pagebreak()
 // === @DE-HE/@DE-BW
 //
-// The border between @DE-HE and @DE-BW one of the shorter borders, coming in at roughly #qty("33", "km"). It does however contain some interesting elements such as an exclave of @DE-HE inside of @DE-BW. This exclave does however not appear to contain any notable differences. Furthermore, the elevations in this region range from $90$ metres in the large and relatively flat valley, to nearly $550$ metres in the hills (@fig:Hessen-BW-overview).
+// The border between @DE-HE and @DE-BW is one of the shorter borders, coming in at roughly #qty("33", "km"). It does however contain some interesting elements such as an exclave of @DE-HE inside of @DE-BW. This exclave does however not appear to contain any notable differences. Furthermore, the elevations in this region range from $90$ metres in the large and relatively flat valley, to nearly $550$ metres in the hills (@fig:Hessen-BW-overview).
 //
 // #figure(
 //   image("assets/Hessen-BW-overview.png",width:40%),
@@ -447,7 +447,7 @@ An interesting artefact is a 0.6m-tall "mound" between Wallau and Bad Laasphe.
 === Hessen / Bavaria
 
 The statistics of the errors along @DE-HE/@DE-BY border are similar to those of @DE-HE/@DE-NW border, but their sources appear to be somewhat different.
-Between @DE-HE and @DE-BY, @RMSE is #qty("0.18", "m") and the @LE90 is 0.10m; the minimum and the maximum errors are #qty("-18.35", "m") and #qty("19.07", "m") respectively.
+Between @DE-HE and @DE-BY, @RMSE is #qty("0.18", "m") and the @LE90 is #qty("0.10", "m"); the minimum and the maximum errors are #qty("-18.35", "m") and #qty("19.07", "m") respectively.
 
 The highest absolute errors can all be traced to temporal changes, specifically the excavation taking place at a single quarry outside Ringheim.
 There are additionally some construction works taking place along the border, but there, the magnitude of the errors there is lower.
@@ -463,10 +463,10 @@ There are additionally some construction works taking place along the border, bu
   caption: [Elevation differences caused by temporal artefacts between DE-HE and DE-BY.],
 ) <fig:hessen-bavaria-forest>
 
-More noteworthy are the small (typically around 0.3--0.5m) differences in rural, especially forested, areas.
+More noteworthy are the small (typically around 0.3--#qty("0.5", "m")) differences in rural, especially forested, areas.
 These are areas of difference which appear to correspond to linear features in the landscape such as roads, streams, or edges between a forest and an open field. These are likely consequences of the approaches to ground and vegetation classification employed by the different data providers.
 
-Examining the @DE-BY point cloud reveal that all points in the relevant tile are strictly classified into ground (2) and "objects" (20); as well as scan patterns and non-uniform point distribution, largely due to shadowing from trees.
+Examining the @DE-BY point cloud reveals that all points in the relevant tile are strictly classified into ground (2) and "objects" (20); as well as scan patterns and non-uniform point distribution, largely due to shadowing from trees.
 Due to lack of open point cloud data in @DE-HE, the comparison between two states is impossible.
 
 #figure(
@@ -481,7 +481,7 @@ Due to lack of open point cloud data in @DE-HE, the comparison between two state
 
 Another detail evident from the comparison is the difference in approach to estimating the elevation of the water surface.
 @DE-HE appears to be relying on the data about the water surface obtained from the point cloud~--- the surface does not appear to be perfectly smooth and seems to contain small artefacts.
-@DE-BY instead uses Delaunay triangulation, seemingly based on the lowest point along the coastline of the water body.
+@DE-BY instead uses Delaunay triangulation, seemingly based on the lowest point along the shoreline of the water body.
 
 #figure(
   grid(
@@ -560,8 +560,8 @@ It is unclear what the elevation of the southwest extreme point is based on.
   caption: [Interpolation artefact by DE-HE.],
 )
 
-Systematic errors can be observed throughout the region where, especially on hilly terrain, there is a relatively consistent 5--20cm difference between the two @DTM:pla.
-There are several visible borders between in the difference map where two tiles meet, which likely point at either a different ground filtering algorithm or a misalignment between two different surveys carried out by the same provider.
+Systematic errors can be observed throughout the region where, especially on hilly terrain, there is a relatively consistent 5--#qty("20", "cm") difference between the two @DTM:pla.
+There are visible seams in the difference map where two tiles meet, which likely point at either a different ground filtering algorithm or a misalignment between two different surveys carried out by the same provider.
 The hilly terrain makes it impossible to confidently conclude which of the data providers is responsible for this error based on raster data alone.
 
 #figure(
@@ -784,7 +784,7 @@ Further examining the uncertainty pattern of the border region further supports 
 )
 <fig:Lux_Fra_Rumelange_uncertainty>
 
-Influence of the slope on the can also be observed directly from the @RMSE analysis (@fig:Lux_Fra_Rumelange_slope). Areas with a slope above 5 degrees have an @RMSE surpassing #qty("4", "m"). This behaviour deviates from most other border regions where the RMSE gradually increases with slope. The result suggests that the steep terrain is one of the dominant causes of disagreement between the two @DTM:pls.
+Influence of the slope on the @RMSE can also be observed directly from the @RMSE analysis (@fig:Lux_Fra_Rumelange_slope). Areas with a slope above 5 degrees have an @RMSE surpassing #qty("4", "m"). This behaviour deviates from most other border regions where the RMSE gradually increases with slope. The result suggests that the steep terrain is one of the dominant causes of disagreement between the two @DTM:pls.
 
 #figure(
   image("assets/slope_rmse_france_luxembourg.png",width:60%),
@@ -792,10 +792,10 @@ Influence of the slope on the can also be observed directly from the @RMSE analy
 )
 <fig:Lux_Fra_Rumelange_slope>
 
-Further artefacts within the region do more closely correspond with the rest of Luxembourg and the border regions in general. These include building interpolation differences, narrow streams not captured by the river mask, and isolated quarry or construction areas. This region does not comply with the thresholds set within @chap:method, with 23% of all points surpassing the threshold. Furthermore, the resolution would need to be increased by over 80% to nearly #qty("10", "m") for compliance with the @INSPIRE target. As alluded to earlier, this difference may be a byproduct of the low resolution @DTM compared to the fine resolution of the Luxembourg @DTM, which has introduced resampling differences. While outside of the time constraint of the project, evaluating the results of the comparison against the higher resolution French @DTM could result in better alignment. Alternatively, re-extraction from the national point clouds could also be a way to rectify these differences.
+Further artefacts within the region do more closely correspond with the rest of Luxembourg and the border regions in general. These include building interpolation differences, narrow streams not captured by the river mask, and isolated quarry or construction areas. This region does not comply with the thresholds set within @chap:method, with 23% of all points surpassing the threshold. Furthermore, the resolution would need to be increased by over 80% to nearly #qty("10", "m") for compliance with the @INSPIRE target. As alluded to earlier, this difference may be a byproduct of the low-resolution @DTM compared to the fine resolution of the Luxembourg @DTM, which has introduced resampling differences. While outside of the time constraint of the project, evaluating the results of the comparison against the higher resolution French @DTM could result in better alignment. Alternatively, re-extraction from the national point clouds could also be a way to rectify these differences.
 
 === Luxembourg / Rhineland-Palatinate
-The @LU/@DE-RP border is roughly #qty("80", "km") long. On the east side of the overlapping area there is the Our river. Observing the overlap map shows that the rivermask was not successful at filtering out the water bodies entirely for the region. This is a known artefact known to be caused by narrow water bodies. Furthermore, these river areas have been flagged as noticeable differences and due count towards the difference at the border.
+The @LU/@DE-RP border is roughly #qty("80", "km") long. On the east side of the overlapping area there is the Our river. Observing the overlap map shows that the rivermask was not successful at filtering out the water bodies entirely for the region. This is a known artefact caused by narrow water bodies. Furthermore, these river areas have been flagged as noticeable differences and count towards the difference at the border.
 
 Other differences in this region are in line with the other borders surrounding Luxembourg, such as river ports with piled resources, steep cliffs, construction areas and building interpolation differences. The only real artefact that shows up on the histogram, is a singular secondary peak. Observing the difference @DTM, shows that this is caused by a lake, which was missed by the river mask. This is illustrated in @fig:Lux-rlp-peak as a peak starting at #qty("700", "m"). The border effect graph also clearly illustrates the difference at the border river.
 
@@ -810,7 +810,7 @@ The border area between Luxembourg and @DE-SL is roughly #qty("11", "km") and li
 
 This region contains several of the more common differences encountered in other regions can also be found here. This includes harbour loading areas for sand, steep cliffs, construction sites, water bodies not entirely caught by the river mask, and roof interpolation differences.
 
-The only unique error found around this area is the inclusion of hydroelectric power plants. While this difference can really be attributed to the limits of the river mask, it is an interesting feature within the water which could pose a challenge to solve, were improving the river mask to be attempted, as the water here does not follow the smooth water hypothesis. Furthermore, the decision would need to be made if the plant should be removed entirely. This depends on whether all countries model this feature in their @DTM, or simply classify it as part of the river, removing it from the @DTM entirely.
+The only unique error found around this area is the inclusion of hydroelectric power plants. While this difference can really be attributed to the limits of the river mask, it is an interesting feature within the water which could pose a challenge to solve should improving the river mask be attempted as the water here does not follow the smooth water hypothesis. Furthermore, the decision would need to be made if the plant should be removed entirely. This depends on whether all countries model this feature in their @DTM, or simply classify it as part of the river, removing it from the @DTM entirely.
 
 #figure(
   grid(
@@ -832,7 +832,7 @@ The only unique error found around this area is the inclusion of hydroelectric p
       ]
     ],
   ),
-  caption: "Rivermask failure where the mask is not continuous due to a hydroelectric power plant.",
+  caption: "River mask failure where the mask is not continuous due to a hydroelectric power plant.",
 )
 <fig:Lux-Saarland-Hydro>
 
@@ -957,7 +957,7 @@ The spatial overview in @fig:rlp-france-spatial distinguishes broad patterns of 
 #block(breakable: false)[
   #figure(
     image("assets/rlp_france_spatial.png", width: 100%),
-    caption: [DE-RP minus FR: saved elevation differences. From top to bottom: mean signed difference, RMSE, and percentage of compared area exceeding #qty("1.667", "m"). Numbers identify the five largest supplied problem regions. Extreme values go over the displayed limits by the colour scheme.],
+    caption: [DE-RP minus FR: saved elevation differences. From top to bottom: mean signed difference, RMSE, and percentage of compared area exceeding #qty("1.667", "m"). Numbers identify the five largest problem regions. Extreme values go over the displayed limits by the colour scheme.],
   ) <fig:rlp-france-spatial>
 ]
 

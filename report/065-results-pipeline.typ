@@ -2,7 +2,7 @@
 #import "@preview/drafting:0.2.2"
 
 During this project, we have created an automated pipeline which can process, aggregate, and compare national gridded elevation products.
-The code has been executed on the server which has a CPU with 128 threads and a maximum clock speed of 2900 MHz, and #qty("512", "GB") RAM.
+The code has been executed on a server which has a CPU with 128 threads and a maximum clock speed of 2900 MHz, and #qty("512", "GB") RAM.
 The server was shared with other members of the research group; we cannot guarantee that we had access to its full resources at all times.
 The pipeline has been run utilising 64 threads; in 4 parallel processes for individual @DTM rasters, and sequential processing for river mask extraction and border pair comparison.
 We have attempted parallel processing for river mask and comparison; however, we found that both tasks have high memory demands which would result in some, especially larger, regions being skipped if sufficient memory could not be allocated.
@@ -12,7 +12,7 @@ Note that these times are for a single run of the full pipeline, starting on 202
 
 If the associated `.json` file is configured properly, the code can be executed in full and produce the desired outcome.
 However, the pipeline and the `.json` needed to be modified several times to account for the unforeseen errors.
-The pipeline was first tested on Netherlands and @DE-NW to ensure individual components are integrated, and it was subsequently run in full.
+The pipeline was first tested on the Netherlands and @DE-NW to ensure individual components are integrated, and it was subsequently run in full.
 During the full runs, several issues were discovered and patched.
 
 The first of these was that @DE-HE publishes data by administrative unit; for some of these units, `NoData` is represented with a 0 value but the value is not encoded in the metadata.
@@ -22,7 +22,7 @@ Similar behaviour was observed in @DE-RP, where the CRS was not consistently des
 This behaviour has been patched by force-assigning a horizontal and vertical CRS and a `NoData` value for each region.
 
 Issues with `NoData` value not declared were also observed in @DE-BW.
-These are mostly resolved except for several tiles overlapping with @DE-BY, where `NoData` issue persists.
+These are mostly resolved except for several tiles overlapping with @DE-BY, where the `NoData` issue persists.
 We acknowledge these issues within the analysis of the border regions, but resolving them was deemed to be of low priority given the time constraints.
 
 During the later runs, we observed that large parts of the Netherlands and France were absent from the final product.
