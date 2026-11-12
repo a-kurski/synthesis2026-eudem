@@ -45,3 +45,8 @@ Of the 17 evaluated border pairs, 15 meet the INSPIRE guidance for vertical accu
 @DE-HE/@DE-RP and @DE-BY/@DE-BW border pairs have higher RMSE due to errors with interpolation and `NoData` values~--- however, these areas fall outside of the extent of their corresponding region and therefore are not present in the product.
 The French national elevation product appears to be using a global interpolation function on some of the terrain which also results in high error rate and does have an effect on the quality of the product.
 Based on border region comparison alone, it is impossible to evaluate the exact magnitude of these errors.
+
+#figure(
+    image("assets/High_ress_render.png", width: 90%),
+    caption: [3D Render of the Rhine Catchment DTM. Elevation is exaggerated by a factor of 10.]
+)<fig:final_dtm_3d>

@@ -4,15 +4,10 @@ The pipeline successfully produces a DTM of the Rhine catchment area, shown in @
 
 #figure(
     image("assets/whole_dtm_with_legend.png", width: 70%),
-    caption: [Finalised Rhine Catchment DTM.]
+    caption: [Rhine Catchment DTM.]
 )<fig:final_dtm>
 
 The final DTM is stored as a Cloud-Optimized GeoTIFF file which occupies 17.5 GB of disk space. The final DTM uses ETRS89 / LAEA Europe (EPSG:3035) as its CRS, with a resolution of 5 m and elevation values stored as Float32. The minimum elevation is -324.90 m, occurring in a quarry in @DE-NW, while the maximum of 4,272.68 m occurs in the Swiss Alps. The mean elevation is 452.32 m, and the elevation range is 4,597.58 m.
-
-#figure(
-    image("assets/High_ress_render.png", width: 90%),
-    caption: [Finalised Rhine Catchment DTM 3D render. Elevation is exaggerated by a factor of 10.]
-)<fig:final_dtm_3d>
 
 The DTM covers 97.33% (159284.05 km#super[2] or 6371361919 cells out of 163645.59 km#super[2] or 6545823685 cells) of the catchment area, for an omission rate of 2.67 %.
 The omission rate can be attributed exclusively to the missing regions (Austria, Belgium, and Thüringen) and `NoData` values within the Dutch dataset.

@@ -29,7 +29,13 @@
   ),
 )
 
-#show link: set text(fill: blue)
+#show link: it => {
+  if type(it.dest) == str {
+    text(fill: blue, it)
+  } else {
+    it
+  }
+}
 
 #include "000-front-matter.typ"
 #counter(page).update(0)
@@ -45,6 +51,7 @@
   it
 }
 
+#set par(justify: true)
 #include "010-Abstract.typ"
 #include "015-acknowledgements.typ"
 
