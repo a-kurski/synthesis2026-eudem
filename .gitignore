@@ -13,7 +13,9 @@ report/*.pdf
 *.nbi
 *.tmp
 .codebook.toml
-qgis/*
+/qgis/*
 .idea
 .vscode
 .DS_Store
+/project-description/
+/lit-notes/
