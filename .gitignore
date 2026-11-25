@@ -12,3 +12,6 @@ report/*.pdf
 *.nbc
 *.nbi
 *.tmp
+.codebook.toml
+qgis/*
+*.pdf
