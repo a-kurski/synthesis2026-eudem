@@ -14,4 +14,3 @@ report/*.pdf
 *.tmp
 .codebook.toml
 qgis/*
-*.pdf
