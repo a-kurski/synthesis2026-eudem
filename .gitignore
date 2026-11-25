@@ -15,4 +15,4 @@ report/*.pdf
 .codebook.toml
 qgis/*
 .idea
-.gitignore
+.vscode
