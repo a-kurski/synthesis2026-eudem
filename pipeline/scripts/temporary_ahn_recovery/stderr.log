@@ -1,0 +1,77 @@
+2026-10-04 21:05:17,610 INFO Reading every block of completed alignment raster for validation
+2026-10-04 21:05:27,127 INFO Validated recovery source C:\Users\ardab\OneDrive - Delft University of Technology\Desktop\Synthesis Project\EU-DEM\initial_dtm_comparison\dtm_comparison_workspace\data\netherlands\2026-10-04_17-18-55\processed\_work\aligned\ahn_resampled_with_context.tif; SHA256=39524d2f295f8ee0d06f68ac3f9c1d5f9e8866681cc91cec32ff058fcca6b06a; bounded search=100 m
+2026-10-04 21:05:27,671 INFO RECOVERY RUN 2026-10-04_21-05-27: skipping acquisition, cleaning, mosaic and warp
+2026-10-04 21:05:27,676 INFO Recovery: copying the target window from completed alignment
+2026-10-04 21:06:15,440 INFO Recovery: restarting filling with bounded nearest search
+Warning 1: DeprecationWarning: 'Memory' driver is deprecated since GDAL 3.11. Use 'MEM' onwards. Further messages of this type will be suppressed.
+2026-10-04 21:06:27,555 INFO Recovery process alive; CPU time 69.7 seconds
+2026-10-04 21:07:27,557 INFO Recovery process alive; CPU time 128.0 seconds
+2026-10-04 21:07:40,873 INFO AHN hole filling started
+2026-10-04 21:07:40,874 INFO AHN hole filling: 0%; 0.0 seconds
+2026-10-04 21:07:42,621 INFO AHN hole filling: 5%; 1.8 seconds
+2026-10-04 21:07:44,358 INFO AHN hole filling: 10%; 3.5 seconds
+2026-10-04 21:07:46,499 INFO AHN hole filling: 15%; 5.6 seconds
+2026-10-04 21:07:48,873 INFO AHN hole filling: 20%; 8.0 seconds
+2026-10-04 21:07:51,552 INFO AHN hole filling: 25%; 10.7 seconds
+2026-10-04 21:07:54,049 INFO AHN hole filling: 30%; 13.2 seconds
+2026-10-04 21:07:56,866 INFO AHN hole filling: 35%; 16.0 seconds
+2026-10-04 21:07:59,342 INFO AHN hole filling: 40%; 18.5 seconds
+2026-10-04 21:08:01,846 INFO AHN hole filling: 45%; 21.0 seconds
+2026-10-04 21:08:04,120 INFO AHN hole filling: 50%; 23.2 seconds
+2026-10-04 21:08:12,099 INFO AHN hole filling: 55%; 31.2 seconds
+2026-10-04 21:08:19,953 INFO AHN hole filling: 60%; 39.1 seconds
+2026-10-04 21:08:27,562 INFO Recovery process alive; CPU time 186.8 seconds
+2026-10-04 21:08:27,952 INFO AHN hole filling: 65%; 47.1 seconds
+2026-10-04 21:08:35,244 INFO AHN hole filling: 70%; 54.4 seconds
+2026-10-04 21:08:45,121 INFO AHN hole filling: 75%; 64.2 seconds
+2026-10-04 21:08:55,576 INFO AHN hole filling: 80%; 74.7 seconds
+2026-10-04 21:09:06,366 INFO AHN hole filling: 85%; 85.5 seconds
+2026-10-04 21:09:17,467 INFO AHN hole filling: 90%; 96.6 seconds
+2026-10-04 21:09:27,574 INFO Recovery process alive; CPU time 245.0 seconds
+2026-10-04 21:09:29,450 INFO AHN hole filling: 95%; 108.6 seconds
+2026-10-04 21:09:40,759 INFO AHN hole filling: 100%; 119.9 seconds
+2026-10-04 21:09:40,955 INFO AHN hole filling finished in 120.1 seconds
+2026-10-04 21:10:27,583 INFO Recovery process alive; CPU time 303.2 seconds
+2026-10-04 21:11:27,607 INFO Recovery process alive; CPU time 361.4 seconds
+2026-10-04 21:12:00,150 INFO AHN nearest fallback started
+2026-10-04 21:12:00,158 INFO AHN nearest fallback: 0%; 0.0 seconds
+2026-10-04 21:12:02,230 INFO AHN nearest fallback: 5%; 2.1 seconds
+2026-10-04 21:12:04,490 INFO AHN nearest fallback: 10%; 4.3 seconds
+2026-10-04 21:12:07,305 INFO AHN nearest fallback: 15%; 7.2 seconds
+2026-10-04 21:12:10,357 INFO AHN nearest fallback: 20%; 10.2 seconds
+2026-10-04 21:12:13,516 INFO AHN nearest fallback: 25%; 13.4 seconds
+2026-10-04 21:12:16,776 INFO AHN nearest fallback: 30%; 16.6 seconds
+2026-10-04 21:12:20,100 INFO AHN nearest fallback: 35%; 20.0 seconds
+2026-10-04 21:12:23,476 INFO AHN nearest fallback: 40%; 23.3 seconds
+2026-10-04 21:12:26,753 INFO AHN nearest fallback: 45%; 26.6 seconds
+2026-10-04 21:12:27,621 INFO Recovery process alive; CPU time 420.5 seconds
+2026-10-04 21:12:29,856 INFO AHN nearest fallback: 50%; 29.7 seconds
+2026-10-04 21:13:02,965 INFO AHN nearest fallback: 55%; 62.8 seconds
+2026-10-04 21:13:27,644 INFO Recovery process alive; CPU time 478.6 seconds
+2026-10-04 21:13:35,477 INFO AHN nearest fallback: 60%; 95.3 seconds
+2026-10-04 21:14:03,922 INFO AHN nearest fallback: 65%; 123.8 seconds
+2026-10-04 21:14:27,651 INFO Recovery process alive; CPU time 537.3 seconds
+2026-10-04 21:14:30,648 INFO AHN nearest fallback: 70%; 150.5 seconds
+2026-10-04 21:14:58,719 INFO AHN nearest fallback: 75%; 178.6 seconds
+2026-10-04 21:15:27,110 INFO AHN nearest fallback: 80%; 207.0 seconds
+2026-10-04 21:15:27,671 INFO Recovery process alive; CPU time 595.4 seconds
+2026-10-04 21:15:57,070 INFO AHN nearest fallback: 85%; 236.9 seconds
+2026-10-04 21:16:27,692 INFO Recovery process alive; CPU time 654.2 seconds
+2026-10-04 21:16:28,467 INFO AHN nearest fallback: 90%; 268.3 seconds
+2026-10-04 21:17:03,664 INFO AHN nearest fallback: 95%; 303.5 seconds
+2026-10-04 21:17:27,703 INFO Recovery process alive; CPU time 713.0 seconds
+2026-10-04 21:17:39,446 INFO AHN nearest fallback: 100%; 339.3 seconds
+2026-10-04 21:17:39,620 INFO AHN nearest fallback finished in 339.5 seconds
+2026-10-04 21:18:17,937 INFO Recovery: masking baseline and filled outputs
+2026-10-04 21:18:27,720 INFO Recovery process alive; CPU time 771.6 seconds
+2026-10-04 21:19:27,735 INFO Recovery process alive; CPU time 830.3 seconds
+2026-10-04 21:20:27,751 INFO Recovery process alive; CPU time 889.4 seconds
+2026-10-04 21:21:27,772 INFO Recovery process alive; CPU time 948.1 seconds
+2026-10-04 21:22:27,785 INFO Recovery process alive; CPU time 1006.6 seconds
+2026-10-04 21:23:27,802 INFO Recovery process alive; CPU time 1065.3 seconds
+2026-10-04 21:24:27,823 INFO Recovery process alive; CPU time 1123.6 seconds
+2026-10-04 21:24:50,770 INFO Recovery: publishing final tiles and stitched COG
+2026-10-04 21:25:27,834 INFO Recovery process alive; CPU time 1179.3 seconds
+2026-10-04 21:26:27,835 INFO Recovery process alive; CPU time 1234.8 seconds
+2026-10-04 21:27:27,844 INFO Recovery process alive; CPU time 1309.3 seconds
+2026-10-04 21:28:06,023 INFO RECOVERY COMPLETE: C:\Users\ardab\OneDrive - Delft University of Technology\Desktop\Synthesis Project\EU-DEM\initial_dtm_comparison\dtm_comparison_workspace\data\netherlands\2026-10-04_21-05-27\stitched\ahn.tif; remaining AOI NoData cells=1844528

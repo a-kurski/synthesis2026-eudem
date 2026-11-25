@@ -1,0 +1,2 @@
+2026-10-04 21:04:13,100 INFO Reading every block of completed alignment raster for validation
+2026-10-04 21:04:26,699 INFO Validated recovery source C:\Users\ardab\OneDrive - Delft University of Technology\Desktop\Synthesis Project\EU-DEM\initial_dtm_comparison\dtm_comparison_workspace\data\netherlands\2026-10-04_17-18-55\processed\_work\aligned\ahn_resampled_with_context.tif; SHA256=39524d2f295f8ee0d06f68ac3f9c1d5f9e8866681cc91cec32ff058fcca6b06a; bounded search=100 m

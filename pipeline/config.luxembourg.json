@@ -1,0 +1,22 @@
+{
+  "country": "luxembourg",
+  "enabled": true,
+  "aoi": "country_masks/Luxembourg.gpkg",
+  "country_mask": "country_masks/Luxembourg.gpkg",
+  "layer": null,
+  "cache_root": "data",
+  "output_root": "data",
+  "logs_dir": "logs/preparation",
+  "reuse_cache": true,
+  "processed_tile_size_pixels": 1000,
+  "hole_filling": {"enabled": false},
+  "target": {"epsg": 25832, "resolution": 5, "reference_raster": null},
+  "source": {
+    "type": "local_cog",
+    "path": "MNT_Lidar2024.tif",
+    "url": "https://download.data.public.lu/resources/bd-l-lidar2024-releve-3d-du-territoire-luxembourgeois/20241223-093912/MNT_Lidar2024.tif",
+    "version": "LiDAR 2024 / 2024-12-23",
+    "epsg": 2169,
+    "resolution": 0.5
+  }
+}
