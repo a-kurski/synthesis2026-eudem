@@ -16,3 +16,4 @@ report/*.pdf
 qgis/*
 .idea
 .vscode
+.DS_Store
