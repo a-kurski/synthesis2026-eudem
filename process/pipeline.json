@@ -11,7 +11,7 @@
     "threads": 64,
     "region_workers": 4,
     "warp_memory_mb": 16384,
-    "output_dir": "../../local/data",
+    "output_dir": "../local/data",
     "skip_missing": true,
     "qgis_root": null,
     "product_name": "rhine_dtm.tif",
