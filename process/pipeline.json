@@ -54,7 +54,7 @@
   "regions": {
     "netherlands": {
       "vector": "masks/NL.gpkg",
-      "raster": "../../../ardabaysal/pipeline/data/netherlands/raw_tiles/*.tif",
+      "raster": "../acquire/data/netherlands/raw_tiles/*.tif",
       "point_clouds": null,
       "crs": 28992,
       "vertical_crs": 5709,
@@ -64,7 +64,7 @@
     },
     "germany_nrw": {
       "vector": "masks/DE-NW.gpkg",
-      "raster": "../../../ardabaysal/pipeline/data/germany/nrw/raw_tiles/*.tif",
+      "raster": "../acquire/data/germany/nrw/raw_tiles/*.tif",
       "point_clouds": null,
       "crs": 25832,
       "vertical_crs": 7837,
@@ -74,7 +74,7 @@
     },
     "germany_rlp": {
       "vector": "masks/DE-RP.gpkg",
-      "raster": "../../../ardabaysal/pipeline/data/germany/rlp/raw_tiles/*.tif",
+      "raster": "../acquire/data/germany/rlp/raw_tiles/*.tif",
       "point_clouds": null,
       "crs": 25832,
       "vertical_crs": 7837,
@@ -84,7 +84,7 @@
     },
     "germany_saarland": {
       "vector": "masks/DE-SL.gpkg",
-      "raster": "../../../ardabaysal/pipeline/data/germany/saarland/raw_tiles/*.tif",
+      "raster": "../acquire/data/germany/saarland/raw_tiles/*.tif",
       "point_clouds": null,
       "crs": 25832,
       "vertical_crs": 7837,
@@ -94,7 +94,7 @@
     },
     "germany_hessen": {
       "vector": "masks/DE-HE.gpkg",
-      "raster": "../../../ardabaysal/pipeline/data/germany/hessen/raw_tiles/*.tif",
+      "raster": "../acquire/data/germany/hessen/raw_tiles/*.tif",
       "point_clouds": null,
       "crs": 25832,
       "vertical_crs": 7837,
@@ -104,7 +104,7 @@
     },
     "germany_bw": {
       "vector": "masks/DE-BW.gpkg",
-      "raster": "../../../ardabaysal/pipeline/data/germany/bw/raw_tiles/*.tif",
+      "raster": "../acquire/data/germany/bw/raw_tiles/*.tif",
       "point_clouds": null,
       "crs": 25832,
       "vertical_crs": 7837,
@@ -115,7 +115,7 @@
     },
     "germany_bavaria": {
       "vector": "masks/DE-BY.gpkg",
-      "raster": "../../../ardabaysal/pipeline/data/germany/bavaria/raw_tiles/*.tif",
+      "raster": "../acquire/data/germany/bavaria/raw_tiles/*.tif",
       "point_clouds": null,
       "crs": 25832,
       "vertical_crs": 7837,
@@ -125,7 +125,7 @@
     },
     "france": {
       "vector": "masks/FR.gpkg",
-      "raster": "../../../ardabaysal/pipeline/data/France/raw_tiles/**/*.asc",
+      "raster": "../acquire/data/France/raw_tiles/**/*.asc",
       "point_clouds": null,
       "crs": 2154,
       "vertical_crs": 5720,
@@ -136,7 +136,7 @@
     },
     "luxembourg": {
       "vector": "masks/LU.gpkg",
-      "raster": "../../../ardabaysal/pipeline/data/luxembourg/raw_tiles/MNT_Lidar2024.tif",
+      "raster": "../acquire/data/luxembourg/raw_tiles/MNT_Lidar2024.tif",
       "point_clouds": null,
       "crs": 2169,
       "vertical_crs": null,
@@ -146,7 +146,7 @@
     },
     "switzerland": {
       "vector": "masks/CH.gpkg",
-      "raster": "../../../ardabaysal/pipeline/data/switzerland/raw_tiles/*.tif",
+      "raster": "../acquire/data/switzerland/raw_tiles/*.tif",
       "point_clouds": null,
       "crs": 2056,
       "vertical_crs": 5728,
@@ -156,7 +156,7 @@
     },
     "liechtenstein": {
       "vector": "masks/LI.gpkg",
-      "raster": "../../../ardabaysal/pipeline/data/switzerland/raw_tiles/*.tif",
+      "raster": "../acquire/data/switzerland/raw_tiles/*.tif",
       "point_clouds": null,
       "crs": 2056,
       "vertical_crs": 5728,
