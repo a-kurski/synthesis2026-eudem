@@ -42,30 +42,30 @@ export PROJ_NETWORK=ON                 # let PROJ fetch the height-transformatio
 GDAL and its Python bindings _must_ come from conda-forge, not pip. On Windows, the entry points re-launch themselves in the Python of a QGIS installation (the `qgis_root` in the config, `OSGEO4W_ROOT`, or any QGIS found under `C:\Program Files`) instead of the conda environment.
 
 ## Running
-
-Rasters and vector files (`*.tif`, `*.gpkg`) are not in the repository. `process/get_osm_masks.py` regenerates the region outlines from OpenStreetMap. The data paths in `process/pipeline.json` point to the team's server, so adjust them before a run.
-
+ 
+The region outlines, catchment extent and border lines are in `process/masks/`. Rasters (`*.tif`) are not in the repository: `process/pipeline.json` reads the tiles that step 1 downloads into `acquire/data/`, and expects the water-mask rasters (`river_seeds`) in `process/water-masks/`.
+ 
 ```bash
 # 1. Acquire the source tiles (cached in acquire/data/<region>/raw_tiles/)
 cd acquire
 python main.py config.netherlands.json --plan    # offline: show what would be downloaded
 python main.py config.netherlands.json --yes     # download and prepare; repeat for each config.*.json
-
+ 
 # 2. Merge them into one DTM and compare the borders
 cd ../process
 python main.py pipeline.json                     # vectors → rasters → rivers → overlaps → assemble
 python -m dtm.comparison pipeline.json           # border statistics, plots and uncertainty
 ```
-
+ 
 Both steps resume: a rerun skips work that is already finished.
-
+ 
 Tests run offline on small synthetic data:
-
+ 
 ```bash
 (cd acquire && python -m unittest discover tests)
 (cd process && python -m unittest discover tests)
 ```
-
+ 
 To build the report, run `typst compile report/main.typ`.
 
 ## Licence
