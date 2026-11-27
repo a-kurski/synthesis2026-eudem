@@ -1,0 +1,46 @@
+# One conda environment for the whole repository: acquire/, process/ and report/.
+#
+#   conda env create -f environment.yml        (or: mamba / micromamba create -f environment.yml)
+#   conda activate eudem
+#
+# Everything comes from conda-forge. Do not pip install GDAL: its Python bindings must match
+# the GDAL library and the command-line tools (gdalwarp, gdalbuildvrt, gdal_translate) that
+# both workflows call.
+name: eudem
+channels:
+  - conda-forge
+  - nodefaults
+dependencies:
+  # 3.12 is the newest Python with conda-forge builds of scikit-gstat
+  - python=3.12
+
+  # Core: GDAL >= 3.8 with Python bindings and CLI tools (conda-forge's build reads LERC tiles),
+  # PROJ with projinfo/projsync for the vertical transformations
+  - gdal>=3.8
+  - proj
+  - numpy>=1.24
+  - scipy>=1.10
+  - tqdm>=4.66
+
+  # acquire/: downloads from the national and state portals
+  - requests>=2.31
+  - python-tzdata
+
+  # process/: river masks, pairwise comparison, check_*.py scripts
+  - xdem>=0.2            # the default uncertainty variables use xdem.terrain.max_curvature (0.2+)
+  - geoutils
+  - scikit-gstat         # variograms in xdem's uncertainty workflow
+  - rasterio
+  - numba
+  - geopandas
+  - pandas
+  - matplotlib-base
+  - shapely
+  - pyproj
+  - affine
+
+  # Optional: process/get_osm_masks.py (region outlines from OpenStreetMap)
+  - osmnx
+
+  # Optional: build the report (typst compile report/main.typ)
+  - typst

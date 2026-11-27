@@ -20,7 +20,7 @@ A user-configurable automated pipeline that assembles a harmonised gridded digit
 - A 5 m DTM in ETRS89-LAEA (EPSG:3035) with EVRF2007 heights (EPSG:5621), stored as a Cloud-Optimised GeoTIFF, plus a river mask on the same grid.
 - Covers Switzerland, Liechtenstein, France, Luxembourg, the Netherlands and the German states of Bavaria, Baden-Württemberg, Hessen, Rhineland-Palatinate, Saarland and North Rhine-Westphalia. That is 97.33 % of the catchment, an omission rate of 2.67 %. The Austrian, Belgian, Italian and Thuringian elevation data are missing.
 - The source data is kept as-found: no cross-border smoothing or feathering are applied. 
-- 15 of the 17 border pairs meet the INSPIRE requirement for vertical accuracy, with a mean RMSE of 0.50 m against the 1.67 m. Errors are best explained by differences in acquisition and processing employed by the data provider.
+- 15 of the 17 border pairs meet the INSPIRE requirement for vertical accuracy, with a mean RMSE of 0.50 m against the 1.67 m target. Errors are best explained by differences in acquisition and processing employed by the data provider.
 
 ## Repository layout
 
